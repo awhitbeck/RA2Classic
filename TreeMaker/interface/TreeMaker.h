@@ -1,7 +1,7 @@
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id$
+// $Id: TreeMaker.h,v 1.1 2012/07/30 16:42:17 mschrode Exp $
 //
 //
 
@@ -30,7 +30,7 @@
 class TreeMaker : public edm::EDAnalyzer {
 public:
   explicit TreeMaker(const edm::ParameterSet&);
-  ~TreeMaker();
+  ~TreeMaker() {};
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
@@ -50,12 +50,21 @@ private:
   TString treeName_;
   TTree* tree_;
 
+  UInt_t runNum_;      
+  UInt_t lumiBlockNum_;
+  UInt_t evtNum_;      
   edm::InputTag vertexCollectionTag_;
   UShort_t nVtx_;
   edm::InputTag htTag_;
   Float_t ht_;
   edm::InputTag mhtTag_;
   Float_t mht_;
+  edm::InputTag htJetsTag_;
+  UShort_t nJets_;
+  Float_t jet1Pt_, jet2Pt_, jet3Pt_;
+  Float_t jet1Eta_, jet2Eta_, jet3Eta_;
+  edm::InputTag mhtJetsTag_;
+  Float_t deltaPhi1_, deltaPhi2_, deltaPhi3_;
 };
 
 #endif
