@@ -10,7 +10,8 @@
   - "RunNum": run number (UInt_t)
   - "LumiBlockNum": luminosity block number (UInt_t)
   - "EvtNum": event number (UInt_t)
-  - "NumVtx": number of vertices (UShort_t)
+  - "Weight": event weight (Float_t)
+  - "NVtx": number of vertices (UShort_t)
   - "HT": HT (Float_t)
   - "NJets": number of jets (UShort_t)
   - "Jet?Pt": pt of jet ?, where ? = 1,2,3 (Float_t)
@@ -20,7 +21,7 @@
 
  The following input parameters control how the above variables
  are computed from the information stored in the event:
-  - "VertexCollection": collection from which "NumVtx" is determined
+  - "VertexCollection": collection from which "NVtx" is determined
   - "HT": the value of HT. This is taken from the event and not
           computed by the TreeMaker.
   - "HTJets": jet collection that has been used to compute HT. The
@@ -36,7 +37,7 @@
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id: TreeMaker.cc,v 1.1 2012/07/30 16:42:17 mschrode Exp $
+// $Id: TreeMaker.cc,v 1.2 2012/07/31 12:03:34 mschrode Exp $
 //
 //
 
@@ -64,6 +65,7 @@ TreeMaker::TreeMaker(const edm::ParameterSet& iConfig)
 
   // Read parameter values
   treeName_ = iConfig.getParameter<std::string>("TreeName");
+  weightTag_ = iConfig.getParameter<edm::InputTag>("Weight");
   vertexCollectionTag_ = iConfig.getParameter<edm::InputTag>("VertexCollection");
   htJetsTag_ = iConfig.getParameter<edm::InputTag>("HTJets");
   htTag_ = iConfig.getParameter<edm::InputTag>("HT");
@@ -88,6 +90,13 @@ TreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   runNum_       = aux.run();
   lumiBlockNum_ = aux.luminosityBlock();
   evtNum_       = aux.event();
+  
+  // Event weight
+  edm::Handle<double> weight;
+  iEvent.getByLabel(weightTag_,weight);
+  if( weight.isValid() ) {
+    weight_ = *weight;
+  }
 
   // Number of vertices
   edm::Handle<reco::VertexCollection> vertices;
@@ -159,7 +168,8 @@ TreeMaker::beginJob() {
   tree_->Branch("RunNum",&runNum_,"RunNum/i");
   tree_->Branch("LumiBlockNum",&lumiBlockNum_,"LumiBlockNum/i");
   tree_->Branch("EvtNum",&evtNum_,"EvtNum/i");
-  tree_->Branch("NumVtx",&nVtx_,"NumVtx/s");
+  tree_->Branch("Weight",&weight_,"Weight/F");
+  tree_->Branch("NVtx",&nVtx_,"NVtx/s");
   tree_->Branch("HT",&ht_,"HT/F");
   tree_->Branch("MHT",&mht_,"MHT/F");
   tree_->Branch("NJets",&nJets_,"NJets/s");
@@ -221,6 +231,7 @@ TreeMaker::setBranchVariablesToDefault() {
   runNum_ = 0;      
   lumiBlockNum_ = 0;
   evtNum_ = 0;      
+  weight_ = 1.;
   nVtx_ = 0;
   ht_ = 0.;
   mht_ = 0.;

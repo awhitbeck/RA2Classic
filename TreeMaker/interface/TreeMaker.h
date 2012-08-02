@@ -1,7 +1,7 @@
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id: TreeMaker.h,v 1.1 2012/07/30 16:42:17 mschrode Exp $
+// $Id: TreeMaker.h,v 1.2 2012/07/31 12:03:33 mschrode Exp $
 //
 //
 
@@ -52,7 +52,9 @@ private:
 
   UInt_t runNum_;      
   UInt_t lumiBlockNum_;
-  UInt_t evtNum_;      
+  UInt_t evtNum_;
+  edm::InputTag weightTag_;
+  Float_t weight_;
   edm::InputTag vertexCollectionTag_;
   UShort_t nVtx_;
   edm::InputTag htTag_;

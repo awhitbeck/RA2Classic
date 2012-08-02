@@ -4,6 +4,7 @@
 #  - "RunNum": run number (UInt_t)
 #  - "LumiBlockNum": luminosity block number (UInt_t)
 #  - "EvtNum": event number (UInt_t)
+#  - "Weight": event weight (Float_t)
 #  - "NumVtx": number of vertices (UShort_t)
 #  - "HT": HT (Float_t)
 #  - "NJets": number of jets (UShort_t)
@@ -19,6 +20,9 @@ TreeMaker = cms.EDAnalyzer(
 
     # Name of the output tree
     TreeName          = cms.string('RA2Tree'),
+
+    # name of event weight
+    Weight            = cms.InputTag('weight'),
 
     # collection from which the tree variable "NumVtx" is determined
     VertexCollection  = cms.InputTag('goodVertices'),
