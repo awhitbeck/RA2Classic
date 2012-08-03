@@ -1,4 +1,4 @@
-# $Id:  $
+# $Id: makeTreeFromPAT_cff.py,v 1.1 2012/08/02 14:37:00 mschrode Exp $
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -53,36 +53,23 @@ def makeTreeFromPAT(process,
         process.ra2ElectronVeto
         )
 
-    # Jet-related selection
-    jetInputCol = "patJetsAK5PF"
+    # Produce RA2 jets
     if useCHSJets:
-        jetInputCol = "patJetsPF"
+        process.load('RA2Classic.TreeMaker.produceRA2JetsPFCHS_cff')
+        process.ProduceRA2Jets = cms.Sequence(
+            process.produceRA2JetsPFCHS
+            )
+    else:
+        process.load('RA2Classic.TreeMaker.produceRA2JetsAK5PF_cff')
+        process.ProduceRA2Jets = cms.Sequence(
+            process.produceRA2JetsAK5PF
+            )
 
-    from RA2Classic.TreeMaker.patjetcollectionsubsetproducer_cfi import patJetCollectionSubsetProducer
-    # Create collection of jets with pt > 30 (for MHT)
-    process.MHTJets = patJetCollectionSubsetProducer.clone(
-        Jets   = cms.InputTag(jetInputCol),
-        PtMin  = cms.double(30.),
-        EtaMax = cms.double(99999.)
-        )
-    # Create collection of jets with pt > 50 and eta < 2.5 (for NJet, HT)
-    process.HTJets = patJetCollectionSubsetProducer.clone(
-        Jets   = cms.InputTag(jetInputCol),
-        PtMin  = cms.double(50.),
-        EtaMax = cms.double(2.5)
-        )
-
-    from PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi import countPatJets
     # Select events with at least 'NJetsMin' of the above jets
-    process.NumJetsFilter = countPatJets.clone(
+    from PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi import countPatJets
+    process.NumJetSelection = countPatJets.clone(
         src       = cms.InputTag('HTJets'),
         minNumber = cms.uint32(NJetsMin)
-        )
-    
-    process.NumJetSelection = cms.Sequence(
-        process.MHTJets *
-        process.HTJets *
-        process.NumJetsFilter
         )
 
     # HT selection
@@ -124,6 +111,7 @@ def makeTreeFromPAT(process,
     ## --- Final paths ----------------------------------------------------
     process.WriteTree = cms.Path(
         process.CleaningSelection *
+        process.ProduceRA2Jets *
         process.NumJetSelection *
         process.HTSelection *
         process.MHTSelection *
