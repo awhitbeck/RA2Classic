@@ -43,7 +43,7 @@ process.patJetPartonAssociation.coneSizeToAssociate = 0.5
 ###############################################################################
 # Weight producer
 ###############################################################################
-process.load("RA2.WeightProducer.weightproducer_cfi")
+process.load("RA2.WeightProducer.weightProducer_cfi")
 process.weightProducer.weightName	= 'weight'
 process.weightProducer.Method		= 'PtHat'
 process.weightProducer.Exponent		= -4.5
