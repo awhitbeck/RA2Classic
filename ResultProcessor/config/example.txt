@@ -1,0 +1,50 @@
+# This is an example configuration file
+#
+# The general syntax is '[key] :: [label: value]; [label: value]; ...'
+# Lines starting with an '#' are ignored
+#
+# The file runs on any ROOT tree produced with RA2Classic/TreeMaker
+# which needs to be specified below at 'file: ...'
+
+
+# Specify global parameters
+global :: id: RA2
+global :: lumi: 5.088
+
+
+# Specify the variables that are read from the ntuple and their type
+event content :: name: HT; type: Float_t; label: H_{T}; unit: GeV
+event content :: name: MHT; type: Float_t
+event content :: name: NJets; type: UShort_t; label: N(Jets)
+event content :: name: Weight; type: Float_t
+
+
+# Specify the data source and label the type of data
+dataset :: label: Data; type: data; file: RA2Selection.root; tree: RA2TreeMaker/RA2PreSelection
+dataset :: label: t#bar{t}; type: mc; file: RA2Selection.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight
+dataset :: label: QCD; type: mc; file: RA2Selection.root; tree: RA2TreeMaker/RA2PreSelection; weight: 2*Weight
+
+
+# Specify the event selection
+selection :: label: baseline; cuts: HT > 500 + NJets > 3
+selection :: label: search1; cuts: baseline + 600 < HT < 700
+
+
+# Specify what variables to plot and some style settings
+plot style :: dataset: Data; marker: 20; color: 1
+plot style :: dataset: t#bar{t}; color: kRed
+plot style :: dataset: QCD; color: kRed+3
+
+# Plot a single spectrum
+plot :: variable: HT; dataset: Data; histogram: 50, 0, 1400
+plot :: variable: HT; dataset: t#bar{t}; histogram: 50, 0, 1400
+plot :: variable: NJets; dataset: Data; histogram: 12, 0, 12
+
+# Plot the spectrum of 'dataset1' in comparison to 'dataset2'
+# The spectra of different datasets can be stacked using '+'
+plot :: variable: HT; dataset1: Data; dataset2: QCD + t#bar{t}; histogram: 50, 0, 1400 
+
+
+
+
+
