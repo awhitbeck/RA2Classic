@@ -1,4 +1,4 @@
-# $Id: makeTreeFromPAT_cff.py,v 1.1 2012/08/02 14:37:00 mschrode Exp $
+# $Id: makeTreeFromPAT_cff.py,v 1.2 2012/08/03 13:31:30 mschrode Exp $
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -55,15 +55,36 @@ def makeTreeFromPAT(process,
 
     # Produce RA2 jets
     if useCHSJets:
-        process.load('RA2Classic.TreeMaker.produceRA2JetsPFCHS_cff')
+        process.load('RA2Classic.Utils.produceRA2JetsPFCHS_cff')
         process.ProduceRA2Jets = cms.Sequence(
             process.produceRA2JetsPFCHS
             )
     else:
-        process.load('RA2Classic.TreeMaker.produceRA2JetsAK5PF_cff')
+        process.load('RA2Classic.Utils.produceRA2JetsAK5PF_cff')
         process.ProduceRA2Jets = cms.Sequence(
             process.produceRA2JetsAK5PF
             )
+
+##     from SandBox.Skims.RA2Jets_cff import patJetsAK5PFPt30, patJetsAK5PFPt50Eta25
+##     if useCHSJets:
+##         process.HTJets = patJetsAK5PFPt50Eta25.clone(
+##             src = cms.InputTag('patJetsPF')
+##             )
+##         process.MHTJets = patJetsAK5PFPt30.clone(
+##             src = cms.InputTag('patJetsPF')
+##             )
+##     else:
+##         process.HTJets = patJetsAK5PFPt50Eta25.clone(
+##             src = cms.InputTag('patJetsAK5PF')
+##             )
+##         process.MHTJets = patJetsAK5PFPt30.clone(
+##             src = cms.InputTag('patJetsAK5PF')
+##             )
+##     process.ProduceRA2Jets = cms.Sequence(
+##         process.MHTJets *
+##         process.HTJets
+##         )
+
 
     # Select events with at least 'NJetsMin' of the above jets
     from PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi import countPatJets
