@@ -167,29 +167,30 @@ Prediction::Prediction(TFile& prediction_file, TFile& selection_file)
       if( i%1000 == 0 ) std::cout << "event (prediction): " << i << '\n';
 
       // get raw prediction histos filled
-      // FillRawPredictionHisto( HT_presel_pred_raw, HT, HT);
-      //FillRawPredictionHisto( MHT_presel_pred_raw, MHT, HT);
-      //FillRawPredictionHisto( Jet1Pt_presel_pred_raw, Jet1Pt, HT);
-      //       FillRawPredictionHisto( Jet2Pt_presel_pred_raw, Jet2Pt);
-      //       FillRawPredictionHisto( Jet3Pt_presel_pred_raw, Jet3Pt);
-      //       FillRawPredictionHisto( Jet1Eta_presel_pred_raw, Jet1Eta);
-      //       FillRawPredictionHisto( Jet2Eta_presel_pred_raw, Jet2Eta);
-      //       FillRawPredictionHisto( Jet3Eta_presel_pred_raw, Jet3Eta); 
+      FillRawPredictionHisto( HT_presel_pred_raw, HT, HT);
+      FillRawPredictionHisto( MHT_presel_pred_raw, MHT, HT);
+      FillRawPredictionHisto( Jet1Pt_presel_pred_raw, Jet1Pt, HT);
+      FillRawPredictionHisto( Jet2Pt_presel_pred_raw, Jet2Pt);
+      FillRawPredictionHisto( Jet3Pt_presel_pred_raw, Jet3Pt);
+      FillRawPredictionHisto( Jet1Eta_presel_pred_raw, Jet1Eta);
+      FillRawPredictionHisto( Jet2Eta_presel_pred_raw, Jet2Eta);
+      FillRawPredictionHisto( Jet3Eta_presel_pred_raw, Jet3Eta); 
 
+      // calc deltaPhi cut
       CalcMinDeltaPhi_prediction();
        
-      //   FillRawPredictionHistoDeltaPhi( HT_deltaPhi_pred_raw, HT);
-      //       FillRawPredictionHistoDeltaPhi( MHT_deltaPhi_pred_raw, MHT);
-      //       FillRawPredictionHistoDeltaPhi( Jet1Pt_deltaPhi_pred_raw, Jet1Pt); 
-      //       FillRawPredictionHistoDeltaPhi( Jet2Pt_deltaPhi_pred_raw, Jet2Pt); 
-      //       FillRawPredictionHistoDeltaPhi( Jet3Pt_deltaPhi_pred_raw, Jet3Pt); 
-      //       FillRawPredictionHistoDeltaPhi( Jet1Eta_deltaPhi_pred_raw, Jet1Eta); 
-      //       FillRawPredictionHistoDeltaPhi( Jet2Eta_deltaPhi_pred_raw, Jet2Eta); 
-      //       FillRawPredictionHistoDeltaPhi( Jet3Eta_deltaPhi_pred_raw, Jet3Eta); 
+      FillRawPredictionHistoDeltaPhi( HT_deltaPhi_pred_raw, HT);
+      FillRawPredictionHistoDeltaPhi( MHT_deltaPhi_pred_raw, MHT);
+      FillRawPredictionHistoDeltaPhi( Jet1Pt_deltaPhi_pred_raw, Jet1Pt); 
+      FillRawPredictionHistoDeltaPhi( Jet2Pt_deltaPhi_pred_raw, Jet2Pt); 
+      FillRawPredictionHistoDeltaPhi( Jet3Pt_deltaPhi_pred_raw, Jet3Pt); 
+      FillRawPredictionHistoDeltaPhi( Jet1Eta_deltaPhi_pred_raw, Jet1Eta); 
+      FillRawPredictionHistoDeltaPhi( Jet2Eta_deltaPhi_pred_raw, Jet2Eta); 
+      FillRawPredictionHistoDeltaPhi( Jet3Eta_deltaPhi_pred_raw, Jet3Eta); 
 
       FillRawPredictionHistosBaseline( HT, MHT );
 
-      // FillRawPredictionHistosSearchBins( HT, MHT );
+      FillRawPredictionHistosSearchBins( HT, MHT );
    }
 
    ///////////////////////////////////////////////////////////////////////
@@ -290,26 +291,26 @@ Prediction::Prediction(TFile& prediction_file, TFile& selection_file)
       if( i%1000 == 0 ) std::cout << "event (selection): " << i << '\n';
 
       // fill preselection histos
-      // HT_presel_sel->Fill(HT_RA2, weight_RA2); 
-      //MHT_presel_sel->Fill(MHT_RA2, weight_RA2); 
-      //Jet1Pt_presel_sel->Fill(Jet1Pt_RA2, weight_RA2); 
-      //       Jet2Pt_presel_sel->Fill(Jet2Pt_RA2, weight_RA2); 
-      //       Jet3Pt_presel_sel->Fill(Jet3Pt_RA2, weight_RA2); 
-      //       Jet1Eta_presel_sel->Fill(Jet1Eta_RA2, weight_RA2); 
-      //       Jet2Eta_presel_sel->Fill(Jet2Eta_RA2, weight_RA2); 
-      //       Jet3Eta_presel_sel->Fill(Jet3Eta_RA2, weight_RA2); 
+      HT_presel_sel->Fill(HT_RA2, weight_RA2); 
+      MHT_presel_sel->Fill(MHT_RA2, weight_RA2); 
+      Jet1Pt_presel_sel->Fill(Jet1Pt_RA2, weight_RA2); 
+      Jet2Pt_presel_sel->Fill(Jet2Pt_RA2, weight_RA2); 
+      Jet3Pt_presel_sel->Fill(Jet3Pt_RA2, weight_RA2); 
+      Jet1Eta_presel_sel->Fill(Jet1Eta_RA2, weight_RA2); 
+      Jet2Eta_presel_sel->Fill(Jet2Eta_RA2, weight_RA2); 
+      Jet3Eta_presel_sel->Fill(Jet3Eta_RA2, weight_RA2); 
 
       if( DeltaPhiCut_selection() ) {    
          
-      // fill deltaPhi histos
-      //  HT_deltaPhi_sel->Fill(HT_RA2, weight_RA2); 
-      //          MHT_deltaPhi_sel->Fill(MHT_RA2, weight_RA2); 
-      //          Jet1Pt_deltaPhi_sel->Fill(Jet1Pt_RA2, weight_RA2); 
-      //          Jet2Pt_deltaPhi_sel->Fill(Jet2Pt_RA2, weight_RA2); 
-      //          Jet3Pt_deltaPhi_sel->Fill(Jet3Pt_RA2, weight_RA2); 
-      //          Jet1Eta_deltaPhi_sel->Fill(Jet1Eta_RA2, weight_RA2); 
-      //          Jet2Eta_deltaPhi_sel->Fill(Jet2Eta_RA2, weight_RA2); 
-      //          Jet3Eta_deltaPhi_sel->Fill(Jet3Eta_RA2, weight_RA2); 
+         // fill deltaPhi histos
+         HT_deltaPhi_sel->Fill(HT_RA2, weight_RA2); 
+         MHT_deltaPhi_sel->Fill(MHT_RA2, weight_RA2); 
+         Jet1Pt_deltaPhi_sel->Fill(Jet1Pt_RA2, weight_RA2); 
+         Jet2Pt_deltaPhi_sel->Fill(Jet2Pt_RA2, weight_RA2); 
+         Jet3Pt_deltaPhi_sel->Fill(Jet3Pt_RA2, weight_RA2); 
+         Jet1Eta_deltaPhi_sel->Fill(Jet1Eta_RA2, weight_RA2); 
+         Jet2Eta_deltaPhi_sel->Fill(Jet2Eta_RA2, weight_RA2); 
+         Jet3Eta_deltaPhi_sel->Fill(Jet3Eta_RA2, weight_RA2); 
 
          // fill baseline histos
          if( HT_RA2 > 500. ) {
@@ -324,199 +325,204 @@ Prediction::Prediction(TFile& prediction_file, TFile& selection_file)
 
 
          //  fill different jet multiplicity bins
-         //jet bin 1
-       //   if( NJets_RA2 == 2 || NJets_RA2 == 3 ) {
-//             if( HTlow < HT_RA2 < HTmedium ) {
-//                MHT_JetBin1_HTlow_sel->Fill(MHT_RA2, weight_RA2);
-//             }
-//             else if( HTmedium < HT_RA2 < HThigh ) {
-//                MHT_JetBin1_HTmedium_sel->Fill(MHT_RA2, weight_RA2);
-//             }
-//             else if( HThigh < HT_RA2 ) {
-//                MHT_JetBin1_HThigh_sel->Fill(MHT_RA2, weight_RA2);
-//             }
-//          }
-//          // jet bin 2
-//          else if(  NJets_RA2 == 4 ||  NJets_RA2 == 5 ) {
-//             if( HTlow < HT_RA2 < HTmedium ) {
-//                MHT_JetBin2_HTlow_sel->Fill(MHT_RA2, weight_RA2);
-//             }
-//             else if( HTmedium < HT_RA2 < HThigh ) {
-//                MHT_JetBin2_HTmedium_sel->Fill(MHT_RA2, weight_RA2);
-//             }
-//             else if( HThigh < HT_RA2 ) {
-//                MHT_JetBin2_HThigh_sel->Fill(MHT_RA2, weight_RA2);
-//             }
-//          }
-//          // jet bin 3            
-//          else if(  NJets_RA2 == 6  ||  NJets_RA2 == 7 ) {
-//             if( HTlow < HT_RA2 < HTmedium ) {
-//                MHT_JetBin3_HTlow_sel->Fill(MHT_RA2, weight_RA2);
-//             }
-//             else if( HTmedium < HT_RA2 < HThigh ) {
-//                MHT_JetBin3_HTmedium_sel->Fill(MHT_RA2, weight_RA2);
-//             }
-//             else if( HThigh < HT_RA2 ) {
-//                MHT_JetBin3_HThigh_sel->Fill(MHT_RA2, weight_RA2);
-//             }
-//          }    
-//          // jet bin 4 
-//          else if(  NJets_RA2 >= 8 ) {
-//             if( HTlow < HT_RA2 < HTmedium ) {
-//                MHT_JetBin4_HTlow_sel->Fill(MHT_RA2, weight_RA2);
-//             }
-//             else if( HTmedium < HT_RA2 < HThigh ) {
-//                MHT_JetBin4_HTmedium_sel->Fill(MHT_RA2, weight_RA2);
-//             }
-//             else if( HThigh < HT_RA2 ) {
-//                MHT_JetBin4_HThigh_sel->Fill(MHT_RA2, weight_RA2);
-//             }
-//          }    
+         // jet bin 1
+         if( NJets_RA2 == 2 || NJets_RA2 == 3 ) {
+            if( HTlow < HT_RA2 < HTmedium ) {
+               MHT_JetBin1_HTlow_sel->Fill(MHT_RA2, weight_RA2);
+            }
+            else if( HTmedium < HT_RA2 < HThigh ) {
+               MHT_JetBin1_HTmedium_sel->Fill(MHT_RA2, weight_RA2);
+            }
+            else if( HThigh < HT_RA2 ) {
+               MHT_JetBin1_HThigh_sel->Fill(MHT_RA2, weight_RA2);
+            }
+         }
+         // jet bin 2
+         else if(  NJets_RA2 == 4 ||  NJets_RA2 == 5 ) {
+            if( HTlow < HT_RA2 < HTmedium ) {
+               MHT_JetBin2_HTlow_sel->Fill(MHT_RA2, weight_RA2);
+            }
+            else if( HTmedium < HT_RA2 < HThigh ) {
+               MHT_JetBin2_HTmedium_sel->Fill(MHT_RA2, weight_RA2);
+            }
+            else if( HThigh < HT_RA2 ) {
+               MHT_JetBin2_HThigh_sel->Fill(MHT_RA2, weight_RA2);
+            }
+         }
+         // jet bin 3            
+         else if(  NJets_RA2 == 6  ||  NJets_RA2 == 7 ) {
+            if( HTlow < HT_RA2 < HTmedium ) {
+               MHT_JetBin3_HTlow_sel->Fill(MHT_RA2, weight_RA2);
+            }
+            else if( HTmedium < HT_RA2 < HThigh ) {
+               MHT_JetBin3_HTmedium_sel->Fill(MHT_RA2, weight_RA2);
+            }
+            else if( HThigh < HT_RA2 ) {
+               MHT_JetBin3_HThigh_sel->Fill(MHT_RA2, weight_RA2);
+            }
+         }    
+         // jet bin 4 
+         else if(  NJets_RA2 >= 8 ) {
+            if( HTlow < HT_RA2 < HTmedium ) {
+               MHT_JetBin4_HTlow_sel->Fill(MHT_RA2, weight_RA2);
+            }
+            else if( HTmedium < HT_RA2 < HThigh ) {
+               MHT_JetBin4_HTmedium_sel->Fill(MHT_RA2, weight_RA2);
+            }
+            else if( HThigh < HT_RA2 ) {
+               MHT_JetBin4_HThigh_sel->Fill(MHT_RA2, weight_RA2);
+            }
+         }    
       }
    }
 
+   //----------------------------------------------------------//
    // rebin histos
-   // DoRebinning(HT_presel_pred_raw, HT_presel_sel , -1);
-   //DoRebinning(MHT_presel_pred_raw, MHT_presel_sel , -1);
-   //DoRebinning(Jet1Pt_presel_pred_raw, Jet1Pt_presel_sel , 5);
-   //    DoRebinning(Jet2Pt_presel_pred_raw, Jet2Pt_presel_sel , 5);
-   //    DoRebinning(Jet3Pt_presel_pred_raw, Jet3Pt_presel_sel , 5);
-   //    DoRebinning(Jet1Eta_presel_pred_raw, Jet1Eta_presel_sel , 2);
-   //    DoRebinning(Jet2Eta_presel_pred_raw, Jet2Eta_presel_sel , 2);
-   //    DoRebinning(Jet3Eta_presel_pred_raw, Jet3Eta_presel_sel , 2);
+   DoRebinning(HT_presel_pred_raw, HT_presel_sel , -1);
+   DoRebinning(MHT_presel_pred_raw, MHT_presel_sel , -1);
+   DoRebinning(Jet1Pt_presel_pred_raw, Jet1Pt_presel_sel , 5);
+   DoRebinning(Jet2Pt_presel_pred_raw, Jet2Pt_presel_sel , 5);
+   DoRebinning(Jet3Pt_presel_pred_raw, Jet3Pt_presel_sel , 5);
+   DoRebinning(Jet1Eta_presel_pred_raw, Jet1Eta_presel_sel , 2);
+   DoRebinning(Jet2Eta_presel_pred_raw, Jet2Eta_presel_sel , 2);
+   DoRebinning(Jet3Eta_presel_pred_raw, Jet3Eta_presel_sel , 2);
 
-   //    DoRebinning(HT_deltaPhi_pred_raw, HT_deltaPhi_sel , -1);
-   //    DoRebinning(MHT_deltaPhi_pred_raw, MHT_deltaPhi_sel , -1);
-   //    DoRebinning(Jet1Pt_deltaPhi_pred_raw, Jet1Pt_deltaPhi_sel , 5);
-   //    DoRebinning(Jet2Pt_deltaPhi_pred_raw, Jet2Pt_deltaPhi_sel , 5);
-   //    DoRebinning(Jet3Pt_deltaPhi_pred_raw, Jet3Pt_deltaPhi_sel , 5);
-   //    DoRebinning(Jet1Eta_deltaPhi_pred_raw, Jet1Eta_deltaPhi_sel , 2);
-   //    DoRebinning(Jet2Eta_deltaPhi_pred_raw, Jet2Eta_deltaPhi_sel , 2);
-   //    DoRebinning(Jet3Eta_deltaPhi_pred_raw, Jet3Eta_deltaPhi_sel , 2);
+   DoRebinning(HT_deltaPhi_pred_raw, HT_deltaPhi_sel , -1);
+   DoRebinning(MHT_deltaPhi_pred_raw, MHT_deltaPhi_sel , -1);
+   DoRebinning(Jet1Pt_deltaPhi_pred_raw, Jet1Pt_deltaPhi_sel , 5);
+   DoRebinning(Jet2Pt_deltaPhi_pred_raw, Jet2Pt_deltaPhi_sel , 5);
+   DoRebinning(Jet3Pt_deltaPhi_pred_raw, Jet3Pt_deltaPhi_sel , 5);
+   DoRebinning(Jet1Eta_deltaPhi_pred_raw, Jet1Eta_deltaPhi_sel , 2);
+   DoRebinning(Jet2Eta_deltaPhi_pred_raw, Jet2Eta_deltaPhi_sel , 2);
+   DoRebinning(Jet3Eta_deltaPhi_pred_raw, Jet3Eta_deltaPhi_sel , 2);
 
-  //  DoRebinning(MHT_JetBin1_HTlow_pred_raw, MHT_JetBin1_HTlow_sel , -1);
-//    DoRebinning(MHT_JetBin1_HTmedium_pred_raw, MHT_JetBin1_HTmedium_sel , -1);
-//    DoRebinning(MHT_JetBin1_HThigh_pred_raw, MHT_JetBin1_HThigh_sel , -1);
-//    DoRebinning(MHT_JetBin2_HTlow_pred_raw, MHT_JetBin2_HTlow_sel , -1);
-//    DoRebinning(MHT_JetBin2_HTmedium_pred_raw, MHT_JetBin2_HTmedium_sel , -1);
-//    DoRebinning(MHT_JetBin2_HThigh_pred_raw, MHT_JetBin2_HThigh_sel , -1);
-//    DoRebinning(MHT_JetBin3_HTlow_pred_raw, MHT_JetBin3_HTlow_sel , -1);
-//    DoRebinning(MHT_JetBin3_HTmedium_pred_raw, MHT_JetBin3_HTmedium_sel , -1);
-//    DoRebinning(MHT_JetBin3_HThigh_pred_raw, MHT_JetBin3_HThigh_sel , -1);
-//    DoRebinning(MHT_JetBin4_HTlow_pred_raw, MHT_JetBin4_HTlow_sel , -1);
-//    DoRebinning(MHT_JetBin4_HTmedium_pred_raw, MHT_JetBin4_HTmedium_sel , -1);
-//    DoRebinning(MHT_JetBin4_HThigh_pred_raw, MHT_JetBin4_HThigh_sel , -1);
+   DoRebinning(MHT_JetBin1_HTlow_pred_raw, MHT_JetBin1_HTlow_sel , -1);
+   DoRebinning(MHT_JetBin1_HTmedium_pred_raw, MHT_JetBin1_HTmedium_sel , -1);
+   DoRebinning(MHT_JetBin1_HThigh_pred_raw, MHT_JetBin1_HThigh_sel , -1);
+   DoRebinning(MHT_JetBin2_HTlow_pred_raw, MHT_JetBin2_HTlow_sel , -1);
+   DoRebinning(MHT_JetBin2_HTmedium_pred_raw, MHT_JetBin2_HTmedium_sel , -1);
+   DoRebinning(MHT_JetBin2_HThigh_pred_raw, MHT_JetBin2_HThigh_sel , -1);
+   DoRebinning(MHT_JetBin3_HTlow_pred_raw, MHT_JetBin3_HTlow_sel , -1);
+   DoRebinning(MHT_JetBin3_HTmedium_pred_raw, MHT_JetBin3_HTmedium_sel , -1);
+   DoRebinning(MHT_JetBin3_HThigh_pred_raw, MHT_JetBin3_HThigh_sel , -1);
+   DoRebinning(MHT_JetBin4_HTlow_pred_raw, MHT_JetBin4_HTlow_sel , -1);
+   DoRebinning(MHT_JetBin4_HTmedium_pred_raw, MHT_JetBin4_HTmedium_sel , -1);
+   DoRebinning(MHT_JetBin4_HThigh_pred_raw, MHT_JetBin4_HThigh_sel , -1);
 
    DoRebinning(HT_baseline_pred_raw, HT_baseline_sel , -1);
    DoRebinning(MHT_baseline_pred_raw, MHT_baseline_sel , -1);
-
+   //----------------------------------------------------------//
  
+   //----------------------------------------------------------//
    // fill prediction histos
-   //  HT_presel_pred = CalcPrediction(HT_presel_pred_raw);
-   //MHT_presel_pred = CalcPrediction(MHT_presel_pred_raw);
-   //Jet1Pt_presel_pred = CalcPrediction(Jet1Pt_presel_pred_raw);
-   //    Jet2Pt_presel_pred = CalcPrediction(Jet2Pt_presel_pred_raw);
-   //    Jet3Pt_presel_pred = CalcPrediction(Jet3Pt_presel_pred_raw);
-   //    Jet1Eta_presel_pred = CalcPrediction(Jet1Eta_presel_pred_raw);
-   //    Jet2Eta_presel_pred = CalcPrediction(Jet2Eta_presel_pred_raw);
-   //    Jet3Eta_presel_pred = CalcPrediction(Jet3Eta_presel_pred_raw);
+   HT_presel_pred = CalcPrediction(HT_presel_pred_raw);
+   MHT_presel_pred = CalcPrediction(MHT_presel_pred_raw);
+   Jet1Pt_presel_pred = CalcPrediction(Jet1Pt_presel_pred_raw);
+   Jet2Pt_presel_pred = CalcPrediction(Jet2Pt_presel_pred_raw);
+   Jet3Pt_presel_pred = CalcPrediction(Jet3Pt_presel_pred_raw);
+   Jet1Eta_presel_pred = CalcPrediction(Jet1Eta_presel_pred_raw);
+   Jet2Eta_presel_pred = CalcPrediction(Jet2Eta_presel_pred_raw);
+   Jet3Eta_presel_pred = CalcPrediction(Jet3Eta_presel_pred_raw);
 
-   //    HT_deltaPhi_pred = CalcPrediction(HT_deltaPhi_pred_raw);
-   //    MHT_deltaPhi_pred = CalcPrediction(MHT_deltaPhi_pred_raw);
-   //    Jet1Pt_deltaPhi_pred = CalcPrediction(Jet1Pt_deltaPhi_pred_raw);
-   //    Jet2Pt_deltaPhi_pred = CalcPrediction(Jet2Pt_deltaPhi_pred_raw);
-   //    Jet3Pt_deltaPhi_pred = CalcPrediction(Jet3Pt_deltaPhi_pred_raw);
-   //    Jet1Eta_deltaPhi_pred = CalcPrediction(Jet1Eta_deltaPhi_pred_raw);
-   //    Jet2Eta_deltaPhi_pred = CalcPrediction(Jet2Eta_deltaPhi_pred_raw);
-   //    Jet3Eta_deltaPhi_pred = CalcPrediction(Jet3Eta_deltaPhi_pred_raw);
+   HT_deltaPhi_pred = CalcPrediction(HT_deltaPhi_pred_raw);
+   MHT_deltaPhi_pred = CalcPrediction(MHT_deltaPhi_pred_raw);
+   Jet1Pt_deltaPhi_pred = CalcPrediction(Jet1Pt_deltaPhi_pred_raw);
+   Jet2Pt_deltaPhi_pred = CalcPrediction(Jet2Pt_deltaPhi_pred_raw);
+   Jet3Pt_deltaPhi_pred = CalcPrediction(Jet3Pt_deltaPhi_pred_raw);
+   Jet1Eta_deltaPhi_pred = CalcPrediction(Jet1Eta_deltaPhi_pred_raw);
+   Jet2Eta_deltaPhi_pred = CalcPrediction(Jet2Eta_deltaPhi_pred_raw);
+   Jet3Eta_deltaPhi_pred = CalcPrediction(Jet3Eta_deltaPhi_pred_raw);
 
-  //  MHT_JetBin1_HTlow_pred = CalcPrediction(MHT_JetBin1_HTlow_pred_raw);
-//    MHT_JetBin1_HTmedium_pred = CalcPrediction(MHT_JetBin1_HTmedium_pred_raw);
-//    MHT_JetBin1_HThigh_pred = CalcPrediction(MHT_JetBin1_HThigh_pred_raw);
-//    MHT_JetBin2_HTlow_pred = CalcPrediction(MHT_JetBin2_HTlow_pred_raw);
-//    MHT_JetBin2_HTmedium_pred = CalcPrediction(MHT_JetBin2_HTmedium_pred_raw);
-//    MHT_JetBin2_HThigh_pred = CalcPrediction(MHT_JetBin2_HThigh_pred_raw);
-//    MHT_JetBin3_HTlow_pred = CalcPrediction(MHT_JetBin3_HTlow_pred_raw);
-//    MHT_JetBin3_HTmedium_pred = CalcPrediction(MHT_JetBin3_HTmedium_pred_raw);
-//    MHT_JetBin3_HThigh_pred = CalcPrediction(MHT_JetBin3_HThigh_pred_raw);
-//    MHT_JetBin4_HTlow_pred = CalcPrediction(MHT_JetBin4_HTlow_pred_raw);
-//    MHT_JetBin4_HTmedium_pred = CalcPrediction(MHT_JetBin4_HTmedium_pred_raw);
-//    MHT_JetBin4_HThigh_pred = CalcPrediction(MHT_JetBin4_HThigh_pred_raw);
+   MHT_JetBin1_HTlow_pred = CalcPrediction(MHT_JetBin1_HTlow_pred_raw);
+   MHT_JetBin1_HTmedium_pred = CalcPrediction(MHT_JetBin1_HTmedium_pred_raw);
+   MHT_JetBin1_HThigh_pred = CalcPrediction(MHT_JetBin1_HThigh_pred_raw);
+   MHT_JetBin2_HTlow_pred = CalcPrediction(MHT_JetBin2_HTlow_pred_raw);
+   MHT_JetBin2_HTmedium_pred = CalcPrediction(MHT_JetBin2_HTmedium_pred_raw);
+   MHT_JetBin2_HThigh_pred = CalcPrediction(MHT_JetBin2_HThigh_pred_raw);
+   MHT_JetBin3_HTlow_pred = CalcPrediction(MHT_JetBin3_HTlow_pred_raw);
+   MHT_JetBin3_HTmedium_pred = CalcPrediction(MHT_JetBin3_HTmedium_pred_raw);
+   MHT_JetBin3_HThigh_pred = CalcPrediction(MHT_JetBin3_HThigh_pred_raw);
+   MHT_JetBin4_HTlow_pred = CalcPrediction(MHT_JetBin4_HTlow_pred_raw);
+   MHT_JetBin4_HTmedium_pred = CalcPrediction(MHT_JetBin4_HTmedium_pred_raw);
+   MHT_JetBin4_HThigh_pred = CalcPrediction(MHT_JetBin4_HThigh_pred_raw);
 
    NJets_baseline_pred = CalcPrediction( NJets_baseline_pred_raw);
    HT_baseline_pred = CalcPrediction( HT_baseline_pred_raw);
    MHT_baseline_pred = CalcPrediction( MHT_baseline_pred_raw);
+   //----------------------------------------------------------//
 
+   //----------------------------------------------------------//
    // write histos to file
-   //  TFile* prediction_histos = new TFile("outpout_GetPrediction/prediction_histos.root", "RECREATE");
-  //  HT_presel_pred->Write();
-//    MHT_presel_pred->Write();
-//    Jet1Pt_presel_pred->Write();
-//    Jet2Pt_presel_pred->Write();
-//    Jet3Pt_presel_pred->Write();
-//    Jet1Eta_presel_pred->Write();
-//    Jet2Eta_presel_pred->Write();
-//    Jet3Eta_presel_pred->Write();
-//    HT_deltaPhi_pred->Write();
-//    MHT_deltaPhi_pred->Write();
-//    Jet1Pt_deltaPhi_pred->Write();
-//    Jet2Pt_deltaPhi_pred->Write();
-//    Jet3Pt_deltaPhi_pred->Write();
-//    Jet1Eta_deltaPhi_pred->Write();
-//    Jet2Eta_deltaPhi_pred->Write();
-//    Jet3Eta_deltaPhi_pred->Write();
- //   NJets_baseline_pred->Write();
-//    HT_baseline_pred->Write();
-//    MHT_baseline_pred->Write();
-  //  MHT_JetBin1_HTlow_pred->Write();
-//    MHT_JetBin1_HTmedium_pred->Write();
-//    MHT_JetBin1_HThigh_pred->Write();
-//    MHT_JetBin2_HTlow_pred->Write();
-//    MHT_JetBin2_HTmedium_pred->Write();
-//    MHT_JetBin2_HThigh_pred->Write();
-//    MHT_JetBin3_HTlow_pred->Write();
-//    MHT_JetBin3_HTmedium_pred->Write();
-//    MHT_JetBin3_HThigh_pred->Write();
-//    MHT_JetBin4_HTlow_pred->Write();
-//    MHT_JetBin4_HTmedium_pred->Write();
-//    MHT_JetBin4_HThigh_pred->Write();
+   TFile* prediction_histos = new TFile("outpout_GetPrediction/prediction_histos.root", "RECREATE");
+   HT_presel_pred->Write();
+   MHT_presel_pred->Write();
+   Jet1Pt_presel_pred->Write();
+   Jet2Pt_presel_pred->Write();
+   Jet3Pt_presel_pred->Write();
+   Jet1Eta_presel_pred->Write();
+   Jet2Eta_presel_pred->Write();
+   Jet3Eta_presel_pred->Write();
+   HT_deltaPhi_pred->Write();
+   MHT_deltaPhi_pred->Write();
+   Jet1Pt_deltaPhi_pred->Write();
+   Jet2Pt_deltaPhi_pred->Write();
+   Jet3Pt_deltaPhi_pred->Write();
+   Jet1Eta_deltaPhi_pred->Write();
+   Jet2Eta_deltaPhi_pred->Write();
+   Jet3Eta_deltaPhi_pred->Write();
+   NJets_baseline_pred->Write();
+   HT_baseline_pred->Write();
+   MHT_baseline_pred->Write();
+   MHT_JetBin1_HTlow_pred->Write();
+   MHT_JetBin1_HTmedium_pred->Write();
+   MHT_JetBin1_HThigh_pred->Write();
+   MHT_JetBin2_HTlow_pred->Write();
+   MHT_JetBin2_HTmedium_pred->Write();
+   MHT_JetBin2_HThigh_pred->Write();
+   MHT_JetBin3_HTlow_pred->Write();
+   MHT_JetBin3_HTmedium_pred->Write();
+   MHT_JetBin3_HThigh_pred->Write();
+   MHT_JetBin4_HTlow_pred->Write();
+   MHT_JetBin4_HTmedium_pred->Write();
+   MHT_JetBin4_HThigh_pred->Write();
 
- //   HT_presel_sel->Write();
-//    MHT_presel_sel->Write();
-//    Jet1Pt_presel_sel->Write();
-//    Jet2Pt_presel_sel->Write();
-//    Jet3Pt_presel_sel->Write();
-//    Jet1Eta_presel_sel->Write();
-//    Jet2Eta_presel_sel->Write();
-//    Jet3Eta_presel_sel->Write();
-//    HT_deltaPhi_sel->Write();
-//    MHT_deltaPhi_sel->Write();
-//    Jet1Pt_deltaPhi_sel->Write();
-//    Jet2Pt_deltaPhi_sel->Write();
-//    Jet3Pt_deltaPhi_sel->Write();
-//    Jet1Eta_deltaPhi_sel->Write();
-//    Jet2Eta_deltaPhi_sel->Write();
-//    Jet3Eta_deltaPhi_sel->Write();
-  //  NJets_baseline_sel->Write();
-//    HT_baseline_sel->Write();
-//    MHT_baseline_sel->Write();
- //   MHT_JetBin1_HTlow_sel->Write();
-//    MHT_JetBin1_HTmedium_sel->Write();
-//    MHT_JetBin1_HThigh_sel->Write();
-//    MHT_JetBin2_HTlow_sel->Write();
-//    MHT_JetBin2_HTmedium_sel->Write();
-//    MHT_JetBin2_HThigh_sel->Write();
-//    MHT_JetBin3_HTlow_sel->Write();
-//    MHT_JetBin3_HTmedium_sel->Write();
-//    MHT_JetBin3_HThigh_sel->Write();
-//    MHT_JetBin4_HTlow_sel->Write();
-//    MHT_JetBin4_HTmedium_sel->Write();
-//    MHT_JetBin4_HThigh_sel->Write();
+   HT_presel_sel->Write();
+   MHT_presel_sel->Write();
+   Jet1Pt_presel_sel->Write();
+   Jet2Pt_presel_sel->Write();
+   Jet3Pt_presel_sel->Write();
+   Jet1Eta_presel_sel->Write();
+   Jet2Eta_presel_sel->Write();
+   Jet3Eta_presel_sel->Write();
+   HT_deltaPhi_sel->Write();
+   MHT_deltaPhi_sel->Write();
+   Jet1Pt_deltaPhi_sel->Write();
+   Jet2Pt_deltaPhi_sel->Write();
+   Jet3Pt_deltaPhi_sel->Write();
+   Jet1Eta_deltaPhi_sel->Write();
+   Jet2Eta_deltaPhi_sel->Write();
+   Jet3Eta_deltaPhi_sel->Write();
+   NJets_baseline_sel->Write();
+   HT_baseline_sel->Write();
+   MHT_baseline_sel->Write();
+   MHT_JetBin1_HTlow_sel->Write();
+   MHT_JetBin1_HTmedium_sel->Write();
+   MHT_JetBin1_HThigh_sel->Write();
+   MHT_JetBin2_HTlow_sel->Write();
+   MHT_JetBin2_HTmedium_sel->Write();
+   MHT_JetBin2_HThigh_sel->Write();
+   MHT_JetBin3_HTlow_sel->Write();
+   MHT_JetBin3_HTmedium_sel->Write();
+   MHT_JetBin3_HThigh_sel->Write();
+   MHT_JetBin4_HTlow_sel->Write();
+   MHT_JetBin4_HTmedium_sel->Write();
+   MHT_JetBin4_HThigh_sel->Write();
 
-   //  prediction_histos->Write();
+   prediction_histos->Write();
+   //----------------------------------------------------------//
 }
 
-
+////////////////////////////////////////////////////////////////////////////////////////
 void Prediction::CalcMinDeltaPhi_prediction()
 {
    MinDeltaPhiCut.clear();

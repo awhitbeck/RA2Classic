@@ -204,7 +204,7 @@ int main()
    bool isData = false;
   
    TString LumiTitle;
-   if( isData ) LumiTitle = "CMS preliminary, L = x.yz fb^{  -1}, #sqrt{s} = 8 TeV";
+   if( isData ) LumiTitle = "CMS preliminary, L = 5.1 fb^{  -1}, #sqrt{s} = 8 TeV";
    else LumiTitle = "CMS Simulation, #sqrt{s} = 8 TeV";
 
    //TString postfix = "_genJets";
@@ -216,20 +216,16 @@ int main()
    xTitle_presel.push_back("#slash{H}_{T} (GeV)");
    xTitle_presel.push_back("Jet1 p_{T} (GeV)");
    xTitle_presel.push_back("Jet2 p_{T} (GeV)");
-   //    // xTitle_presel.push_back("Jet3 p_{T} (GeV)");
    xTitle_presel.push_back("Jet1 #eta");
    xTitle_presel.push_back("Jet2 #eta");
-   //    // xTitle_presel.push_back("Jet3 #eta");
 
    vector<TString> xTitle_deltaPhi;
    xTitle_deltaPhi.push_back("H_{T} (GeV)");
    xTitle_deltaPhi.push_back("#slash{H}_{T} (GeV)");
    xTitle_deltaPhi.push_back("Jet1 p_{T} (GeV)");
    xTitle_deltaPhi.push_back("Jet2 p_{T} (GeV)");
-   //  xTitle_deltaPhi.push_back("Jet3 p_{T} (GeV)");
    xTitle_deltaPhi.push_back("Jet1 #eta");
    xTitle_deltaPhi.push_back("Jet2 #eta");
-   // xTitle_deltaPhi.push_back("Jet3 #eta");
 
    vector<TString> xTitle_searchBins;
    xTitle_searchBins.push_back("#slash{H}_{T} (GeV)");
@@ -250,21 +246,17 @@ int main()
    hist_type_presel.push_back("MHT_presel");
    hist_type_presel.push_back("Jet1Pt_presel");
    hist_type_presel.push_back("Jet2Pt_presel");
-//    //  hist_type_presel.push_back("Jet3Pt_presel");
    hist_type_presel.push_back("Jet1Eta_presel");
    hist_type_presel.push_back("Jet2Eta_presel");
-//    //  hist_type_presel.push_back("Jet3Eta_presel");
 
    vector<TString> hist_type_deltaPhi;
    hist_type_deltaPhi.push_back("HT_deltaPhi");
    hist_type_deltaPhi.push_back("MHT_deltaPhi");    
    hist_type_deltaPhi.push_back("Jet1Pt_deltaPhi"); 
    hist_type_deltaPhi.push_back("Jet2Pt_deltaPhi"); 
-   //  hist_type_deltaPhi.push_back("Jet3Pt_deltaPhi"); 
    hist_type_deltaPhi.push_back("Jet1Eta_deltaPhi");
    hist_type_deltaPhi.push_back("Jet2Eta_deltaPhi");
-   //  hist_type_deltaPhi.push_back("Jet3Eta_deltaPhi");
-
+  
    vector<TString> hist_type_searchBins;
    hist_type_searchBins.push_back("MHT_JetBin1_HTlow");    
    hist_type_searchBins.push_back("MHT_JetBin1_HTmedium"); 
@@ -284,98 +276,99 @@ int main()
    TString Title;
    Title = "2 jets";
 
- //   if( hist_type_presel.size() != xTitle_presel.size() ) cout << "Error: Missing xTitles preselection!!" << endl;
+   if( hist_type_presel.size() != xTitle_presel.size() ) cout << "Error: Missing xTitles preselection!!" << endl;
 
-//    for(int i = 0; i < hist_type_presel.size(); i++ ) {
-//       TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_presel.at(i)), pred_->GetSelectionHisto(hist_type_presel.at(i)), Title, LumiTitle, xTitle_presel.at(i), isData); 
+   for(int i = 0; i < hist_type_presel.size(); i++ ) {
+      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_presel.at(i)), pred_->GetSelectionHisto(hist_type_presel.at(i)), Title, LumiTitle, xTitle_presel.at(i), isData); 
 
-//       if      ( i == 0) c->Print("outpout_GetPrediction/QCD_presel" + postfix + ".ps(");
-//       else if ( i == hist_type_presel.size()-1 ) c->Print("outpout_GetPrediction/QCD_presel" + postfix + ".ps)");
-//       else c->Print("outpout_GetPrediction/QCD_presel" + postfix + ".ps");
+      if      ( i == 0) c->Print("outpout_GetPrediction/QCD_presel" + postfix + ".ps(");
+      else if ( i == hist_type_presel.size()-1 ) c->Print("outpout_GetPrediction/QCD_presel" + postfix + ".ps)");
+      else c->Print("outpout_GetPrediction/QCD_presel" + postfix + ".ps");
 
-//       c->Print("outpout_GetPrediction/" + hist_type_presel.at(i) + postfix + ".png");
-//    }
+      c->Print("outpout_GetPrediction/" + hist_type_presel.at(i) + postfix + ".png");
+   }
 
    // plots for deltaPhi 
    Title = "2 jets, #Delta#phi(#slash{H}_{T}, jet1-2,3)";
 
-  //  if( hist_type_deltaPhi.size() != xTitle_deltaPhi.size() ) cout << "Error: Missing xTitles preselection!!" << endl;
+   if( hist_type_deltaPhi.size() != xTitle_deltaPhi.size() ) cout << "Error: Missing xTitles preselection!!" << endl;
 
-//    for(int i = 0; i < hist_type_deltaPhi.size(); i++ ) {
-//       TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_deltaPhi.at(i)), pred_->GetSelectionHisto(hist_type_deltaPhi.at(i)), Title, LumiTitle, xTitle_deltaPhi.at(i), isData); 
+   for(int i = 0; i < hist_type_deltaPhi.size(); i++ ) {
+      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_deltaPhi.at(i)), pred_->GetSelectionHisto(hist_type_deltaPhi.at(i)), Title, LumiTitle, xTitle_deltaPhi.at(i), isData); 
 
-//       if      ( i == 0) c->Print("outpout_GetPrediction/QCD_deltaPhi" + postfix + ".ps(");
-//       else if ( i == hist_type_deltaPhi.size()-1 ) c->Print("outpout_GetPrediction/QCD_deltaPhi" + postfix + ".ps)");
-//       else c->Print("outpout_GetPrediction/QCD_deltaPhi" + postfix + ".ps");
+      if      ( i == 0) c->Print("outpout_GetPrediction/QCD_deltaPhi" + postfix + ".ps(");
+      else if ( i == hist_type_deltaPhi.size()-1 ) c->Print("outpout_GetPrediction/QCD_deltaPhi" + postfix + ".ps)");
+      else c->Print("outpout_GetPrediction/QCD_deltaPhi" + postfix + ".ps");
 
-//       c->Print("outpout_GetPrediction/" + hist_type_deltaPhi.at(i) + postfix + ".png");
-//    }
+      c->Print("outpout_GetPrediction/" + hist_type_deltaPhi.at(i) + postfix + ".png");
+   }
 
    // plots for search bins 
    //jet Bin 1
-  //  Title = "2 - 3 jets, #Delta#phi cut, HT = 500 - 900 GeV";
-//    TCanvas *c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
-//    c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps(");
-//    c->Print("outpout_GetPrediction/MHT_JetBin1_HTlow" + postfix + ".png");
+   Title = "2 - 3 jets, #Delta#phi cut, HT = 500 - 900 GeV";
+   TCanvas *c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
+   c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps(");
+   c->Print("outpout_GetPrediction/MHT_JetBin1_HTlow" + postfix + ".png");
 
-//    Title = "2 - 3 jets, #Delta#phi cut, HT = 900 - 1300 GeV";
-//    c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
-//    c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
-//    c->Print("outpout_GetPrediction/MHT_JetBin1_HTmedium" + postfix + ".png");
+   Title = "2 - 3 jets, #Delta#phi cut, HT = 900 - 1300 GeV";
+   c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
+   c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
+   c->Print("outpout_GetPrediction/MHT_JetBin1_HTmedium" + postfix + ".png");
 
-//    Title = "2 - 3 jets, #Delta#phi cut, HT >= 1300 GeV";
-//    c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
-//    c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
-//    c->Print("outpout_GetPrediction/MHT_JetBin1_HThigh" + postfix + ".png");
+   Title = "2 - 3 jets, #Delta#phi cut, HT >= 1300 GeV";
+   c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
+   c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
+   c->Print("outpout_GetPrediction/MHT_JetBin1_HThigh" + postfix + ".png");
 
-//    // jet Bin2
-//    Title = "4 - 5 jets, #Delta#phi cut, HT = 500 - 900 GeV";
-//    c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
-//    c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
-//    c->Print("outpout_GetPrediction/MHT_JetBin2_HTlow" + postfix + ".png");
+   // jet Bin2
+   Title = "4 - 5 jets, #Delta#phi cut, HT = 500 - 900 GeV";
+   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
+   c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
+   c->Print("outpout_GetPrediction/MHT_JetBin2_HTlow" + postfix + ".png");
 
-//    Title = "4 - 5 jets, #Delta#phi cut, HT = 900 - 1300 GeV";
-//    c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
-//    c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
-//    c->Print("outpout_GetPrediction/MHT_JetBin2_HTmedium" + postfix + ".png");
+   Title = "4 - 5 jets, #Delta#phi cut, HT = 900 - 1300 GeV";
+   c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
+   c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
+   c->Print("outpout_GetPrediction/MHT_JetBin2_HTmedium" + postfix + ".png");
 
-//    Title = "4 - 5 jets, #Delta#phi cut, HT >= 1300 GeV";
-//    c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
-//    c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
-//    c->Print("outpout_GetPrediction/MHT_JetBin2_HThigh" + postfix + ".png");
+   Title = "4 - 5 jets, #Delta#phi cut, HT >= 1300 GeV";
+   c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
+   c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
+   c->Print("outpout_GetPrediction/MHT_JetBin2_HThigh" + postfix + ".png");
 
-//    // jet Bin3
-//    Title = "6 - 7 jets, #Delta#phi cut, HT = 500 - 900 GeV";
-//    c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
-//    c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
-//    c->Print("outpout_GetPrediction/MHT_JetBin3_HTlow" + postfix + ".png");
+   // jet Bin3
+   Title = "6 - 7 jets, #Delta#phi cut, HT = 500 - 900 GeV";
+   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
+   c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
+   c->Print("outpout_GetPrediction/MHT_JetBin3_HTlow" + postfix + ".png");
 
-//    Title = "6 - 7 jets, #Delta#phi cut, HT = 900 - 1300 GeV";
-//    c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
-//    c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
-//    c->Print("outpout_GetPrediction/MHT_JetBin3_HTmedium" + postfix + ".png");
+   Title = "6 - 7 jets, #Delta#phi cut, HT = 900 - 1300 GeV";
+   c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
+   c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
+   c->Print("outpout_GetPrediction/MHT_JetBin3_HTmedium" + postfix + ".png");
 
-//    Title = "6 - 7 jets, #Delta#phi cut, HT >= 1300 GeV";
-//    c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
-//    c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
-//    c->Print("outpout_GetPrediction/MHT_JetBin3_HThigh" + postfix + ".png");
+   Title = "6 - 7 jets, #Delta#phi cut, HT >= 1300 GeV";
+   c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
+   c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
+   c->Print("outpout_GetPrediction/MHT_JetBin3_HThigh" + postfix + ".png");
 
-//    // jet Bin 4
-//    Title = ">= 8 jets, #Delta#phi cut, HT = 500 - 900 GeV";
-//    c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
-//    c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
-//    c->Print("outpout_GetPrediction/MHT_JetBin4_HTlow" + postfix + ".png");
+   // jet Bin 4
+   Title = ">= 8 jets, #Delta#phi cut, HT = 500 - 900 GeV";
+   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
+   c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
+   c->Print("outpout_GetPrediction/MHT_JetBin4_HTlow" + postfix + ".png");
 
-//    Title = ">= 8 jets, #Delta#phi cut, HT = 900 - 1300 GeV";
-//    c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
-//    c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
-//    c->Print("outpout_GetPrediction/MHT_JetBin4_HTmedium" + postfix + ".png");
+   Title = ">= 8 jets, #Delta#phi cut, HT = 900 - 1300 GeV";
+   c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
+   c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
+   c->Print("outpout_GetPrediction/MHT_JetBin4_HTmedium" + postfix + ".png");
   
-//    Title = ">= 8 jets, #Delta#phi cut, HT >= 1300 GeV";
-//    c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
-//    c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps)");
-//    c->Print("outpout_GetPrediction/MHT_JetBin4_HThigh" + postfix + ".png");
+   Title = ">= 8 jets, #Delta#phi cut, HT >= 1300 GeV";
+   c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
+   c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps)");
+   c->Print("outpout_GetPrediction/MHT_JetBin4_HThigh" + postfix + ".png");
 
+   // baseline plots
    Title = "#Delta#phi cut, HT > 500 GeV, MHT > 200 GeV";
    TCanvas *c =  DrawComparison( pred_->GetPredictionHisto("NJets_baseline"), pred_->GetSelectionHisto("NJets_baseline"), Title, LumiTitle,"NJets", isData);
    c->Print("outpout_GetPrediction/QCD_NJets" + postfix + ".ps");
@@ -401,7 +394,7 @@ int main()
    double MHThigh = 500;
    int SmearRep = 100;
   
-   /*
+   
    // QCD predictions in search bins
    // first jet multiplicity bin
    cout << "----------------------" << endl;
@@ -861,7 +854,7 @@ int main()
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHThigh, -1) << endl;
    cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHThigh, -1); 
    cout << "----------------------" << endl;
-   */
+   
 
    return 1;
 }
