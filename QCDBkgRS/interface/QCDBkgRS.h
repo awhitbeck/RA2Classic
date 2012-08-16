@@ -185,10 +185,10 @@ private:
    int calcNJets_gen(const std::vector<reco::GenJet>&);
    bool calcMinDeltaPhi(const std::vector<pat::Jet>&, math::PtEtaPhiMLorentzVector&);
    bool calcMinDeltaPhi_gen(const std::vector<reco::GenJet>&, math::PtEtaPhiMLorentzVector&);
-   void FillLeadingJetVectors(const std::vector<pat::Jet>&); 
-   void FillDeltaPhiVectors(const std::vector<pat::Jet>&, math::PtEtaPhiMLorentzVector&); 
-   void FillLeadingJetVectors_gen(const std::vector<reco::GenJet>&); 
-   void FillDeltaPhiVectors_gen(const std::vector<reco::GenJet>&, math::PtEtaPhiMLorentzVector&); 
+   void FillLeadingJetPredictions(const std::vector<pat::Jet>&); 
+   void FillDeltaPhiPredictions(const std::vector<pat::Jet>&, math::PtEtaPhiMLorentzVector&); 
+   void FillLeadingJetPredictions_gen(const std::vector<reco::GenJet>&); 
+   void FillDeltaPhiPredictions_gen(const std::vector<reco::GenJet>&, math::PtEtaPhiMLorentzVector&); 
    
    bool RebalanceJets_KinFitter(edm::View<pat::Jet>*, std::vector<pat::Jet> &);
    void SmearingJets(const std::vector<pat::Jet>&, std::vector<pat::Jet> &);
@@ -241,25 +241,23 @@ private:
       
    double weight_;
 
-   // output tree used for predictions
    TTree *PredictionTree;
-   int vtxN;
-   float HT_seed;
-   vector<int> Njets_pred;
-   vector<int> Ntries_pred;
-   vector<float> HT_pred;
-   vector<float> MHT_pred;
-   vector<float> weight;
-   vector<float> Jet1Pt_pred;
-   vector<float> Jet2Pt_pred;
-   vector<float> Jet3Pt_pred;
-   vector<float> Jet1Eta_pred;
-   vector<float> Jet2Eta_pred;
-   vector<float> Jet3Eta_pred;
-   vector<float> DeltaPhi1_pred;
-   vector<float> DeltaPhi2_pred;
-   vector<float> DeltaPhi3_pred;
-
+   UShort_t vtxN;
+   UShort_t Njets_pred;
+   UShort_t Ntries_pred;
+   Float_t HT_seed;
+   Float_t HT_pred;
+   Float_t MHT_pred;
+   Float_t weight;
+   Float_t Jet1Pt_pred;
+   Float_t Jet2Pt_pred;
+   Float_t Jet3Pt_pred;
+   Float_t Jet1Eta_pred;
+   Float_t Jet2Eta_pred;
+   Float_t Jet3Eta_pred;
+   Float_t DeltaPhi1_pred;
+   Float_t DeltaPhi2_pred;
+   Float_t DeltaPhi3_pred;
 };
 
 #endif

@@ -35,22 +35,22 @@ public:
 private:
    // tree with prediction
    TTree* QCDPrediction; 
-   int vtxN;
-   vector<int> *NJets;
-   vector<int> *NSmear;
-   vector<double> *weight;
-   vector<double> *DeltaPhi1;
-   vector<double> *DeltaPhi2;
-   vector<double> *DeltaPhi3;
+   UShort_t vtxN;
+   UShort_t NJets;
+   UShort_t NSmear;
+   Float_t weight;
+   Float_t DeltaPhi1;
+   Float_t DeltaPhi2;
+   Float_t DeltaPhi3;
  
    // tree with selection
    TTree* RA2Tree; 
    UShort_t vtxN_RA2;
    UShort_t NJets_RA2;
-   float weight_RA2;
-   float DeltaPhi1_RA2;
-   float DeltaPhi2_RA2;
-   float DeltaPhi3_RA2;
+   Float_t weight_RA2;
+   Float_t DeltaPhi1_RA2;
+   Float_t DeltaPhi2_RA2;
+   Float_t DeltaPhi3_RA2;
 
    // store deltaPhi cut
    vector<bool> MinDeltaPhiCut;
@@ -72,6 +72,9 @@ private:
    TH2F* Jet1Eta_presel_pred_raw;
    TH2F* Jet2Eta_presel_pred_raw;
    TH2F* Jet3Eta_presel_pred_raw;
+   TH2F* DeltaPhi1_presel_pred_raw;
+   TH2F* DeltaPhi2_presel_pred_raw;
+   TH2F* DeltaPhi3_presel_pred_raw;
 
    // raw prediction histograms with delta phi 
    TH2F* HT_deltaPhi_pred_raw;
@@ -125,6 +128,9 @@ private:
    TH1F* Jet1Eta_presel_pred;
    TH1F* Jet2Eta_presel_pred;
    TH1F* Jet3Eta_presel_pred;
+   TH1F* DeltaPhi1_presel_pred;
+   TH1F* DeltaPhi2_presel_pred;
+   TH1F* DeltaPhi3_presel_pred;
 
    // prediction histograms with delta phi
    TH1F* HT_deltaPhi_pred;
@@ -178,6 +184,9 @@ private:
    TH1F* Jet1Eta_presel_sel;
    TH1F* Jet2Eta_presel_sel;
    TH1F* Jet3Eta_presel_sel;
+   TH1F* DeltaPhi1_presel_sel;
+   TH1F* DeltaPhi2_presel_sel;
+   TH1F* DeltaPhi3_presel_sel;
 
    // selection histograms with delta phi
    TH1F* HT_deltaPhi_sel;
@@ -225,13 +234,8 @@ private:
    // dummy histo
    TH1F* dummy;
 
-   void FillRawPredictionHisto(TH2F* raw_pred_hist, vector<double>* prediction_variable,vector<double>* HT);
-   void FillRawPredictionHistoDeltaPhi(TH2F* raw_pred_hist, vector<double>* prediction_variable);
-   void FillRawPredictionHistosSearchBins(vector<double>* HT, vector<double>* MHT);
-   void FillRawPredictionHistosBaseline(vector<double>* HT, vector<double>* MHT );
-
    bool DeltaPhiCut_selection();
-   void CalcMinDeltaPhi_prediction();
+   bool DeltaPhiCut_prediction();
    void DoRebinning(TH2F* prediction_raw, TH1F* selection_raw, int Nbins);
    TH1F* CalcPrediction(TH2F* prediction_raw);
  

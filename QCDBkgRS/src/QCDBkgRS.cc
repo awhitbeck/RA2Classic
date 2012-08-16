@@ -13,7 +13,7 @@
 //
 // Original Author:  Kristin Heine,,,DESY
 //         Created:  Tue Aug  7 15:55:02 CEST 2012
-// $Id: QCDBkgRS.cc,v 1.1 2012/08/15 08:52:33 kheine Exp $
+// $Id: QCDBkgRS.cc,v 1.2 2012/08/16 09:25:41 kheine Exp $
 //
 //
 
@@ -435,28 +435,29 @@ void QCDBkgRS::SmearingJets(const std::vector<pat::Jet> &Jets_reb, std::vector<p
          GreaterByPt<reco::Candidate> ptComparator_;
          std::sort(Jets_smeared.begin(), Jets_smeared.end(), ptComparator_);
          //Fill HT and MHT prediction histos for i-th iteration of smearing
-         FillPredictions(Jets_smeared, i, w);
+         int NJets = calcNJets(Jets_smeared);
+         if (NJets >= NJets_) {
+
+            FillPredictions(Jets_smeared, i, w);
+            PredictionTree->Fill();
+
+            weight = 0.;
+            Ntries_pred = 0.;
+            Njets_pred = 0;
+            HT_pred = 0.;
+            MHT_pred = 0.;
+            Jet1Pt_pred = 0.;
+            Jet2Pt_pred = 0.;
+            Jet3Pt_pred = 0.;
+            Jet1Eta_pred = 0.;
+            Jet2Eta_pred = 0.;
+            Jet3Eta_pred = 0.;
+            DeltaPhi1_pred = 0.;
+            DeltaPhi2_pred = 0.;
+            DeltaPhi3_pred = 0.;
+         }
       }
    }
-
-   // fill prediction tree 
-   PredictionTree->Fill();
-
-   // clear vectors
-   weight.clear();
-   Ntries_pred.clear();
-   Njets_pred.clear();
-   HT_pred.clear();
-   MHT_pred.clear();
-   Jet1Pt_pred.clear();
-   Jet2Pt_pred.clear();
-   Jet3Pt_pred.clear();
-   Jet1Eta_pred.clear();
-   Jet2Eta_pred.clear();
-   Jet3Eta_pred.clear();
-   DeltaPhi1_pred.clear();
-   DeltaPhi2_pred.clear();
-   DeltaPhi3_pred.clear();
 
    return;
 }
@@ -496,27 +497,27 @@ void QCDBkgRS::SmearingGenJets(edm::View<reco::GenJet>* Jets_gen, std::vector<re
       GreaterByPt<reco::Candidate> ptComparator_;
       std::sort(GenJets_smeared.begin(), GenJets_smeared.end(), ptComparator_);
       //Fill HT and MHT prediction histos for i-th iteration of smearing
-      FillPredictions_gen(GenJets_smeared, i, weight_);
+      int NJets = calcNJets_gen(GenJets_smeared);
+      if (NJets >= NJets_) {
+         FillPredictions_gen(GenJets_smeared, i, weight_);
+         PredictionTree->Fill();
+
+         weight = 0.;
+         Ntries_pred = 0.;
+         Njets_pred = 0;
+         HT_pred = 0.;
+         MHT_pred = 0.;
+         Jet1Pt_pred = 0.;
+         Jet2Pt_pred = 0.;
+         Jet3Pt_pred = 0.;
+         Jet1Eta_pred = 0.;
+         Jet2Eta_pred = 0.;
+         Jet3Eta_pred = 0.;
+         DeltaPhi1_pred = 0.;
+         DeltaPhi2_pred = 0.;
+         DeltaPhi3_pred = 0.;
+      }
    }
-
-   // fill prediction tree 
-   PredictionTree->Fill();
-
-   // clear vectors
-   weight.clear();
-   Ntries_pred.clear();
-   Njets_pred.clear();
-   HT_pred.clear();
-   MHT_pred.clear();
-   Jet1Pt_pred.clear();
-   Jet2Pt_pred.clear();
-   Jet3Pt_pred.clear();
-   Jet1Eta_pred.clear();
-   Jet2Eta_pred.clear();
-   Jet3Eta_pred.clear();
-   DeltaPhi1_pred.clear();
-   DeltaPhi2_pred.clear();
-   DeltaPhi3_pred.clear();
 
    return;
 }
@@ -578,30 +579,30 @@ math::PtEtaPhiMLorentzVector QCDBkgRS::calcMHT(const std::vector<pat::Jet>& Jets
 //--------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------
-void QCDBkgRS::FillLeadingJetVectors(const std::vector<pat::Jet>& Jets_smeared) {
+void QCDBkgRS::FillLeadingJetPredictions(const std::vector<pat::Jet>& Jets_smeared) {
    int NJets = 0;
    for (vector<pat::Jet>::const_iterator it = Jets_smeared.begin(); it != Jets_smeared.end(); ++it) {
       if (it->pt() > JetsHTPt_ && std::abs(it->eta()) < JetsHTEta_) {
          ++NJets;
       
          if( NJets == 1 ) {
-            Jet1Pt_pred.push_back(it->pt());
-            Jet1Eta_pred.push_back(it->eta());    
+            Jet1Pt_pred = it->pt();
+            Jet1Eta_pred = it->eta(); 
          }
-         if( NJets == 2 ) {
-            Jet2Pt_pred.push_back(it->pt());
-            Jet2Eta_pred.push_back(it->eta());    
+         if( NJets == 2 ) {            
+            Jet2Pt_pred = it->pt();
+            Jet2Eta_pred = it->eta();  
          }
          if( NJets == 3 ) {
-            Jet3Pt_pred.push_back(it->pt());
-            Jet3Eta_pred.push_back(it->eta());
+            Jet3Pt_pred = it->pt();
+            Jet3Eta_pred = it->eta();
             break;    
          }
       }
    }
    if( NJets == 2 ) {
-      Jet3Pt_pred.push_back(0.);
-      Jet3Eta_pred.push_back(0.);
+      Jet3Pt_pred = 0.;
+      Jet3Eta_pred = 0.;
    }
 
    return;
@@ -609,26 +610,26 @@ void QCDBkgRS::FillLeadingJetVectors(const std::vector<pat::Jet>& Jets_smeared) 
 //--------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------
-void QCDBkgRS::FillDeltaPhiVectors(const std::vector<pat::Jet>& Jets_smeared, math::PtEtaPhiMLorentzVector& vMHT) {
+void QCDBkgRS::FillDeltaPhiPredictions(const std::vector<pat::Jet>& Jets_smeared, math::PtEtaPhiMLorentzVector& vMHT) {
    int NJets = 0;
    for (vector<pat::Jet>::const_iterator it = Jets_smeared.begin(); it != Jets_smeared.end(); ++it) {
       if (it->pt() > JetsMHTPt_ && std::abs(it->eta()) < JetsMHTEta_) {
          ++NJets;
       
          if( NJets == 1 ) {
-            DeltaPhi1_pred.push_back(std::abs(deltaPhi(vMHT, *it)));
+            DeltaPhi1_pred = std::abs(deltaPhi(vMHT, *it));
          }
          if( NJets == 2 ) {
-            DeltaPhi2_pred.push_back(std::abs(deltaPhi(vMHT, *it)));
+            DeltaPhi2_pred = std::abs(deltaPhi(vMHT, *it));
          }
          if( NJets == 3 ) {
-            DeltaPhi3_pred.push_back(std::abs(deltaPhi(vMHT, *it)));
+            DeltaPhi3_pred = std::abs(deltaPhi(vMHT, *it));
             break;
          }
       }
    }
    if( NJets == 2 ) {
-      DeltaPhi3_pred.push_back(0.);
+      DeltaPhi3_pred = 0.;
    }
 
    return;
@@ -691,30 +692,31 @@ math::PtEtaPhiMLorentzVector QCDBkgRS::calcMHT_gen(const std::vector<reco::GenJe
 //--------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------
-void QCDBkgRS::FillLeadingJetVectors_gen(const std::vector<reco::GenJet>& Jets_smeared) {
+void QCDBkgRS::FillLeadingJetPredictions_gen(const std::vector<reco::GenJet>& Jets_smeared) {
    int NJets = 0;
    for (vector<reco::GenJet>::const_iterator it = Jets_smeared.begin(); it != Jets_smeared.end(); ++it) {
       if (it->pt() > JetsHTPt_ && std::abs(it->eta()) < JetsHTEta_) {
          ++NJets;
       
-         if( NJets == 1 ) {
-            Jet1Pt_pred.push_back(it->pt());
-            Jet1Eta_pred.push_back(it->eta());    
+         if( NJets == 1 ) {            
+            Jet1Pt_pred = it->pt();
+            Jet1Eta_pred = it->eta(); 
+              
          }
          if( NJets == 2 ) {
-            Jet2Pt_pred.push_back(it->pt());
-            Jet2Eta_pred.push_back(it->eta());    
+            Jet2Pt_pred = it->pt();
+            Jet2Eta_pred = it->eta(); 
          }
          if( NJets == 3 ) {
-            Jet3Pt_pred.push_back(it->pt());
-            Jet3Eta_pred.push_back(it->eta());  
+            Jet3Pt_pred = it->pt();
+            Jet3Eta_pred = it->eta(); 
             break;  
          }
       }
    }
    if( NJets == 2 ) {
-      Jet3Pt_pred.push_back(0.);
-      Jet3Eta_pred.push_back(0.);
+      Jet3Pt_pred = 0.;
+      Jet3Eta_pred = 0.; 
    }
 
    return;
@@ -722,26 +724,26 @@ void QCDBkgRS::FillLeadingJetVectors_gen(const std::vector<reco::GenJet>& Jets_s
 //--------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------
-void QCDBkgRS::FillDeltaPhiVectors_gen(const std::vector<reco::GenJet>& Jets_smeared, math::PtEtaPhiMLorentzVector& vMHT) {
+void QCDBkgRS::FillDeltaPhiPredictions_gen(const std::vector<reco::GenJet>& Jets_smeared, math::PtEtaPhiMLorentzVector& vMHT) {
    int NJets = 0;
    for (vector<reco::GenJet>::const_iterator it = Jets_smeared.begin(); it != Jets_smeared.end(); ++it) {
       if (it->pt() > JetsMHTPt_ && std::abs(it->eta()) < JetsMHTEta_) {
          ++NJets;
       
          if( NJets == 1 ) {
-            DeltaPhi1_pred.push_back(std::abs(deltaPhi(vMHT, *it)));
+            DeltaPhi1_pred = std::abs(deltaPhi(vMHT, *it));
          }
          if( NJets == 2 ) {
-            DeltaPhi2_pred.push_back(std::abs(deltaPhi(vMHT, *it)));
+            DeltaPhi2_pred = std::abs(deltaPhi(vMHT, *it));
          }
          if( NJets == 3 ) {
-            DeltaPhi3_pred.push_back(std::abs(deltaPhi(vMHT, *it)));
+            DeltaPhi3_pred = std::abs(deltaPhi(vMHT, *it));
             break;
          }
       }
    }
    if( NJets == 2 ) {
-      DeltaPhi3_pred.push_back(0.);
+      DeltaPhi3_pred = 0.;
    }
 
 
@@ -759,18 +761,13 @@ void QCDBkgRS::FillPredictions(const std::vector<pat::Jet>& Jets_smeared, const 
    //   bool minDeltaPhi = calcMinDeltaPhi(Jets_smeared, vMHT);
    double Meff = HT + MHT;
 
-   if (NJets >= NJets_) {
-
-      // -- fill prediction vectors -- //
-      weight.push_back(w);
-      Ntries_pred.push_back(i);
-      Njets_pred.push_back(NJets);
-      HT_pred.push_back(HT);
-      MHT_pred.push_back(MHT);
-      FillDeltaPhiVectors(Jets_smeared, vMHT);
-      FillLeadingJetVectors(Jets_smeared); 
-      // ----------------------------- //
-   }
+   weight = w;
+   Ntries_pred = i;
+   Njets_pred = NJets;
+   HT_pred = HT;
+   MHT_pred = MHT;
+   FillDeltaPhiPredictions(Jets_smeared, vMHT);
+   FillLeadingJetPredictions(Jets_smeared); 
 
    return;
 }
@@ -784,22 +781,17 @@ void QCDBkgRS::FillPredictions_gen(const std::vector<reco::GenJet>& Jets_smeared
    double HT = calcHT_gen(Jets_smeared);
    math::PtEtaPhiMLorentzVector vMHT = calcMHT_gen(Jets_smeared);
    double MHT = vMHT.pt();
-   bool minDeltaPhi = calcMinDeltaPhi_gen(Jets_smeared, vMHT);
+   //  bool minDeltaPhi = calcMinDeltaPhi_gen(Jets_smeared, vMHT);
    double Meff = HT + MHT;
 
-   if (NJets >= NJets_) { 
-
-      // -- fill prediction vectors -- //
-      weight.push_back(w);
-      Ntries_pred.push_back(i);
-      Njets_pred.push_back(NJets);
-      HT_pred.push_back(HT);
-      MHT_pred.push_back(MHT);
-      FillDeltaPhiVectors_gen(Jets_smeared, vMHT);
-      FillLeadingJetVectors_gen(Jets_smeared); 
-      // ----------------------------- //
-   }
-
+   weight = w;
+   Ntries_pred = i;
+   Njets_pred = NJets;
+   HT_pred = HT;
+   MHT_pred = MHT;
+   FillDeltaPhiPredictions_gen(Jets_smeared, vMHT);
+   FillLeadingJetPredictions_gen(Jets_smeared); 
+    
    return;
 }
 //--------------------------------------------------------------------------

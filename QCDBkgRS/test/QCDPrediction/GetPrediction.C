@@ -190,12 +190,12 @@ int main()
    // open files for MC
 
    // file with prediction
-   TFile *f = TFile::Open("/afs/naf.desy.de/user/k/kriheine/kheine/grid-control_jobs/QCDSmearing_MCClosure_8TeV_2012_NoPUReweighting_standardJets_pt15_v1.root");
-   //TFile *f = TFile::Open("../QCDSmearingClosure_OnMC.root");
+   //   TFile *f = TFile::Open("/afs/naf.desy.de/user/k/kriheine/kheine/grid-control_jobs/QCDSmearing_MCClosure_8TeV_2012_NoPUReweighting_standardJets_pt15_v1.root");
+   TFile *f = TFile::Open("../QCDSmearingClosure_OnMC.root");
 
    // file with event selection
-   TFile *g = TFile::Open("/afs/naf.desy.de/user/k/kriheine/kheine/grid-control_jobs/QCDSmearing_MCClosure_8TeV_2012_NoPUReweighting_standardJets_pt15_v1.root");
-   //TFile *g = TFile::Open("../QCDSmearingClosure_OnMC.root");
+   //TFile *g = TFile::Open("/afs/naf.desy.de/user/k/kriheine/kheine/grid-control_jobs/QCDSmearing_MCClosure_8TeV_2012_NoPUReweighting_standardJets_pt15_v1.root");
+   TFile *g = TFile::Open("../QCDSmearingClosure_OnMC.root");
 
      
    // initialize new Prediction object
@@ -208,8 +208,8 @@ int main()
    else LumiTitle = "CMS Simulation, #sqrt{s} = 8 TeV";
 
    //TString postfix = "_genJets";
-   // TString postfix = "_chsJets";
-   TString postfix = "_standardJets";
+   // TString postfix = "_chsJets_withPUReweighting";
+   TString postfix = "_standardJets_withoutPUReweighting";
 
    vector<TString> xTitle_presel;
    xTitle_presel.push_back("H_{T} (GeV)");
@@ -274,7 +274,7 @@ int main()
 
    // plots for preselection (2 jets)
    TString Title;
-   Title = "2 jets";
+   Title = ">= 2 jets";
 
    if( hist_type_presel.size() != xTitle_presel.size() ) cout << "Error: Missing xTitles preselection!!" << endl;
 
@@ -289,7 +289,7 @@ int main()
    }
 
    // plots for deltaPhi 
-   Title = "2 jets, #Delta#phi(#slash{H}_{T}, jet1-2,3)";
+   Title = ">= 2 jets, #Delta#phi(#slash{H}_{T}, jet1-2,3)";
 
    if( hist_type_deltaPhi.size() != xTitle_deltaPhi.size() ) cout << "Error: Missing xTitles preselection!!" << endl;
 
@@ -369,8 +369,8 @@ int main()
    c->Print("outpout_GetPrediction/MHT_JetBin4_HThigh" + postfix + ".png");
 
    // baseline plots
-   Title = "#Delta#phi cut, HT > 500 GeV, MHT > 200 GeV";
-   TCanvas *c =  DrawComparison( pred_->GetPredictionHisto("NJets_baseline"), pred_->GetSelectionHisto("NJets_baseline"), Title, LumiTitle,"NJets", isData);
+   Title = "#Delta#phi cut, HT > 500 GeV";//, MHT > 200 GeV";
+   c =  DrawComparison( pred_->GetPredictionHisto("NJets_baseline"), pred_->GetSelectionHisto("NJets_baseline"), Title, LumiTitle,"NJets", isData);
    c->Print("outpout_GetPrediction/QCD_NJets" + postfix + ".ps");
    c->Print("outpout_GetPrediction/NJets_baseline" + postfix + ".png");
 
@@ -383,6 +383,23 @@ int main()
    c =  DrawComparison( pred_->GetPredictionHisto("HT_baseline"), pred_->GetSelectionHisto("HT_baseline"), Title, LumiTitle,"H_{T} (GeV)", isData);
    c->Print("outpout_GetPrediction/QCD_HT_baseline" + postfix + ".ps");
    c->Print("outpout_GetPrediction/HT_baseline" + postfix + ".png");
+
+   // deltaPhi plots
+   Title = ">= 2 jets";
+   c =  DrawComparison( pred_->GetPredictionHisto("DeltaPhi1_presel"), pred_->GetSelectionHisto("DeltaPhi1_presel"), Title, LumiTitle,"#Delta#phi (jet1, MHT)", isData);
+   c->Print("outpout_GetPrediction/QCD_DeltaPhiPlots_presel" + postfix + ".ps(");
+   c->Print("outpout_GetPrediction/DeltaPhi1_presel" + postfix + ".png");
+
+   Title = ">= 2 jets";
+   c =  DrawComparison( pred_->GetPredictionHisto("DeltaPhi2_presel"), pred_->GetSelectionHisto("DeltaPhi2_presel"), Title, LumiTitle,"#Delta#phi (jet2, MHT)", isData);
+   c->Print("outpout_GetPrediction/QCD_DeltaPhiPlots_presel" + postfix + ".ps");
+   c->Print("outpout_GetPrediction/DeltaPhi2_presel" + postfix + ".png");
+
+   Title = "> 2 jets";
+   c =  DrawComparison( pred_->GetPredictionHisto("DeltaPhi3_presel"), pred_->GetSelectionHisto("DeltaPhi3_presel"), Title, LumiTitle,"#Delta#phi (jet3, MHT)", isData);
+   c->Print("outpout_GetPrediction/QCD_DeltaPhiPlots_presel" + postfix + ".ps)");
+   c->Print("outpout_GetPrediction/DeltaPhi3_presel" + postfix + ".png");
+
   
 
    // set search bin cut values for HT and MHT (check with Prediction.C)

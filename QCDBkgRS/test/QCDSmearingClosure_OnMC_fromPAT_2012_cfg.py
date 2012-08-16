@@ -25,7 +25,7 @@ process.source = cms.Source("PoolSource",
        '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v5/c18b5d949c1ba6ecb806d81a81e725f2/RA2SkimsOnMC_376_3_7KT.root',          
  	)
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 1000 ) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 8000 ) )
 ###############################################################################
 ## Global tags and geometry
 # default configuration with frontier conditions

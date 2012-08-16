@@ -23,47 +23,15 @@ Prediction::Prediction(TFile& prediction_file, TFile& selection_file)
 {
    gROOT->ProcessLine("#include <vector>");
 
-   // get tree with predictions
-   prediction_file.cd("QCDfromSmearing");
+   // set search bin cut values for HT and MHT
+   HTlow = 500.;
+   HTmedium = 900.;
+   HThigh = 1300.;
+   MHTlow = 200.;
+   MHTmedium = 350.;
+   MHThigh = 500.;
 
-   gDirectory->GetObject("QCDPrediction", QCDPrediction);
-   cout << "entries prediction tree:" << QCDPrediction->GetEntries() << endl;
-
-   // variables from prediction tree
-   double HT_seed = 0;
-   vector<double> *HT = 0;
-   vector<double> *MHT = 0;
-   vector<double> *Jet1Pt = 0;
-   vector<double> *Jet2Pt = 0;
-   vector<double> *Jet3Pt = 0;
-   vector<double> *Jet1Eta = 0;
-   vector<double> *Jet2Eta = 0;
-   vector<double> *Jet3Eta = 0;
-     
-   QCDPrediction->SetBranchAddress("NVtx",&vtxN);
-   QCDPrediction->SetBranchAddress("NJets",&NJets);
-   QCDPrediction->SetBranchAddress("Ntries",&NSmear);
-   QCDPrediction->SetBranchAddress("Weight",&weight);
-   QCDPrediction->SetBranchAddress("HT",&HT);
-   QCDPrediction->SetBranchAddress("MHT",&MHT);
-   QCDPrediction->SetBranchAddress("HT_seed",&HT_seed);
-   QCDPrediction->SetBranchAddress("Jet1Pt",&Jet1Pt);
-   QCDPrediction->SetBranchAddress("Jet2Pt",&Jet2Pt);
-   QCDPrediction->SetBranchAddress("Jet3Pt",&Jet3Pt);
-   QCDPrediction->SetBranchAddress("Jet1Eta",&Jet1Eta);
-   QCDPrediction->SetBranchAddress("Jet2Eta",&Jet2Eta);
-   QCDPrediction->SetBranchAddress("Jet3Eta",&Jet3Eta);
-   QCDPrediction->SetBranchAddress("DeltaPhi1",&DeltaPhi1);
-   QCDPrediction->SetBranchAddress("DeltaPhi2",&DeltaPhi2);
-   QCDPrediction->SetBranchAddress("DeltaPhi3",&DeltaPhi3);
-
-   NJets = 0;
-   NSmear = 0;
-   weight = 0;
-   DeltaPhi1 = 0;
-   DeltaPhi2 = 0;
-   DeltaPhi3 = 0;
-
+   // ------------- define all histos needed -------//
    // set histogram attributes
    int Ntries = 100;
 	int NbinsMHT = 150;
@@ -78,16 +46,6 @@ Prediction::Prediction(TFile& prediction_file, TFile& selection_file)
    double JetPtmax = 2500.;
    double JetEtamin = -5.;
    double JetEtamax = 5.;
-
-   // set search bin cut values for HT and MHT
-   HTlow = 500.;
-   HTmedium = 900.;
-   HThigh = 1300.;
-   MHTlow = 200.;
-   MHTmedium = 350.;
-   MHThigh = 500.;
-
-   //   MinDeltaPhiCut = False;
 
    // define prediction histograms
    HT_presel_pred_raw = new TH2F("presel_HT_prediction", "presel_HT_prediction", NbinsHT, HTmin,
@@ -106,6 +64,13 @@ Prediction::Prediction(TFile& prediction_file, TFile& selection_file)
                                       JetEtamin, JetEtamax, Ntries, 0.5, Ntries + 0.5);
    Jet3Eta_presel_pred_raw = new TH2F("presel_Jet3_Eta_prediction", "presel_Jet3_Eta", NbinsJetEta, 
                                       JetEtamin, JetEtamax, Ntries, 0.5, Ntries + 0.5);
+
+   DeltaPhi1_presel_pred_raw = new TH2F("presel_DeltaPhi1_prediction", "DeltaPhi1", 100, 
+                                      0., TMath::Pi(), Ntries, 0.5, Ntries + 0.5);
+   DeltaPhi2_presel_pred_raw = new TH2F("presel_DeltaPhi2_prediction", "DeltaPhi2", 100,
+                                      0., TMath::Pi(), Ntries, 0.5, Ntries + 0.5);
+   DeltaPhi3_presel_pred_raw = new TH2F("presel_DeltaPhi3_prediction", "DeltaPhi3", 100, 
+                                      0., TMath::Pi(), Ntries, 0.5, Ntries + 0.5);
 
    HT_deltaPhi_pred_raw = new TH2F("deltaPhi_HT_prediction", "deltaPhi_HT_prediction", NbinsHT, HTmin,
                               HTmax, Ntries, 0.5, Ntries + 0.5);
@@ -157,80 +122,7 @@ Prediction::Prediction(TFile& prediction_file, TFile& selection_file)
    MHT_baseline_pred_raw = new TH2F("MHT_baseline_pred", "MHT baseline", NbinsMHT, 
                                     MHTmin, MHTmax, Ntries, 0.5, Ntries + 0.5);
 
-
-   // loop over entries and fill prediction histos
-   Int_t nentries = QCDPrediction->GetEntries();
-   //Int_t nentries = 10000;
-   for ( Int_t i = 0 ; i<nentries ; i++) {
-      QCDPrediction->GetEntry(i);
-
-      if( i%1000 == 0 ) std::cout << "event (prediction): " << i << '\n';
-
-      // get raw prediction histos filled
-      FillRawPredictionHisto( HT_presel_pred_raw, HT, HT);
-      FillRawPredictionHisto( MHT_presel_pred_raw, MHT, HT);
-      FillRawPredictionHisto( Jet1Pt_presel_pred_raw, Jet1Pt, HT);
-      FillRawPredictionHisto( Jet2Pt_presel_pred_raw, Jet2Pt);
-      FillRawPredictionHisto( Jet3Pt_presel_pred_raw, Jet3Pt);
-      FillRawPredictionHisto( Jet1Eta_presel_pred_raw, Jet1Eta);
-      FillRawPredictionHisto( Jet2Eta_presel_pred_raw, Jet2Eta);
-      FillRawPredictionHisto( Jet3Eta_presel_pred_raw, Jet3Eta); 
-
-      // calc deltaPhi cut
-      CalcMinDeltaPhi_prediction();
-       
-      FillRawPredictionHistoDeltaPhi( HT_deltaPhi_pred_raw, HT);
-      FillRawPredictionHistoDeltaPhi( MHT_deltaPhi_pred_raw, MHT);
-      FillRawPredictionHistoDeltaPhi( Jet1Pt_deltaPhi_pred_raw, Jet1Pt); 
-      FillRawPredictionHistoDeltaPhi( Jet2Pt_deltaPhi_pred_raw, Jet2Pt); 
-      FillRawPredictionHistoDeltaPhi( Jet3Pt_deltaPhi_pred_raw, Jet3Pt); 
-      FillRawPredictionHistoDeltaPhi( Jet1Eta_deltaPhi_pred_raw, Jet1Eta); 
-      FillRawPredictionHistoDeltaPhi( Jet2Eta_deltaPhi_pred_raw, Jet2Eta); 
-      FillRawPredictionHistoDeltaPhi( Jet3Eta_deltaPhi_pred_raw, Jet3Eta); 
-
-      FillRawPredictionHistosBaseline( HT, MHT );
-
-      FillRawPredictionHistosSearchBins( HT, MHT );
-   }
-
-   ///////////////////////////////////////////////////////////////////////
-   // get event selections
-   selection_file.cd("RA2TreeMaker");
-
-   gDirectory->GetObject("RA2PreSelection", RA2Tree);
-   cout << "entries selection tree:" << RA2Tree->GetEntries() << endl;
-
-   // variables from selection tree
-   float HT_RA2 = 0;
-   float MHT_RA2 = 0;
-   float Jet1Pt_RA2 = 0;
-   float Jet2Pt_RA2 = 0;
-   float Jet3Pt_RA2 = 0;
-   float Jet1Eta_RA2 = 0;
-   float Jet2Eta_RA2 = 0;
-   float Jet3Eta_RA2 = 0;
-     
-   RA2Tree->SetBranchAddress("NVtx",&vtxN_RA2);
-   RA2Tree->SetBranchAddress("NJets",&NJets_RA2);
-   RA2Tree->SetBranchAddress("Weight",&weight_RA2);
-   RA2Tree->SetBranchAddress("HT",&HT_RA2);
-   RA2Tree->SetBranchAddress("MHT",&MHT_RA2);
-   RA2Tree->SetBranchAddress("Jet1Pt",&Jet1Pt_RA2);
-   RA2Tree->SetBranchAddress("Jet2Pt",&Jet2Pt_RA2);
-   RA2Tree->SetBranchAddress("Jet3Pt",&Jet3Pt_RA2);
-   RA2Tree->SetBranchAddress("Jet1Eta",&Jet1Eta_RA2);
-   RA2Tree->SetBranchAddress("Jet2Eta",&Jet2Eta_RA2);
-   RA2Tree->SetBranchAddress("Jet3Eta",&Jet3Eta_RA2);
-   RA2Tree->SetBranchAddress("DeltaPhi1",&DeltaPhi1_RA2);
-   RA2Tree->SetBranchAddress("DeltaPhi2",&DeltaPhi2_RA2);
-   RA2Tree->SetBranchAddress("DeltaPhi3",&DeltaPhi3_RA2);
-
-   vtxN_RA2 = 0;
-   NJets_RA2 = 0;
-   weight_RA2 = 0;
-   DeltaPhi1_RA2 = 0;
-   DeltaPhi2_RA2 = 0;
-   DeltaPhi3_RA2 = 0;
+   // ------------------------------------------------------------------------------ //
 
    // define selection histograms
    HT_presel_sel = new TH1F("presel_HT_selection", "presel_HT_selection", NbinsHT, HTmin, HTmax);
@@ -242,6 +134,10 @@ Prediction::Prediction(TFile& prediction_file, TFile& selection_file)
    Jet2Eta_presel_sel = new TH1F("presel_Jet2_Eta_selection", "presel_Jet2_Eta", NbinsJetEta, JetEtamin, JetEtamax);
    Jet3Eta_presel_sel = new TH1F("presel_Jet3_Eta_selection", "presel_Jet3_Eta", NbinsJetEta, JetEtamin, JetEtamax);
 
+   DeltaPhi1_presel_sel = new TH1F("presel_DeltaPhi1_prediction", "DeltaPhi1", 100, 0., TMath::Pi());
+   DeltaPhi2_presel_sel = new TH1F("presel_DeltaPhi2_prediction", "DeltaPhi2", 100, 0., TMath::Pi());        
+   DeltaPhi3_presel_sel = new TH1F("presel_DeltaPhi3_prediction", "DeltaPhi3", 100, 0., TMath::Pi()); 
+                                  
 
    HT_deltaPhi_sel = new TH1F("deltaPhi_HT_selection", "deltaPhi_HT_selection", NbinsHT, HTmin, HTmax);
    MHT_deltaPhi_sel = new TH1F("deltaPhi_MHT_selection", "deltaPhi_MHT_selection", NbinsMHT, MHTmin, MHTmax);
@@ -282,6 +178,197 @@ Prediction::Prediction(TFile& prediction_file, TFile& selection_file)
    HT_baseline_sel = new TH1F("HT_baseline_sel", "HT baseline", NbinsHT, HTmin, HTmax);
    MHT_baseline_sel = new TH1F("MHT_baseline_sel", "MHT baseline", NbinsMHT, MHTmin, MHTmax);
 
+   // ------------------------------------------------------------------------------ //
+
+   // get tree with predictions
+   prediction_file.cd("QCDfromSmearing");
+
+   gDirectory->GetObject("QCDPrediction", QCDPrediction);
+   cout << "entries prediction tree:" << QCDPrediction->GetEntries() << endl;
+
+   // variables from prediction tree
+   Float_t HT_seed = 0;
+   Float_t HT = 0;
+   Float_t MHT = 0;
+   Float_t Jet1Pt = 0;
+   Float_t Jet2Pt = 0;
+   Float_t Jet3Pt = 0;
+   Float_t Jet1Eta = 0;
+   Float_t Jet2Eta = 0;
+   Float_t Jet3Eta = 0;
+
+   NJets = 0;
+   NSmear = 0;
+   weight = 0;
+   DeltaPhi1 = 0;
+   DeltaPhi2 = 0;
+   DeltaPhi3 = 0;
+     
+   QCDPrediction->SetBranchAddress("NVtx",&vtxN);
+   QCDPrediction->SetBranchAddress("NJets",&NJets);
+   QCDPrediction->SetBranchAddress("Ntries",&NSmear);
+   QCDPrediction->SetBranchAddress("Weight",&weight);
+   QCDPrediction->SetBranchAddress("HT",&HT);
+   QCDPrediction->SetBranchAddress("MHT",&MHT);
+   QCDPrediction->SetBranchAddress("HT_seed",&HT_seed);
+   QCDPrediction->SetBranchAddress("Jet1Pt",&Jet1Pt);
+   QCDPrediction->SetBranchAddress("Jet2Pt",&Jet2Pt);
+   QCDPrediction->SetBranchAddress("Jet3Pt",&Jet3Pt);
+   QCDPrediction->SetBranchAddress("Jet1Eta",&Jet1Eta);
+   QCDPrediction->SetBranchAddress("Jet2Eta",&Jet2Eta);
+   QCDPrediction->SetBranchAddress("Jet3Eta",&Jet3Eta);
+   QCDPrediction->SetBranchAddress("DeltaPhi1",&DeltaPhi1);
+   QCDPrediction->SetBranchAddress("DeltaPhi2",&DeltaPhi2);
+   QCDPrediction->SetBranchAddress("DeltaPhi3",&DeltaPhi3);
+
+   // loop over entries and fill prediction histos
+   Int_t nentries = QCDPrediction->GetEntries();
+   //Int_t nentries = 10000;
+   for ( Int_t i = 0 ; i<nentries ; i++) {
+      QCDPrediction->GetEntry(i);
+
+      if( i%100000 == 0 ) std::cout << "event (prediction): " << i << '\n';
+
+      // ------------------------------------------------------------- //
+      // fill preselection histos
+      HT_presel_pred_raw->Fill(HT, NSmear, weight); 
+      MHT_presel_pred_raw->Fill(MHT, NSmear, weight); 
+      Jet1Pt_presel_pred_raw->Fill(Jet1Pt, NSmear, weight); 
+      Jet2Pt_presel_pred_raw->Fill(Jet2Pt, NSmear, weight); 
+      Jet3Pt_presel_pred_raw->Fill(Jet3Pt, NSmear, weight); 
+      Jet1Eta_presel_pred_raw->Fill(Jet1Eta, NSmear, weight); 
+      Jet2Eta_presel_pred_raw->Fill(Jet2Eta, NSmear, weight); 
+      Jet3Eta_presel_pred_raw->Fill(Jet3Eta, NSmear, weight); 
+      // fill deltaPhi preselection histos
+      if( NJets == 2 ){
+         DeltaPhi1_presel_pred_raw->Fill(DeltaPhi1, NSmear, weight);
+         DeltaPhi2_presel_pred_raw->Fill(DeltaPhi2, NSmear, weight);
+      }
+      else if( NJets > 2 ) {
+         DeltaPhi1_presel_pred_raw->Fill(DeltaPhi1, NSmear, weight);
+         DeltaPhi2_presel_pred_raw->Fill(DeltaPhi2, NSmear, weight);
+         DeltaPhi3_presel_pred_raw->Fill(DeltaPhi3, NSmear, weight);
+      }
+   
+      // ------------------------------------------------------------- //
+      // check deltaPhi cut
+      if( DeltaPhiCut_prediction() ) {    
+         
+         // fill histos after deltaPhi cut
+         HT_deltaPhi_pred_raw->Fill(HT, NSmear, weight); 
+         MHT_deltaPhi_pred_raw->Fill(MHT, NSmear, weight); 
+         Jet1Pt_deltaPhi_pred_raw->Fill(Jet1Pt, NSmear, weight); 
+         Jet2Pt_deltaPhi_pred_raw->Fill(Jet2Pt, NSmear, weight); 
+         Jet3Pt_deltaPhi_pred_raw->Fill(Jet3Pt, NSmear, weight); 
+         Jet1Eta_deltaPhi_pred_raw->Fill(Jet1Eta, NSmear, weight); 
+         Jet2Eta_deltaPhi_pred_raw->Fill(Jet2Eta, NSmear, weight); 
+         Jet3Eta_deltaPhi_pred_raw->Fill(Jet3Eta, NSmear, weight); 
+         // ------------------------------------------------------------- //
+
+         // fill baseline histos
+         if( HT > 500. ) {
+            MHT_baseline_pred_raw->Fill(MHT, NSmear, weight);
+            //  if( MHT > 200. ) {
+            NJets_baseline_pred_raw->Fill(NJets, NSmear, weight);
+            // }
+         }
+         if( MHT > 200. ) {
+            HT_baseline_pred_raw->Fill(HT, NSmear, weight);
+         } 
+         // ------------------------------------------------------------- //
+
+         //  fill different jet multiplicity bins
+         // jet bin 1
+         if( NJets == 2 || NJets == 3 ) {
+            if( HTlow < HT < HTmedium ) {
+               MHT_JetBin1_HTlow_pred_raw->Fill(MHT, NSmear, weight);
+            }
+            else if( HTmedium < HT < HThigh ) {
+               MHT_JetBin1_HTmedium_pred_raw->Fill(MHT, NSmear, weight);
+            }
+            else if( HThigh < HT ) {
+               MHT_JetBin1_HThigh_pred_raw->Fill(MHT, NSmear, weight);
+            }
+         }
+         // jet bin 2
+         else if(  NJets == 4 ||  NJets == 5 ) {
+            if( HTlow < HT < HTmedium ) {
+               MHT_JetBin2_HTlow_pred_raw->Fill(MHT, NSmear, weight);
+            }
+            else if( HTmedium < HT < HThigh ) {
+               MHT_JetBin2_HTmedium_pred_raw->Fill(MHT, NSmear, weight);
+            }
+            else if( HThigh < HT ) {
+               MHT_JetBin2_HThigh_pred_raw->Fill(MHT, NSmear, weight);
+            }
+         }
+         // jet bin 3            
+         else if(  NJets == 6  ||  NJets == 7 ) {
+            if( HTlow < HT < HTmedium ) {
+               MHT_JetBin3_HTlow_pred_raw->Fill(MHT, NSmear, weight);
+            }
+            else if( HTmedium < HT < HThigh ) {
+               MHT_JetBin3_HTmedium_pred_raw->Fill(MHT, NSmear, weight);
+            }
+            else if( HThigh < HT ) {
+               MHT_JetBin3_HThigh_pred_raw->Fill(MHT, NSmear, weight);
+            }
+         }    
+         // jet bin 4 
+         else if(  NJets >= 8 ) {
+            if( HTlow < HT < HTmedium ) {
+               MHT_JetBin4_HTlow_pred_raw->Fill(MHT, NSmear, weight);
+            }
+            else if( HTmedium < HT < HThigh ) {
+               MHT_JetBin4_HTmedium_pred_raw->Fill(MHT, NSmear, weight);
+            }
+            else if( HThigh < HT ) {
+               MHT_JetBin4_HThigh_pred_raw->Fill(MHT, NSmear, weight);
+            }
+         }    
+      }
+   }
+   // ------------------------------------------------------------- //
+
+   ///////////////////////////////////////////////////////////////////////
+   // get event selections
+   selection_file.cd("RA2TreeMaker");
+
+   gDirectory->GetObject("RA2PreSelection", RA2Tree);
+   cout << "entries selection tree:" << RA2Tree->GetEntries() << endl;
+
+   // variables from selection tree
+   Float_t HT_RA2 = 0;
+   Float_t MHT_RA2 = 0;
+   Float_t Jet1Pt_RA2 = 0;
+   Float_t Jet2Pt_RA2 = 0;
+   Float_t Jet3Pt_RA2 = 0;
+   Float_t Jet1Eta_RA2 = 0;
+   Float_t Jet2Eta_RA2 = 0;
+   Float_t Jet3Eta_RA2 = 0;
+
+   vtxN_RA2 = 0;
+   NJets_RA2 = 0;
+   weight_RA2 = 0;
+   DeltaPhi1_RA2 = 0;
+   DeltaPhi2_RA2 = 0;
+   DeltaPhi3_RA2 = 0;
+     
+   RA2Tree->SetBranchAddress("NVtx",&vtxN_RA2);
+   RA2Tree->SetBranchAddress("NJets",&NJets_RA2);
+   RA2Tree->SetBranchAddress("Weight",&weight_RA2);
+   RA2Tree->SetBranchAddress("HT",&HT_RA2);
+   RA2Tree->SetBranchAddress("MHT",&MHT_RA2);
+   RA2Tree->SetBranchAddress("Jet1Pt",&Jet1Pt_RA2);
+   RA2Tree->SetBranchAddress("Jet2Pt",&Jet2Pt_RA2);
+   RA2Tree->SetBranchAddress("Jet3Pt",&Jet3Pt_RA2);
+   RA2Tree->SetBranchAddress("Jet1Eta",&Jet1Eta_RA2);
+   RA2Tree->SetBranchAddress("Jet2Eta",&Jet2Eta_RA2);
+   RA2Tree->SetBranchAddress("Jet3Eta",&Jet3Eta_RA2);
+   RA2Tree->SetBranchAddress("DeltaPhi1",&DeltaPhi1_RA2);
+   RA2Tree->SetBranchAddress("DeltaPhi2",&DeltaPhi2_RA2);
+   RA2Tree->SetBranchAddress("DeltaPhi3",&DeltaPhi3_RA2);
+
    // loop over entries and fill selection histos
    Int_t nentries2 = RA2Tree->GetEntries();
    //Int_t nentries2 = 10000;
@@ -290,6 +377,7 @@ Prediction::Prediction(TFile& prediction_file, TFile& selection_file)
 
       if( i%1000 == 0 ) std::cout << "event (selection): " << i << '\n';
 
+      // ------------------------------------------------------------- //
       // fill preselection histos
       HT_presel_sel->Fill(HT_RA2, weight_RA2); 
       MHT_presel_sel->Fill(MHT_RA2, weight_RA2); 
@@ -299,10 +387,22 @@ Prediction::Prediction(TFile& prediction_file, TFile& selection_file)
       Jet1Eta_presel_sel->Fill(Jet1Eta_RA2, weight_RA2); 
       Jet2Eta_presel_sel->Fill(Jet2Eta_RA2, weight_RA2); 
       Jet3Eta_presel_sel->Fill(Jet3Eta_RA2, weight_RA2); 
+      // fill deltaPhi preselection histos
+      if( NJets_RA2 == 2 ){
+         DeltaPhi1_presel_sel->Fill(DeltaPhi1_RA2, weight_RA2);
+         DeltaPhi2_presel_sel->Fill(DeltaPhi2_RA2, weight_RA2);
+      }
+      else if( NJets_RA2 > 2 ) {
+         DeltaPhi1_presel_sel->Fill(DeltaPhi1_RA2, weight_RA2);
+         DeltaPhi2_presel_sel->Fill(DeltaPhi2_RA2, weight_RA2);
+         DeltaPhi3_presel_sel->Fill(DeltaPhi3_RA2, weight_RA2);
+      }
+      // ------------------------------------------------------------- //
 
+      // check deltaPhi Cut
       if( DeltaPhiCut_selection() ) {    
          
-         // fill deltaPhi histos
+         // fill histos after deltaPhi cut 
          HT_deltaPhi_sel->Fill(HT_RA2, weight_RA2); 
          MHT_deltaPhi_sel->Fill(MHT_RA2, weight_RA2); 
          Jet1Pt_deltaPhi_sel->Fill(Jet1Pt_RA2, weight_RA2); 
@@ -311,18 +411,19 @@ Prediction::Prediction(TFile& prediction_file, TFile& selection_file)
          Jet1Eta_deltaPhi_sel->Fill(Jet1Eta_RA2, weight_RA2); 
          Jet2Eta_deltaPhi_sel->Fill(Jet2Eta_RA2, weight_RA2); 
          Jet3Eta_deltaPhi_sel->Fill(Jet3Eta_RA2, weight_RA2); 
+         // ------------------------------------------------------------- //
 
          // fill baseline histos
          if( HT_RA2 > 500. ) {
             MHT_baseline_sel->Fill(MHT_RA2, weight_RA2);
-            if( MHT_RA2 > 200. ) {
-               NJets_baseline_sel->Fill(NJets_RA2, weight_RA2);
-            }
+            //  if( MHT_RA2 > 200. ) {
+            NJets_baseline_sel->Fill(NJets_RA2, weight_RA2);
+               // }
          }
          if( MHT_RA2 > 200. ) {
             HT_baseline_sel->Fill(HT_RA2, weight_RA2);
          } 
-
+         // ------------------------------------------------------------- //
 
          //  fill different jet multiplicity bins
          // jet bin 1
@@ -375,6 +476,7 @@ Prediction::Prediction(TFile& prediction_file, TFile& selection_file)
          }    
       }
    }
+   //----------------------------------------------------------//
 
    //----------------------------------------------------------//
    // rebin histos
@@ -408,6 +510,10 @@ Prediction::Prediction(TFile& prediction_file, TFile& selection_file)
    DoRebinning(MHT_JetBin4_HTlow_pred_raw, MHT_JetBin4_HTlow_sel , -1);
    DoRebinning(MHT_JetBin4_HTmedium_pred_raw, MHT_JetBin4_HTmedium_sel , -1);
    DoRebinning(MHT_JetBin4_HThigh_pred_raw, MHT_JetBin4_HThigh_sel , -1);
+
+   DoRebinning(DeltaPhi1_presel_pred_raw, DeltaPhi1_presel_sel , 5);
+   DoRebinning(DeltaPhi2_presel_pred_raw, DeltaPhi2_presel_sel , 5);
+   DoRebinning(DeltaPhi3_presel_pred_raw, DeltaPhi3_presel_sel , 5);
 
    DoRebinning(HT_baseline_pred_raw, HT_baseline_sel , -1);
    DoRebinning(MHT_baseline_pred_raw, MHT_baseline_sel , -1);
@@ -446,6 +552,10 @@ Prediction::Prediction(TFile& prediction_file, TFile& selection_file)
    MHT_JetBin4_HTmedium_pred = CalcPrediction(MHT_JetBin4_HTmedium_pred_raw);
    MHT_JetBin4_HThigh_pred = CalcPrediction(MHT_JetBin4_HThigh_pred_raw);
 
+   DeltaPhi1_presel_pred = CalcPrediction(DeltaPhi1_presel_pred_raw);
+   DeltaPhi2_presel_pred = CalcPrediction(DeltaPhi2_presel_pred_raw);
+   DeltaPhi3_presel_pred = CalcPrediction(DeltaPhi3_presel_pred_raw);
+
    NJets_baseline_pred = CalcPrediction( NJets_baseline_pred_raw);
    HT_baseline_pred = CalcPrediction( HT_baseline_pred_raw);
    MHT_baseline_pred = CalcPrediction( MHT_baseline_pred_raw);
@@ -453,227 +563,97 @@ Prediction::Prediction(TFile& prediction_file, TFile& selection_file)
 
    //----------------------------------------------------------//
    // write histos to file
-   TFile* prediction_histos = new TFile("outpout_GetPrediction/prediction_histos.root", "RECREATE");
-   HT_presel_pred->Write();
-   MHT_presel_pred->Write();
-   Jet1Pt_presel_pred->Write();
-   Jet2Pt_presel_pred->Write();
-   Jet3Pt_presel_pred->Write();
-   Jet1Eta_presel_pred->Write();
-   Jet2Eta_presel_pred->Write();
-   Jet3Eta_presel_pred->Write();
-   HT_deltaPhi_pred->Write();
-   MHT_deltaPhi_pred->Write();
-   Jet1Pt_deltaPhi_pred->Write();
-   Jet2Pt_deltaPhi_pred->Write();
-   Jet3Pt_deltaPhi_pred->Write();
-   Jet1Eta_deltaPhi_pred->Write();
-   Jet2Eta_deltaPhi_pred->Write();
-   Jet3Eta_deltaPhi_pred->Write();
-   NJets_baseline_pred->Write();
-   HT_baseline_pred->Write();
-   MHT_baseline_pred->Write();
-   MHT_JetBin1_HTlow_pred->Write();
-   MHT_JetBin1_HTmedium_pred->Write();
-   MHT_JetBin1_HThigh_pred->Write();
-   MHT_JetBin2_HTlow_pred->Write();
-   MHT_JetBin2_HTmedium_pred->Write();
-   MHT_JetBin2_HThigh_pred->Write();
-   MHT_JetBin3_HTlow_pred->Write();
-   MHT_JetBin3_HTmedium_pred->Write();
-   MHT_JetBin3_HThigh_pred->Write();
-   MHT_JetBin4_HTlow_pred->Write();
-   MHT_JetBin4_HTmedium_pred->Write();
-   MHT_JetBin4_HThigh_pred->Write();
+ //   TFile* prediction_histos = new TFile("outpout_GetPrediction/prediction_histos.root", "RECREATE");
+//    HT_presel_pred->Write();
+//    MHT_presel_pred->Write();
+//    Jet1Pt_presel_pred->Write();
+//    Jet2Pt_presel_pred->Write();
+//    Jet3Pt_presel_pred->Write();
+//    Jet1Eta_presel_pred->Write();
+//    Jet2Eta_presel_pred->Write();
+//    Jet3Eta_presel_pred->Write();
+//    HT_deltaPhi_pred->Write();
+//    MHT_deltaPhi_pred->Write();
+//    Jet1Pt_deltaPhi_pred->Write();
+//    Jet2Pt_deltaPhi_pred->Write();
+//    Jet3Pt_deltaPhi_pred->Write();
+//    Jet1Eta_deltaPhi_pred->Write();
+//    Jet2Eta_deltaPhi_pred->Write();
+//    Jet3Eta_deltaPhi_pred->Write();
+//    NJets_baseline_pred->Write();
+//    HT_baseline_pred->Write();
+//    MHT_baseline_pred->Write();
+//    MHT_JetBin1_HTlow_pred->Write();
+//    MHT_JetBin1_HTmedium_pred->Write();
+//    MHT_JetBin1_HThigh_pred->Write();
+//    MHT_JetBin2_HTlow_pred->Write();
+//    MHT_JetBin2_HTmedium_pred->Write();
+//    MHT_JetBin2_HThigh_pred->Write();
+//    MHT_JetBin3_HTlow_pred->Write();
+//    MHT_JetBin3_HTmedium_pred->Write();
+//    MHT_JetBin3_HThigh_pred->Write();
+//    MHT_JetBin4_HTlow_pred->Write();
+//    MHT_JetBin4_HTmedium_pred->Write();
+//    MHT_JetBin4_HThigh_pred->Write();
 
-   HT_presel_sel->Write();
-   MHT_presel_sel->Write();
-   Jet1Pt_presel_sel->Write();
-   Jet2Pt_presel_sel->Write();
-   Jet3Pt_presel_sel->Write();
-   Jet1Eta_presel_sel->Write();
-   Jet2Eta_presel_sel->Write();
-   Jet3Eta_presel_sel->Write();
-   HT_deltaPhi_sel->Write();
-   MHT_deltaPhi_sel->Write();
-   Jet1Pt_deltaPhi_sel->Write();
-   Jet2Pt_deltaPhi_sel->Write();
-   Jet3Pt_deltaPhi_sel->Write();
-   Jet1Eta_deltaPhi_sel->Write();
-   Jet2Eta_deltaPhi_sel->Write();
-   Jet3Eta_deltaPhi_sel->Write();
-   NJets_baseline_sel->Write();
-   HT_baseline_sel->Write();
-   MHT_baseline_sel->Write();
-   MHT_JetBin1_HTlow_sel->Write();
-   MHT_JetBin1_HTmedium_sel->Write();
-   MHT_JetBin1_HThigh_sel->Write();
-   MHT_JetBin2_HTlow_sel->Write();
-   MHT_JetBin2_HTmedium_sel->Write();
-   MHT_JetBin2_HThigh_sel->Write();
-   MHT_JetBin3_HTlow_sel->Write();
-   MHT_JetBin3_HTmedium_sel->Write();
-   MHT_JetBin3_HThigh_sel->Write();
-   MHT_JetBin4_HTlow_sel->Write();
-   MHT_JetBin4_HTmedium_sel->Write();
-   MHT_JetBin4_HThigh_sel->Write();
+//    HT_presel_sel->Write();
+//    MHT_presel_sel->Write();
+//    Jet1Pt_presel_sel->Write();
+//    Jet2Pt_presel_sel->Write();
+//    Jet3Pt_presel_sel->Write();
+//    Jet1Eta_presel_sel->Write();
+//    Jet2Eta_presel_sel->Write();
+//    Jet3Eta_presel_sel->Write();
+//    HT_deltaPhi_sel->Write();
+//    MHT_deltaPhi_sel->Write();
+//    Jet1Pt_deltaPhi_sel->Write();
+//    Jet2Pt_deltaPhi_sel->Write();
+//    Jet3Pt_deltaPhi_sel->Write();
+//    Jet1Eta_deltaPhi_sel->Write();
+//    Jet2Eta_deltaPhi_sel->Write();
+//    Jet3Eta_deltaPhi_sel->Write();
+//    NJets_baseline_sel->Write();
+//    HT_baseline_sel->Write();
+//    MHT_baseline_sel->Write();
+//    MHT_JetBin1_HTlow_sel->Write();
+//    MHT_JetBin1_HTmedium_sel->Write();
+//    MHT_JetBin1_HThigh_sel->Write();
+//    MHT_JetBin2_HTlow_sel->Write();
+//    MHT_JetBin2_HTmedium_sel->Write();
+//    MHT_JetBin2_HThigh_sel->Write();
+//    MHT_JetBin3_HTlow_sel->Write();
+//    MHT_JetBin3_HTmedium_sel->Write();
+//    MHT_JetBin3_HThigh_sel->Write();
+//    MHT_JetBin4_HTlow_sel->Write();
+//    MHT_JetBin4_HTmedium_sel->Write();
+//    MHT_JetBin4_HThigh_sel->Write();
 
-   prediction_histos->Write();
+//    prediction_histos->Write();
    //----------------------------------------------------------//
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-void Prediction::CalcMinDeltaPhi_prediction()
+bool Prediction::DeltaPhiCut_prediction()
 {
-   MinDeltaPhiCut.clear();
-
-   for (vector<int>::const_iterator it = NJets->begin(); it != NJets->end(); ++it) {
-      
-      bool deltaPhiCut = true;
-      if( *it == 2 ) {
-         if( DeltaPhi1->at(it - NJets->begin()) < 0.5 || 
-             DeltaPhi2->at(it - NJets->begin()) < 0.5 ) deltaPhiCut = false;
+   bool deltaPhiCut = true;
+      if( NJets == 2 ) {
+         if( DeltaPhi1 < 0.5 || 
+             DeltaPhi2 < 0.5 ) deltaPhiCut = false;
       }
-      else if( *it > 2 && *it < 6 ) {
-         if( DeltaPhi1->at(it - NJets->begin()) < 0.5 || 
-             DeltaPhi2->at(it - NJets->begin()) < 0.5 ||
-             DeltaPhi3->at(it - NJets->begin()) < 0.5 ) deltaPhiCut = false;
+      else if( NJets > 2 && NJets < 6 ) {
+         if( DeltaPhi1 < 0.5 || 
+             DeltaPhi2 < 0.5 ||
+             DeltaPhi3 < 0.5 ) deltaPhiCut = false;
       }     
-      else if( *it >= 6 ) {
-         if( DeltaPhi1->at(it - NJets->begin()) < 0.3 || 
-             DeltaPhi2->at(it - NJets->begin()) < 0.3 ||
-             DeltaPhi3->at(it - NJets->begin()) < 0.3 ) deltaPhiCut = false;
+      else if( NJets >= 6 ) {
+         if( DeltaPhi1 < 0.3 || 
+             DeltaPhi2 < 0.3 ||
+             DeltaPhi3 < 0.3 ) deltaPhiCut = false;
+      }  
 
-      }
-
-      MinDeltaPhiCut.push_back(deltaPhiCut);
-   }
-
-   return;
+      return deltaPhiCut;
 }
 ////////////////////////////////////////////////////////////////////////////////////////
-
-
-////////////////////////////////////////////////////////////////////////////////////////
-void Prediction::FillRawPredictionHisto(TH2F* raw_pred_hist, vector<double>* prediction_variable, vector<double>* HT )
-{
-   for (vector<double>::const_iterator it = prediction_variable->begin(); it != prediction_variable->end(); ++it) {
-      raw_pred_hist->Fill(*it, NSmear->at(it - prediction_variable->begin()), 
-                          weight->at(it - prediction_variable->begin())); 
-   }
-}
-////////////////////////////////////////////////////////////////////////////////////////
-
-
-////////////////////////////////////////////////////////////////////////////////////////
-void Prediction::FillRawPredictionHistoDeltaPhi(TH2F* raw_pred_hist, vector<double>* prediction_variable)
-{
-   for (vector<double>::const_iterator it = prediction_variable->begin(); it != prediction_variable->end(); ++it) {
-      if( MinDeltaPhiCut.at(it - prediction_variable->begin()) ) {
-         raw_pred_hist->Fill(*it, NSmear->at(it - prediction_variable->begin()), 
-                             weight->at(it - prediction_variable->begin())); 
-      }      
-   }
-}
-////////////////////////////////////////////////////////////////////////////////////////
-
-
-////////////////////////////////////////////////////////////////////////////////////////
-void Prediction::FillRawPredictionHistosSearchBins(vector<double>* HT, vector<double>* MHT)
-{
-   for (vector<int>::const_iterator it = NJets->begin(); it != NJets->end(); ++it) {
-      
-      // check deltaPhi cut
-      if( MinDeltaPhiCut.at(it - NJets->begin()) ) {
-         // fill different jet multiplicity bins
-         // jet bin 1
-         if( *it == 2 || *it == 3 ) {
-            if( HTlow < HT->at(it - NJets->begin()) < HTmedium ) {
-               MHT_JetBin1_HTlow_pred_raw->Fill(MHT->at(it-NJets->begin()), NSmear->at(it-NJets->begin()), 
-                                                weight->at(it - NJets->begin()));
-            }
-            else if( HTmedium < HT->at(it - NJets->begin()) < HThigh ) {
-               MHT_JetBin1_HTmedium_pred_raw->Fill(MHT->at(it-NJets->begin()), NSmear->at(it-NJets->begin()),
-                                                   weight->at(it - NJets->begin()));
-            }
-            else if( HThigh < HT->at(it - NJets->begin()) ) {
-               MHT_JetBin1_HThigh_pred_raw->Fill(MHT->at(it-NJets->begin()), NSmear->at(it-NJets->begin()),
-                                                   weight->at(it - NJets->begin()));
-            }
-         }
-         // jet bin 2
-         else if( *it == 4 || *it == 5 ) {
-            if( HTlow < HT->at(it - NJets->begin()) < HTmedium ) {
-               MHT_JetBin2_HTlow_pred_raw->Fill(MHT->at(it-NJets->begin()), NSmear->at(it-NJets->begin()), 
-                                                weight->at(it - NJets->begin()));
-            }
-            else if( HTmedium < HT->at(it - NJets->begin()) < HThigh ) {
-               MHT_JetBin2_HTmedium_pred_raw->Fill(MHT->at(it-NJets->begin()), NSmear->at(it-NJets->begin()),
-                                                   weight->at(it - NJets->begin()));
-            }
-            else if( HThigh < HT->at(it - NJets->begin()) ) {
-               MHT_JetBin2_HThigh_pred_raw->Fill(MHT->at(it-NJets->begin()), NSmear->at(it-NJets->begin()),
-                                                 weight->at(it - NJets->begin()));
-            }
-         }
-         // jet bin 3            
-         else if( *it == 6  || *it == 7 ) {
-            if( HTlow < HT->at(it - NJets->begin()) < HTmedium ) {
-               MHT_JetBin3_HTlow_pred_raw->Fill(MHT->at(it-NJets->begin()), NSmear->at(it-NJets->begin()), 
-                                                weight->at(it - NJets->begin()));
-            }
-            else if( HTmedium < HT->at(it - NJets->begin()) < HThigh ) {
-               MHT_JetBin3_HTmedium_pred_raw->Fill(MHT->at(it-NJets->begin()), NSmear->at(it-NJets->begin()),
-                                                   weight->at(it - NJets->begin()));
-            }
-            else if( HThigh < HT->at(it - NJets->begin()) ) {
-               MHT_JetBin3_HThigh_pred_raw->Fill(MHT->at(it-NJets->begin()), NSmear->at(it-NJets->begin()),
-                                                 weight->at(it - NJets->begin()));
-            }
-         }    
-         // jet bin 4 
-         else if( *it >= 8 ) {
-            if( HTlow < HT->at(it - NJets->begin()) < HTmedium ) {
-               MHT_JetBin4_HTlow_pred_raw->Fill(MHT->at(it-NJets->begin()), NSmear->at(it-NJets->begin()), 
-                                                weight->at(it - NJets->begin()));
-            }
-            else if( HTmedium < HT->at(it - NJets->begin()) < HThigh ) {
-               MHT_JetBin4_HTmedium_pred_raw->Fill(MHT->at(it-NJets->begin()), NSmear->at(it-NJets->begin()),
-                                                   weight->at(it - NJets->begin()));
-            }
-            else if( HThigh < HT->at(it - NJets->begin()) ) {
-               MHT_JetBin4_HThigh_pred_raw->Fill(MHT->at(it-NJets->begin()), NSmear->at(it-NJets->begin()),
-                                                 weight->at(it - NJets->begin()));
-            }
-         }    
-      }
-   }
-}
-////////////////////////////////////////////////////////////////////////////////////////
-
-
-////////////////////////////////////////////////////////////////////////////////////////
-void Prediction::FillRawPredictionHistosBaseline(vector<double>* HT, vector<double>* MHT )
-{
-   for (vector<int>::const_iterator it = NJets->begin(); it != NJets->end(); ++it) {
-      if( MinDeltaPhiCut.at(it - NJets->begin()) ) {
-         if( HT->at(it - NJets->begin()) > 500. ) {
-            MHT_baseline_pred_raw->Fill(MHT->at(it - NJets->begin()), NSmear->at(it - NJets->begin()), 
-                                        weight->at(it - NJets->begin()));
-            if( MHT->at(it - NJets->begin()) > 200. ) {
-               NJets_baseline_pred_raw->Fill(*it, NSmear->at(it - NJets->begin()), 
-                                             weight->at(it - NJets->begin()));
-            }
-         }
-         if( MHT->at(it - NJets->begin()) > 200. ) {
-            HT_baseline_pred_raw->Fill(HT->at(it - NJets->begin()), NSmear->at(it - NJets->begin()), 
-                                       weight->at(it - NJets->begin()));
-         }
-      }      
-   }
-}
-////////////////////////////////////////////////////////////////////////////////////////
-
 
 ////////////////////////////////////////////////////////////////////////////////////////
 bool Prediction::DeltaPhiCut_selection()
@@ -809,14 +789,18 @@ TH1F* Prediction::CalcPrediction(TH2F* prediction_raw) {
 ////////////////////////////////////////////////////////////////////////////////////////
 TH1F* Prediction::GetSelectionHisto(TString type) {
 
-   if ( type == "HT_presel")        return HT_presel_sel;
-   if ( type == "MHT_presel")       return MHT_presel_sel;
-   if ( type == "Jet1Pt_presel")    return Jet1Pt_presel_sel;
-   if ( type == "Jet2Pt_presel")    return Jet2Pt_presel_sel;
-   if ( type == "Jet3Pt_presel")    return Jet3Pt_presel_sel;
-   if ( type == "Jet1Eta_presel")   return Jet1Eta_presel_sel;
-   if ( type == "Jet2Eta_presel")   return Jet2Eta_presel_sel;
-   if ( type == "Jet3Eta_presel")   return Jet3Eta_presel_sel;
+   if ( type == "HT_presel")          return HT_presel_sel;
+   if ( type == "MHT_presel")         return MHT_presel_sel;
+   if ( type == "Jet1Pt_presel")      return Jet1Pt_presel_sel;
+   if ( type == "Jet2Pt_presel")      return Jet2Pt_presel_sel;
+   if ( type == "Jet3Pt_presel")      return Jet3Pt_presel_sel;
+   if ( type == "Jet1Eta_presel")     return Jet1Eta_presel_sel;
+   if ( type == "Jet2Eta_presel")     return Jet2Eta_presel_sel;
+   if ( type == "Jet3Eta_presel")     return Jet3Eta_presel_sel;
+   if ( type == "DeltaPhi1_presel")   return DeltaPhi1_presel_sel;
+   if ( type == "DeltaPhi2_presel")   return DeltaPhi2_presel_sel;
+   if ( type == "DeltaPhi3_presel")   return DeltaPhi3_presel_sel;
+
    if ( type == "HT_deltaPhi")      return HT_deltaPhi_sel;
    if ( type == "MHT_deltaPhi")     return MHT_deltaPhi_sel;
    if ( type == "Jet1Pt_deltaPhi")  return Jet1Pt_deltaPhi_sel;
@@ -853,14 +837,18 @@ TH1F* Prediction::GetSelectionHisto(TString type) {
 ////////////////////////////////////////////////////////////////////////////////////////
 TH1F* Prediction::GetPredictionHisto(TString type) {
 
-   if ( type == "HT_presel")        return HT_presel_pred;
-   if ( type == "MHT_presel")       return MHT_presel_pred;
-   if ( type == "Jet1Pt_presel")    return Jet1Pt_presel_pred;
-   if ( type == "Jet2Pt_presel")    return Jet2Pt_presel_pred;
-   if ( type == "Jet3Pt_presel")    return Jet3Pt_presel_pred;
-   if ( type == "Jet1Eta_presel")   return Jet1Eta_presel_pred;
-   if ( type == "Jet2Eta_presel")   return Jet2Eta_presel_pred;
-   if ( type == "Jet3Eta_presel")   return Jet3Eta_presel_pred;
+   if ( type == "HT_presel")          return HT_presel_pred;
+   if ( type == "MHT_presel")         return MHT_presel_pred;
+   if ( type == "Jet1Pt_presel")      return Jet1Pt_presel_pred;
+   if ( type == "Jet2Pt_presel")      return Jet2Pt_presel_pred;
+   if ( type == "Jet3Pt_presel")      return Jet3Pt_presel_pred;
+   if ( type == "Jet1Eta_presel")     return Jet1Eta_presel_pred;
+   if ( type == "Jet2Eta_presel")     return Jet2Eta_presel_pred;
+   if ( type == "Jet3Eta_presel")     return Jet3Eta_presel_pred;
+   if ( type == "DeltaPhi1_presel")   return DeltaPhi1_presel_pred;
+   if ( type == "DeltaPhi2_presel")   return DeltaPhi2_presel_pred;
+   if ( type == "DeltaPhi3_presel")   return DeltaPhi3_presel_pred;
+
    if ( type == "HT_deltaPhi")      return HT_deltaPhi_pred;
    if ( type == "MHT_deltaPhi")     return MHT_deltaPhi_pred;
    if ( type == "Jet1Pt_deltaPhi")  return Jet1Pt_deltaPhi_pred;
