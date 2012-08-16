@@ -13,7 +13,7 @@
 //
 // Original Author:  Kristin Heine,,,DESY
 //         Created:  Tue Aug  7 15:55:02 CEST 2012
-// $Id$
+// $Id: QCDBkgRS.cc,v 1.1 2012/08/15 08:52:33 kheine Exp $
 //
 //
 
@@ -894,11 +894,11 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
       */
 
-      h_JetPt_reco->Fill(it->pt());
+      h_JetPt_reco->Fill(it->pt(), weight_);
    }
 
    if (controlPlots_) {
-      h_nJets_reco->Fill(NJets_reco);
+      h_nJets_reco->Fill(NJets_reco, weight_);
       h_HTall_rec->Fill(HTall_rec, weight_);
       h_HThigh_rec->Fill(HThigh_rec, weight_);
       h_MHTall_rec->Fill(vMHTall_rec.pt(), weight_);
@@ -1033,7 +1033,7 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
            }
          */
 
-         h_JetPt_reb->Fill(it->pt());
+         h_JetPt_reb->Fill(it->pt(), weight_);
       }
       if (!isRebalanced) {
          cout << "Bad event: Can't be rebalanced!!!" << endl;
@@ -1041,7 +1041,7 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          cout << "Rebalanced: HT, MHT = " << HTall_reb << ", " << vMHTall_reb.pt() << endl;
       }
       if (controlPlots_) {
-         h_nJets_reb->Fill(NJets_reb);
+         h_nJets_reb->Fill(NJets_reb, weight_);
          h_HTall_reb->Fill(HTall_reb, weight_);
          h_HThigh_reb->Fill(HThigh_reb, weight_);
          //         if (abs(HThigh_reb - HThigh_rec) > 100) {
@@ -1263,7 +1263,7 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          }
          vMHThigh_smeared -= it->p4();
          HThigh_smeared += it->pt();
-         h_JetPt_smear->Fill(it->pt());
+         h_JetPt_smear->Fill(it->pt(), weight_);
       }
    } else if (smearCollection_ == "Gen") {
       for (vector<reco::GenJet>::const_iterator it = GenJets_smeared-> begin(); it != GenJets_smeared->end(); ++it) {
@@ -1272,7 +1272,7 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
    }
    if (controlPlots_) {
-      h_nJets_smear->Fill(NJets_smear);
+      h_nJets_smear->Fill(NJets_smear, weight_);
       h_HTall_smeared->Fill(HTlow_rec + HThigh_smeared, weight_);
       h_HThigh_smeared->Fill(HThigh_smeared, weight_);
       h_MHTall_smeared->Fill((vMHTlow_rec + vMHThigh_smeared).pt(), weight_);
