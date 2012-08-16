@@ -91,7 +91,7 @@ process.QCDfromSmearing.HTcut_extremehigh = cms.double(1400.)
 ###############################################################################
 # Weight producer
 ###############################################################################
-process.load("RA2.WeightProducer.weightproducer_cfi")
+process.load("RA2Classic.WeightProducer.weightProducer_cfi")
 process.weightProducer.weightName	= 'weight'
 process.weightProducer.Method			= 'PtHat'
 process.weightProducer.Exponent		= -4.5
