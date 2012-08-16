@@ -151,8 +151,8 @@ process.RA2TreeMaker = TreeMaker.clone(
     MHT              = cms.InputTag('mhtPFchs'),
     MHTJets          = cms.InputTag('MHTJets')
     )
-process.load('RA2Classic.TreeMaker.produceRA2JetsPFCHS_cff')
-#process.load('RA2Classic.TreeMaker.produceRA2JetsAK5PF_cff')
+process.load('RA2Classic.Utils.produceRA2JetsPFCHS_cff')
+#process.load('RA2Classic.Utils.produceRA2JetsAK5PF_cff')
 ###############################################################################
 
 ###############################################################################
