@@ -16,16 +16,17 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.source = cms.Source("PoolSource",
 	fileNames = cms.untracked.vstring(
-       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v5/c18b5d949c1ba6ecb806d81a81e725f2/RA2SkimsOnMC_362_3_aod.root',
-       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v5/c18b5d949c1ba6ecb806d81a81e725f2/RA2SkimsOnMC_306_3_9vK.root',
-       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v5/c18b5d949c1ba6ecb806d81a81e725f2/RA2SkimsOnMC_321_3_9bG.root',
-       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v5/c18b5d949c1ba6ecb806d81a81e725f2/RA2SkimsOnMC_247_3_R9O.root',
-       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v5/c18b5d949c1ba6ecb806d81a81e725f2/RA2SkimsOnMC_88_3_ncc.root',
-       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v5/c18b5d949c1ba6ecb806d81a81e725f2/RA2SkimsOnMC_167_3_Sqd.root',
-       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v5/c18b5d949c1ba6ecb806d81a81e725f2/RA2SkimsOnMC_376_3_7KT.root',          
+       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v7/956a76b9479f1eb39208c1bee6fa7dc2/RA2SkimsOnMC_253_2_ZQN.root',
+       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v7/956a76b9479f1eb39208c1bee6fa7dc2/RA2SkimsOnMC_309_2_dS7.root',
+       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v7/956a76b9479f1eb39208c1bee6fa7dc2/RA2SkimsOnMC_134_2_SGe.root',
+       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v7/956a76b9479f1eb39208c1bee6fa7dc2/RA2SkimsOnMC_116_2_3Ag.root',
+       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v7/956a76b9479f1eb39208c1bee6fa7dc2/RA2SkimsOnMC_38_2_oB6.root',
+       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v7/956a76b9479f1eb39208c1bee6fa7dc2/RA2SkimsOnMC_105_1_lKH.root',
+       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v7/956a76b9479f1eb39208c1bee6fa7dc2/RA2SkimsOnMC_214_1_GQO.root',
+       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v7/956a76b9479f1eb39208c1bee6fa7dc2/RA2SkimsOnMC_388_1_KBb.root',       
  	)
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 8000 ) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 1000 ) )
 ###############################################################################
 ## Global tags and geometry
 # default configuration with frontier conditions
@@ -45,12 +46,11 @@ process.load("RA2Classic.QCDBkgRS.qcdbkgrs_cfi")
 ###############################################################################
 # Rebalancing and Smearing configuration
 ###############################################################################
-#process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withCHS_withoutPUReweighting.root'
-process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withoutCHS_withoutPUReweighting.root'
-#process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6.root'
+process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withCHS_withPUReweighting_pixelcorr.root'
+#process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withoutCHS_withoutPUReweighting.root'
 process.QCDfromSmearing.BProbabilityFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/BJetProbability.root'
-#process.QCDfromSmearing.jetCollection = 'patJetsPF' 
-process.QCDfromSmearing.jetCollection = 'patJetsAK5PF'
+process.QCDfromSmearing.jetCollection = 'patJetsPF' 
+#process.QCDfromSmearing.jetCollection = 'patJetsAK5PF'
 process.QCDfromSmearing.uncertaintyName = '' 
 #process.QCDfromSmearing.InputHisto1_HF = 'h_b_Jet1_ResponsePt'
 #process.QCDfromSmearing.InputHisto2_HF = 'h_b_Jet2_ResponsePt'
@@ -103,9 +103,9 @@ process.weightProducer.weight			= -1.0
 #process.weightProducer.Method		= 'BinnedPythia'
 #process.weightProducer.Lumi			= 1000
 
-process.weightProducer.FileNamePUDataDistribution = 'NONE'
-#process.weightProducer.FileNamePUDataDistribution = 'RA2/Configuration/data/DataPileupHistogram_RA2Summer12_190456-196531_8TeV_PromptReco_WOLowPU.root'
-#process.weightProducer.PU = 2 # 0==Flat10, 1==Fall11, 2==Summer12                        
+#process.weightProducer.FileNamePUDataDistribution = 'NONE'
+process.weightProducer.FileNamePUDataDistribution = 'RA2Classic/AdditionalInputFiles/data/DataPileupHistogram_RA2Summer12_190456-196531_8TeV_PromptReco_WOLowPU_pixelcorr.root'
+process.weightProducer.PU = 2 # 0==Flat10, 1==Fall11, 2==Summer12                        
 ###############################################################################
 
 ###############################################################################
@@ -144,15 +144,15 @@ process.RA2TreeMaker = TreeMaker.clone(
     TreeName         = cms.string("RA2PreSelection"),
     Weight           = cms.InputTag('weightProducer:weight'),
     VertexCollection = cms.InputTag('goodVertices'),
-    HT               = cms.InputTag('htPF'),
- #   HT               = cms.InputTag('htPFchs'),
+ #   HT               = cms.InputTag('htPF'),
+    HT               = cms.InputTag('htPFchs'),
     HTJets           = cms.InputTag('HTJets'),
-    MHT              = cms.InputTag('mhtPF'),
- #   MHT              = cms.InputTag('mhtPFchs'),
+  #  MHT              = cms.InputTag('mhtPF'),
+    MHT              = cms.InputTag('mhtPFchs'),
     MHTJets          = cms.InputTag('MHTJets')
     )
-#process.load('RA2Classic.TreeMaker.produceRA2JetsPFCHS_cff')
-process.load('RA2Classic.TreeMaker.produceRA2JetsAK5PF_cff')
+process.load('RA2Classic.TreeMaker.produceRA2JetsPFCHS_cff')
+#process.load('RA2Classic.TreeMaker.produceRA2JetsAK5PF_cff')
 ###############################################################################
 
 ###############################################################################
@@ -161,8 +161,8 @@ process.dump   = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.prediction = cms.Path(
 #	process.dump *
-   process.htPFFilter *    # to be used for standard jets
-#   process.htPFchsFilter *  # to be used for chs jets
+#   process.htPFFilter *    # to be used for standard jets
+   process.htPFchsFilter *  # to be used for chs jets
    process.RA2_HBHENoiseFilterRA2 *
    process.RA2_beamHaloFilter *
    process.RA2_eeNoiseFilter *
@@ -180,8 +180,8 @@ process.prediction = cms.Path(
 )
 
 process.mc = cms.Path(
-   process.htPFFilter *    # to be used for standard jets
-  # process.htPFchsFilter *     # to be used for chs jets 
+ #  process.htPFFilter *    # to be used for standard jets
+   process.htPFchsFilter *     # to be used for chs jets 
    process.RA2_HBHENoiseFilterRA2 *
    process.RA2_beamHaloFilter *
    process.RA2_eeNoiseFilter *
@@ -195,7 +195,7 @@ process.mc = cms.Path(
 	process.weightProducer *
    process.ra2PFMuonVeto *
    process.ra2ElectronVeto * 
-  # process.produceRA2JetsPFCHS *
-   process.produceRA2JetsAK5PF *
+   process.produceRA2JetsPFCHS *
+  # process.produceRA2JetsAK5PF *
    process.RA2TreeMaker   
 )
