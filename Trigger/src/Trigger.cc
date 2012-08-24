@@ -13,7 +13,7 @@
 //
 // Original Author:  Kristin Heine,,,DESY
 //         Created:  Wed Apr 18 15:00:58 CEST 2012
-// $Id$
+// $Id: Trigger.cc,v 1.1 2012/08/15 11:45:25 kheine Exp $
 //
 //
 
@@ -248,280 +248,277 @@ Trigger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       break;
    }
 
-   // ----------------------------------------------------------------------------- //
-   // check trigger results
-   // ----------------------------------------------------------------------------- //
-   // tag for HT
-   const edm::TriggerNames & triggerNames_ = iEvent.triggerNames(*hltresults);
-   bool triggered_tag_HT = false;
-   for (unsigned int itrig = 0; itrig != hltresults->size(); ++itrig) {
-      std::string trigName = triggerNames_.triggerName(itrig);
-      //  std::cout<<" trigger name = " << trigName << std::endl;
-      bool thistrig = false;
-      //if (trigName.find("HLT_Mu60_PFHT350_v") != std::string::npos)
-      // if (trigName.find("HLT_Mu40_FJHT200_v") != std::string::npos)
-      //if (trigName.find("HLT_IsoMu24_eta2p1_v") != std::string::npos)
-      if (trigName.find("HLT_Ele27_WP80_v") != std::string::npos)
-         thistrig = hltresults->accept(itrig);
-      if (thistrig)
-         triggered_tag_HT = true;
-   }
+   // select appropriate run range for trigger under study
+   if( iEvent.id().run() < 198022 ) { // <  198022 for PFHT, >= 198022 for PFNoPUHT
 
-   // probe for HT
-   bool triggered_probe_HT = false;
-   for (unsigned int itrig = 0; itrig != hltresults->size(); ++itrig) {
-      std::string trigName = triggerNames_.triggerName(itrig);
-      //  std::cout<<" trigger name = " << trigName << std::endl;
-      bool thistrig = false;
-      if (trigName.find("HLT_PFNoPUHT350_PFMET100_v") != std::string::npos)
-      //  if (trigName.find("HLT_PFHT350_PFMET100_v") != std::string::npos)
-         thistrig = hltresults->accept(itrig);
-      if (thistrig) 
-         triggered_probe_HT = true;
-   }
+      // ----------------------------------------------------------------------------- //
+      // check trigger results
+      // ----------------------------------------------------------------------------- //
+      // tag for HT
+      const edm::TriggerNames & triggerNames_ = iEvent.triggerNames(*hltresults);
+      bool triggered_tag_HT = false;
+      for (unsigned int itrig = 0; itrig != hltresults->size(); ++itrig) {
+         std::string trigName = triggerNames_.triggerName(itrig);
+         //  std::cout<<" trigger name = " << trigName << std::endl;
+         bool thistrig = false;
+         if (trigName.find("HLT_Ele27_WP80_v") != std::string::npos)
+            thistrig = hltresults->accept(itrig);
+         if (thistrig)
+            triggered_tag_HT = true;
+      }
 
-   // tag for MHT
-   bool triggered_tag_MHT = false;
-   for (unsigned int itrig = 0; itrig != hltresults->size(); ++itrig) {
-      std::string trigName = triggerNames_.triggerName(itrig);
-      //  std::cout<<" trigger name = " << trigName << std::endl;
-      bool thistrig = false;
-      //if (trigName.find("HLT_PFHT350_v") != std::string::npos)
-      //if (trigName.find("HLT_IsoMu24_eta2p1_v") != std::string::npos)
-      //if (trigName.find("HLT_PFHT350_Mu15_PFMET45_v") != std::string::npos)
-      //if (trigName.find("HLT_Mu60_PFHT350_v") != std::string::npos)
-      if (trigName.find("HLT_Ele27_WP80_v") != std::string::npos)
-         thistrig = hltresults->accept(itrig);
-      if (thistrig) 
-         triggered_tag_MHT = true;
-   }
+      // probe for HT
+      bool triggered_probe_HT = false;
+      for (unsigned int itrig = 0; itrig != hltresults->size(); ++itrig) {
+         std::string trigName = triggerNames_.triggerName(itrig);
+         //  std::cout<<" trigger name = " << trigName << std::endl;
+         bool thistrig = false;
+         // if (trigName.find("HLT_PFNoPUHT350_PFMET100_v") != std::string::npos)
+         if (trigName.find("HLT_PFHT350_PFMET100_v") != std::string::npos)
+            thistrig = hltresults->accept(itrig);
+         if (thistrig) 
+            triggered_probe_HT = true;
+      }
 
-   // probe for MHT
-   bool triggered_probe_MHT = false;
-   for (unsigned int itrig = 0; itrig != hltresults->size(); ++itrig) {
-      std::string trigName = triggerNames_.triggerName(itrig);
-      //  std::cout<<" trigger name = " << trigName << std::endl;
-      bool thistrig = false;
-      if (trigName.find("HLT_PFNoPUHT350_PFMET100_v") != std::string::npos)
-     // if (trigName.find("HLT_PFHT350_PFMET100_v") != std::string::npos)
-         thistrig = hltresults->accept(itrig);
-      if (thistrig)
-         triggered_probe_MHT = true;
-   }
+      // tag for MHT
+      bool triggered_tag_MHT = false;
+      for (unsigned int itrig = 0; itrig != hltresults->size(); ++itrig) {
+         std::string trigName = triggerNames_.triggerName(itrig);
+         //  std::cout<<" trigger name = " << trigName << std::endl;
+         bool thistrig = false;
+         if (trigName.find("HLT_Ele27_WP80_v") != std::string::npos)
+            thistrig = hltresults->accept(itrig);
+         if (thistrig) 
+            triggered_tag_MHT = true;
+      }
 
-   // ----------------------------------------------------------------------------- //
-   // check if jets in event fulfill jet ID
-   // ----------------------------------------------------------------------------- //
-   bool goodJetEvent = true;
-   for (edm::View<pat::Jet>::const_iterator it = Jets_rec.begin(); it != Jets_rec.end(); ++it) {
-      if ( it->pt() > 30. ) {
-         PFJetIDSelectionFunctor jetIDLoosePF(PFJetIDSelectionFunctor::FIRSTDATA, PFJetIDSelectionFunctor::LOOSE);
-         pat::strbitset ret = jetIDLoosePF.getBitTemplate();
-         ret.set(false);
-         bool loose = jetIDLoosePF(*it, ret);
-         if (!loose) {
-            goodJetEvent = false;
-            break;
-         } 
+      // probe for MHT
+      bool triggered_probe_MHT = false;
+      for (unsigned int itrig = 0; itrig != hltresults->size(); ++itrig) {
+         std::string trigName = triggerNames_.triggerName(itrig);
+         //  std::cout<<" trigger name = " << trigName << std::endl;
+         bool thistrig = false;
+         //if (trigName.find("HLT_PFNoPUHT350_PFMET100_v") != std::string::npos)
+         if (trigName.find("HLT_PFHT350_PFMET100_v") != std::string::npos)
+            thistrig = hltresults->accept(itrig);
+         if (thistrig)
+            triggered_probe_MHT = true;
       }
-   }
 
-   // ----------------------------------------------------------------------------- //
-   //// Fill the histograms
-   // ----------------------------------------------------------------------------- //
-   double HT = 0.;
-   math::PtEtaPhiMLorentzVector MHT(0., 0., 0., 0.);
-   for (edm::View<pat::Jet>::const_iterator it = Jets_rec.begin(); it != Jets_rec.end(); ++it) {
-      if (goodJet_MHT(&(*it))) {
-         h_jetpt_MHT->Fill(it->pt());
-         h_jeteta_MHT->Fill(it->eta());
-         h_jetphi_MHT->Fill(it->phi());
-         MHT -= it->p4();
-      }
-      
-      if (goodJet_HT(&(*it))) {
-         h_jetpt_HT->Fill(it->pt());
-         h_jeteta_HT->Fill(it->eta());
-         h_jetphi_HT->Fill(it->phi());
-         HT += it->pt();
-      }
-   }
-
-   // fill histos for MHT + MET turn-on
-   if (triggered_tag_MHT && HT > 500. && goodJetEvent) {
-      h_MHTallprobes->Fill(MHT.pt());
-      if( MHT.pt() > 200. ) {
-         h_MHTallprobes_total->Fill(0.);
-      }
-      for (edm::View<pat::MET>::const_iterator it = Met_rec.begin(); it != Met_rec.end(); ++it) {
-         h_METallprobes->Fill(it->pt());
-         break;
-      }
-   }
-   if (triggered_probe_MHT && triggered_tag_MHT && HT > 500. && goodJetEvent) {
-      h_MHTpassedprobes->Fill(MHT.pt());
-      if( MHT.pt() > 200. ) {
-         h_MHTpassedprobes_total->Fill(0.);
-      }
-      for (edm::View<pat::MET>::const_iterator it = Met_rec.begin(); it != Met_rec.end(); ++it) {
-         h_METpassedprobes->Fill(it->pt());
-         break;
-      }
-   }
-    
-   // fill histos for HT turn-on
-   if (triggered_tag_HT && MHT.pt() > 200. && goodJetEvent) {
-       h_HTallprobes->Fill(HT);
-       if( HT > 500. ) {
-          h_HTallprobes_total->Fill(0.);
-       }
-   }
-   if (triggered_probe_HT && triggered_tag_HT && MHT.pt() > 200. && goodJetEvent) {
-      h_HTpassedprobes->Fill(HT);
-      if( HT > 500. ) {
-      h_HTpassedprobes_total->Fill(0.);
-      }
-   }
-
-   // ----------------------------------------------------------------------------- //
-   // check events which do NOT pass the signal trigger
-   // ----------------------------------------------------------------------------- //
-   int jetCounter = 0;
-   // control plots
-   if (triggered_tag_MHT && HT > 500. && MHT.pt() > 200. && !triggered_probe_MHT ) {
-      cout << "Bad event EventNumber:" << iEvent.id().event() << endl;
-      cout << "Bad event LumiNumber:" << iEvent.id().luminosityBlock() << endl;
-      cout << "Bad event RunNumber:" << iEvent.id().run() << endl;
-      cout << "Bad event HT:" << HT << endl;
-      cout << "Bad event MHT:" << MHT.pt() << endl;
-
+      // ----------------------------------------------------------------------------- //
+      // check if jets in event fulfill jet ID
+      // ----------------------------------------------------------------------------- //
+      bool goodJetEvent = true;
       for (edm::View<pat::Jet>::const_iterator it = Jets_rec.begin(); it != Jets_rec.end(); ++it) {
-         jetCounter++;
+         if ( it->pt() > 30. ) {
+            PFJetIDSelectionFunctor jetIDLoosePF(PFJetIDSelectionFunctor::FIRSTDATA, PFJetIDSelectionFunctor::LOOSE);
+            pat::strbitset ret = jetIDLoosePF.getBitTemplate();
+            ret.set(false);
+            bool loose = jetIDLoosePF(*it, ret);
+            if (!loose) {
+               goodJetEvent = false;
+               break;
+            } 
+         }
+      }
+
+      // ----------------------------------------------------------------------------- //
+      //// Fill the histograms
+      // ----------------------------------------------------------------------------- //
+      double HT = 0.;
+      math::PtEtaPhiMLorentzVector MHT(0., 0., 0., 0.);
+      for (edm::View<pat::Jet>::const_iterator it = Jets_rec.begin(); it != Jets_rec.end(); ++it) {
          if (goodJet_MHT(&(*it))) {
-         cout << "MHT jet:" << jetCounter << ": pt:" << it->pt() << endl;
-         cout << "MHT jet:" << jetCounter << ": eta:" << it->eta() << endl;
-         cout << "MHT jet:" << jetCounter << ": phi:" << it->phi() << endl;
-         cout << "MHT jet:" << jetCounter << ": photonEnergyFraction:" << it->photonEnergyFraction() << endl;
-         cout << "MHT jet:" << jetCounter << ": electronEnergyFraction:" << it->electronEnergyFraction() << endl;
-         cout << "MHT jet:" << jetCounter << ": muonEnergyFraction:" << it->muonEnergyFraction() << endl;
-         cout << "MHT jet:" << jetCounter << ": HFHadronEnergyFraction:" << it->HFHadronEnergyFraction() << endl;
-         cout << "MHT jet:" << jetCounter << ": HFEMEnergyFraction:" << it->HFEMEnergyFraction() << endl;
-         cout << "MHT jet:" << jetCounter << ": chargedHadronMultiplicity:" << it->chargedHadronMultiplicity() << endl;
-         cout << "MHT jet:" << jetCounter << ": neutralHadronMultiplicity:" << it->neutralHadronMultiplicity() << endl;
-         cout << "MHT jet:" << jetCounter << ": photonMultiplicity:" << it->photonMultiplicity() << endl;
-         cout << "MHT jet:" << jetCounter << ": electronMultiplicity:" << it->electronMultiplicity() << endl;
-         cout << "MHT jet:" << jetCounter << ": HFHadronMultiplicity:" << it->HFHadronMultiplicity() << endl;
-         cout << "MHT jet:" << jetCounter << ": HFEMMultiplicity:" << it->HFEMMultiplicity() << endl;
+            h_jetpt_MHT->Fill(it->pt());
+            h_jeteta_MHT->Fill(it->eta());
+            h_jetphi_MHT->Fill(it->phi());
+            MHT -= it->p4();
          }
-
+      
          if (goodJet_HT(&(*it))) {
-         cout << "HT jet:" << jetCounter << ": pt:" << it->pt() << endl;
-         cout << "HT jet:" << jetCounter << ": eta:" << it->eta() << endl;
-         cout << "HT jet:" << jetCounter << ": phi:" << it->phi() << endl;
-         cout << "HT jet:" << jetCounter << ": photonEnergyFraction:" << it->photonEnergyFraction() << endl;
-         cout << "HT jet:" << jetCounter << ": electronEnergyFraction:" << it->electronEnergyFraction() << endl;
-         cout << "HT jet:" << jetCounter << ": muonEnergyFraction:" << it->muonEnergyFraction() << endl;
-         cout << "HT jet:" << jetCounter << ": HFHadronEnergyFraction:" << it->HFHadronEnergyFraction() << endl;
-         cout << "HT jet:" << jetCounter << ": HFEMEnergyFraction:" << it->HFEMEnergyFraction() << endl;
-         cout << "HT jet:" << jetCounter << ": chargedHadronMultiplicity:" << it->chargedHadronMultiplicity() << endl;
-         cout << "HT jet:" << jetCounter << ": neutralHadronMultiplicity:" << it->neutralHadronMultiplicity() << endl;
-         cout << "HT jet:" << jetCounter << ": photonMultiplicity:" << it->photonMultiplicity() << endl;
-         cout << "HT jet:" << jetCounter << ": electronMultiplicity:" << it->electronMultiplicity() << endl;
-         cout << "HT jet:" << jetCounter << ": HFHadronMultiplicity:" << it->HFHadronMultiplicity() << endl;
-         cout << "HT jet:" << jetCounter << ": HFEMMultiplicity:" << it->HFEMMultiplicity() << endl;
+            h_jetpt_HT->Fill(it->pt());
+            h_jeteta_HT->Fill(it->eta());
+            h_jetphi_HT->Fill(it->phi());
+            HT += it->pt();
          }
       }
-   }
 
-   // ----------------------------------------------------------------------------- //
-   // get online HT and MHT --> does not work properly for HT
-   // ----------------------------------------------------------------------------- //
-   //--- get trigger event
-   edm::InputTag trigEventTag("hltTriggerSummaryAOD::HLT"); 
-   edm::Handle < trigger::TriggerEvent > trigEvent; 
-   iEvent.getByLabel(trigEventTag,trigEvent);
+      // fill histos for MHT + MET turn-on
+      if (triggered_tag_MHT && HT > 500. && goodJetEvent) {
+         h_MHTallprobes->Fill(MHT.pt());
+         if( MHT.pt() > 200. ) {
+            h_MHTallprobes_total->Fill(0.);
+         }
+         for (edm::View<pat::MET>::const_iterator it = Met_rec.begin(); it != Met_rec.end(); ++it) {
+            h_METallprobes->Fill(it->pt());
+            break;
+         }
+      }
+      if (triggered_probe_MHT && triggered_tag_MHT && HT > 500. && goodJetEvent) {
+         h_MHTpassedprobes->Fill(MHT.pt());
+         if( MHT.pt() > 200. ) {
+            h_MHTpassedprobes_total->Fill(0.);
+         }
+         for (edm::View<pat::MET>::const_iterator it = Met_rec.begin(); it != Met_rec.end(); ++it) {
+            h_METpassedprobes->Fill(it->pt());
+            break;
+         }
+      }
+    
+      // fill histos for HT turn-on
+      if (triggered_tag_HT && MHT.pt() > 200. && goodJetEvent) {
+         h_HTallprobes->Fill(HT);
+         if( HT > 500. ) {
+            h_HTallprobes_total->Fill(0.);
+         }
+      }
+      if (triggered_probe_HT && triggered_tag_HT && MHT.pt() > 200. && goodJetEvent) {
+         h_HTpassedprobes->Fill(HT);
+         if( HT > 500. ) {
+            h_HTpassedprobes_total->Fill(0.);
+         }
+      }
 
-   //--- specify trigger filter names ---//
-   std::string filterName_ht("hltPFHT350"); 
-   std::string filterName_mht("hltPFMHT150Filter"); 
+      // ----------------------------------------------------------------------------- //
+      // check events which do NOT pass the signal trigger
+      // ----------------------------------------------------------------------------- //
+      int jetCounter = 0;
+      // control plots
+      if (triggered_tag_MHT && HT > 500. && MHT.pt() > 200. && !triggered_probe_MHT ) {
+         cout << "Bad event EventNumber:" << iEvent.id().event() << endl;
+         cout << "Bad event LumiNumber:" << iEvent.id().luminosityBlock() << endl;
+         cout << "Bad event RunNumber:" << iEvent.id().run() << endl;
+         cout << "Bad event HT:" << HT << endl;
+         cout << "Bad event MHT:" << MHT.pt() << endl;
+
+         for (edm::View<pat::Jet>::const_iterator it = Jets_rec.begin(); it != Jets_rec.end(); ++it) {
+            jetCounter++;
+            if (goodJet_MHT(&(*it))) {
+               cout << "MHT jet:" << jetCounter << ": pt:" << it->pt() << endl;
+               cout << "MHT jet:" << jetCounter << ": eta:" << it->eta() << endl;
+               cout << "MHT jet:" << jetCounter << ": phi:" << it->phi() << endl;
+               cout << "MHT jet:" << jetCounter << ": photonEnergyFraction:" << it->photonEnergyFraction() << endl;
+               cout << "MHT jet:" << jetCounter << ": electronEnergyFraction:" << it->electronEnergyFraction() << endl;
+               cout << "MHT jet:" << jetCounter << ": muonEnergyFraction:" << it->muonEnergyFraction() << endl;
+               cout << "MHT jet:" << jetCounter << ": HFHadronEnergyFraction:" << it->HFHadronEnergyFraction() << endl;
+               cout << "MHT jet:" << jetCounter << ": HFEMEnergyFraction:" << it->HFEMEnergyFraction() << endl;
+               cout << "MHT jet:" << jetCounter << ": chargedHadronMultiplicity:" << it->chargedHadronMultiplicity() << endl;
+               cout << "MHT jet:" << jetCounter << ": neutralHadronMultiplicity:" << it->neutralHadronMultiplicity() << endl;
+               cout << "MHT jet:" << jetCounter << ": photonMultiplicity:" << it->photonMultiplicity() << endl;
+               cout << "MHT jet:" << jetCounter << ": electronMultiplicity:" << it->electronMultiplicity() << endl;
+               cout << "MHT jet:" << jetCounter << ": HFHadronMultiplicity:" << it->HFHadronMultiplicity() << endl;
+               cout << "MHT jet:" << jetCounter << ": HFEMMultiplicity:" << it->HFEMMultiplicity() << endl;
+            }
+
+            if (goodJet_HT(&(*it))) {
+               cout << "HT jet:" << jetCounter << ": pt:" << it->pt() << endl;
+               cout << "HT jet:" << jetCounter << ": eta:" << it->eta() << endl;
+               cout << "HT jet:" << jetCounter << ": phi:" << it->phi() << endl;
+               cout << "HT jet:" << jetCounter << ": photonEnergyFraction:" << it->photonEnergyFraction() << endl;
+               cout << "HT jet:" << jetCounter << ": electronEnergyFraction:" << it->electronEnergyFraction() << endl;
+               cout << "HT jet:" << jetCounter << ": muonEnergyFraction:" << it->muonEnergyFraction() << endl;
+               cout << "HT jet:" << jetCounter << ": HFHadronEnergyFraction:" << it->HFHadronEnergyFraction() << endl;
+               cout << "HT jet:" << jetCounter << ": HFEMEnergyFraction:" << it->HFEMEnergyFraction() << endl;
+               cout << "HT jet:" << jetCounter << ": chargedHadronMultiplicity:" << it->chargedHadronMultiplicity() << endl;
+               cout << "HT jet:" << jetCounter << ": neutralHadronMultiplicity:" << it->neutralHadronMultiplicity() << endl;
+               cout << "HT jet:" << jetCounter << ": photonMultiplicity:" << it->photonMultiplicity() << endl;
+               cout << "HT jet:" << jetCounter << ": electronMultiplicity:" << it->electronMultiplicity() << endl;
+               cout << "HT jet:" << jetCounter << ": HFHadronMultiplicity:" << it->HFHadronMultiplicity() << endl;
+               cout << "HT jet:" << jetCounter << ": HFEMMultiplicity:" << it->HFEMMultiplicity() << endl;
+            }
+         }
+      }
+
+      // ----------------------------------------------------------------------------- //
+      // get online HT and MHT --> does not work properly for HT
+      // ----------------------------------------------------------------------------- //
+      //--- get trigger event
+      edm::InputTag trigEventTag("hltTriggerSummaryAOD::HLT"); 
+      edm::Handle < trigger::TriggerEvent > trigEvent; 
+      iEvent.getByLabel(trigEventTag,trigEvent);
+
+      //--- specify trigger filter names ---//
+      std::string filterName_ht("hltPFHT350"); 
+      std::string filterName_mht("hltPFMHT150Filter"); 
    
-   //--- get index of specified trigger filter ---//
-   trigger::size_type filterIndex_ht = 
-      trigEvent->filterIndex(edm::InputTag(filterName_ht,"",trigEventTag.process())); 
-   trigger::size_type filterIndex_mht = 
-      trigEvent->filterIndex(edm::InputTag(filterName_mht,"",trigEventTag.process())); 
+      //--- get index of specified trigger filter ---//
+      trigger::size_type filterIndex_ht = 
+         trigEvent->filterIndex(edm::InputTag(filterName_ht,"",trigEventTag.process())); 
+      trigger::size_type filterIndex_mht = 
+         trigEvent->filterIndex(edm::InputTag(filterName_mht,"",trigEventTag.process())); 
 
-   //--- define online HT and MHT ---//
-   float hltHt(0);
-   float hltMHt(0);
+      //--- define online HT and MHT ---//
+      float hltHt(0);
+      float hltMHt(0);
 
-   //--- fill online HT ---// --> does not work properly for HT
-   if(filterIndex_ht < trigEvent->sizeFilters()){ 
-      const trigger::Keys& trigKeys = trigEvent->filterKeys(filterIndex_ht); 
-      const trigger::TriggerObjectCollection & trigObjColl(trigEvent->getObjects());
-      //now loop over the trigger objects passing filter
-      for(trigger::Keys::const_iterator keyIt = trigKeys.begin(); keyIt != trigKeys.end(); ++keyIt){ 
-         const trigger::TriggerObject& obj = trigObjColl[*keyIt];
-         hltHt = obj.pt();
-         //    cout<< "hltHT:" << hltHt << endl;
-      }   
-   }
-
-   //--- fill online MHT ---// 
-   if(filterIndex_mht < trigEvent->sizeFilters()){ 
-      const trigger::Keys& trigKeys = trigEvent->filterKeys(filterIndex_mht); 
-      const trigger::TriggerObjectCollection & trigObjColl(trigEvent->getObjects());
-      //now loop over the trigger objects passing filter
-      for(trigger::Keys::const_iterator keyIt = trigKeys.begin(); keyIt != trigKeys.end(); ++keyIt){ 
-         const trigger::TriggerObject& obj = trigObjColl[*keyIt];
-         hltMHt = obj.pt();
-      }   
-   }
-
-   // fill correlation histos online/offline HT/MHT --> does not work properly for HT
-   if(triggered_probe_HT) {
-      h_Corr_OnlineHT_OfflineHT->Fill(hltHt, HT);
-   }
-   if(triggered_probe_MHT) {
-      h_Corr_OnlineMHT_OfflineMHT->Fill(hltMHt, MHT.pt());
-      for (edm::View<pat::MET>::const_iterator it = Met_rec.begin(); it != Met_rec.end(); ++it) {
-         h_Corr_OnlineMHT_OfflineMET->Fill(hltMHt, it->pt());
-         break;
+      //--- fill online HT ---// --> does not work properly for HT
+      if(filterIndex_ht < trigEvent->sizeFilters()){ 
+         const trigger::Keys& trigKeys = trigEvent->filterKeys(filterIndex_ht); 
+         const trigger::TriggerObjectCollection & trigObjColl(trigEvent->getObjects());
+         //now loop over the trigger objects passing filter
+         for(trigger::Keys::const_iterator keyIt = trigKeys.begin(); keyIt != trigKeys.end(); ++keyIt){ 
+            const trigger::TriggerObject& obj = trigObjColl[*keyIt];
+            hltHt = obj.pt();
+            //    cout<< "hltHT:" << hltHt << endl;
+         }   
       }
-   }
 
-   // ----------------------------------------------------------------------------- //
-   // correlation between pt of jets and muons
-   // ----------------------------------------------------------------------------- //
-   for (edm::View<pat::Jet>::const_iterator it = Jets_rec.begin(); it != Jets_rec.end(); ++it) {
-      double dRmin = 100;
-      const reco::Muon* matchedMuon = 0;
-      for (edm::View<pat::Muon>::const_iterator jt = Muons_rec.begin(); jt != Muons_rec.end(); ++jt) {
-         double dR = deltaR(*jt, *it);
-         if (dR < dRmin) {
-            dRmin = dR;
-            matchedMuon = &(*jt);
-         }
-         if (dRmin < 0.1){
-            h_Corr_JetPt_MuonPT->Fill( matchedMuon->pt(), it->pt() );
+      //--- fill online MHT ---// 
+      if(filterIndex_mht < trigEvent->sizeFilters()){ 
+         const trigger::Keys& trigKeys = trigEvent->filterKeys(filterIndex_mht); 
+         const trigger::TriggerObjectCollection & trigObjColl(trigEvent->getObjects());
+         //now loop over the trigger objects passing filter
+         for(trigger::Keys::const_iterator keyIt = trigKeys.begin(); keyIt != trigKeys.end(); ++keyIt){ 
+            const trigger::TriggerObject& obj = trigObjColl[*keyIt];
+            hltMHt = obj.pt();
+         }   
+      }
+
+      // fill correlation histos online/offline HT/MHT --> does not work properly for HT
+      if(triggered_probe_HT) {
+         h_Corr_OnlineHT_OfflineHT->Fill(hltHt, HT);
+      }
+      if(triggered_probe_MHT) {
+         h_Corr_OnlineMHT_OfflineMHT->Fill(hltMHt, MHT.pt());
+         for (edm::View<pat::MET>::const_iterator it = Met_rec.begin(); it != Met_rec.end(); ++it) {
+            h_Corr_OnlineMHT_OfflineMET->Fill(hltMHt, it->pt());
+            break;
          }
       }
-   }
 
-   // ----------------------------------------------------------------------------- //
-   // correlation between pt of jets and electrons
-   // ----------------------------------------------------------------------------- //
-   for (edm::View<pat::Jet>::const_iterator it = Jets_rec.begin(); it != Jets_rec.end(); ++it) {
-      double dRmin = 100;
-      const reco::GsfElectron* matchedElectron = 0;
-      for (edm::View<pat::Electron>::const_iterator jt = Electrons_rec.begin(); jt != Electrons_rec.end(); ++jt) {
-         double dR = deltaR(*jt, *it);
-         if (dR < dRmin) {
-            dRmin = dR;
-            matchedElectron = &(*jt);
+      // ----------------------------------------------------------------------------- //
+      // correlation between pt of jets and muons
+      // ----------------------------------------------------------------------------- //
+      for (edm::View<pat::Jet>::const_iterator it = Jets_rec.begin(); it != Jets_rec.end(); ++it) {
+         double dRmin = 100;
+         const reco::Muon* matchedMuon = 0;
+         for (edm::View<pat::Muon>::const_iterator jt = Muons_rec.begin(); jt != Muons_rec.end(); ++jt) {
+            double dR = deltaR(*jt, *it);
+            if (dR < dRmin) {
+               dRmin = dR;
+               matchedMuon = &(*jt);
+            }
+            if (dRmin < 0.1){
+               h_Corr_JetPt_MuonPT->Fill( matchedMuon->pt(), it->pt() );
+            }
          }
-         if (dRmin < 0.1){
-            h_Corr_JetPt_ElectronPT->Fill( matchedElectron->pt(), it->pt() );
+      }
+
+      // ----------------------------------------------------------------------------- //
+      // correlation between pt of jets and electrons
+      // ----------------------------------------------------------------------------- //
+      for (edm::View<pat::Jet>::const_iterator it = Jets_rec.begin(); it != Jets_rec.end(); ++it) {
+         double dRmin = 100;
+         const reco::GsfElectron* matchedElectron = 0;
+         for (edm::View<pat::Electron>::const_iterator jt = Electrons_rec.begin(); jt != Electrons_rec.end(); ++jt) {
+            double dR = deltaR(*jt, *it);
+            if (dR < dRmin) {
+               dRmin = dR;
+               matchedElectron = &(*jt);
+            }
+            if (dRmin < 0.1){
+               h_Corr_JetPt_ElectronPT->Fill( matchedElectron->pt(), it->pt() );
+            }
          }
       }
    }

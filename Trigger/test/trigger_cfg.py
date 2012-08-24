@@ -15,14 +15,14 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 1000 ) )
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
-          '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_240_3_Ttj.root',
-          '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_65_3_oJh.root',
-          '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_533_3_8FE.root',
-          '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_246_3_xFc.root',
-          '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_516_3_dGK.root',
-          '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_201_3_3sC.root',
-          '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_458_3_HwI.root',
-          '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_345_3_t0O.root',                   
+    '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_312_1_l4U.root',
+    '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_290_1_Iru.root',
+    '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_212_1_LUQ.root',
+    '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_90_1_XTv.root',
+    '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_465_1_TUf.root',
+    '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_448_1_Isw.root',
+    '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_38_1_FlO.root',
+    '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_496_1_omW.root',               
     )
 )
 ###############################################################################
