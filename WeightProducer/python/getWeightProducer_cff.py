@@ -1,8 +1,12 @@
-# $Id: $
+# $Id: getWeightProducer_cff.py,v 1.1 2012/08/28 17:00:46 mschrode Exp $
 #
 # Returns a WeightProducer module that knows at runtime
 # which data sample is produced and thus, what weights
-# are required
+# are required. The function can be used as follows:
+#
+#    from RA2Classic.WeightProducer.getWeightProducer_cff import getWeightProducer
+#    process.WeightProducer = getWeightProducer(process.source.fileNames[0])
+
 
 import FWCore.ParameterSet.Config as cms
 
