@@ -1,4 +1,4 @@
-# $Id: makeTreeFromPAT_cff.py,v 1.2 2012/08/03 13:31:30 mschrode Exp $
+# $Id: makeTreeFromPAT_cff.py,v 1.3 2012/08/13 08:11:10 mschrode Exp $
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -117,6 +117,11 @@ def makeTreeFromPAT(process,
         )
 
 
+    ## --- Setup WeightProducer -------------------------------------------
+    from RA2Classic.WeightProducer.getWeightProducer_cff import getWeightProducer
+    process.WeightProducer = getWeightProducer(process.source.fileNames[0])
+        
+
     ## --- Setup of TreeMaker ----------------------------------------------
     from RA2Classic.TreeMaker.treemaker_cfi import TreeMaker
     process.RA2TreeMaker = TreeMaker.clone(
@@ -125,10 +130,11 @@ def makeTreeFromPAT(process,
         HT               = cms.InputTag(htInputCol),
         HTJets           = cms.InputTag('HTJets'),
         MHT              = cms.InputTag(mhtInputCol),
-        MHTJets          = cms.InputTag('MHTJets')
+        MHTJets          = cms.InputTag('MHTJets'),
+        Weight           = cms.InputTag('WeightProducer:weight')
         )
 
-        
+
     ## --- Final paths ----------------------------------------------------
     process.WriteTree = cms.Path(
         process.CleaningSelection *
@@ -136,5 +142,6 @@ def makeTreeFromPAT(process,
         process.NumJetSelection *
         process.HTSelection *
         process.MHTSelection *
+        process.WeightProducer *
         process.RA2TreeMaker
         )
