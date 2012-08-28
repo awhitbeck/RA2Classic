@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #Three options to define/calculate an event weight:
 weightProducer = cms.EDProducer('WeightProducer',
    #Option 1:
-   weight = cms.double( -1.0 ),          # If larger 1 use this weight
+   weight = cms.double( -1.0 ),          # If >0 use this weight
 
    #Option 2:
    weightName  = cms.InputTag('weight'), # Name of an existing weight-variable in the event
