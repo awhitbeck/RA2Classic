@@ -37,7 +37,7 @@
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id: TreeMaker.cc,v 1.2 2012/07/31 12:03:34 mschrode Exp $
+// $Id: TreeMaker.cc,v 1.3 2012/08/02 13:23:37 mschrode Exp $
 //
 //
 
@@ -165,6 +165,8 @@ TreeMaker::beginJob() {
     throw edm::Exception(edm::errors::Configuration, "TFile Service is not registered in cfg file");
   }
   tree_ = fs->make<TTree>(treeName_,treeName_);
+  tree_->SetAutoSave(10000000000);
+  tree_->SetAutoFlush(1000000);
   tree_->Branch("RunNum",&runNum_,"RunNum/i");
   tree_->Branch("LumiBlockNum",&lumiBlockNum_,"LumiBlockNum/i");
   tree_->Branch("EvtNum",&evtNum_,"EvtNum/i");
