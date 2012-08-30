@@ -1,7 +1,7 @@
+#include <cmath>
 #include <cstdlib>
 #include <iostream>
 
-#include "TCanvas.h"
 #include "TH1D.h"
 #include "TPad.h"
 #include "TStyle.h"
@@ -18,6 +18,11 @@ PlotBuilder::PlotBuilder(const TString &selectionLabel, const std::vector<DataSe
   : cfg_(cfg), canSize_(500), selectionLabel_(selectionLabel), dataSets_(dataSets) {
   setStyle("plot style");
   run("plot");
+}
+
+
+PlotBuilder::~PlotBuilder() {
+  
 }
 
 
@@ -100,6 +105,9 @@ void PlotBuilder::setStyle(const TString &key) {
       if( it->hasName("color") ) {
 	colors_[dataSetLabel] = cfg_.color(it->value("color"));
       }
+      if( it->hasName("plot label") ) {
+	dataSetLabelsInPlot_[dataSetLabel] = it->value("plot label");
+      }
     }
   }
 }
@@ -153,11 +161,12 @@ void PlotBuilder::run(const TString &key) const {
 }
 
 
-void PlotBuilder::parseHistCfg(const TString &cfg, int &nBins, double &xMin, double &xMax) const {
+void PlotBuilder::parseHistCfg(const TString &cfg, int &nBins, double &xMin, double &xMax, bool &logy) const {
   // Set defaults
   nBins = 100;
   xMin = 0.;
   xMax = 5000.;
+  logy = false;
 
   // Parse to overwrite defaults
   std::vector<TString> cfgs;
@@ -166,6 +175,7 @@ void PlotBuilder::parseHistCfg(const TString &cfg, int &nBins, double &xMin, dou
       if( i == 0 ) nBins = cfgs.at(i).Atoi();
       else if( i == 1 ) xMin = cfgs.at(i).Atof();
       else if( i == 2 ) xMax = cfgs.at(i).Atof();
+      else if( i == 3 && cfgs.at(i) == "log" ) logy = true;
     }
   }
 }
@@ -176,11 +186,12 @@ void PlotBuilder::plotSpectrum(const TString &var, const TString &dataSetLabel, 
   int nBins = 100;
   double xMin = 0.;
   double xMax = 5000.;
-  parseHistCfg(histCfg,nBins,xMin,xMax);
+  bool logy = false;
+  parseHistCfg(histCfg,nBins,xMin,xMax,logy);
   TH1* h = 0;
   DataSet::Type type = createHistogram(dataSetLabel,var,nBins,xMin,xMax,h);
 
-  TCanvas *can = new TCanvas("can",plotName(var,dataSetLabel),canSize_,canSize_);
+  TCanvas *can = new TCanvas("can","",canSize_,canSize_);
   //can->SetWindowSize(canSize_+(canSize_-can->GetWw()),canSize_+(canSize_-can->GetWh()));
   if( type == DataSet::Data ) {
     h->Draw("PE1");
@@ -192,8 +203,9 @@ void PlotBuilder::plotSpectrum(const TString &var, const TString &dataSetLabel, 
   }
   TPaveText* title = header(dataSetLabel);
   title->Draw("same");
+  if( logy ) can->SetLogy();
   gPad->RedrawAxis();
-  can->SaveAs(plotName(var,dataSetLabel)+".eps","eps");
+  storeCanvas(can,plotName(var,dataSetLabel));
 
   delete title;
   delete h;
@@ -205,7 +217,8 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
   int nBins = 100;
   double xMin = 0.;
   double xMax = 5000.;
-  parseHistCfg(histCfg,nBins,xMin,xMax);
+  bool logy = false;
+  parseHistCfg(histCfg,nBins,xMin,xMax,logy);
 
   std::vector<TH1*> hists1;
   std::vector<TString> legEntries1;
@@ -214,11 +227,12 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
   std::vector<TString> legEntries2;
   DataSet::Type type2 = createStack(dataSetLabels2,var,nBins,xMin,xMax,hists2,legEntries2);
 
-  TCanvas* can = new TCanvas("can",plotName(var,dataSetLabels1,dataSetLabels2),canSize_,canSize_);
+  TCanvas* can = new TCanvas("can","",canSize_,canSize_);
 
   TLegend* leg = legend(hists1.size()+hists2.size());
   if( type1 == DataSet::Data && type2 == DataSet::MC ) {
     // Draw histograms
+    setYRange(hists2.front(),logy);
     hists2.front()->Draw();
     for(std::vector<TH1*>::iterator it = hists2.begin();
 	it != hists2.end(); ++it) {
@@ -232,14 +246,21 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
     std::vector<TString>::const_iterator itL = legEntries1.begin();
     for(std::vector<TH1*>::iterator itH = hists1.begin();
 	itH != hists1.end(); ++itH,++itL) {
-      leg->AddEntry(*itH,*itL,"P");
+      TString entry = *itL+" (";
+      entry += static_cast<int>((*itH)->Integral(1,10000));
+      entry += +")";
+      leg->AddEntry(*itH,entry,"P");
     }
     itL = legEntries2.begin();
     for(std::vector<TH1*>::iterator itH = hists2.begin();
 	itH != hists2.end(); ++itH,++itL) {
-      leg->AddEntry(*itH,*itL,"F");
+      TString entry = *itL+" (";
+      entry += static_cast<int>((*itH)->Integral(1,10000));
+      entry += +")";
+      leg->AddEntry(*itH,entry,"F");
     }
   } else if( type2 == DataSet::Data && type1 == DataSet::MC ) {
+    setYRange(hists1.front(),logy);
     hists1.front()->Draw();
     for(std::vector<TH1*>::iterator it = hists1.begin();
 	it != hists1.end(); ++it) {
@@ -250,6 +271,7 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
       (*it)->Draw("PE1same");
     }
   } else {
+    setYRange(hists1.front(),logy);
     hists1.front()->Draw();
     for(std::vector<TH1*>::iterator it = hists1.begin();
 	it != hists1.end(); ++it) {
@@ -264,7 +286,8 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
   title->Draw("same");
   leg->Draw("same");
   gPad->RedrawAxis();
-  can->SaveAs(plotName(var,dataSetLabels1,dataSetLabels2)+".eps","eps");
+  if( logy ) can->SetLogy();
+  storeCanvas(can,plotName(var,dataSetLabels1,dataSetLabels2));
 
   for(std::vector<TH1*>::iterator it = hists1.begin();
       it != hists1.end(); ++it) {
@@ -305,7 +328,7 @@ DataSet::Type PlotBuilder::createStack(const std::vector<TString> &dataSetLabels
     TH1* h = 0;
     type = createHistogram(*it,var,nBins,xMin,xMax,h);
     setStyle(h,*it,type);
-    legEntries.push_back(" "+(*it));
+    legEntries.push_back(" "+dataSetLabelInPlot(*it));
     // Add histogram to all previous histograms
     for(std::vector<TH1*>::iterator itH = hists.begin();
 	itH != hists.end(); ++itH) {
@@ -333,7 +356,10 @@ void PlotBuilder::setYTitle(TH1* h, const TString &var) const {
   if( h->GetBinWidth(1) != 1. || Variable::unit(var) != "" ) {
     yTitle += " / ";
     if( h->GetBinWidth(1) != 1. ) {
-      yTitle += h->GetBinWidth(1);
+      TString bw = "";
+      bw += h->GetBinWidth(1);
+      if( bw.Contains(".") && bw.Length() > 5 ) bw = bw(0,5);
+      yTitle += bw;
     }
     if( Variable::unit(var) != "" ) {
       yTitle += " "+Variable::unit(var);
@@ -371,7 +397,8 @@ TPaveText* PlotBuilder::header(const TString &dataSetLabel) const {
   txt->SetTextFont(42);
   txt->SetTextAlign(02);
   txt->SetTextSize(0.05);
-  txt->AddText(lumiLabel()+(dataSetLabel != "" ? ",  "+dataSetLabel : "")+",  "+selectionLabel_);
+  TString label = dataSetLabelInPlot(dataSetLabel);
+  txt->AddText(lumiLabel()+(label != "" ? ",  "+label : "")+",  "+selectionLabel_);
   
   return txt;
 }
@@ -380,7 +407,7 @@ TPaveText* PlotBuilder::header(const TString &dataSetLabel) const {
 TLegend* PlotBuilder::legend(unsigned int nEntries) const {
   double lineHeight = 0.06;
   double margin = 0.02;
-  double x0 = 0.7;
+  double x0 = 0.45;
   double x1 = 1.-gStyle->GetPadRightMargin()-margin;
   double y1 = 1.-gStyle->GetPadTopMargin()-margin;
   double y0 = y1-nEntries*lineHeight;
@@ -412,6 +439,25 @@ TString PlotBuilder::cleanName(const TString &name) const {
 }
 
 
+DataSet* PlotBuilder::dataSet(const TString &label) const {
+  DataSet* dset = 0;
+  for(std::vector<DataSet*>::const_iterator it = dataSets_.begin();
+      it != dataSets_.end(); ++it) {
+    dset = *it;
+    if( dset->label() == label ) break;
+  }
+
+  return dset;
+}
+
+
+void PlotBuilder::storeCanvas(TCanvas* can, const TString &name) const {
+  can->SetName(name);
+  can->SetTitle(name);
+  can->SaveAs(name+".eps","eps");
+}
+
+
 TString PlotBuilder::plotName(const TString &var, const TString &dataSetLabel) const {
   return cleanName(GlobalParameters::analysisId()+"_"+var+"_"+dataSetLabel+"_"+selectionLabel_);
 }
@@ -433,13 +479,24 @@ TString PlotBuilder::plotName(const TString &var, const std::vector<TString> &da
 }
 
 
-DataSet* PlotBuilder::dataSet(const TString &label) const {
-  DataSet* dset = 0;
-  for(std::vector<DataSet*>::const_iterator it = dataSets_.begin();
-      it != dataSets_.end(); ++it) {
-    dset = *it;
-    if( dset->label() == label ) break;
-  }
+TString PlotBuilder::dataSetLabelInPlot(const TString &dataSetLabel) const {
+  TString dataSetLabelInPlot = dataSetLabel;
+  std::map<TString,TString>::const_iterator it = dataSetLabelsInPlot_.find(dataSetLabel);
+  if( it != dataSetLabelsInPlot_.end() ) dataSetLabelInPlot = it->second;
 
-  return dset;
+  return dataSetLabelInPlot;
+}
+
+
+void PlotBuilder::setYRange(TH1* &h, bool log) const {
+  double min = 3E-1;
+  double max = h->GetBinContent(h->GetMaximumBin());
+
+  double relHistHeight = 1. - (gStyle->GetPadTopMargin() + gStyle->GetPadBottomMargin());
+  if( log ) {
+    max = min * std::pow(max/min,1./relHistHeight);
+  } else {
+    max = (max-min)/relHistHeight + min;
+  }
+  h->GetYaxis()->SetRangeUser(min,max);
 }
