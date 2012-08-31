@@ -10,7 +10,7 @@ import FWCore.ParameterSet.Config as cms
 
 #-- Run the process -------------------------------------------------------------
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
-from RA2.Configuration.Preselection_cff import runRA2Preselection
+from RA2Classic.Skimming.Preselection_cff import runRA2Preselection
 runRA2Preselection(process,globalTag="START52_V11C::All",isData=False,reportEveryEvt=5000)
 
 
@@ -43,7 +43,7 @@ process.patJetPartonAssociation.coneSizeToAssociate = 0.5
 ###############################################################################
 # Weight producer
 ###############################################################################
-process.load("RA2.WeightProducer.weightProducer_cfi")
+process.load("RA2Classic.WeightProducer.weightProducer_cfi")
 process.weightProducer.weightName	= 'weight'
 process.weightProducer.Method		= 'PtHat'
 process.weightProducer.Exponent		= -4.5
