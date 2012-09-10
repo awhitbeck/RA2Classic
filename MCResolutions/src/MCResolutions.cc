@@ -4,16 +4,16 @@
 // Class:      MCResolutions
 //
 /**\class MCResolutions MCResolutions.cc JetResolutionFromMC/MCResolutions/src/MCResolutions.cc
- 
+
  Description: [one line class summary]
- 
+
  Implementation:
  [Notes on implementation]
  */
 //
 // Original Author:  Christian Sander,,,
 //         Created:  Wed Oct  6 18:22:21 CEST 2010
-// $Id: MCResolutions.cc,v 1.16 2012/07/26 09:48:00 kaussen Exp $
+// $Id: MCResolutions.cc,v 1.1 2012/08/01 13:31:08 kheine Exp $
 //
 //
 
@@ -329,7 +329,7 @@ void MCResolutions::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
          //// look if matched jet points into direction of masked ECAL cluster
          for (std::map<DetId, std::vector<double> >::iterator kt = EcalAllDeadChannelsValMap.begin(); kt
-               != EcalAllDeadChannelsValMap.end(); ++kt) {
+         != EcalAllDeadChannelsValMap.end(); ++kt) {
             math::PtEtaPhiMLorentzVectorD Evec(100., kt->second.at(0), kt->second.at(1), 0.);
             double dR_dead = deltaR(*matchedJet, Evec);
             if (dR_dead < _deltaRDeadECal) {

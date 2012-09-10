@@ -74,100 +74,100 @@
 
 class MCResolutions: public edm::EDAnalyzer {
    public:
-      explicit MCResolutions(const edm::ParameterSet&);
-      ~MCResolutions();
+   explicit MCResolutions(const edm::ParameterSet&);
+   ~MCResolutions();
 
    private:
-      virtual void beginJob();
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
-      virtual void envSet(const edm::EventSetup&);
+   virtual void beginJob();
+   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+   virtual void endJob();
+   virtual void envSet(const edm::EventSetup&);
 
-      // ----------member data ---------------------------
-      edm::InputTag _jetTag;
-      edm::InputTag _muonTag;
-      edm::InputTag _genJetTag;
-      edm::InputTag _weightName;
-      edm::InputTag _EBRecHits;
-      edm::InputTag _EERecHits;
+   // ----------member data ---------------------------
+   edm::InputTag _jetTag;
+   edm::InputTag _muonTag;
+   edm::InputTag _genJetTag;
+   edm::InputTag _weightName;
+   edm::InputTag _EBRecHits;
+   edm::InputTag _EERecHits;
 
-      double _jetMultPtCut;
-      double _jetMultEtaCut;
-      double _deltaPhiDiJet;
-      double _absCut3rdJet;
-      double _relCut3rdJet;
-      double _deltaRMatch;
-      double _deltaRMatchVeto;
-      double _absPtVeto;
-      double _relPtVeto;
-      double _deltaRDeadECal;
-      double _GenJetPtCut;
-      int _maskedEcalChannelStatusThreshold;
-      std::string _fileName;
+   double _jetMultPtCut;
+   double _jetMultEtaCut;
+   double _deltaPhiDiJet;
+   double _absCut3rdJet;
+   double _relCut3rdJet;
+   double _deltaRMatch;
+   double _deltaRMatchVeto;
+   double _absPtVeto;
+   double _relPtVeto;
+   double _deltaRDeadECal;
+   double _GenJetPtCut;
+   int _maskedEcalChannelStatusThreshold;
+   std::string _fileName;
 
-      double weight;
+   double weight;
 
-      // Channel status related
-      edm::ESHandle<EcalChannelStatus> ecalStatus; // these come from EventSetup
-      edm::ESHandle<CaloGeometry> geometry;
-      // Store DetId <==> vector<double> (eta, phi, theta)
-      std::map<DetId, std::vector<double> > EcalAllDeadChannelsValMap;
-      int getChannelStatusMaps();
-      bool mapsReady;
-      EcalTPGScale ecalScale;
+   // Channel status related
+   edm::ESHandle<EcalChannelStatus> ecalStatus; // these come from EventSetup
+   edm::ESHandle<CaloGeometry> geometry;
+   // Store DetId <==> vector<double> (eta, phi, theta)
+   std::map<DetId, std::vector<double> > EcalAllDeadChannelsValMap;
+   int getChannelStatusMaps();
+   bool mapsReady;
+   EcalTPGScale ecalScale;
 
-      // JetResponse in Pt and eta bins
-      int PtBin(const double& pt);
-      int EtaBin(const double& eta);
+   // JetResponse in Pt and eta bins
+   int PtBin(const double& pt);
+   int EtaBin(const double& eta);
 
-      // Resize histo vectors
-      void ResizeHistoVector(std::vector<std::vector<TH1F*> > &histoVector);
+   // Resize histo vectors
+   void ResizeHistoVector(std::vector<std::vector<TH1F*> > &histoVector);
 
-      // total
-      std::vector<std::vector<TH1F*> > h_tot_DiJet_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_tot_JetAll_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_tot_Jet1_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_tot_Jet2_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_tot_Jet3_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_tot_Jet4_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_tot_Jet5p_JetResPt_Pt;
-      // with btag
-      std::vector<std::vector<TH1F*> > h_b_DiJet_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_b_JetAll_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_b_Jet1_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_b_Jet2_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_b_Jet3_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_b_Jet4_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_b_Jet5p_JetResPt_Pt;
-      // without btag
-      std::vector<std::vector<TH1F*> > h_nob_DiJet_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_nob_JetAll_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_nob_Jet1_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_nob_Jet2_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_nob_Jet3_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_nob_Jet4_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_nob_Jet5p_JetResPt_Pt;
-      // in direction of dead ECAL cells
-      std::vector<std::vector<TH1F*> > h_dead_DiJet_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_dead_JetAll_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_dead_Jet1_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_dead_Jet2_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_dead_Jet3_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_dead_Jet4_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_dead_Jet5p_JetResPt_Pt;
-      // in direction of dead ECAL cells and with b tag
-      std::vector<std::vector<TH1F*> > h_deadb_DiJet_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_deadb_JetAll_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_deadb_Jet1_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_deadb_Jet2_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_deadb_Jet3_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_deadb_Jet4_JetResPt_Pt;
-      std::vector<std::vector<TH1F*> > h_deadb_Jet5p_JetResPt_Pt;
+   // total
+   std::vector<std::vector<TH1F*> > h_tot_DiJet_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_tot_JetAll_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_tot_Jet1_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_tot_Jet2_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_tot_Jet3_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_tot_Jet4_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_tot_Jet5p_JetResPt_Pt;
+   // with btag
+   std::vector<std::vector<TH1F*> > h_b_DiJet_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_b_JetAll_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_b_Jet1_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_b_Jet2_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_b_Jet3_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_b_Jet4_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_b_Jet5p_JetResPt_Pt;
+   // without btag
+   std::vector<std::vector<TH1F*> > h_nob_DiJet_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_nob_JetAll_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_nob_Jet1_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_nob_Jet2_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_nob_Jet3_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_nob_Jet4_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_nob_Jet5p_JetResPt_Pt;
+   // in direction of dead ECAL cells
+   std::vector<std::vector<TH1F*> > h_dead_DiJet_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_dead_JetAll_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_dead_Jet1_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_dead_Jet2_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_dead_Jet3_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_dead_Jet4_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_dead_Jet5p_JetResPt_Pt;
+   // in direction of dead ECAL cells and with b tag
+   std::vector<std::vector<TH1F*> > h_deadb_DiJet_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_deadb_JetAll_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_deadb_Jet1_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_deadb_Jet2_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_deadb_Jet3_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_deadb_Jet4_JetResPt_Pt;
+   std::vector<std::vector<TH1F*> > h_deadb_Jet5p_JetResPt_Pt;
 
-      std::vector<double> PtBinEdges;
-      std::vector<double> EtaBinEdges;
+   std::vector<double> PtBinEdges;
+   std::vector<double> EtaBinEdges;
 
-      TFile* hfile;
+   TFile* hfile;
 
 };
 
