@@ -21,6 +21,6 @@ private:
   std::vector<Selection*> selections_;
 
   void init(const Config &cfg, const TString &key);
-  void makePlots(const TString &selectionLabel, const std::vector<DataSet*> &dataSets, const Config &cfg) const { PlotBuilder(selectionLabel,dataSets,cfg); }
+  void makePlots(const std::vector<DataSet*> &dataSets, const Config &cfg) const { PlotBuilder(dataSets,cfg); }
 };
 #endif

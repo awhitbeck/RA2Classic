@@ -89,6 +89,7 @@ DataSet* SelectionSequence::operator()(const DataSet* dataSet) const {
     delete tmp1;
     tmp1 = tmp2;
   }
+  tmp1->selection(label());
 
   return tmp1;
 }
@@ -105,7 +106,7 @@ void SelectionSequence::print() const {
 
 // ---------------------------------------------------------------
 Cut::Cut(const TString &cut)
-  : cut_(cut) {
+  : cut_(cut), count_(0) {
   garbageCollection_.push_back(this);
 
   if( cut_.Contains(">") ) {	// Expect VAR > X
@@ -151,6 +152,7 @@ DataSet* Cut::operator()(const DataSet* dataSet) const {
     if( varIsAbs_ ) val = std::abs(val);
     if( val > min_ && val < max_ ) passed.push_back(*it);
   }
+  count_ = passed.size();
 
-  return new SelectedDataSet(dataSet->type(),dataSet->label(),passed,dataSet->weightScale());
+  return new SelectedDataSet(dataSet->type(),dataSet->label(),label(),passed,dataSet->weightScale());
 }

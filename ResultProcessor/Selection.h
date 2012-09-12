@@ -1,6 +1,7 @@
 #ifndef SELECTION_H
 #define SELECTION_H
 
+#include <iomanip>
 #include <iostream>
 #include <vector>
 
@@ -51,7 +52,8 @@ public:
 
   DataSet* operator()(const DataSet* dataSet) const;
   TString label() const { return "Cut: "+cut_; }
-  void print() const { std::cout << "      " << cut_ << std::endl; }
+  void print() const { 
+    std::cout << "      " << std::setw(15) << cut_ << ": " << std::setw(10) << count_ << std::endl; }
 
 
 private:
@@ -60,5 +62,7 @@ private:
   bool varIsAbs_;
   double min_;
   double max_;
+
+  mutable unsigned int count_;
 };
 #endif

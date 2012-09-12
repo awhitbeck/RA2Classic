@@ -4,7 +4,7 @@ ROOTCFLAGS = $(shell root-config --cflags)
 CFLAG      = -I $(ROOTCFLAGS)
 LFLAG      = $(ROOTLIBS)
 
-OBJ     = Config.o DataSet.o Event.o EventBuilder.o GlobalParameters.o MrRA2.o PlotBuilder.o Selection.o Variable.o
+OBJ     = Config.o DataSet.o Event.o EventBuilder.o EventInfoPrinter.o GlobalParameters.o MrRA2.o PlotBuilder.o Selection.o Variable.o
 
 
 run: $(OBJ)		
@@ -22,6 +22,9 @@ Event.o: Event.h Event.cc
 
 EventBuilder.o: EventBuilder.h EventBuilder.cc Event.h Variable.h
 	g++ $(CFLAG) -c  EventBuilder.cc
+
+EventInfoPrinter.o: EventInfoPrinter.h EventInfoPrinter.cc Config.h DataSet.h Event.h Variable.h
+	g++ $(CFLAG) -c  EventInfoPrinter.cc
 
 GlobalParameters.o: GlobalParameters.h GlobalParameters.cc Config.h
 	g++ $(CFLAG) -c  GlobalParameters.cc

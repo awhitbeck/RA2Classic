@@ -14,8 +14,8 @@
 unsigned int PlotBuilder::count_ = 0;
 
 
-PlotBuilder::PlotBuilder(const TString &selectionLabel, const std::vector<DataSet*> &dataSets, const Config &cfg)
-  : cfg_(cfg), canSize_(500), selectionLabel_(selectionLabel), dataSets_(dataSets) {
+PlotBuilder::PlotBuilder(const std::vector<DataSet*> &dataSets, const Config &cfg)
+  : cfg_(cfg), canSize_(500), dataSets_(dataSets) {
   setStyle("plot style");
   run("plot");
 }
@@ -398,7 +398,7 @@ TPaveText* PlotBuilder::header(const TString &dataSetLabel) const {
   txt->SetTextAlign(02);
   txt->SetTextSize(0.05);
   TString label = dataSetLabelInPlot(dataSetLabel);
-  txt->AddText(lumiLabel()+(label != "" ? ",  "+label : "")+",  "+selectionLabel_);
+  txt->AddText(lumiLabel()+(label != "" ? ",  "+label : "")+",  "+dataSets_.front()->selection());
   
   return txt;
 }
@@ -459,7 +459,7 @@ void PlotBuilder::storeCanvas(TCanvas* can, const TString &name) const {
 
 
 TString PlotBuilder::plotName(const TString &var, const TString &dataSetLabel) const {
-  return cleanName(GlobalParameters::analysisId()+"_"+var+"_"+dataSetLabel+"_"+selectionLabel_);
+  return cleanName(GlobalParameters::analysisId()+"_"+var+"_"+dataSetLabel+"_"+dataSets_.front()->selection());
 }
 
 
@@ -475,7 +475,7 @@ TString PlotBuilder::plotName(const TString &var, const std::vector<TString> &da
     label2 += "+"+*it;
   }
 
-  return cleanName(GlobalParameters::analysisId()+"_"+var+"_"+label1+"_vs_"+label2+"_"+selectionLabel_);
+  return cleanName(GlobalParameters::analysisId()+"_"+var+"_"+label1+"_vs_"+label2+"_"+dataSets_.front()->selection());
 }
 
 

@@ -47,7 +47,7 @@ std::vector<DataSet*> DataSet::createDataSets(const Config &cfg, const TString k
 	  weightVarFromTree = it->value("weight");
 	}
       }
-      dataSets.push_back(new DataSet(DataSet::type(type),label,file,tree,weightVarFromTree,weightScale));
+      dataSets.push_back(new DataSet(DataSet::type(type),label,"preselection",file,tree,weightVarFromTree,weightScale));
     } else {
       std::cerr << "\n\nERROR in DataSet::createDataSets(): wrong config syntax" << std::endl;
       std::cerr << "  in line with key '" << key << "'" << std::endl;
@@ -62,8 +62,8 @@ std::vector<DataSet*> DataSet::createDataSets(const Config &cfg, const TString k
 
 
 
-DataSet::DataSet(Type type, const TString &label, const TString &fileName, const TString &treeName, const TString &weightVarName, double weightScale)
-  : hasMother_(false), type_(type), label_(label), weightScale_(weightScale) {
+DataSet::DataSet(Type type, const TString &label, const TString &selection, const TString &fileName, const TString &treeName, const TString &weightVarName, double weightScale)
+  : hasMother_(false), type_(type), label_(label), selectionLabel_(selection), weightScale_(weightScale) {
   if( exists(label) ) {
     std::cerr << "\n\nERROR in DataSet::DataSet(): a dataset with label '" << label << "' already exists." << std::endl;
     exit(-1);
@@ -74,8 +74,8 @@ DataSet::DataSet(Type type, const TString &label, const TString &fileName, const
 }
 
 
-DataSet::DataSet(Type type, const TString &label, const Events &evts, double weightScale)
-  : hasMother_(true), type_(type), label_(label), weightScale_(weightScale) {
+DataSet::DataSet(Type type, const TString &label, const TString &selection, const Events &evts, double weightScale)
+  : hasMother_(true), type_(type), label_(label), selectionLabel_(selection), weightScale_(weightScale) {
   for(EventIt it = evts.begin(); it != evts.end(); ++it) {
     evts_.push_back(*it);
   }

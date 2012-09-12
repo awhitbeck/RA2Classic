@@ -3,6 +3,7 @@
 
 #include "TError.h"
 
+#include "EventInfoPrinter.h"
 #include "GlobalParameters.h"
 #include "MrRA2.h"
 #include "Variable.h"
@@ -29,21 +30,23 @@ MrRA2::MrRA2(const TString& configFileName) {
   init(cfg,"dataset");
 
   // Control plots without selection
-  std::cout << "\nProcessed the results" << std::endl;
-  makePlots("preselection",dataSets_,cfg);
+  std::cout << "\nProcessing the results" << std::endl;
+  makePlots(dataSets_,cfg);
   std::cout << "  - for the preselection" << std::endl;
 
   // Plots after different selections
   for(std::vector<Selection*>::const_iterator itSel = selections_.begin();
       itSel != selections_.end(); ++itSel) {
+    std::cout << "  - for the selection '" << (*itSel)->label() << "'" << std::endl;
     std::vector<DataSet*> selectedDataSets;
     for(std::vector<DataSet*>::const_iterator itDat = dataSets_.begin();
 	itDat != dataSets_.end(); ++itDat) {
       selectedDataSets.push_back((**itSel)(*itDat));
+      std::cout << "    Dataset '" << (*itDat)->label() << "':" << std::endl;
+      (*itSel)->print();
     }
-    makePlots((*itSel)->label(),selectedDataSets,cfg);
-    std::cout << "  - for the selection '" << (*itSel)->label() << "'" << std::endl;
-    (*itSel)->print();
+    makePlots(selectedDataSets,cfg);
+    EventInfoPrinter(selectedDataSets,cfg);
   }
 }
 

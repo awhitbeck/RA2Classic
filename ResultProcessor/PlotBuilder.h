@@ -16,7 +16,7 @@
 
 class PlotBuilder {
 public:
-  PlotBuilder(const TString &selectionLabel, const std::vector<DataSet*> &dataSets, const Config &cfg);
+  PlotBuilder(const std::vector<DataSet*> &dataSets, const Config &cfg);
   ~PlotBuilder();
 
 private:
@@ -24,7 +24,6 @@ private:
 
   const Config &cfg_;
   const unsigned int canSize_;
-  const TString selectionLabel_;
   const std::vector<DataSet*> dataSets_;
 
   std::map<TString,int> markers_;
