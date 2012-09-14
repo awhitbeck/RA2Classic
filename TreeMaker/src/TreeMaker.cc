@@ -19,6 +19,9 @@
   - "MHT": MHT (Float_t)
   - "DeltaPhi?": deltaPhi between jet ? and MHT, where ? = 1,2,3 (Float_t)
 
+ The following optional variables are stored in the tree:
+  - "Filter_<name>": decision of filter <name>, where 0 means false, 1 means true (UChar_t)
+
  The following input parameters control how the above variables
  are computed from the information stored in the event:
   - "VertexCollection": collection from which "NVtx" is determined
@@ -32,12 +35,15 @@
   - "MHTJets": jet collection that has been used to compute MHT. The
                variables "DeltaPhi?" are computed from this collection
 	       and from "MHT".
+  - "Filters": list of filter names that have been run in tag mode
+               and stored the decision as a boolean
+
 
 */
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id: TreeMaker.cc,v 1.3 2012/08/02 13:23:37 mschrode Exp $
+// $Id: TreeMaker.cc,v 1.4 2012/08/28 17:07:53 mschrode Exp $
 //
 //
 
@@ -71,6 +77,10 @@ TreeMaker::TreeMaker(const edm::ParameterSet& iConfig)
   htTag_ = iConfig.getParameter<edm::InputTag>("HT");
   mhtJetsTag_ = iConfig.getParameter<edm::InputTag>("MHTJets");;
   mhtTag_ = iConfig.getParameter<edm::InputTag>("MHT");
+  filterDecisionTags_ = iConfig.getParameter< std::vector<edm::InputTag> >("Filters");
+
+  // Setup vector of filter decisions with correct size
+  filterDecisions_ = std::vector<UChar_t>(filterDecisionTags_.size(),0);
 }
 
 
@@ -152,6 +162,15 @@ TreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
   }
 
+  // Filter decisions
+  for(unsigned int i = 0; i < filterDecisionTags_.size(); ++i) {
+    edm::Handle<bool> dec;
+    iEvent.getByLabel(filterDecisionTags_.at(i),dec);
+    if( *dec ) filterDecisions_.at(i) = 1;
+    else filterDecisions_.at(i) = 0;
+  }
+
+
   // Fill variables into tree
   tree_->Fill();
 }
@@ -184,6 +203,11 @@ TreeMaker::beginJob() {
   tree_->Branch("DeltaPhi1",&deltaPhi1_,"DeltaPhi1/F");
   tree_->Branch("DeltaPhi2",&deltaPhi2_,"DeltaPhi2/F");
   tree_->Branch("DeltaPhi3",&deltaPhi3_,"DeltaPhi3/F");
+  for(unsigned int i = 0; i < filterDecisionTags_.size(); ++i) {
+    TString name = "Filter_";
+    name += filterDecisionTags_.at(i).label();
+    tree_->Branch(name,&(filterDecisions_.at(i)),name+"/b");
+  }
 }
 
 

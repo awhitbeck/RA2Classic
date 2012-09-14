@@ -1,7 +1,7 @@
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id: TreeMaker.h,v 1.2 2012/07/31 12:03:33 mschrode Exp $
+// $Id: TreeMaker.h,v 1.3 2012/08/02 13:23:36 mschrode Exp $
 //
 //
 
@@ -10,6 +10,7 @@
 
 // system include files
 #include <memory>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -67,6 +68,8 @@ private:
   Float_t jet1Eta_, jet2Eta_, jet3Eta_;
   edm::InputTag mhtJetsTag_;
   Float_t deltaPhi1_, deltaPhi2_, deltaPhi3_;
+  std::vector<edm::InputTag> filterDecisionTags_;
+  std::vector<UChar_t> filterDecisions_;
 };
 
 #endif

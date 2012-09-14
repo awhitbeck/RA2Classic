@@ -1,4 +1,4 @@
-# $Id: makeTreeFromPAT_cff.py,v 1.3 2012/08/13 08:11:10 mschrode Exp $
+# $Id: makeTreeFromPAT_cff.py,v 1.4 2012/08/28 17:04:32 mschrode Exp $
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -117,12 +117,29 @@ def makeTreeFromPAT(process,
         )
 
 
+    ## --- Additional Filters (tagging mode) ------------------------------
+    from RecoMET.METFilters.jetIDFailureFilter_cfi import jetIDFailure
+    process.PBNRFilter = jetIDFailure.clone(
+        JetSource = cms.InputTag('MHTJets'),
+        MinJetPt      = cms.double(30.0),
+        taggingMode   = cms.bool(True)
+        )
+
+    process.AdditionalFiltersInTagMode = cms.Sequence(
+        process.PBNRFilter
+        )
+
+
     ## --- Setup WeightProducer -------------------------------------------
     from RA2Classic.WeightProducer.getWeightProducer_cff import getWeightProducer
     process.WeightProducer = getWeightProducer(process.source.fileNames[0])
         
 
     ## --- Setup of TreeMaker ----------------------------------------------
+    FilterNames = cms.VInputTag()  # All filters in AdditionalFiltersInTagMode
+    for f in process.AdditionalFiltersInTagMode.moduleNames():
+        FilterNames.append(cms.InputTag(f))
+        
     from RA2Classic.TreeMaker.treemaker_cfi import TreeMaker
     process.RA2TreeMaker = TreeMaker.clone(
         TreeName         = cms.string("RA2PreSelection"),
@@ -131,17 +148,23 @@ def makeTreeFromPAT(process,
         HTJets           = cms.InputTag('HTJets'),
         MHT              = cms.InputTag(mhtInputCol),
         MHTJets          = cms.InputTag('MHTJets'),
-        Weight           = cms.InputTag('WeightProducer:weight')
+        Weight           = cms.InputTag('WeightProducer:weight'),
+        Filters          = FilterNames
         )
 
 
     ## --- Final paths ----------------------------------------------------
+
+#    process.dump = cms.EDAnalyzer("EventContentAnalyzer")
+    
     process.WriteTree = cms.Path(
         process.CleaningSelection *
         process.ProduceRA2Jets *
         process.NumJetSelection *
         process.HTSelection *
         process.MHTSelection *
+        process.AdditionalFiltersInTagMode *
         process.WeightProducer *
+#        process.dump *
         process.RA2TreeMaker
         )

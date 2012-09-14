@@ -1,3 +1,5 @@
+# $Id: $
+
 # Description: Writes ntuples (ROOT tree) for RA2Classic analysis
 #
 # The following variables are stored in the tree:
@@ -12,6 +14,9 @@
 #  - "Jet?Eta": eta of jet ?, where ? = 1,2,3 (Float_t)
 #  - "MHT": MHT (Float_t)
 #  - "DeltaPhi?": deltaPhi between jet ? and MHT, where ? = 1,2,3 (Float_t)
+#
+# The following optional variables are stored in the tree
+#  - "Filter_<name>": decision of filter <name>, where 0 means false, 1 means true (UChar_t)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -35,5 +40,9 @@ TreeMaker = cms.EDAnalyzer(
     # the MHT vector. This is taken from the event and not computed by the TreeMaker.
     MHT               = cms.InputTag('mhtPF'),
     # jet collection that has been used to compute MHT. The tree variables "DeltaPhi?" are computed from this collection and from "MHT".
-    MHTJets           = cms.InputTag('patJetsAK5PFPt30')
+    MHTJets           = cms.InputTag('patJetsAK5PFPt30'),
+
+    # list of filter decisions (bool) written from filters in tag mode
+    # will be stored as "Filter_..."
+    Filters           = cms.VInputTag()
 )
