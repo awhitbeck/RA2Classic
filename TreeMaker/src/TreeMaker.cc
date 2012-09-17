@@ -43,7 +43,7 @@
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id: TreeMaker.cc,v 1.4 2012/08/28 17:07:53 mschrode Exp $
+// $Id: TreeMaker.cc,v 1.5 2012/09/14 13:10:37 mschrode Exp $
 //
 //
 
@@ -150,7 +150,6 @@ TreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle< edm::View<reco::Candidate> > mhtJets;
   iEvent.getByLabel(mhtJetsTag_,mhtJets);
   if( mhtJets.isValid() && mht.isValid() ) {
-    nJets_ = mhtJets->size();
     if( mhtJets->size() > 0 ) {
       deltaPhi1_ = std::abs(reco::deltaPhi(mhtJets->at(0).phi(),mht->at(0).phi()));
       if( mhtJets->size() > 1 ) {
