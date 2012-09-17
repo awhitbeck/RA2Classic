@@ -130,6 +130,17 @@ void PlotBuilder::run(const TString &key) const {
 	  exit(-1);
 	}
 	plotSpectrum(variable,dataset,histogram);
+      } else if( it->hasName("datasets") ) { // Comparison of several datasets (normalised histograms)
+	std::vector<TString> dataLabels;
+	Config::split(it->value("datasets"),",",dataLabels);
+	for(std::vector<TString>::const_iterator itd = dataLabels.begin();
+	    itd != dataLabels.end(); ++itd) {
+	  if( !DataSet::exists(*itd) ) {
+	    std::cerr << "\n\nERROR in PlotBuilder::run(): dataset '" << *itd << "' does not exist" << std::endl;
+	    exit(-1);
+	  }
+	}
+	plotSpectra(variable,dataLabels,histogram);
       } else if( it->hasName("dataset1") && it->hasName("dataset2") ) {	// Comparison of two stacked datasets
 	std::vector<TString> dataLabels1;
 	std::vector<TString> dataLabels2;
@@ -201,7 +212,10 @@ void PlotBuilder::plotSpectrum(const TString &var, const TString &dataSetLabel, 
     h->SetLineWidth(1);
     h->Draw("HIST");
   }
-  TPaveText* title = header(dataSetLabel);
+  TString titleNEvts = "(";
+  titleNEvts += static_cast<int>(h->Integral(1,100000));
+  titleNEvts += ")";
+  TPaveText* title = header(dataSetLabel,titleNEvts);
   title->Draw("same");
   if( logy ) can->SetLogy();
   gPad->RedrawAxis();
@@ -209,6 +223,64 @@ void PlotBuilder::plotSpectrum(const TString &var, const TString &dataSetLabel, 
 
   delete title;
   delete h;
+  delete can;
+}
+
+
+void PlotBuilder::plotSpectra(const TString &var, const std::vector<TString> &dataSetLabels, const TString &histCfg) const {
+  int nBins = 100;
+  double xMin = 0.;
+  double xMax = 5000.;
+  bool logy = false;
+  parseHistCfg(histCfg,nBins,xMin,xMax,logy);
+
+  std::vector<TH1*> hists;
+  std::vector<DataSet::Type> types;
+  TLegend* leg = legend(dataSetLabels.size());
+  for(std::vector<TString>::const_iterator it = dataSetLabels.begin();
+      it != dataSetLabels.end(); ++it) {
+    TH1* h = 0;
+    types.push_back(createHistogram(*it,var,nBins,xMin,xMax,h));
+    h->Sumw2();
+    if( h->Integral() ) h->Scale(1./h->Integral("width"));
+    if( types.back() != DataSet::Data ) {
+      h->SetLineColor(h->GetFillColor());
+      h->SetLineWidth(3);
+      h->SetFillStyle(0);
+      leg->AddEntry(h," "+dataSetLabelInPlot(*it),"L");
+    } else {
+      leg->AddEntry(h," "+dataSetLabelInPlot(*it),"P");
+    }
+    setYRange(h,logy?3E-6:-1.);
+    hists.push_back(h);
+  }
+
+  TCanvas *can = new TCanvas("can","",canSize_,canSize_);
+  if( types.back() == DataSet::Data ) {
+    hists.back()->Draw("PE1");
+  } else {
+    hists.back()->Draw("HIST");
+  }
+  for(int i = hists.size()-2; i >= 0; --i) {
+    if( types.at(i) == DataSet::Data ) {
+      hists.at(i)->Draw("PE1same");
+    } else {
+      hists.at(i)->Draw("HISTsame");
+    }
+  }
+  TPaveText* title = header();
+  title->Draw("same");
+  leg->Draw("same");
+  gPad->RedrawAxis();
+  if( logy ) can->SetLogy();
+  storeCanvas(can,plotName(var));
+
+  delete title;
+  delete leg;
+  for(std::vector<TH1*>::iterator it = hists.begin();
+      it != hists.end(); ++it) {
+    delete *it;
+  }
   delete can;
 }
 
@@ -232,7 +304,7 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
   TLegend* leg = legend(hists1.size()+hists2.size());
   if( type1 == DataSet::Data && type2 == DataSet::MC ) {
     // Draw histograms
-    setYRange(hists2.front(),logy);
+    setYRange(hists2.front(),logy?3E-1:-1.);
     hists2.front()->Draw();
     for(std::vector<TH1*>::iterator it = hists2.begin();
 	it != hists2.end(); ++it) {
@@ -246,21 +318,15 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
     std::vector<TString>::const_iterator itL = legEntries1.begin();
     for(std::vector<TH1*>::iterator itH = hists1.begin();
 	itH != hists1.end(); ++itH,++itL) {
-      TString entry = *itL+" (";
-      entry += static_cast<int>((*itH)->Integral(1,10000));
-      entry += +")";
-      leg->AddEntry(*itH,entry,"P");
+      leg->AddEntry(*itH,*itL,"P");
     }
     itL = legEntries2.begin();
     for(std::vector<TH1*>::iterator itH = hists2.begin();
 	itH != hists2.end(); ++itH,++itL) {
-      TString entry = *itL+" (";
-      entry += static_cast<int>((*itH)->Integral(1,10000));
-      entry += +")";
-      leg->AddEntry(*itH,entry,"F");
+      leg->AddEntry(*itH,*itL,"F");
     }
   } else if( type2 == DataSet::Data && type1 == DataSet::MC ) {
-    setYRange(hists1.front(),logy);
+    setYRange(hists1.front(),logy?3E-1:-1.);
     hists1.front()->Draw();
     for(std::vector<TH1*>::iterator it = hists1.begin();
 	it != hists1.end(); ++it) {
@@ -271,7 +337,7 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
       (*it)->Draw("PE1same");
     }
   } else {
-    setYRange(hists1.front(),logy);
+    setYRange(hists1.front(),logy?3E-1:-1.);
     hists1.front()->Draw();
     for(std::vector<TH1*>::iterator it = hists1.begin();
 	it != hists1.end(); ++it) {
@@ -303,18 +369,18 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
 }
 
 
-DataSet::Type PlotBuilder::createHistogram(const TString &dataSetLabel, const TString &var, int nBins, double min, double max, TH1* &hSum) const {
+DataSet::Type PlotBuilder::createHistogram(const TString &dataSetLabel, const TString &var, int nBins, double min, double max, TH1* &h) const {
   ++PlotBuilder::count_;
   
   DataSet* set = dataSet(dataSetLabel);
   TString name = "plot";
   name += count_;
-  hSum = new TH1D(name,"",nBins,min,max);
-  setXTitle(hSum,var);
-  setYTitle(hSum,var);
-  setStyle(hSum,dataSetLabel,set->type());
+  h = new TH1D(name,"",nBins,min,max);
+  setXTitle(h,var);
+  setYTitle(h,var);
+  setStyle(h,dataSetLabel);
   for(EventIt it = set->begin(); it != set->end(); ++it) {
-    hSum->Fill((*it)->get(var),(*it)->weight());
+    h->Fill((*it)->get(var),(*it)->weight());
   }
 
   return set->type();
@@ -327,8 +393,12 @@ DataSet::Type PlotBuilder::createStack(const std::vector<TString> &dataSetLabels
       it != dataSetLabels.rend(); ++it) {
     TH1* h = 0;
     type = createHistogram(*it,var,nBins,xMin,xMax,h);
-    setStyle(h,*it,type);
-    legEntries.push_back(" "+dataSetLabelInPlot(*it));
+    setStyle(h,*it);
+    TString entry = " "+dataSetLabelInPlot(*it)+" (";
+    entry += static_cast<int>(h->Integral(1,10000));
+    entry += +")";
+    legEntries.push_back(entry);
+    
     // Add histogram to all previous histograms
     for(std::vector<TH1*>::iterator itH = hists.begin();
 	itH != hists.end(); ++itH) {
@@ -369,7 +439,8 @@ void PlotBuilder::setYTitle(TH1* h, const TString &var) const {
 }
 
 
-void PlotBuilder::setStyle(TH1* h, const TString &dataSetLabel, DataSet::Type type) const {
+void PlotBuilder::setStyle(TH1* h, const TString &dataSetLabel) const {
+  DataSet::Type type = dataSet(dataSetLabel)->type();
   if( markers_.find(dataSetLabel) != markers_.end() ) {
     h->SetMarkerStyle(markers_.find(dataSetLabel)->second);
   }
@@ -386,8 +457,8 @@ void PlotBuilder::setStyle(TH1* h, const TString &dataSetLabel, DataSet::Type ty
 }
 
 
-TPaveText* PlotBuilder::header(const TString &dataSetLabel) const {
-  double x0 = gStyle->GetPadLeftMargin();
+TPaveText* PlotBuilder::header(const TString &dataSetLabel, const TString &add) const {
+  double x0 = gStyle->GetPadLeftMargin()+0.5;
   double x1 = 1.-gStyle->GetPadRightMargin();
   double y0 = 1.-gStyle->GetPadTopMargin();
   double y1 = 1.;
@@ -398,7 +469,7 @@ TPaveText* PlotBuilder::header(const TString &dataSetLabel) const {
   txt->SetTextAlign(02);
   txt->SetTextSize(0.05);
   TString label = dataSetLabelInPlot(dataSetLabel);
-  txt->AddText(lumiLabel()+(label != "" ? ",  "+label : "")+",  "+dataSets_.front()->selection());
+  txt->AddText(lumiLabel()+(label != "" ? ",  "+label : "")+",  "+dataSets_.front()->selection()+" "+add);
   
   return txt;
 }
@@ -430,6 +501,7 @@ TString PlotBuilder::lumiLabel() const {
 
 TString PlotBuilder::cleanName(const TString &name) const {
   TString cleanedName = name;
+  cleanedName.ReplaceAll(">","gtr");
   cleanedName.ReplaceAll(" ","_");
   cleanedName.ReplaceAll("#","");
   cleanedName.ReplaceAll("{","");
@@ -455,6 +527,11 @@ void PlotBuilder::storeCanvas(TCanvas* can, const TString &name) const {
   can->SetName(name);
   can->SetTitle(name);
   can->SaveAs(name+".eps","eps");
+}
+
+
+TString PlotBuilder::plotName(const TString &var) const {
+  return cleanName(GlobalParameters::analysisId()+"_"+var+"_"+dataSets_.front()->selection());
 }
 
 
@@ -488,12 +565,13 @@ TString PlotBuilder::dataSetLabelInPlot(const TString &dataSetLabel) const {
 }
 
 
-void PlotBuilder::setYRange(TH1* &h, bool log) const {
-  double min = 3E-1;
+void PlotBuilder::setYRange(TH1* &h, double logMin) const {
   double max = h->GetBinContent(h->GetMaximumBin());
+  double min = 0.;
+  if( logMin > 0. ) min = logMin;
 
   double relHistHeight = 1. - (gStyle->GetPadTopMargin() + gStyle->GetPadBottomMargin());
-  if( log ) {
+  if( logMin > 0. ) {
     max = min * std::pow(max/min,1./relHistHeight);
   } else {
     max = (max-min)/relHistHeight + min;

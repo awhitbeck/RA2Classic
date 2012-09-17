@@ -47,7 +47,7 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
   // Loop over tree and build events
   Events evts;
   for(int i = 0; i < tree->GetEntries(); ++i) {
-    //for(int i = 0; i < 1000000; ++i) {
+    //for(int i = 0; i < 100000; ++i) {
     //if( i%100 == 0 ) std::cout << "  " << i << std::endl;
 
     // Read variables of this entry

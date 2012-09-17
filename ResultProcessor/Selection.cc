@@ -150,7 +150,10 @@ DataSet* Cut::operator()(const DataSet* dataSet) const {
   for(EventIt it = dataSet->begin(); it != dataSet->end(); ++it) {
     double val = (*it)->get(var_);
     if( varIsAbs_ ) val = std::abs(val);
-    if( val > min_ && val < max_ ) passed.push_back(*it);
+    if( val > min_ && val < max_ ) {
+      passed.push_back(*it);
+      //      std::cout << ">>> " << var_ << ": " << val << " > " << min_ << " && " << val << " < " << max_ << std::endl;
+    }
   }
   count_ = passed.size();
 

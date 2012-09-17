@@ -13,15 +13,15 @@ public:
   Event() {};
   ~Event() {};
 
-  double weight() const { return weight_; }
-  double get(const TString &var) const;
+  float weight() const { return weight_; }
+  float get(const TString &var) const;
   
 private:
-  double weight_;
-  std::map<TString,double> vars_;
+  float weight_;
+  std::map<TString,float> vars_;
 
-  void set(const TString &var, double val);
-  void setWeight(double weight) { weight_ = weight; }
+  void set(const TString &var, float val);
+  void setWeight(float weight) { weight_ = weight; }
 };
 
 typedef std::vector<Event*> Events;
