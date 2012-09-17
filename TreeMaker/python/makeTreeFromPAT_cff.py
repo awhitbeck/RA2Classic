@@ -1,4 +1,4 @@
-# $Id: makeTreeFromPAT_cff.py,v 1.4 2012/08/28 17:04:32 mschrode Exp $
+# $Id: makeTreeFromPAT_cff.py,v 1.5 2012/09/14 13:10:37 mschrode Exp $
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -48,7 +48,10 @@ def makeTreeFromPAT(process,
     process.load('SandBox.Skims.RA2Leptons_cff')
 
     process.CleaningSelection = cms.Sequence(
-        process.filterSelection *
+        process.filterSelection
+        )
+
+    process.LeptonVeto = cms.Sequence(
         process.ra2PFMuonVeto *
         process.ra2ElectronVeto
         )
@@ -139,7 +142,19 @@ def makeTreeFromPAT(process,
     FilterNames = cms.VInputTag()  # All filters in AdditionalFiltersInTagMode
     for f in process.AdditionalFiltersInTagMode.moduleNames():
         FilterNames.append(cms.InputTag(f))
-        
+
+##     FilterNames.append(cms.InputTag("HBHENoiseFilterRA2","HBHENoiseFilterResult","PAT"))
+##     FilterNames.append(cms.InputTag("beamHaloFilter"))
+##     FilterNames.append(cms.InputTag("eeNoiseFilter"))
+##     FilterNames.append(cms.InputTag("trackingFailureFilter"))
+##     FilterNames.append(cms.InputTag("inconsistentMuons"))
+##     FilterNames.append(cms.InputTag("greedyMuons"))
+##     FilterNames.append(cms.InputTag("ra2EcalTPFilter"))
+##     FilterNames.append(cms.InputTag("ra2EcalBEFilter"))
+##     FilterNames.append(cms.InputTag("hcalLaserEventFilter"))
+##     FilterNames.append(cms.InputTag("eeBadScFilter"))
+
+
     from RA2Classic.TreeMaker.treemaker_cfi import TreeMaker
     process.RA2TreeMaker = TreeMaker.clone(
         TreeName         = cms.string("RA2PreSelection"),
@@ -159,6 +174,7 @@ def makeTreeFromPAT(process,
     
     process.WriteTree = cms.Path(
         process.CleaningSelection *
+        process.LeptonVeto *
         process.ProduceRA2Jets *
         process.NumJetSelection *
         process.HTSelection *
