@@ -10,6 +10,8 @@
 #include "PlotBuilder.h"
 #include "Variable.h"
 
+#include "../AdditionalInputFiles/RA2PlottingStyle.h"
+
 
 unsigned int PlotBuilder::count_ = 0;
 
@@ -27,73 +29,7 @@ PlotBuilder::~PlotBuilder() {
 
 
 void PlotBuilder::setStyle(const TString &key) {
-  // Zero horizontal error bars
-  gStyle->SetErrorX(0);
-
-  //  For the canvas
-  gStyle->SetCanvasBorderMode(0);
-  gStyle->SetCanvasColor(kWhite);
-  gStyle->SetCanvasDefH(800); //Height of canvas
-  gStyle->SetCanvasDefW(800); //Width of canvas
-  gStyle->SetCanvasDefX(0);   //Position on screen
-  gStyle->SetCanvasDefY(0);
-  
-  //  For the frame
-  gStyle->SetFrameBorderMode(0);
-  gStyle->SetFrameBorderSize(1);
-  gStyle->SetFrameFillColor(kBlack);
-  gStyle->SetFrameFillStyle(0);
-  gStyle->SetFrameLineColor(kBlack);
-  gStyle->SetFrameLineStyle(0);
-  gStyle->SetFrameLineWidth(1);
-    
-  //  For the Pad
-  gStyle->SetPadBorderMode(0);
-  gStyle->SetPadColor(kWhite);
-  gStyle->SetPadGridX(false);
-  gStyle->SetPadGridY(false);
-  gStyle->SetGridColor(0);
-  gStyle->SetGridStyle(3);
-  gStyle->SetGridWidth(1);
-  
-  //  Margins
-  gStyle->SetPadTopMargin(0.08);
-  gStyle->SetPadBottomMargin(0.19);
-  gStyle->SetPadLeftMargin(0.20);
-  gStyle->SetPadRightMargin(0.07);
-
-  //  For the histo:
-  gStyle->SetHistLineColor(kBlack);
-  gStyle->SetHistLineStyle(0);
-  gStyle->SetHistLineWidth(2);
-  gStyle->SetMarkerSize(1.4);
-  gStyle->SetEndErrorSize(4);
-  
-  //  For the statistics box:
-  gStyle->SetOptStat(0);
-  
-  //  For the axis
-  gStyle->SetAxisColor(1,"XYZ");
-  gStyle->SetTickLength(0.03,"XYZ");
-  gStyle->SetNdivisions(510,"XYZ");
-  gStyle->SetPadTickX(1);
-  gStyle->SetPadTickY(1);
-  gStyle->SetStripDecimals(kFALSE);
-  
-  //  For the axis labels and titles
-  gStyle->SetTitleColor(1,"XYZ");
-  gStyle->SetLabelColor(1,"XYZ");
-  gStyle->SetLabelFont(42,"XYZ");
-  gStyle->SetLabelOffset(0.007,"XYZ");
-  gStyle->SetLabelSize(0.045,"XYZ");
-  gStyle->SetTitleFont(42,"XYZ");
-  gStyle->SetTitleSize(0.06,"XYZ");
-  gStyle->SetTitleXOffset(1.2);
-  gStyle->SetTitleYOffset(1.7);
-
-  //  For the legend
-  gStyle->SetLegendBorderSize(0);
-
+  RA2PlottingStyle::init();
   std::vector<Config::Attributes> attrList = cfg_.listOfAttributes(key);
   for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
       it != attrList.end(); ++it) {
@@ -376,6 +312,9 @@ DataSet::Type PlotBuilder::createHistogram(const TString &dataSetLabel, const TS
   TString name = "plot";
   name += count_;
   h = new TH1D(name,"",nBins,min,max);
+  if( max > 1000. ) {
+    h->GetXaxis()->SetNdivisions(505);
+  }
   setXTitle(h,var);
   setYTitle(h,var);
   setStyle(h,dataSetLabel);
@@ -478,7 +417,7 @@ TPaveText* PlotBuilder::header(const TString &dataSetLabel, const TString &add) 
 TLegend* PlotBuilder::legend(unsigned int nEntries) const {
   double lineHeight = 0.06;
   double margin = 0.02;
-  double x0 = 0.45;
+  double x0 = gStyle->GetPadLeftMargin();
   double x1 = 1.-gStyle->GetPadRightMargin()-margin;
   double y1 = 1.-gStyle->GetPadTopMargin()-margin;
   double y0 = y1-nEntries*lineHeight;
@@ -566,14 +505,16 @@ TString PlotBuilder::dataSetLabelInPlot(const TString &dataSetLabel) const {
 
 
 void PlotBuilder::setYRange(TH1* &h, double logMin) const {
+  bool log = logMin > 0.;
   double max = h->GetBinContent(h->GetMaximumBin());
   double min = 0.;
-  if( logMin > 0. ) min = logMin;
+  if( log ) min = logMin;
 
-  double relHistHeight = 1. - (gStyle->GetPadTopMargin() + gStyle->GetPadBottomMargin());
-  if( logMin > 0. ) {
+  double relHistHeight = 1. - (gStyle->GetPadTopMargin() + gStyle->GetPadBottomMargin() );
+  if( log ) {
     max = min * std::pow(max/min,1./relHistHeight);
   } else {
+    relHistHeight -= 0.3;
     max = (max-min)/relHistHeight + min;
   }
   h->GetYaxis()->SetRangeUser(min,max);

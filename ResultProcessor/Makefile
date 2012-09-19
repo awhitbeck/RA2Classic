@@ -32,7 +32,7 @@ GlobalParameters.o: GlobalParameters.h GlobalParameters.cc Config.h
 MrRA2.o: MrRA2.h MrRA2.cc DataSet.h Config.h GlobalParameters.h PlotBuilder.h Selection.h Variable.h
 	g++ $(CFLAG) -c  MrRA2.cc
 
-PlotBuilder.o: PlotBuilder.h PlotBuilder.cc DataSet.h Variable.h Config.h GlobalParameters.h Event.h
+PlotBuilder.o: PlotBuilder.h PlotBuilder.cc DataSet.h Variable.h Config.h GlobalParameters.h Event.h ../AdditionalInputFiles/RA2PlottingStyle.h
 	g++ $(CFLAG) -c  PlotBuilder.cc
 
 Selection.o: Selection.h Selection.cc Config.h DataSet.h Event.h
