@@ -3,7 +3,7 @@
 
 #include "DataSet.h"
 #include "EventBuilder.h"
-
+#include "Variable.h"
 
 std::set<TString> DataSet::labels_;
 
@@ -43,8 +43,10 @@ std::vector<DataSet*> DataSet::createDataSets(const Config &cfg, const TString k
 	TString weightScaleStr;
 	if( Config::split(it->value("weight"),"*",weightScaleStr,weightVarFromTree) ) {
 	  weightScale = weightScaleStr.Atof();
-	} else {
+	} else if( Variable::exists(it->value("weight")) ){
 	  weightVarFromTree = it->value("weight");
+	} else {
+	  weightScale = it->value("weight").Atof();
 	}
       }
       dataSets.push_back(new DataSet(DataSet::type(type),label,"preselection",file,tree,weightVarFromTree,weightScale));
