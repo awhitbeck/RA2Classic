@@ -1,4 +1,4 @@
-# $Id: $
+# $Id: treemaker_cfi.py,v 1.4 2012/09/14 13:10:37 mschrode Exp $
 
 # Description: Writes ntuples (ROOT tree) for RA2Classic analysis
 #
@@ -6,7 +6,6 @@
 #  - "RunNum": run number (UInt_t)
 #  - "LumiBlockNum": luminosity block number (UInt_t)
 #  - "EvtNum": event number (UInt_t)
-#  - "Weight": event weight (Float_t)
 #  - "NumVtx": number of vertices (UShort_t)
 #  - "HT": HT (Float_t)
 #  - "NJets": number of jets (UShort_t)
@@ -17,6 +16,11 @@
 #
 # The following optional variables are stored in the tree
 #  - "Filter_<name>": decision of filter <name>, where 0 means false, 1 means true (UChar_t)
+#  - "Weights": list of InputTags for weight variables (double) stored
+#               in the event. They are stored in the tree with the name
+#               given in WeightNamesInTree or, if this is not specified,
+#               as 'Weight_<InputTag::label()>'.
+
 
 import FWCore.ParameterSet.Config as cms
 
@@ -25,9 +29,6 @@ TreeMaker = cms.EDAnalyzer(
 
     # Name of the output tree
     TreeName          = cms.string('RA2Tree'),
-
-    # name of event weight
-    Weight            = cms.InputTag('weight'),
 
     # collection from which the tree variable "NumVtx" is determined
     VertexCollection  = cms.InputTag('goodVertices'),
@@ -41,6 +42,12 @@ TreeMaker = cms.EDAnalyzer(
     MHT               = cms.InputTag('mhtPF'),
     # jet collection that has been used to compute MHT. The tree variables "DeltaPhi?" are computed from this collection and from "MHT".
     MHTJets           = cms.InputTag('patJetsAK5PFPt30'),
+
+    # List of InputTags for weight variables (double) stored in the event.
+    Weights           = cms.VInputTag(),
+    # Names of the weights as stored in the tree. If this vector is not
+    # specified, the generic names "Weight_<InputTag::label()>" are used.
+    WeightNamesInTree = cms.vstring(),
 
     # list of filter decisions (bool) written from filters in tag mode
     # will be stored as "Filter_..."

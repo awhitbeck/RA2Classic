@@ -1,4 +1,4 @@
-# $Id: makeTreeFromPAT_cff.py,v 1.5 2012/09/14 13:10:37 mschrode Exp $
+# $Id: makeTreeFromPAT_cff.py,v 1.6 2012/09/17 14:39:19 mschrode Exp $
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -10,7 +10,7 @@ def makeTreeFromPAT(process,
                     HTMin=350.,
                     MHTMin=0.,
                     reportEveryEvt=10,
-                    testFileName=["/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_99_3_TPC.root"],
+                    testFileName="",
                     numProcessedEvt=1000):
     
     ## --- Log output ------------------------------------------------------
@@ -108,7 +108,6 @@ def makeTreeFromPAT(process,
         )
 
     # MHT selection
-    mhtMin = 0.
     mhtInputCol = 'mhtPF'
     if useCHSJets:
         mhtInputCol = 'mhtPFchs'
@@ -136,6 +135,9 @@ def makeTreeFromPAT(process,
     ## --- Setup WeightProducer -------------------------------------------
     from RA2Classic.WeightProducer.getWeightProducer_cff import getWeightProducer
     process.WeightProducer = getWeightProducer(process.source.fileNames[0])
+
+    for i in process.source.fileNames:
+        print "++++ process.source.fileNames: "+i
         
 
     ## --- Setup of TreeMaker ----------------------------------------------
@@ -157,14 +159,15 @@ def makeTreeFromPAT(process,
 
     from RA2Classic.TreeMaker.treemaker_cfi import TreeMaker
     process.RA2TreeMaker = TreeMaker.clone(
-        TreeName         = cms.string("RA2PreSelection"),
-        VertexCollection = cms.InputTag('goodVertices'),
-        HT               = cms.InputTag(htInputCol),
-        HTJets           = cms.InputTag('HTJets'),
-        MHT              = cms.InputTag(mhtInputCol),
-        MHTJets          = cms.InputTag('MHTJets'),
-        Weight           = cms.InputTag('WeightProducer:weight'),
-        Filters          = FilterNames
+        TreeName          = cms.string("RA2PreSelection"),
+        VertexCollection  = cms.InputTag('goodVertices'),
+        HT                = cms.InputTag(htInputCol),
+        HTJets            = cms.InputTag('HTJets'),
+        MHT               = cms.InputTag(mhtInputCol),
+        MHTJets           = cms.InputTag('MHTJets'),
+        Weights           = cms.VInputTag('WeightProducer:weight'),
+        WeightNamesInTree = cms.vstring('Weight'),
+        Filters           = FilterNames
         )
 
 

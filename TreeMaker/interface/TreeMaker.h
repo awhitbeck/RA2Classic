@@ -1,7 +1,7 @@
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id: TreeMaker.h,v 1.3 2012/08/02 13:23:36 mschrode Exp $
+// $Id: TreeMaker.h,v 1.4 2012/09/14 13:10:37 mschrode Exp $
 //
 //
 
@@ -9,6 +9,7 @@
 #define RA2CLASSIC_TREEMAKER
 
 // system include files
+#include <string>
 #include <memory>
 #include <vector>
 
@@ -54,8 +55,6 @@ private:
   UInt_t runNum_;      
   UInt_t lumiBlockNum_;
   UInt_t evtNum_;
-  edm::InputTag weightTag_;
-  Float_t weight_;
   edm::InputTag vertexCollectionTag_;
   UShort_t nVtx_;
   edm::InputTag htTag_;
@@ -68,6 +67,9 @@ private:
   Float_t jet1Eta_, jet2Eta_, jet3Eta_;
   edm::InputTag mhtJetsTag_;
   Float_t deltaPhi1_, deltaPhi2_, deltaPhi3_;
+  std::vector<edm::InputTag> weightTags_;
+  std::vector<std::string> weightNamesInTree_;
+  std::vector<Float_t> weights_;
   std::vector<edm::InputTag> filterDecisionTags_;
   std::vector<UChar_t> filterDecisions_;
 };

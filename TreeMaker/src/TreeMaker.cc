@@ -10,7 +10,6 @@
   - "RunNum": run number (UInt_t)
   - "LumiBlockNum": luminosity block number (UInt_t)
   - "EvtNum": event number (UInt_t)
-  - "Weight": event weight (Float_t)
   - "NVtx": number of vertices (UShort_t)
   - "HT": HT (Float_t)
   - "NJets": number of jets (UShort_t)
@@ -21,6 +20,8 @@
 
  The following optional variables are stored in the tree:
   - "Filter_<name>": decision of filter <name>, where 0 means false, 1 means true (UChar_t)
+  - "<weight_name>": event weights (Float_t)
+
 
  The following input parameters control how the above variables
  are computed from the information stored in the event:
@@ -35,7 +36,11 @@
   - "MHTJets": jet collection that has been used to compute MHT. The
                variables "DeltaPhi?" are computed from this collection
 	       and from "MHT".
-  - "Filters": list of filter names that have been run in tag mode
+  - "Weights": list of InputTags for weight variables (double) stored
+               in the event. They are stored in the tree with the name
+               given in WeightNamesInTree or, if this is not specified,
+               as 'Weight_<InputTag::label()>'.
+  - "Filters": list of filter names (InputTags) that have been run in tag mode
                and stored the decision as a boolean
 
 
@@ -43,7 +48,7 @@
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id: TreeMaker.cc,v 1.5 2012/09/14 13:10:37 mschrode Exp $
+// $Id: TreeMaker.cc,v 1.6 2012/09/17 14:37:56 mschrode Exp $
 //
 //
 
@@ -71,15 +76,17 @@ TreeMaker::TreeMaker(const edm::ParameterSet& iConfig)
 
   // Read parameter values
   treeName_ = iConfig.getParameter<std::string>("TreeName");
-  weightTag_ = iConfig.getParameter<edm::InputTag>("Weight");
   vertexCollectionTag_ = iConfig.getParameter<edm::InputTag>("VertexCollection");
   htJetsTag_ = iConfig.getParameter<edm::InputTag>("HTJets");
   htTag_ = iConfig.getParameter<edm::InputTag>("HT");
   mhtJetsTag_ = iConfig.getParameter<edm::InputTag>("MHTJets");;
   mhtTag_ = iConfig.getParameter<edm::InputTag>("MHT");
+  weightTags_ = iConfig.getParameter< std::vector<edm::InputTag> >("Weights");
+  weightNamesInTree_ = iConfig.getParameter< std::vector<std::string> >("WeightNamesInTree");
   filterDecisionTags_ = iConfig.getParameter< std::vector<edm::InputTag> >("Filters");
 
   // Setup vector of filter decisions with correct size
+  weights_ = std::vector<Float_t>(weightNamesInTree_.size(),1.);
   filterDecisions_ = std::vector<UChar_t>(filterDecisionTags_.size(),0);
 }
 
@@ -101,13 +108,6 @@ TreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   lumiBlockNum_ = aux.luminosityBlock();
   evtNum_       = aux.event();
   
-  // Event weight
-  edm::Handle<double> weight;
-  iEvent.getByLabel(weightTag_,weight);
-  if( weight.isValid() ) {
-    weight_ = *weight;
-  }
-
   // Number of vertices
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByLabel(vertexCollectionTag_,vertices);
@@ -161,12 +161,23 @@ TreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
   }
 
+  // Event weights
+  for(unsigned int i = 0; i < weightTags_.size(); ++i) {
+    edm::Handle<double> weight;
+    iEvent.getByLabel(weightTags_.at(i),weight);
+    if( weight.isValid() ) {
+      weights_.at(i) = *weight;
+    }
+  }
+
   // Filter decisions
   for(unsigned int i = 0; i < filterDecisionTags_.size(); ++i) {
     edm::Handle<bool> dec;
     iEvent.getByLabel(filterDecisionTags_.at(i),dec);
-    if( *dec ) filterDecisions_.at(i) = 1;
-    else filterDecisions_.at(i) = 0;
+    if( dec.isValid() ) {
+      if( *dec ) filterDecisions_.at(i) = 1;
+      else filterDecisions_.at(i) = 0;
+    }
   }
 
 
@@ -188,7 +199,6 @@ TreeMaker::beginJob() {
   tree_->Branch("RunNum",&runNum_,"RunNum/i");
   tree_->Branch("LumiBlockNum",&lumiBlockNum_,"LumiBlockNum/i");
   tree_->Branch("EvtNum",&evtNum_,"EvtNum/i");
-  tree_->Branch("Weight",&weight_,"Weight/F");
   tree_->Branch("NVtx",&nVtx_,"NVtx/s");
   tree_->Branch("HT",&ht_,"HT/F");
   tree_->Branch("MHT",&mht_,"MHT/F");
@@ -202,6 +212,14 @@ TreeMaker::beginJob() {
   tree_->Branch("DeltaPhi1",&deltaPhi1_,"DeltaPhi1/F");
   tree_->Branch("DeltaPhi2",&deltaPhi2_,"DeltaPhi2/F");
   tree_->Branch("DeltaPhi3",&deltaPhi3_,"DeltaPhi3/F");
+  for(unsigned int i = 0; i < weightTags_.size(); ++i) {
+    TString name = "Weight_";
+    name += weightTags_.at(i).label();
+    if( weightNamesInTree_.size() == weightTags_.size() ) {
+      name = weightNamesInTree_.at(i);
+    }
+    tree_->Branch(name,&(weights_.at(i)),name+"/F");
+  }
   for(unsigned int i = 0; i < filterDecisionTags_.size(); ++i) {
     TString name = "Filter_";
     name += filterDecisionTags_.at(i).label();
@@ -256,7 +274,6 @@ TreeMaker::setBranchVariablesToDefault() {
   runNum_ = 0;      
   lumiBlockNum_ = 0;
   evtNum_ = 0;      
-  weight_ = 1.;
   nVtx_ = 0;
   ht_ = 0.;
   mht_ = 0.;
@@ -270,6 +287,12 @@ TreeMaker::setBranchVariablesToDefault() {
   deltaPhi1_ = 0.;
   deltaPhi2_ = 0.;
   deltaPhi3_ = 0.;
+  for(unsigned int i = 0; i < weights_.size(); ++i) {
+    weights_.at(i) = 1.;
+  }
+  for(unsigned int i = 0; i < filterDecisions_.size(); ++i) {
+    filterDecisions_.at(i) = 0;
+  }
 }
 
 
