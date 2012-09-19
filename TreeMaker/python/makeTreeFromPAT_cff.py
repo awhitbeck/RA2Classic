@@ -1,4 +1,4 @@
-# $Id: makeTreeFromPAT_cff.py,v 1.6 2012/09/17 14:39:19 mschrode Exp $
+# $Id: makeTreeFromPAT_cff.py,v 1.7 2012/09/19 13:59:20 mschrode Exp $
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -165,8 +165,8 @@ def makeTreeFromPAT(process,
         HTJets            = cms.InputTag('HTJets'),
         MHT               = cms.InputTag(mhtInputCol),
         MHTJets           = cms.InputTag('MHTJets'),
-        Weights           = cms.VInputTag('WeightProducer:weight'),
-        WeightNamesInTree = cms.vstring('Weight'),
+        VarsDouble        = cms.VInputTag(cms.InputTag('WeightProducer:weight')),
+        VarsDoubleNamesInTree = cms.vstring('Weight'),
         Filters           = FilterNames
         )
 
@@ -182,7 +182,7 @@ def makeTreeFromPAT(process,
         process.NumJetSelection *
         process.HTSelection *
         process.MHTSelection *
-        process.AdditionalFiltersInTagMode *
+#        process.AdditionalFiltersInTagMode *
         process.WeightProducer *
 #        process.dump *
         process.RA2TreeMaker

@@ -1,4 +1,4 @@
-# $Id: treemaker_cfi.py,v 1.4 2012/09/14 13:10:37 mschrode Exp $
+# $Id: treemaker_cfi.py,v 1.5 2012/09/19 13:59:20 mschrode Exp $
 
 # Description: Writes ntuples (ROOT tree) for RA2Classic analysis
 #
@@ -16,10 +16,10 @@
 #
 # The following optional variables are stored in the tree
 #  - "Filter_<name>": decision of filter <name>, where 0 means false, 1 means true (UChar_t)
-#  - "Weights": list of InputTags for weight variables (double) stored
-#               in the event. They are stored in the tree with the name
-#               given in WeightNamesInTree or, if this is not specified,
-#               as 'Weight_<InputTag::label()>'.
+#  - "VarsDouble": list of InputTags for double-precision variables stored
+#                  in the event. They are stored in the tree in Float_t
+#                  precision with the names given in VarsDoubleNamesInTree or,
+#                  if this is not specified, as '<InputTag::label()>'. (Float_t)
 
 
 import FWCore.ParameterSet.Config as cms
@@ -43,11 +43,13 @@ TreeMaker = cms.EDAnalyzer(
     # jet collection that has been used to compute MHT. The tree variables "DeltaPhi?" are computed from this collection and from "MHT".
     MHTJets           = cms.InputTag('patJetsAK5PFPt30'),
 
-    # List of InputTags for weight variables (double) stored in the event.
-    Weights           = cms.VInputTag(),
-    # Names of the weights as stored in the tree. If this vector is not
-    # specified, the generic names "Weight_<InputTag::label()>" are used.
-    WeightNamesInTree = cms.vstring(),
+    # List of InputTags for double-precision variables (double) stored in
+    # the event. (For space reason, they are stored as Float_t in the tree.)
+    VarsDouble        = cms.VInputTag(),
+    # Names of the double-precision variables as stored in the tree. If
+    # this vector is not specified, the generic names "<InputTag::label()>"
+    # are used.
+    VarsDoubleNamesInTree = cms.vstring(),
 
     # list of filter decisions (bool) written from filters in tag mode
     # will be stored as "Filter_..."

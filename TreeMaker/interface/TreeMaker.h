@@ -1,7 +1,7 @@
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id: TreeMaker.h,v 1.4 2012/09/14 13:10:37 mschrode Exp $
+// $Id: TreeMaker.h,v 1.5 2012/09/19 13:59:20 mschrode Exp $
 //
 //
 
@@ -67,9 +67,9 @@ private:
   Float_t jet1Eta_, jet2Eta_, jet3Eta_;
   edm::InputTag mhtJetsTag_;
   Float_t deltaPhi1_, deltaPhi2_, deltaPhi3_;
-  std::vector<edm::InputTag> weightTags_;
-  std::vector<std::string> weightNamesInTree_;
-  std::vector<Float_t> weights_;
+  std::vector<edm::InputTag> varsDoubleTags_;
+  std::vector<std::string> varsDoubleNamesInTree_;
+  std::vector<Float_t> varsDouble_;
   std::vector<edm::InputTag> filterDecisionTags_;
   std::vector<UChar_t> filterDecisions_;
 };

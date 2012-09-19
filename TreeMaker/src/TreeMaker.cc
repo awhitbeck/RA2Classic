@@ -20,7 +20,9 @@
 
  The following optional variables are stored in the tree:
   - "Filter_<name>": decision of filter <name>, where 0 means false, 1 means true (UChar_t)
-  - "<weight_name>": event weights (Float_t)
+  - "<VarsDouble_name>": numbers. They are expected to be stored in double-
+                         precision in the event but kept in Float_t-precision
+                         in the tree (Float_t)
 
 
  The following input parameters control how the above variables
@@ -36,10 +38,10 @@
   - "MHTJets": jet collection that has been used to compute MHT. The
                variables "DeltaPhi?" are computed from this collection
 	       and from "MHT".
-  - "Weights": list of InputTags for weight variables (double) stored
-               in the event. They are stored in the tree with the name
-               given in WeightNamesInTree or, if this is not specified,
-               as 'Weight_<InputTag::label()>'.
+  - "VarsDouble": list of InputTags for double-precision variables stored
+                  in the event. They are stored in the tree in Float_t
+                  precision with the names given in VarsDoubleNamesInTree or,
+                  if this is not specified, as '<InputTag::label()>'.
   - "Filters": list of filter names (InputTags) that have been run in tag mode
                and stored the decision as a boolean
 
@@ -48,7 +50,7 @@
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id: TreeMaker.cc,v 1.6 2012/09/17 14:37:56 mschrode Exp $
+// $Id: TreeMaker.cc,v 1.7 2012/09/19 13:59:20 mschrode Exp $
 //
 //
 
@@ -81,12 +83,12 @@ TreeMaker::TreeMaker(const edm::ParameterSet& iConfig)
   htTag_ = iConfig.getParameter<edm::InputTag>("HT");
   mhtJetsTag_ = iConfig.getParameter<edm::InputTag>("MHTJets");;
   mhtTag_ = iConfig.getParameter<edm::InputTag>("MHT");
-  weightTags_ = iConfig.getParameter< std::vector<edm::InputTag> >("Weights");
-  weightNamesInTree_ = iConfig.getParameter< std::vector<std::string> >("WeightNamesInTree");
+  varsDoubleTags_ = iConfig.getParameter< std::vector<edm::InputTag> >("VarsDouble");
+  varsDoubleNamesInTree_ = iConfig.getParameter< std::vector<std::string> >("VarsDoubleNamesInTree");
   filterDecisionTags_ = iConfig.getParameter< std::vector<edm::InputTag> >("Filters");
 
   // Setup vector of filter decisions with correct size
-  weights_ = std::vector<Float_t>(weightNamesInTree_.size(),1.);
+  varsDouble_ = std::vector<Float_t>(varsDoubleTags_.size(),1.);
   filterDecisions_ = std::vector<UChar_t>(filterDecisionTags_.size(),0);
 }
 
@@ -161,12 +163,12 @@ TreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
   }
 
-  // Event weights
-  for(unsigned int i = 0; i < weightTags_.size(); ++i) {
-    edm::Handle<double> weight;
-    iEvent.getByLabel(weightTags_.at(i),weight);
-    if( weight.isValid() ) {
-      weights_.at(i) = *weight;
+  // Double-precision variables
+  for(unsigned int i = 0; i < varsDoubleTags_.size(); ++i) {
+    edm::Handle<double> var;
+    iEvent.getByLabel(varsDoubleTags_.at(i),var);
+    if( var.isValid() ) {
+      varsDouble_.at(i) = *var;
     }
   }
 
@@ -212,13 +214,12 @@ TreeMaker::beginJob() {
   tree_->Branch("DeltaPhi1",&deltaPhi1_,"DeltaPhi1/F");
   tree_->Branch("DeltaPhi2",&deltaPhi2_,"DeltaPhi2/F");
   tree_->Branch("DeltaPhi3",&deltaPhi3_,"DeltaPhi3/F");
-  for(unsigned int i = 0; i < weightTags_.size(); ++i) {
-    TString name = "Weight_";
-    name += weightTags_.at(i).label();
-    if( weightNamesInTree_.size() == weightTags_.size() ) {
-      name = weightNamesInTree_.at(i);
+  for(unsigned int i = 0; i < varsDouble_.size(); ++i) {
+    TString name = varsDoubleTags_.at(i).label();
+    if( varsDoubleNamesInTree_.size() == varsDoubleTags_.size() ) {
+      name = varsDoubleNamesInTree_.at(i);
     }
-    tree_->Branch(name,&(weights_.at(i)),name+"/F");
+    tree_->Branch(name,&(varsDouble_.at(i)),name+"/F");
   }
   for(unsigned int i = 0; i < filterDecisionTags_.size(); ++i) {
     TString name = "Filter_";
@@ -287,8 +288,8 @@ TreeMaker::setBranchVariablesToDefault() {
   deltaPhi1_ = 0.;
   deltaPhi2_ = 0.;
   deltaPhi3_ = 0.;
-  for(unsigned int i = 0; i < weights_.size(); ++i) {
-    weights_.at(i) = 1.;
+  for(unsigned int i = 0; i < varsDouble_.size(); ++i) {
+    varsDouble_.at(i) = 1.;
   }
   for(unsigned int i = 0; i < filterDecisions_.size(); ++i) {
     filterDecisions_.at(i) = 0;
