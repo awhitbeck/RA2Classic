@@ -1,4 +1,4 @@
-# $Id: treemaker_cfi.py,v 1.5 2012/09/19 13:59:20 mschrode Exp $
+# $Id: treemaker_cfi.py,v 1.6 2012/09/19 14:44:08 mschrode Exp $
 
 # Description: Writes ntuples (ROOT tree) for RA2Classic analysis
 #
@@ -15,11 +15,17 @@
 #  - "DeltaPhi?": deltaPhi between jet ? and MHT, where ? = 1,2,3 (Float_t)
 #
 # The following optional variables are stored in the tree
-#  - "Filter_<name>": decision of filter <name>, where 0 means false, 1 means true (UChar_t)
-#  - "VarsDouble": list of InputTags for double-precision variables stored
-#                  in the event. They are stored in the tree in Float_t
-#                  precision with the names given in VarsDoubleNamesInTree or,
-#                  if this is not specified, as '<InputTag::label()>'. (Float_t)
+#  - "<VarsDouble_X>": numbers. They are expected to be stored in double-
+#                         precision in the event but kept in Float_t-precision
+#                         in the tree (Float_t)
+#  - "<CandidateNameX>": where X = N, Pt, Eta, Phi. In case of Pt, Eta, Phi, these are
+#                        arrays storing these kinematic information for N candidates.   
+#  - "CandidateCollections": list of InputTags for edm::Candidate collections
+#                  stored in the event. The kinematic information of each candidate
+#                  are stored in an array of Float_t variables in the tree with
+#                  the names given in '<CandidateNamesInTree>' or, if this is not
+#                  specified, as '<InputTag::label()>'.
+
 
 
 import FWCore.ParameterSet.Config as cms
@@ -42,6 +48,13 @@ TreeMaker = cms.EDAnalyzer(
     MHT               = cms.InputTag('mhtPF'),
     # jet collection that has been used to compute MHT. The tree variables "DeltaPhi?" are computed from this collection and from "MHT".
     MHTJets           = cms.InputTag('patJetsAK5PFPt30'),
+
+    # List of InputTags for edm::Candidate collections stored in the event. The kinematic
+    # information of each candidate are stored in an array of Float_t variables in the tree.
+    CandidateCollections = cms.VInputTag(),
+    # Names given to the edm:Candidates in the tree. If this is not specified, the generic
+    # names '<InputTag::label()>' are used.
+    CandidateNamesInTree = cms.vstring(),
 
     # List of InputTags for double-precision variables (double) stored in
     # the event. (For space reason, they are stored as Float_t in the tree.)

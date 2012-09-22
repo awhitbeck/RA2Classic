@@ -19,10 +19,12 @@
   - "DeltaPhi?": deltaPhi between jet ? and MHT, where ? = 1,2,3 (Float_t)
 
  The following optional variables are stored in the tree:
-  - "Filter_<name>": decision of filter <name>, where 0 means false, 1 means true (UChar_t)
   - "<VarsDouble_name>": numbers. They are expected to be stored in double-
                          precision in the event but kept in Float_t-precision
                          in the tree (Float_t)
+  - "<CandidateNameX>": where X = N, Pt, Eta, Phi. In case of Pt, Eta, Phi, these are
+                        arrays storing these kinematic information for N candidates.   
+  - "Filter_<name>": decision of filter <name>, where 0 means false, 1 means true (UChar_t)
 
 
  The following input parameters control how the above variables
@@ -42,6 +44,11 @@
                   in the event. They are stored in the tree in Float_t
                   precision with the names given in VarsDoubleNamesInTree or,
                   if this is not specified, as '<InputTag::label()>'.
+  - "CandidateCollections": list of InputTags for edm::Candidate collections
+                  stored in the event. The kinematic information of each candidate
+                  are stored in an array of Float_t variables in the tree with
+                  the names given in '<CandidateNamesInTree>' or, if this is not
+                  specified, as '<InputTag::label()>'.
   - "Filters": list of filter names (InputTags) that have been run in tag mode
                and stored the decision as a boolean
 
@@ -50,7 +57,7 @@
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id: TreeMaker.cc,v 1.7 2012/09/19 13:59:20 mschrode Exp $
+// $Id: TreeMaker.cc,v 1.8 2012/09/19 14:44:07 mschrode Exp $
 //
 //
 
@@ -71,7 +78,7 @@
 // constructors and destructor
 //
 TreeMaker::TreeMaker(const edm::ParameterSet& iConfig)
-  : tree_(0) {
+  : nMaxCandidates_(20), tree_(0) {
 
   // Set default values for all branch variables
   setBranchVariablesToDefault();
@@ -83,6 +90,8 @@ TreeMaker::TreeMaker(const edm::ParameterSet& iConfig)
   htTag_ = iConfig.getParameter<edm::InputTag>("HT");
   mhtJetsTag_ = iConfig.getParameter<edm::InputTag>("MHTJets");;
   mhtTag_ = iConfig.getParameter<edm::InputTag>("MHT");
+  candidatesInputTag_ = iConfig.getParameter< std::vector<edm::InputTag> >("CandidateCollections");
+  candidatesNameInTree_ = iConfig.getParameter< std::vector<std::string> >("CandidateNamesInTree");
   varsDoubleTags_ = iConfig.getParameter< std::vector<edm::InputTag> >("VarsDouble");
   varsDoubleNamesInTree_ = iConfig.getParameter< std::vector<std::string> >("VarsDoubleNamesInTree");
   filterDecisionTags_ = iConfig.getParameter< std::vector<edm::InputTag> >("Filters");
@@ -90,6 +99,20 @@ TreeMaker::TreeMaker(const edm::ParameterSet& iConfig)
   // Setup vector of filter decisions with correct size
   varsDouble_ = std::vector<Float_t>(varsDoubleTags_.size(),1.);
   filterDecisions_ = std::vector<UChar_t>(filterDecisionTags_.size(),0);
+  candidatesN_ = std::vector<UShort_t>(candidatesInputTag_.size(),0);
+  for(unsigned int i = 0; i < candidatesInputTag_.size(); ++i) {
+    candidatesPt_.push_back(new Float_t[nMaxCandidates_]);
+    candidatesEta_.push_back(new Float_t[nMaxCandidates_]);
+    candidatesPhi_.push_back(new Float_t[nMaxCandidates_]);
+  }
+}
+
+TreeMaker::~TreeMaker() {
+  for(unsigned int i = 0; i < candidatesInputTag_.size(); ++i) {
+    delete [] candidatesPt_.at(i);
+    delete [] candidatesEta_.at(i);
+    delete [] candidatesPhi_.at(i);
+  }
 }
 
 
@@ -163,6 +186,20 @@ TreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
   }
 
+  // Candidate collections
+  for(unsigned int i = 0; i < candidatesInputTag_.size(); ++i) {
+    edm::Handle< edm::View<reco::Candidate> > cands;
+    iEvent.getByLabel(candidatesInputTag_.at(i),cands);
+    if( cands.isValid() ) {
+      for(unsigned int j = 0; j < cands->size(); ++j) {
+	candidatesN_.at(i) = cands->size();
+	candidatesPt_.at(i)[j] = cands->at(j).pt();
+	candidatesEta_.at(i)[j] = cands->at(j).eta();
+	candidatesPhi_.at(i)[j] = cands->at(j).phi();
+      }
+    }
+  }
+
   // Double-precision variables
   for(unsigned int i = 0; i < varsDoubleTags_.size(); ++i) {
     edm::Handle<double> var;
@@ -225,6 +262,16 @@ TreeMaker::beginJob() {
     TString name = "Filter_";
     name += filterDecisionTags_.at(i).label();
     tree_->Branch(name,&(filterDecisions_.at(i)),name+"/b");
+  }
+  for(unsigned int i = 0; i < candidatesInputTag_.size(); ++i) {
+    std::string name = candidatesInputTag_.at(i).label();
+    if( i < candidatesNameInTree_.size() ) {
+      name = candidatesNameInTree_.at(i);
+    }
+    tree_->Branch((name+"Num").c_str(),&(candidatesN_.at(i)),(name+"Num/s").c_str());
+    tree_->Branch((name+"Pt").c_str(),candidatesPt_.at(i),(name+"Pt["+name+"Num]/F").c_str());
+    tree_->Branch((name+"Eta").c_str(),candidatesEta_.at(i),(name+"Eta["+name+"Num]/F").c_str());
+    tree_->Branch((name+"Phi").c_str(),candidatesPhi_.at(i),(name+"Phi["+name+"Num]/F").c_str());
   }
 }
 
@@ -293,6 +340,14 @@ TreeMaker::setBranchVariablesToDefault() {
   }
   for(unsigned int i = 0; i < filterDecisions_.size(); ++i) {
     filterDecisions_.at(i) = 0;
+  }
+  for(unsigned int i = 0; i < candidatesInputTag_.size(); ++i) {
+    candidatesN_.at(i) = 0;
+    for(unsigned int j = 0; j < nMaxCandidates_; ++j) {
+      candidatesPt_.at(i)[j] = 0.;
+      candidatesEta_.at(i)[j] = 0.;
+      candidatesPhi_.at(i)[j] = 0.;
+    }
   }
 }
 
