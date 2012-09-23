@@ -179,6 +179,7 @@ void PlotBuilder::plotSpectra(const TString &var, const std::vector<TString> &da
     types.push_back(createHistogram(*it,var,nBins,xMin,xMax,h));
     h->Sumw2();
     if( h->Integral() ) h->Scale(1./h->Integral("width"));
+    h->GetYaxis()->SetTitle("Probability Density");
     if( types.back() != DataSet::Data ) {
       h->SetLineColor(h->GetFillColor());
       h->SetLineWidth(3);
@@ -397,7 +398,7 @@ void PlotBuilder::setStyle(TH1* h, const TString &dataSetLabel) const {
 
 
 TPaveText* PlotBuilder::header(const TString &dataSetLabel, const TString &add) const {
-  double x0 = gStyle->GetPadLeftMargin()+0.5;
+  double x0 = gStyle->GetPadLeftMargin();
   double x1 = 1.-gStyle->GetPadRightMargin();
   double y0 = 1.-gStyle->GetPadTopMargin();
   double y1 = 1.;
@@ -405,8 +406,9 @@ TPaveText* PlotBuilder::header(const TString &dataSetLabel, const TString &add) 
   txt->SetBorderSize(0);
   txt->SetFillColor(0);
   txt->SetTextFont(42);
-  txt->SetTextAlign(02);
+  txt->SetTextAlign(12);
   txt->SetTextSize(0.05);
+  txt->SetMargin(0.);
   TString label = dataSetLabelInPlot(dataSetLabel);
   txt->AddText(lumiLabel()+(label != "" ? ",  "+label : "")+",  "+dataSets_.front()->selection()+" "+add);
   
@@ -417,7 +419,7 @@ TPaveText* PlotBuilder::header(const TString &dataSetLabel, const TString &add) 
 TLegend* PlotBuilder::legend(unsigned int nEntries) const {
   double lineHeight = 0.06;
   double margin = 0.02;
-  double x0 = gStyle->GetPadLeftMargin();
+  double x0 = 0.45;
   double x1 = 1.-gStyle->GetPadRightMargin()-margin;
   double y1 = 1.-gStyle->GetPadTopMargin()-margin;
   double y0 = y1-nEntries*lineHeight;

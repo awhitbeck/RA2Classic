@@ -23,9 +23,9 @@ event content :: name: NVtx; type: UShort_t; label: N(Vtx)
 event content :: name: Jet1Pt; type: Float_t; label: p_{T,1}; unit: GeV
 event content :: name: Jet2Pt; type: Float_t; label: p_{T,2}; unit: GeV
 event content :: name: Jet3Pt; type: Float_t; label: p_{T,3}; unit: GeV
-#event content :: name: Jet1Eta; type: Float_t; label: #eta_{1}
-#event content :: name: Jet2Eta; type: Float_t; label: #eta_{2}
-#event content :: name: Jet3Eta; type: Float_t; label: #eta_{3}
+event content :: name: Jet1Eta; type: Float_t; label: #eta_{1}
+event content :: name: Jet2Eta; type: Float_t; label: #eta_{2}
+event content :: name: Jet3Eta; type: Float_t; label: #eta_{3}
 event content :: name: DeltaPhi1; type: Float_t; label: #Delta#Phi_{1}
 event content :: name: DeltaPhi2; type: Float_t; label: #Delta#Phi_{2}
 event content :: name: DeltaPhi3; type: Float_t; label: #Delta#Phi_{3}
@@ -36,7 +36,8 @@ event content :: name: Weight; type: Float_t
 
 dataset :: label: Data; type: data; file: /afs/naf.desy.de/user/m/mschrode/lustre/RA2/ntuple/v7/RA2Ntuple_Run2012AB_190456-196531_PromptReco-v1.root; tree: RA2TreeMaker/RA2PreSelection
 
-dataset :: label: QCD; type: mc; file: /afs/naf.desy.de/user/m/mschrode/lustre/RA2/ntuple/v7/RA2Ntuple_QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6_Summer12-PU_S7_START52_V9-v1.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight
+#dataset :: label: QCD; type: mc; file: /afs/naf.desy.de/user/m/mschrode/lustre/RA2/ntuple/v7/RA2Ntuple_QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6_Summer12-PU_S7_START52_V9-v1.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight
+dataset :: label: QCD; type: mc; file: /afs/naf.desy.de/user/m/mschrode/lustre/RA2/ntuple/v7/RA2Ntuple_QCD_HT-250ToInf_TuneZ2Star_8TeV-madgraph_Summer12-PU_S7_START52_V9-v1.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight
 
 dataset :: label: TTbar; type: mc; file: /afs/naf.desy.de/user/m/mschrode/lustre/RA2/ntuple/v7/RA2Ntuple_TTJets_TuneZ2star_8TeV-madgraph-tauola_Summer12-PU_S7_START52_V9-v1.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight
 
@@ -47,7 +48,9 @@ dataset :: label: WJets; type: mc; file: /afs/naf.desy.de/user/m/mschrode/lustre
 
 # Specify the event selection
 selection :: label: baseline; cuts: NJets > 2 + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + HT > 500 + MHT > 200
-selection :: label: baseline + NJet > 5; cuts: baseline + NJets > 5
+selection :: label: baseline + NJet 3-5; cuts: baseline + NJets > 2 + NJets < 6
+selection :: label: baseline + NJet 6-7; cuts: baseline + NJets > 5 + NJets < 8
+selection :: label: baseline + NJet > 7; cuts: baseline + NJets > 7
 
 
 # Specify what variables to plot and some style settings
@@ -70,16 +73,14 @@ plot :: variable: DeltaPhi2; dataset: Data; histogram: 25, 0, 3.2
 plot :: variable: DeltaPhi3; dataset: Data; histogram: 25, 0, 3.2
 
 # Compare normalised spectra of several datasets
-plot :: variable: HT; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 25, 500, 3000, log
-plot :: variable: MHT; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 32, 200, 1800, log
-plot :: variable: NJets; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 20, 0, 20
 plot :: variable: NVtx; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 50, 0, 50
-plot :: variable: Jet1Pt; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 17, 50, 1750, log
-plot :: variable: Jet2Pt; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 17, 50, 1750, log
-plot :: variable: Jet3Pt; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 17, 50, 1750, log
-#plot :: variable: Jet1Eta; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 25, -5, 5
-#plot :: variable: Jet2Eta; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 25, -5, 5
-#plot :: variable: Jet3Eta; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 25, -5, 5
+plot :: variable: NJets; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 20, 0, 20
+plot :: variable: Jet1Pt; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 37, 0, 1850, log
+plot :: variable: Jet2Pt; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 37, 0, 1850, log
+plot :: variable: Jet3Pt; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 37, 0, 1850, log
+plot :: variable: Jet1Eta; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 20, -5, 5
+plot :: variable: Jet2Eta; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 20, -5, 5
+plot :: variable: Jet3Eta; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 20, -5, 5
 plot :: variable: DeltaPhi1; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 15, 0.3, 3.3
 plot :: variable: DeltaPhi2; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 15, 0.3, 3.3
 plot :: variable: DeltaPhi3; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 15, 0.3, 3.3
@@ -88,6 +89,16 @@ plot :: variable: DeltaPhi3; datasets: Data, QCD, TTbar, WJets, ZJets; histogram
 # The spectra of different datasets can be stacked using '+'
 plot :: variable: HT; dataset1: Data; dataset2: QCD + TTbar + ZJets + WJets; histogram: 25, 500, 3000, log
 plot :: variable: MHT; dataset1: Data; dataset2: QCD + TTbar + ZJets + WJets; histogram: 32, 200, 1800, log
+plot :: variable: NJets; dataset1: Data; dataset2: QCD + TTbar + WJets + ZJets; histogram: 20, 0, 20, log
+plot :: variable: Jet1Pt; dataset1: Data; dataset2: QCD + TTbar + WJets + ZJets; histogram: 37, 0, 1850, log
+plot :: variable: Jet2Pt; dataset1: Data; dataset2: QCD + TTbar + WJets + ZJets; histogram: 37, 0, 1850, log
+plot :: variable: Jet3Pt; dataset1: Data; dataset2: QCD + TTbar + WJets + ZJets; histogram: 37, 0, 1850, log
+plot :: variable: Jet1Eta; dataset1: Data; dataset2: QCD + TTbar + WJets + ZJets; histogram: 20, -5, 5
+plot :: variable: Jet2Eta; dataset1: Data; dataset2: QCD + TTbar + WJets + ZJets; histogram: 20, -5, 5
+plot :: variable: Jet3Eta; dataset1: Data; dataset2: QCD + TTbar + WJets + ZJets; histogram: 20, -5, 5
+plot :: variable: DeltaPhi1; dataset1: Data; dataset2: QCD + TTbar + WJets + ZJets; histogram: 15, 0.3, 3.3
+plot :: variable: DeltaPhi2; dataset1: Data; dataset2: QCD + TTbar + WJets + ZJets; histogram: 15, 0.3, 3.3
+plot :: variable: DeltaPhi3; dataset1: Data; dataset2: QCD + TTbar + WJets + ZJets; histogram: 15, 0.3, 3.3
 
 
 # Print event information for 'number' events with largest 
