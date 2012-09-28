@@ -410,7 +410,7 @@ TPaveText* PlotBuilder::header(const TString &dataSetLabel, const TString &add) 
   txt->SetTextSize(0.05);
   txt->SetMargin(0.);
   TString label = dataSetLabelInPlot(dataSetLabel);
-  txt->AddText(lumiLabel()+(label != "" ? ",  "+label : "")+",  "+dataSets_.front()->selection()+" "+add);
+  txt->AddText("8 TeV,  "+lumiLabel()+(label != "" ? ",  "+label : "")+",  "+dataSets_.front()->selection()+" "+add);
   
   return txt;
 }

@@ -37,7 +37,7 @@ event content :: name: Weight; type: Float_t
 dataset :: label: Data; type: data; file: /afs/naf.desy.de/user/m/mschrode/lustre/RA2/ntuple/v7/RA2Ntuple_Run2012AB_190456-196531_PromptReco-v1.root; tree: RA2TreeMaker/RA2PreSelection
 
 #dataset :: label: QCD; type: mc; file: /afs/naf.desy.de/user/m/mschrode/lustre/RA2/ntuple/v7/RA2Ntuple_QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6_Summer12-PU_S7_START52_V9-v1.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight
-dataset :: label: QCD; type: mc; file: /afs/naf.desy.de/user/m/mschrode/lustre/RA2/ntuple/v7/RA2Ntuple_QCD_HT-250ToInf_TuneZ2Star_8TeV-madgraph_Summer12-PU_S7_START52_V9-v1.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight
+dataset :: label: QCD; type: mc; file: /afs/naf.desy.de/user/m/mschrode/lustre/RA2/ntuple/v7/RA2Ntuple_QCD_HT-500ToInf_TuneZ2Star_8TeV-madgraph_Summer12-PU_S7_START52_V9-v1.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight
 
 dataset :: label: TTbar; type: mc; file: /afs/naf.desy.de/user/m/mschrode/lustre/RA2/ntuple/v7/RA2Ntuple_TTJets_TuneZ2star_8TeV-madgraph-tauola_Summer12-PU_S7_START52_V9-v1.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight
 
