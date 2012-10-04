@@ -25,6 +25,11 @@ weightProducer = cms.EDProducer('WeightProducer',
    # a multiplicative PU weight factor is applied.
    FileNamePUDataDistribution = cms.string("NONE"),
    
-   ## use this for different PU distributions 0 Flat10 PU; 1 for Fall11; 2 for Summer12
+   ## use this for different PU scenarios as described at
+   ## https://twiki.cern.ch/twiki/bin/view/CMS/Pileup_MC_Gen_Scenarios                 
+   ##  0: Flat10
+   ##  1: for Fall11
+   ##  2: Summer12 S7
+   ##  3: Summer12 S10                                
    PU = cms.int32(0)
 )
