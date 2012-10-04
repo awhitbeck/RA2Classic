@@ -1,4 +1,4 @@
-# $Id: Preselection_cff.py,v 1.8 2012/08/13 08:29:42 kheine Exp $
+# $Id: Preselection_cff.py,v 1.1 2012/08/31 08:43:29 kheine Exp $
 #
 # Process setup for RA2 skims
 
@@ -12,12 +12,9 @@ def runRA2Preselection(process,
                        numProcessedEvt=100):
 
 
-    from PhysicsTools.PatAlgos.patTemplate_cfg import *
-
-
     #-- Meta data to be logged in DBS ---------------------------------------------
     process.configurationMetadata = cms.untracked.PSet(
-        version = cms.untracked.string('$Revision: 1.8 $'),
+        version = cms.untracked.string('$Revision: 1.1 $'),
         name = cms.untracked.string('$Source: /local/reps/CMSSW/UserCode/kheine/RA2Classic/Skimming/python/Preselection_cff.py,v $'),
         annotation = cms.untracked.string('SUSY pattuple definition')
         )
@@ -123,9 +120,7 @@ def runRA2Preselection(process,
     process.prefilterCounter        = cms.EDProducer("EventCountProducer")
     process.postStdCleaningCounter  = cms.EDProducer("EventCountProducer")
     process.postPostCleaningCounter = cms.EDProducer("EventCountProducer")
-    process.postPFJetsCounter       = cms.EDProducer("EventCountProducer")
     process.postPFchsJetsCounter    = cms.EDProducer("EventCountProducer")
-    process.postPFHTCounter         = cms.EDProducer("EventCountProducer")
     process.postPFchsHTCounter      = cms.EDProducer("EventCountProducer")
 
     process.load('SandBox.Skims.RA2Objects_cff')
@@ -144,6 +139,7 @@ def runRA2Preselection(process,
     process.ra2EcalBEFilter.taggingMode       = True
     process.hcalLaserEventFilter.taggingMode  = True
     process.eeBadScFilter.taggingMode         = True
+    process.ra2PBNR.taggingMode               = True
 
     process.load("SandBox.Skims.provInfoMuons_cfi")
     process.load("SandBox.Skims.provInfoElectrons_cfi")
@@ -162,14 +158,6 @@ def runRA2Preselection(process,
 
     process.dump   = cms.EDAnalyzer("EventContentAnalyzer")
 
-    process.ppf = cms.Path(
-        process.cleanpatseq *
-        process.countJetsAK5PFPt50Eta25 *
-        process.postPFJetsCounter *
-        process.htPFFilter *
-        process.postPFHTCounter
-        )
-
     process.ppfchs = cms.Path(
         process.cleanpatseq *
         process.countJetsPFchsPt50Eta25 *
@@ -181,12 +169,10 @@ def runRA2Preselection(process,
 
     #-- Output module configuration -----------------------------------------------
 
-    if isData:
-        process.out.fileName = cms.untracked.string('RA2SkimsOnData.root')
-    else:
-        process.out.fileName = cms.untracked.string('RA2SkimsOnMC.root')
-
-    process.out.SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('ppf','ppfchs') )
+    process.out.fileName = cms.untracked.string('RA2Skim.root')
+    process.out.SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('ppfchs')
+        )
     process.outpath = cms.EndPath( process.out )
     
    
