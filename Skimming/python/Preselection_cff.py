@@ -1,4 +1,4 @@
-# $Id: Preselection_cff.py,v 1.1 2012/08/31 08:43:29 kheine Exp $
+# $Id: Preselection_cff.py,v 1.2 2012/10/04 14:42:08 mschrode Exp $
 #
 # Process setup for RA2 skims
 
@@ -12,9 +12,19 @@ def runRA2Preselection(process,
                        numProcessedEvt=100):
 
 
+    print "*** SETUP ********************************************************"
+    if isData :
+        print " Run on data"
+    else:
+        print " Run on MC"
+    print " GlobalTag = "+globalTag
+    print "******************************************************************"
+
+
+
     #-- Meta data to be logged in DBS ---------------------------------------------
     process.configurationMetadata = cms.untracked.PSet(
-        version = cms.untracked.string('$Revision: 1.1 $'),
+        version = cms.untracked.string('$Revision: 1.2 $'),
         name = cms.untracked.string('$Source: /local/reps/CMSSW/UserCode/kheine/RA2Classic/Skimming/python/Preselection_cff.py,v $'),
         annotation = cms.untracked.string('SUSY pattuple definition')
         )
@@ -126,6 +136,9 @@ def runRA2Preselection(process,
     process.load('SandBox.Skims.RA2Objects_cff')
     process.load('SandBox.Skims.RA2Selection_cff')
     process.load('SandBox.Skims.RA2Cleaning_cff')
+
+    ## Modify selection and filters for skims
+    process.countJetsPFchsPt50Eta25.minNumber = cms.uint32(2)
 
     ## please comment this block to remove tagging mode of
     ##filters and reject events failing any of following filters
