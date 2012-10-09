@@ -48,7 +48,7 @@ process.load("RA2Classic.QCDBkgRS.qcdbkgrs_cfi")
 ###############################################################################
 process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withCHS_withPUReweighting_pixelcorr.root'
 #process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withoutCHS_withoutPUReweighting.root'
-process.QCDfromSmearing.BProbabilityFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/BJetProbability.root'
+process.QCDfromSmearing.BProbabilityFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/BJetProbabilityMC.root'
 process.QCDfromSmearing.jetCollection = 'patJetsPF' 
 #process.QCDfromSmearing.jetCollection = 'patJetsAK5PF'
 process.QCDfromSmearing.uncertaintyName = '' 
@@ -58,12 +58,18 @@ process.QCDfromSmearing.uncertaintyName = ''
 #process.QCDfromSmearing.InputHisto1_NoHF = 'h_nob_Jet1_ResponsePt'
 #process.QCDfromSmearing.InputHisto2_NoHF = 'h_nob_Jet2_ResponsePt'
 #process.QCDfromSmearing.InputHisto3p_NoHF = 'h_nob_Jet3p_ResponsePt'
-process.QCDfromSmearing.InputHisto1_HF = 'h_tot_JetAll_ResponsePt'
-process.QCDfromSmearing.InputHisto2_HF = 'h_tot_JetAll_ResponsePt'
-process.QCDfromSmearing.InputHisto3p_HF = 'h_tot_JetAll_ResponsePt'
-process.QCDfromSmearing.InputHisto1_NoHF = 'h_tot_JetAll_ResponsePt'
-process.QCDfromSmearing.InputHisto2_NoHF = 'h_tot_JetAll_ResponsePt'
-process.QCDfromSmearing.InputHisto3p_NoHF = 'h_tot_JetAll_ResponsePt'
+#process.QCDfromSmearing.InputHisto1_HF = 'h_tot_JetAll_ResponsePt'
+#process.QCDfromSmearing.InputHisto2_HF = 'h_tot_JetAll_ResponsePt'
+#process.QCDfromSmearing.InputHisto3p_HF = 'h_tot_JetAll_ResponsePt'
+#process.QCDfromSmearing.InputHisto1_NoHF = 'h_tot_JetAll_ResponsePt'
+#process.QCDfromSmearing.InputHisto2_NoHF = 'h_tot_JetAll_ResponsePt'
+#process.QCDfromSmearing.InputHisto3p_NoHF = 'h_tot_JetAll_ResponsePt'
+process.QCDfromSmearing.InputHisto1_HF = 'h_b_JetAll_ResponsePt'
+process.QCDfromSmearing.InputHisto2_HF = 'h_b_JetAll_ResponsePt'
+process.QCDfromSmearing.InputHisto3p_HF = 'h_b_JetAll_ResponsePt'
+process.QCDfromSmearing.InputHisto1_NoHF = 'h_nob_JetAll_ResponsePt'
+process.QCDfromSmearing.InputHisto2_NoHF = 'h_nob_JetAll_ResponsePt'
+process.QCDfromSmearing.InputHisto3p_NoHF = 'h_nob_JetAll_ResponsePt'
 process.QCDfromSmearing.NRebin = 1
 process.QCDfromSmearing.NJets = 2
 process.QCDfromSmearing.SmearCollection = 'Reco'
@@ -73,7 +79,7 @@ process.QCDfromSmearing.AdditionalSmearing = cms.vdouble(1.0)
 process.QCDfromSmearing.LowerTailScaling = cms.vdouble(1.0)
 process.QCDfromSmearing.UpperTailScaling = cms.vdouble(1.0)
 process.QCDfromSmearing.SmearedJetPt = 0.
-process.QCDfromSmearing.RebalanceJetPt = 15.
+process.QCDfromSmearing.RebalanceJetPt = 13.
 process.QCDfromSmearing.RebalanceMode = 'MHThigh'
 process.QCDfromSmearing.weightName = 'weightProducer:weight'
 process.QCDfromSmearing.ControlPlots = True
@@ -147,7 +153,7 @@ process.RA2TreeMaker = TreeMaker.clone(
  #   HT               = cms.InputTag('htPF'),
     HT               = cms.InputTag('htPFchs'),
     HTJets           = cms.InputTag('HTJets'),
-  #  MHT              = cms.InputTag('mhtPF'),
+ #   MHT              = cms.InputTag('mhtPF'),
     MHT              = cms.InputTag('mhtPFchs'),
     MHTJets          = cms.InputTag('MHTJets')
     )
@@ -196,6 +202,6 @@ process.mc = cms.Path(
    process.ra2PFMuonVeto *
    process.ra2ElectronVeto * 
    process.produceRA2JetsPFCHS *
-  # process.produceRA2JetsAK5PF *
+ #  process.produceRA2JetsAK5PF *
    process.RA2TreeMaker   
 )

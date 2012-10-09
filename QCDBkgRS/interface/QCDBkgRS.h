@@ -172,8 +172,8 @@ private:
    double JetResolution_Ptrel(const double&, const double&, const int&);
    double JetResolution_Eta2(const double&, const double&);
    double JetResolution_Phi2(const double&, const double&);
-   double JetResolutionHist_Pt_Smear(const double&, const double&, const int&);
-   double GetHFProb(const double&, const double&, const int&);
+   double JetResolutionHist_Pt_Smear(const double&, const double&, const int&,const double&, const int&);
+   double GetHFProb(const int&, const double&, const int&);
    int GetIndex(const double&, const std::vector<double>*);
    void FillPredictions(const std::vector<pat::Jet>&, const int&, const double&);
    void FillPredictions_gen(const std::vector<reco::GenJet>&, const int&, const double&);
@@ -203,9 +203,12 @@ private:
    TH2F* h_SmearedJetRes_Pt;
    TH2F* h_SmearedJetRes_Eta;
 
-   TH2F* h_bProb_jet1;
-   TH2F* h_bProb_jet2;
-   TH2F* h_bProb_jet3p;
+   // TH2F* h_bProb_NJets1;
+   TH2F* h_bProb_NJets2;
+   TH2F* h_bProb_NJets3;
+   TH2F* h_bProb_NJets4;
+   TH2F* h_bProb_NJets5p6;
+   TH2F* h_bProb_NJets7p;
 
    TH1F* h_nJets_reco;
    TH1F* h_nJets_reb;

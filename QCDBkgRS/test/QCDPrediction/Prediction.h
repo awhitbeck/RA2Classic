@@ -4,6 +4,7 @@
 #include <TH2.h>
 #include <TProfile.h>
 #include <TCanvas.h>
+#include <TChain.h>
 #include <TPad.h>
 #include <TLegend.h>
 #include <TMath.h>
@@ -24,7 +25,7 @@ using namespace std;
 class Prediction {
 
 public:
-   Prediction (TFile&, TFile&);
+   Prediction (TChain&, TChain&);
    ~Prediction();
 
    TH1F* GetSelectionHisto(TString type);
@@ -44,7 +45,7 @@ private:
    Float_t DeltaPhi3;
  
    // tree with selection
-   TTree* RA2Tree; 
+   TTree* RA2PreSelection; 
    UShort_t vtxN_RA2;
    UShort_t NJets_RA2;
    Float_t weight_RA2;
@@ -62,6 +63,9 @@ private:
    double MHTlow;
    double MHTmedium;
    double MHThigh;
+
+   TH1F* HT_old;
+   TH1F* HT_new;
      
    // raw prediction histograms preselection 
    TH2F* HT_presel_pred_raw;
@@ -87,22 +91,23 @@ private:
    TH2F* Jet3Eta_deltaPhi_pred_raw;
 
    // baseline 
+   TH2F* NJets_baseline_withoutMHT_pred_raw;
    TH2F* NJets_baseline_pred_raw;
    TH2F* HT_baseline_pred_raw;
    TH2F* MHT_baseline_pred_raw;
 
-   // raw prediction histograms 2-3 jets, HT 500-900 
+   // raw prediction histograms 2 jets, HT 500-900 
    TH2F* MHT_JetBin1_HTlow_pred_raw;
-   // raw prediction histograms 2-3 jets, HT 900-1300
+   // raw prediction histograms 2 jets, HT 900-1300
    TH2F* MHT_JetBin1_HTmedium_pred_raw;
-   // raw prediction histograms 2-3 jets, HT >1300
+   // raw prediction histograms 2 jets, HT >1300
    TH2F* MHT_JetBin1_HThigh_pred_raw;
 
-   // raw prediction histograms 4-5 jets, HT 500-900 
+   // raw prediction histograms 3-5 jets, HT 500-900 
    TH2F* MHT_JetBin2_HTlow_pred_raw;
-   // raw prediction histograms 4-5 jets, HT 900-1300
+   // raw prediction histograms 3-5 jets, HT 900-1300
    TH2F* MHT_JetBin2_HTmedium_pred_raw;
-   // raw prediction histograms 4-5 jets, HT >1300
+   // raw prediction histograms 3-5 jets, HT >1300
    TH2F* MHT_JetBin2_HThigh_pred_raw;
 
    // raw prediction histograms 6-7 jets, HT 500-900 
@@ -119,6 +124,18 @@ private:
    // raw prediction histograms >=8 jets, HT >1300
    TH2F* MHT_JetBin4_HThigh_pred_raw;
 
+   // raw prediction histograms 2 jets, HT inclusive 
+   TH2F* MHT_JetBin1_HTinclusive_pred_raw;
+  
+   // raw prediction histograms 3-5 jets, HT inclusive
+   TH2F* MHT_JetBin2_HTinclusive_pred_raw;
+  
+   // raw prediction histograms 6-7 jets, HT inclusive 
+   TH2F* MHT_JetBin3_HTinclusive_pred_raw;
+ 
+   // raw prediction histograms >=8 jets, HT inclusive
+   TH2F* MHT_JetBin4_HTinclusive_pred_raw;
+  
    // prediction histograms preselection
    TH1F* HT_presel_pred;
    TH1F* MHT_presel_pred;
@@ -143,6 +160,7 @@ private:
    TH1F* Jet3Eta_deltaPhi_pred;
 
    // prediction histograms baseline 
+   TH1F* NJets_baseline_withoutMHT_pred;
    TH1F* NJets_baseline_pred;
    TH1F* HT_baseline_pred;
    TH1F* MHT_baseline_pred;
@@ -175,6 +193,18 @@ private:
    //  prediction histograms >=8 jets, HT >1300
    TH1F* MHT_JetBin4_HThigh_pred;
 
+   //  prediction histograms 2 jets, HT inclusive 
+   TH1F* MHT_JetBin1_HTinclusive_pred;
+  
+   //  prediction histograms 3-5 jets, HT inclusive
+   TH1F* MHT_JetBin2_HTinclusive_pred;
+  
+   //  prediction histograms 6-7 jets, HT inclusive 
+   TH1F* MHT_JetBin3_HTinclusive_pred;
+ 
+   //  prediction histograms >=8 jets, HT inclusive
+   TH1F* MHT_JetBin4_HTinclusive_pred;
+
    // selection histograms preselection
    TH1F* HT_presel_sel;
    TH1F* MHT_presel_sel;
@@ -199,6 +229,7 @@ private:
    TH1F* Jet3Eta_deltaPhi_sel;
 
    // selection histogram baseline NJets
+   TH1F* NJets_baseline_withoutMHT_sel;
    TH1F* NJets_baseline_sel;
    TH1F* HT_baseline_sel;
    TH1F* MHT_baseline_sel;
@@ -230,6 +261,18 @@ private:
    TH1F* MHT_JetBin4_HTmedium_sel;
    //  selection histograms >=8 jets, HT >1300
    TH1F* MHT_JetBin4_HThigh_sel;
+
+   //  selection histograms 2 jets, HT inclusive 
+   TH1F* MHT_JetBin1_HTinclusive_sel;
+  
+   //  selection histograms 3-5 jets, HT inclusive
+   TH1F* MHT_JetBin2_HTinclusive_sel;
+  
+   //  selection histograms 6-7 jets, HT inclusive 
+   TH1F* MHT_JetBin3_HTinclusive_sel;
+ 
+   //  selection histograms >=8 jets, HT inclusive
+   TH1F* MHT_JetBin4_HTinclusive_sel;
 
    // dummy histo
    TH1F* dummy;

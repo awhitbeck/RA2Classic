@@ -13,7 +13,7 @@
 //
 // Original Author:  Kristin Heine,,,DESY
 //         Created:  Tue Aug  7 15:55:02 CEST 2012
-// $Id: QCDBkgRS.cc,v 1.2 2012/08/16 09:25:41 kheine Exp $
+// $Id: QCDBkgRS.cc,v 1.3 2012/08/16 11:36:40 kheine Exp $
 //
 //
 
@@ -198,14 +198,15 @@ double QCDBkgRS::JetResolution_Phi2(const double& e, const double& eta) {
 
 //--------------------------------------------------------------------------
 // pt resolution for smearing
-double QCDBkgRS::JetResolutionHist_Pt_Smear(const double& pt, const double& eta, const int& i) {
+double QCDBkgRS::JetResolutionHist_Pt_Smear(const double& pt, const double& eta, const int& i, const double& HT, const int& NJets) {
    int i_jet;
    i < 2 ? i_jet = i : i_jet = 2;
    int i_Pt = GetIndex(pt, &PtBinEdges_);
    int i_eta = GetIndex(eta, &EtaBinEdges_);
 
+   int jet_rank = i+1;
    double x_rand = rand_->Rndm();
-   double hf_prob = GetHFProb(pt, eta, i_jet);
+   double hf_prob = GetHFProb(NJets, HT, jet_rank);
 
    double res = 1.0;
    if( x_rand <= hf_prob ){
@@ -223,20 +224,36 @@ double QCDBkgRS::JetResolutionHist_Pt_Smear(const double& pt, const double& eta,
 
 //--------------------------------------------------------------------------
 // HF probability for smearing
-double QCDBkgRS::GetHFProb(const double& pt, const double& eta, const int& i_jet) {
+double QCDBkgRS::GetHFProb(const int& NJets, const double& HT, const int& jet_rank) {
   
    int i_bin;
-   if( i_jet == 0 ) {
-      i_bin = h_bProb_jet1->FindBin(pt, eta);
-      return h_bProb_jet1->GetBinContent(i_bin);
+
+  //  if( NJets == 1){
+//       i_bin = h_bProb_NJets1->FindBin(HT, jet_rank);
+//       return h_bProb_NJets1->GetBinContent(i_bin);
+//    }
+   if( NJets == 2){
+      i_bin = h_bProb_NJets2->FindBin(HT, jet_rank);
+      return h_bProb_NJets2->GetBinContent(i_bin);
    }
-   if( i_jet == 1 ) {
-      i_bin = h_bProb_jet2->FindBin(pt, eta);
-      return h_bProb_jet2->GetBinContent(i_bin);
+   if( NJets == 3){
+      i_bin = h_bProb_NJets3->FindBin(HT, jet_rank);
+      return h_bProb_NJets3->GetBinContent(i_bin);
+   }
+   if( NJets == 4){
+      i_bin = h_bProb_NJets4->FindBin(HT, jet_rank);
+      return h_bProb_NJets4->GetBinContent(i_bin);
+   }
+   if( NJets == 5 || NJets == 6){
+      i_bin = h_bProb_NJets5p6->FindBin(HT, jet_rank);
+      return h_bProb_NJets5p6->GetBinContent(i_bin);
+   }
+   if( NJets >= 7){
+      i_bin = h_bProb_NJets7p->FindBin(HT, jet_rank);
+      return h_bProb_NJets7p->GetBinContent(i_bin);
    }
    else {
-      i_bin = h_bProb_jet3p->FindBin(pt, eta);
-      return h_bProb_jet3p->GetBinContent(i_bin);
+      return -1;
    }
 }
 //--------------------------------------------------------------------------
@@ -402,6 +419,9 @@ void QCDBkgRS::SmearingJets(const std::vector<pat::Jet> &Jets_reb, std::vector<p
    double dPx = 0;
    double dPy = 0;
 
+   double HT = calcHT(Jets_reb);
+   int NJets_reb = calcNJets(Jets_reb);
+
    for (int i = 1; i <= Ntries_; ++i) {
       int Ntries2 = 1;
       double w = weight_;
@@ -415,7 +435,7 @@ void QCDBkgRS::SmearingJets(const std::vector<pat::Jet> &Jets_reb, std::vector<p
          for (std::vector<pat::Jet>::const_iterator it = Jets_reb.begin(); it != Jets_reb.end(); ++it) {
             if (it->pt() > smearedJetPt_) {
                double newPt = 0;
-               newPt = it->pt() * JetResolutionHist_Pt_Smear(it->pt(), it->eta(), i_jet);
+               newPt = it->pt() * JetResolutionHist_Pt_Smear(it->pt(), it->eta(), i_jet, HT, NJets_reb);
                //double newEta = rand_->Gaus(it->eta(), TMath::Sqrt(JetResolution_Eta2(it->energy(), it->eta())));
                //double newPhi = rand_->Gaus(it->phi(), TMath::Sqrt(JetResolution_Phi2(it->energy(), it->eta())));
                double newEta = it->eta();
@@ -469,6 +489,16 @@ void QCDBkgRS::SmearingGenJets(edm::View<reco::GenJet>* Jets_gen, std::vector<re
    double dPx = 0;
    double dPy = 0;
 
+   // calculate quantities needed for smearing
+   double HT; 
+   int NJets_gen = 0;
+   for (edm::View<reco::GenJet>::const_iterator it = Jets_gen->begin(); it != Jets_gen->end(); ++it) {
+      if (it->pt() > JetsHTPt_ && std::abs(it->eta()) < JetsHTEta_) {
+         ++NJets_gen;
+         HT += it->pt();
+      }
+   }
+
    for (int i = 1; i <= Ntries_; ++i) {
       GenJets_smeared.clear();
       int i_jet = 0;
@@ -477,7 +507,7 @@ void QCDBkgRS::SmearingGenJets(edm::View<reco::GenJet>* Jets_gen, std::vector<re
 
          if (it->pt() > smearedJetPt_) {
             double newPt = 0;
-            newPt = it->pt() * JetResolutionHist_Pt_Smear(it->pt(), it->eta(), i_jet);
+            newPt = it->pt() * JetResolutionHist_Pt_Smear(it->pt(), it->eta(), i_jet, HT, NJets_gen);
             //double newEta = rand_->Gaus(it->eta(), TMath::Sqrt(JetResolution_Eta2(it->energy(), it->eta())));
             //double newPhi = rand_->Gaus(it->phi(), TMath::Sqrt(JetResolution_Phi2(it->energy(), it->eta())));
             double newEta = it->eta();
@@ -1328,8 +1358,7 @@ void QCDBkgRS::beginJob()
    if (!fs) {
       throw edm::Exception(edm::errors::Configuration, "TFile Service is not registered in cfg file");
    }
-   fs->file().SetCompressionLevel(9);
-
+ 
    if (controlPlots_) {
       h_nJets_reco = fs->make<TH1F> ("NJets_reco", "NJets", 15, 0., 15);
       h_nJets_reco->Sumw2();
@@ -1345,9 +1374,9 @@ void QCDBkgRS::beginJob()
       h_JetPt_smear = fs->make<TH1F> ("JetPt_smear", "Jet pt", 1000, 0., 1000.);
       h_JetPt_smear->Sumw2();
 
-      h_RecJetMatched_Pt = fs->make<TH1F> ("RecJetMatched_Pt", "RecJetMatched_Pt", 500, 0., 1000.);
+      h_RecJetMatched_Pt = fs->make<TH1F> ("RecJetMatched_Pt", "RecJetMatched_Pt", 1000, 0., 1000.);
       h_RecJetMatched_Pt->Sumw2();
-      h_RecJetNotMatched_Pt = fs->make<TH1F> ("RecJetNotMatched_Pt", "RecJetNotMatched_Pt", 500, 0., 1000.);
+      h_RecJetNotMatched_Pt = fs->make<TH1F> ("RecJetNotMatched_Pt", "RecJetNotMatched_Pt", 1000, 0., 1000.);
       h_RecJetNotMatched_Pt->Sumw2();
       h_RecJetRes_Pt = fs->make<TH2F> ("RecJetRes_Pt", "RecJetRes_Pt", 100, 0., 1000., 100, 0., 3.);
       h_RecJetRes_Pt->Sumw2();
@@ -1449,9 +1478,12 @@ void QCDBkgRS::beginJob()
 
    //// load b-jet probability histos
    TFile *f_bProb = new TFile(bprobabilityfile_.c_str(), "READ", "", 0);
-   h_bProb_jet1 = (TH2F*) f_bProb->FindObjectAny("Data_truth_Prob_Jet1;1");
-   h_bProb_jet2 = (TH2F*) f_bProb->FindObjectAny("Data_truth_Prob_Jet2;1");
-   h_bProb_jet3p = (TH2F*) f_bProb->FindObjectAny("Data_truth_Prob_Jet3p;1");
+   // h_bProb_NJets1 = (TH2F*) f_bProb->FindObjectAny("Data_truth_Prob_NJets1");
+   h_bProb_NJets2 = (TH2F*) f_bProb->FindObjectAny("Data_truth_Prob_NJets2");
+   h_bProb_NJets3 = (TH2F*) f_bProb->FindObjectAny("Data_truth_Prob_NJets3");
+   h_bProb_NJets4 = (TH2F*) f_bProb->FindObjectAny("Data_truth_Prob_NJets4");
+   h_bProb_NJets5p6 = (TH2F*) f_bProb->FindObjectAny("Data_truth_Prob_NJets5p6");
+   h_bProb_NJets7p = (TH2F*) f_bProb->FindObjectAny("Data_truth_Prob_NJets7p");
 
    // define output tree 
    PredictionTree = fs->make<TTree> ("QCDPrediction", "QCDPrediction", 0);
