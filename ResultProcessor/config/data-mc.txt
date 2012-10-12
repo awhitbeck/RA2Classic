@@ -85,7 +85,7 @@ plot :: variable: DeltaPhi1; datasets: Data, QCD, TTbar, WJets, ZJets; histogram
 plot :: variable: DeltaPhi2; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 15, 0.3, 3.3
 plot :: variable: DeltaPhi3; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 15, 0.3, 3.3
 
-# Plot the spectrum of 'dataset1' in comparison to 'dataset2'
+# Plot the spectrum of 'dataset1' in comparison to 'dataset2' (including ratio plots)
 # The spectra of different datasets can be stacked using '+'
 plot :: variable: HT; dataset1: Data; dataset2: QCD + TTbar + ZJets + WJets; histogram: 25, 500, 3000, log
 plot :: variable: MHT; dataset1: Data; dataset2: QCD + TTbar + ZJets + WJets; histogram: 32, 200, 1800, log

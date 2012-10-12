@@ -177,7 +177,6 @@ void PlotBuilder::plotSpectra(const TString &var, const std::vector<TString> &da
       it != dataSetLabels.end(); ++it) {
     TH1* h = 0;
     types.push_back(createHistogram(*it,var,nBins,xMin,xMax,h));
-    h->Sumw2();
     if( h->Integral() ) h->Scale(1./h->Integral("width"));
     h->GetYaxis()->SetTitle("Probability Density");
     if( types.back() != DataSet::Data ) {
@@ -237,10 +236,50 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
   DataSet::Type type2 = createStack(dataSetLabels2,var,nBins,xMin,xMax,hists2,legEntries2);
 
   TCanvas* can = new TCanvas("can","",canSize_,canSize_);
+  can->SetBottomMargin(0.2 + 0.8*can->GetBottomMargin()-0.2*can->GetTopMargin());
+  can->cd();
+  TPad *ratioPad = new TPad("bpad","",0,0,1,1);
+  ratioPad->SetTopMargin(0.8 - 0.8*ratioPad->GetBottomMargin()+0.2*ratioPad->GetTopMargin());
+  ratioPad->SetFillStyle(0);
+  ratioPad->SetFrameFillColor(10);
+  ratioPad->SetFrameBorderMode(0);
+
+  // Ratio plot
+  TH1 *hRatio = 0;
+  TH1 *hRatioFrame = static_cast<TH1*>(hists1.front()->Clone("RatioFrame"));
+  for(int xBin = 1; xBin <= hRatioFrame->GetNbinsX(); ++xBin) {
+    hRatioFrame->SetBinContent(xBin,1.);
+  }
+  hRatioFrame->GetXaxis()->SetTitle(hists1.front()->GetXaxis()->GetTitle());
+  hRatioFrame->GetYaxis()->SetRangeUser(0.55,1.95);
+  hRatioFrame->SetLineStyle(2);
+  hRatioFrame->SetLineWidth(2);
+  hRatioFrame->GetYaxis()->SetNdivisions(205);
+  hRatioFrame->GetYaxis()->SetTickLength(gStyle->GetTickLength("Y")/0.2);
+  hRatioFrame->GetXaxis()->SetLabelSize(gStyle->GetLabelSize("X"));
+  hRatioFrame->GetYaxis()->CenterTitle();
+  hRatioFrame->GetYaxis()->SetTitleOffset(0.9*hRatioFrame->GetYaxis()->GetTitleOffset());
+
+
+
+  for(std::vector<TH1*>::iterator it = hists1.begin();
+      it != hists1.end(); ++it) {
+    (*it)->GetXaxis()->SetLabelSize(0);
+    (*it)->GetXaxis()->SetTitle("");
+    (*it)->GetYaxis()->SetTickLength(gStyle->GetTickLength("Y")/0.8);
+  }
+  for(std::vector<TH1*>::iterator it = hists2.begin();
+      it != hists2.end(); ++it) {
+    (*it)->GetXaxis()->SetLabelSize(0);
+    (*it)->GetXaxis()->SetTitle("");
+    (*it)->GetYaxis()->SetTickLength(gStyle->GetTickLength("Y")/0.8);
+  }
+
 
   TLegend* leg = legend(hists1.size()+hists2.size());
   if( type1 == DataSet::Data && type2 == DataSet::MC ) {
     // Draw histograms
+    can->cd();
     setYRange(hists2.front(),logy?3E-1:-1.);
     hists2.front()->Draw();
     for(std::vector<TH1*>::iterator it = hists2.begin();
@@ -262,6 +301,15 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
 	itH != hists2.end(); ++itH,++itL) {
       leg->AddEntry(*itH,*itL,"F");
     }
+    gPad->RedrawAxis();
+    // Add ratio plot
+    ratioPad->Draw();
+    ratioPad->cd();
+    hRatio = static_cast<TH1*>(hists1.front()->Clone("Ratio"));
+    hRatio->Divide(hists2.front());
+    hRatioFrame->GetYaxis()->SetTitle("#frac{Data}{Sim.}");
+    hRatioFrame->Draw("HIST");
+    hRatio->Draw("PE1same");
   } else if( type2 == DataSet::Data && type1 == DataSet::MC ) {
     setYRange(hists1.front(),logy?3E-1:-1.);
     hists1.front()->Draw();
@@ -273,6 +321,15 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
 	it != hists2.end(); ++it) {
       (*it)->Draw("PE1same");
     }
+    gPad->RedrawAxis();
+    // Add ratio plot
+    ratioPad->Draw();
+    ratioPad->cd();
+    hRatio = static_cast<TH1*>(hists2.front()->Clone("Ratio"));
+    hRatio->Divide(hists1.front());
+    hRatioFrame->GetYaxis()->SetTitle("#frac{Data}{Sim.}");
+    hRatioFrame->Draw("HIST");
+    hRatio->Draw("PE1same");
   } else {
     setYRange(hists1.front(),logy?3E-1:-1.);
     hists1.front()->Draw();
@@ -284,6 +341,15 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
 	it != hists2.end(); ++it) {
       (*it)->Draw("PE1same");
     }
+    gPad->RedrawAxis();
+    // Add ratio plot
+    ratioPad->Draw();
+    ratioPad->cd();
+    hRatio = static_cast<TH1*>(hists2.front()->Clone("Ratio"));
+    hRatio->Divide(hists2.front());
+    hRatioFrame->GetYaxis()->SetTitle("Ratio");
+    hRatioFrame->Draw("HIST");
+    hRatio->Draw("PE1same");
   }
   TPaveText* title = header();
   title->Draw("same");
@@ -303,6 +369,8 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
   delete leg;
   delete title;
   delete can;
+  delete hRatio;
+  delete hRatioFrame;
 }
 
 
@@ -313,6 +381,7 @@ DataSet::Type PlotBuilder::createHistogram(const TString &dataSetLabel, const TS
   TString name = "plot";
   name += count_;
   h = new TH1D(name,"",nBins,min,max);
+  h->Sumw2();
   if( max > 1000. ) {
     h->GetXaxis()->SetNdivisions(505);
   }
