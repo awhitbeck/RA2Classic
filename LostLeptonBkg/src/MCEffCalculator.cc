@@ -172,7 +172,7 @@ MCEffCalculator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	// selects muons with a minimum pt
 
 	// decided if the muon passed or failed the acc/id/iso criteria 
-	if( std::abs(muonGenEta_)> maxMuonEta_ || minMuonPt_>muonGenPt_)
+	if( std::abs(muonGenEta_)> maxMuonEta_ )
 	{	
 		// This histogramm is used for the actual acceptance caluclation
 		MuonAccFailedTH1F_->Fill(muonGenPt_,eventWeight_);
@@ -272,7 +272,7 @@ MCEffCalculator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 	
 	// true if the electron is out of the acceptance
-	if(minElecPt_> elecGenPt_ || std::abs(elecGenEta_)> maxElecEta_ ||  (1.4442 < std::abs(elecGenEta_)  && (std::abs(elecGenEta_) < 1.566) ) )
+	if(std::abs(elecGenEta_)> maxElecEta_ ||  (1.4442 < std::abs(elecGenEta_)  && (std::abs(elecGenEta_) < 1.566) ) )
 	{
 		// This histogramm is used for the actual acceptance caluclation
 		ElecAccFailedTH1F_->Fill(elecGenPt_,eventWeight_);
