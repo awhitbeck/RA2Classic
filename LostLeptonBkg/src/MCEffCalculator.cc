@@ -303,7 +303,7 @@ MCEffCalculator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 				elecRecoPt_ = ElecIDCand->pt();
 				elecRecoEta_ = ElecIDCand->eta();
 				elecRecoPhi_ = ElecIDCand->phi();
-				// true if the reco and 
+				// true if the elec can be reconstructed
 				RecoGenElecDeltaR_=deltaR(elecGenEta_,elecGenPhi_,elecRecoEta_,elecRecoPhi_);
 				if (deltaR(elecGenEta_,elecGenPhi_,elecRecoEta_,elecRecoPhi_) < 0.3)
 				{
@@ -385,15 +385,16 @@ MCEffCalculator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 void 
 MCEffCalculator::beginJob()
 {
-	double deltaRbins []={0,0.25, 0.5, 1, 2, 3};
-	double ptbins []={0,10,20,30,40,60,100};
+	double deltaRbins []={0, 0.25, 0.5, 1, 2, 3};
+	std::cout<<"deltaRbins created"<<std::endl;
+	double ptbins []={0, 0.25, 0.5, 1, 3};
   	edm::Service<TFileService> fs;
   	tree_ = fs->make<TTree>(treeName_,treeName_);
 	// book all the result plots
-	muonIDFailedTH2F_ = fs->make<TH2F>("MuonRecoFailed", "MuonRecoFailed",5,deltaRbins,6,ptbins);
-	muonIDPassedTH2F_ = fs->make<TH2F>("MuonRecoPassed", "MuonRecoPassed",5,deltaRbins,6,ptbins);
-	muonIsoFailedTH2F_ = fs->make<TH2F>("muonIsoFailed","muonIsoFailed",5,deltaRbins,6,ptbins);
-	muonIsoPassedTH2F_ = fs->make<TH2F>("muonIsoPassed","muonIsoPassed",5,deltaRbins,6,ptbins);
+	muonIDFailedTH2F_ = fs->make<TH2F>("MuonRecoFailed", "MuonRecoFailed",5,deltaRbins,4,ptbins);
+	muonIDPassedTH2F_ = fs->make<TH2F>("MuonRecoPassed", "MuonRecoPassed",5,deltaRbins,4,ptbins);
+	muonIsoFailedTH2F_ = fs->make<TH2F>("muonIsoFailed","muonIsoFailed",5,deltaRbins,4,ptbins);
+	muonIsoPassedTH2F_ = fs->make<TH2F>("muonIsoPassed","muonIsoPassed",5,deltaRbins,4,ptbins);
 
 	MuonAccPassedTH1F_ = fs->make<TH1F>("muonAccPassed","muonAccPassed",40,0,200);
 	MuonAccFailedTH1F_ = fs->make<TH1F>("muonAccFailed","muonAccFailed",40,0,200);
@@ -401,10 +402,10 @@ MCEffCalculator::beginJob()
 	MuonMTPassedTH2F_ = fs->make<TH2F>("muonMT","muonMT",1,0,1,1,0,1);
 
 
-	elecIDFailedTH2F_ = fs->make<TH2F>("elecIdFailed","elecIdFailed",5,deltaRbins,6,ptbins);
-	elecIDPassedTH2F_ = fs->make<TH2F>("elecIdPassed","elecIdPassed",5,deltaRbins,6,ptbins);
-	elecIsoFailedTH2F_ = fs->make<TH2F>("elecIsoFailed","elecIsoFailed",5,deltaRbins,6,ptbins);
-	elecIsoPassedTH2F_ = fs->make<TH2F>("elecIsoPassed","elecIsoPassed",5,deltaRbins,6,ptbins);
+	elecIDFailedTH2F_ = fs->make<TH2F>("elecIdFailed","elecIdFailed",5,deltaRbins,4,ptbins);
+	elecIDPassedTH2F_ = fs->make<TH2F>("elecIdPassed","elecIdPassed",5,deltaRbins,4,ptbins);
+	elecIsoFailedTH2F_ = fs->make<TH2F>("elecIsoFailed","elecIsoFailed",5,deltaRbins,4,ptbins);
+	elecIsoPassedTH2F_ = fs->make<TH2F>("elecIsoPassed","elecIsoPassed",5,deltaRbins,4,ptbins);
 
 	ElecAccPassedTH1F_ = fs->make<TH1F>("elecAccPassed","elecAccPassed",40,0,200);
 	ElecAccFailedTH1F_ = fs->make<TH1F>("elecAccFailed","elecAccFailed",40,0,200);
