@@ -1,4 +1,4 @@
-# $Id: getWeightProducer_cff.py,v 1.4 2012/09/13 13:07:03 mschrode Exp $
+# $Id: getWeightProducer_cff.py,v 1.5 2012/10/19 12:41:12 adraeger Exp $
 #
 # Returns a WeightProducer module that knows at runtime
 # which data sample is produced and thus, what weights
@@ -105,7 +105,17 @@ def getWeightProducer(fileName):
         mcVersion = "Summer12_5_3_X"
         weightProducer.Method     = cms.string("Constant")
         weightProducer.XS         = cms.double(234)
-        weightProducer.NumberEvts = cms.double(6923750)         
+        weightProducer.NumberEvts = cms.double(6923750)
+   # For wpj
+
+    if "WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v2_v2" in fileName:
+        mcVersion = "Summer12_5_3_X"
+        weightProducer.Method     = cms.string("Constant")
+        weightProducer.XS         = cms.double(36257.2)
+        weightProducer.NumberEvts = cms.double(57709905)
+
+
+         
 
     # Defaults for MC
     if mcVersion == "Summer12_5_3_X":
