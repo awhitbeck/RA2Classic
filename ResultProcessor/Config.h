@@ -25,6 +25,7 @@ public:
 
   static bool split(const TString &str, const TString &delim, std::vector<TString> &parts);
   static bool split(const TString &str, const TString &delim, TString &first, TString &second);
+  static bool enclosed(const TString &str, const TString &delimStart, const TString &delimEnd, TString &encl);
   static int color(const TString &cfg);
 
   Config(const TString &fileName)

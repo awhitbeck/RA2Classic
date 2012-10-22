@@ -113,6 +113,24 @@ bool Config::split(const std::string &str, const std::string &delim, std::string
 
 
 // ----------------------------------------------------------------------------
+bool Config::enclosed(const TString &str, const TString &delimStart, const TString &delimEnd, TString &encl) {
+  bool hasDelims = false;
+  std::string strt(str.Data());
+  std::string enclt;
+  size_t start = strt.find(delimStart.Data());
+  size_t end = strt.find(delimEnd.Data());
+  if( start != std::string::npos && end != std::string::npos && end > start ) {
+    hasDelims = true;
+    enclt = strt.substr(start+delimStart.Length(),end-start-1);
+  }
+  trim(enclt);
+  encl = enclt;
+
+  return hasDelims;
+}
+
+
+// ----------------------------------------------------------------------------
 bool Config::isComment(const std::string &line) {
   bool result = false;
   if( line.length() && line.at(0) == '#' ) result = true;
