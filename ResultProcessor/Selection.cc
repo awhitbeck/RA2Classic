@@ -109,6 +109,22 @@ Cut::Cut(const TString &cut)
   : cut_(cut), count_(0) {
   garbageCollection_.push_back(this);
 
+  // Check whether cut is only applied to specified datasets
+  TString dataSetCfg = "";
+  if( Config::enclosed(cut_,"(",")",dataSetCfg) ) {
+    Config::split(dataSetCfg,",",appliedToDataSets_);
+    for(std::vector<TString>::const_iterator it = appliedToDataSets_.begin();
+	it != appliedToDataSets_.end(); ++it) {
+      if( !DataSet::exists(*it) ) {
+	std::cerr << "\n\nERROR in Cut::Cut(): dataset '" << *it << "' does not exist" << std::endl;
+	exit(-1);
+      }
+    }
+    TString tmp;
+    Config::split(cut_,"(",cut_,tmp);
+  }
+
+  // Read cut variable and values
   if( cut_.Contains(">") ) {	// Expect VAR > X
     std::vector<TString> cutCfg;
     Config::split(cut_,">",cutCfg);
@@ -146,14 +162,31 @@ Cut::Cut(const TString &cut)
 
 // ---------------------------------------------------------------
 DataSet* Cut::operator()(const DataSet* dataSet) const {
+  // Check if cut is to be applied to this data set
+  bool apply = true;
+  if( appliedToDataSets_.size() ) {
+    apply = false;
+    for(std::vector<TString>::const_iterator it = appliedToDataSets_.begin();
+	it != appliedToDataSets_.end(); ++it) {
+      if( dataSet->label() == *it ) {
+	apply = true;
+	break;
+      }
+    }
+  }
+
   Events passed;
   for(EventIt it = dataSet->begin(); it != dataSet->end(); ++it) {
     double val = (*it)->get(var_);
-    if( varIsAbs_ ) val = std::abs(val);
-    if( val > min_ && val < max_ ) {
+    if( apply ) {
+      if( varIsAbs_ ) val = std::abs(val);
+      if( val > min_ && val < max_ ) {
+	passed.push_back(*it);
+      }
+    } else {
       passed.push_back(*it);
-      //      std::cout << ">>> " << var_ << ": " << val << " > " << min_ << " && " << val << " < " << max_ << std::endl;
     }
+    //      std::cout << ">>> " << var_ << ": " << val << " > " << min_ << " && " << val << " < " << max_ << std::endl;
   }
   count_ = passed.size();
 

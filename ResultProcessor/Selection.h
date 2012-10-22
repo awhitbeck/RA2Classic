@@ -53,15 +53,17 @@ public:
   DataSet* operator()(const DataSet* dataSet) const;
   TString label() const { return "Cut: "+cut_; }
   void print() const { 
-    std::cout << "      " << std::setw(15) << cut_ << ": " << std::setw(10) << count_ << std::endl; }
+    std::cout << "      " << std::setw(15) << cut_ << ": " << std::setw(10) << count_ << std::endl;
+  }
 
 
 private:
-  const TString cut_;
+  TString cut_;
   TString var_;
   bool varIsAbs_;
   double min_;
   double max_;
+  std::vector<TString> appliedToDataSets_;
 
   mutable unsigned int count_;
 };

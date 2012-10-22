@@ -30,7 +30,6 @@ event content :: name: DeltaPhi1; type: Float_t; label: #Delta#Phi_{1}
 event content :: name: DeltaPhi2; type: Float_t; label: #Delta#Phi_{2}
 event content :: name: DeltaPhi3; type: Float_t; label: #Delta#Phi_{3}
 event content :: name: Weight; type: Float_t
-event content :: name: NonExistingVar; type: Float_t
 
 
 # Specify the data source and label the type of data
@@ -49,9 +48,9 @@ dataset :: label: WJets; type: mc; file: /afs/naf.desy.de/user/m/mschrode/lustre
 
 # Specify the event selection
 selection :: label: baseline; cuts: NJets > 2 + DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + HT > 500 + MHT > 200
-#selection :: label: baseline + NJet 3-5; cuts: baseline + NJets > 2 + NJets < 6
-#selection :: label: baseline + NJet 6-7; cuts: baseline + NJets > 5 + NJets < 8
-#selection :: label: baseline + NJet > 7; cuts: baseline + NJets > 7
+selection :: label: baseline + NJet 3-5; cuts: baseline + NJets > 2 + NJets < 6
+selection :: label: baseline + NJet 6-7; cuts: baseline + NJets > 5 + NJets < 8
+selection :: label: baseline + NJet > 7; cuts: baseline + NJets > 7
 
 
 # Specify what variables to plot and some style settings
@@ -72,7 +71,6 @@ plot :: variable: NJets; dataset: Data; histogram: 12, 0, 12
 plot :: variable: DeltaPhi1; dataset: Data; histogram: 25, 0, 3.2
 plot :: variable: DeltaPhi2; dataset: Data; histogram: 25, 0, 3.2
 plot :: variable: DeltaPhi3; dataset: Data; histogram: 25, 0, 3.2
-plot :: variable: NonExistingVar; dataset: Data; histogram: 25, -3., 3.2
 
 # Compare normalised spectra of several datasets
 plot :: variable: NVtx; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 50, 0, 50

@@ -42,7 +42,7 @@ MrRA2::MrRA2(const TString& configFileName) {
     for(std::vector<DataSet*>::const_iterator itDat = dataSets_.begin();
 	itDat != dataSets_.end(); ++itDat) {
       selectedDataSets.push_back((**itSel)(*itDat));
-      std::cout << "    Dataset '" << (*itDat)->label() << "':" << std::endl;
+      std::cout << "    " << "Dataset '" << (*itDat)->label() << "' (" << (*itDat)->size() << " entries in tree)" << std::endl;
       (*itSel)->print();
     }
     makePlots(selectedDataSets,cfg);
