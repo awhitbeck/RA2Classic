@@ -25,6 +25,7 @@ void Variable::init(const Config &cfg, const TString &key) {
 
     validTypes_.insert("Float_t");
     validTypes_.insert("UShort_t");
+    validTypes_.insert("Int_t");
     validTypes_.insert("UInt_t");
 
     std::vector<Config::Attributes> attrList = cfg.listOfAttributes(key);
