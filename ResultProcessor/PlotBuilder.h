@@ -41,9 +41,9 @@ private:
   void setStyle(TH1* h, const TString &dataSetLabel) const;
   void setXTitle(TH1* h, const TString &var) const;
   void setYTitle(TH1* h, const TString &var) const;
-  TPaveText* header(const TString &dataSetLabel = "", const TString &add = "") const;
+  TPaveText* header(const TString &dataSetLabel = "", bool doNotShowLabel = true, const TString &add = "") const;
   TLegend* legend(unsigned int nEntries) const;
-  TString lumiLabel() const;
+  TString lumiLabel(const TString &dataSetLabel) const;
   TString cleanName(const TString &name) const;
   TString plotName(const TString &var) const;
   TString plotName(const TString &var, const TString &dataSetLabel) const;

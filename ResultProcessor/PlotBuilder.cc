@@ -151,7 +151,7 @@ void PlotBuilder::plotSpectrum(const TString &var, const TString &dataSetLabel, 
   TString titleNEvts = "(";
   titleNEvts += static_cast<int>(h->Integral(1,100000));
   titleNEvts += ")";
-  TPaveText* title = header(dataSetLabel,titleNEvts);
+  TPaveText* title = header(dataSetLabel,true,titleNEvts);
   title->Draw("same");
   if( logy ) can->SetLogy();
   gPad->RedrawAxis();
@@ -253,7 +253,9 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
   hRatioFrame->GetXaxis()->SetTitle(hists1.front()->GetXaxis()->GetTitle());
   hRatioFrame->GetYaxis()->SetRangeUser(0.55,1.95);
   hRatioFrame->SetLineStyle(2);
+  hRatioFrame->SetLineColor(kBlack);
   hRatioFrame->SetLineWidth(2);
+  hRatioFrame->SetFillColor(0);
   hRatioFrame->GetYaxis()->SetNdivisions(205);
   hRatioFrame->GetYaxis()->SetTickLength(gStyle->GetTickLength("Y")/0.2);
   hRatioFrame->GetXaxis()->SetLabelSize(gStyle->GetLabelSize("X"));
@@ -277,6 +279,7 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
 
 
   TLegend* leg = legend(hists1.size()+hists2.size());
+  TPaveText* title = 0;
   if( type1 == DataSet::Data && type2 == DataSet::MC ) {
     // Draw histograms
     can->cd();
@@ -301,6 +304,7 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
 	itH != hists2.end(); ++itH,++itL) {
       leg->AddEntry(*itH,*itL,"F");
     }
+    title = header(dataSetLabels1.front());
     gPad->RedrawAxis();
     // Add ratio plot
     ratioPad->Draw();
@@ -321,6 +325,7 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
 	it != hists2.end(); ++it) {
       (*it)->Draw("PE1same");
     }
+    title = header(dataSetLabels2.front());
     gPad->RedrawAxis();
     // Add ratio plot
     ratioPad->Draw();
@@ -328,6 +333,43 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
     hRatio = static_cast<TH1*>(hists2.front()->Clone("Ratio"));
     hRatio->Divide(hists1.front());
     hRatioFrame->GetYaxis()->SetTitle("#frac{Data}{Sim.}");
+    hRatioFrame->Draw("HIST");
+    hRatio->Draw("PE1same");
+  } else if( type1 == DataSet::MC && type2 == DataSet::MC ) {
+    // Draw histograms
+    can->cd();
+    setYRange(hists2.front(),logy?3E-1:-1.);
+    hists2.front()->Draw();
+    for(std::vector<TH1*>::iterator it = hists2.begin();
+	it != hists2.end(); ++it) {
+      (*it)->Draw("HISTsame");
+    }
+    for(std::vector<TH1*>::iterator it = hists1.begin();
+	it != hists1.end(); ++it) {
+      (*it)->SetMarkerColor(kBlack);
+      (*it)->SetLineColor(kBlack);
+      (*it)->SetMarkerStyle(21);
+      (*it)->Draw("PE1same");
+    }
+    // Add legend entries
+    std::vector<TString>::const_iterator itL = legEntries1.begin();
+    for(std::vector<TH1*>::iterator itH = hists1.begin();
+	itH != hists1.end(); ++itH,++itL) {
+      leg->AddEntry(*itH,*itL,"P");
+    }
+    itL = legEntries2.begin();
+    for(std::vector<TH1*>::iterator itH = hists2.begin();
+	itH != hists2.end(); ++itH,++itL) {
+      leg->AddEntry(*itH,*itL,"F");
+    }
+    title = header();
+    gPad->RedrawAxis();
+    // Add ratio plot
+    ratioPad->Draw();
+    ratioPad->cd();
+    hRatio = static_cast<TH1*>(hists1.front()->Clone("Ratio"));
+    hRatio->Divide(hists2.front());
+    hRatioFrame->GetYaxis()->SetTitle("#frac{Sim.}{Sim.}");
     hRatioFrame->Draw("HIST");
     hRatio->Draw("PE1same");
   } else {
@@ -341,6 +383,7 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
 	it != hists2.end(); ++it) {
       (*it)->Draw("PE1same");
     }
+    title = header();
     gPad->RedrawAxis();
     // Add ratio plot
     ratioPad->Draw();
@@ -351,7 +394,6 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
     hRatioFrame->Draw("HIST");
     hRatio->Draw("PE1same");
   }
-  TPaveText* title = header();
   title->Draw("same");
   leg->Draw("same");
   gPad->RedrawAxis();
@@ -466,7 +508,7 @@ void PlotBuilder::setStyle(TH1* h, const TString &dataSetLabel) const {
 }
 
 
-TPaveText* PlotBuilder::header(const TString &dataSetLabel, const TString &add) const {
+TPaveText* PlotBuilder::header(const TString &dataSetLabel, bool doNotShowLabel, const TString &add) const {
   double x0 = gStyle->GetPadLeftMargin();
   double x1 = 1.-gStyle->GetPadRightMargin();
   double y0 = 1.-gStyle->GetPadTopMargin();
@@ -479,7 +521,7 @@ TPaveText* PlotBuilder::header(const TString &dataSetLabel, const TString &add) 
   txt->SetTextSize(0.05);
   txt->SetMargin(0.);
   TString label = dataSetLabelInPlot(dataSetLabel);
-  txt->AddText("8 TeV,  "+lumiLabel()+(label != "" ? ",  "+label : "")+",  "+dataSets_.front()->selection()+" "+add);
+  txt->AddText("8 TeV"+(dataSetLabel != "" ? ",  "+lumiLabel(dataSetLabel) : "" )+(doNotShowLabel ? "" : ",  "+label)+",  "+dataSets_.front()->selection()+" "+add);
   
   return txt;
 }
@@ -504,8 +546,13 @@ TLegend* PlotBuilder::legend(unsigned int nEntries) const {
 }
 
 
-TString PlotBuilder::lumiLabel() const {
-  return GlobalParameters::lumi()+" fb^{-1}";
+TString PlotBuilder::lumiLabel(const TString &dataSetLabel) const {
+  TString label = "";
+  if( DataSet::type(dataSetLabel) == DataSet::Data ) {
+    label = GlobalParameters::lumi()+" fb^{-1}";
+  }
+
+  return label;
 }
 
 

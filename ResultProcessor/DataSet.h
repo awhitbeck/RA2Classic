@@ -1,6 +1,7 @@
 #ifndef DATA_SET_H
 #define DATA_SET_H
 
+#include <map>
 #include <set>
 #include <vector>
 
@@ -17,7 +18,8 @@ public:
 
   static std::vector<DataSet*> createDataSets(const Config &cfg, const TString key);
   static bool exists(const TString &label);
-  static Type type(const TString &type);
+  static Type type(const TString &label);
+  static Type toType(const TString &type);
 
   virtual ~DataSet();
 
@@ -41,6 +43,7 @@ protected:
 
 private:
   static std::set<TString> labels_;
+  static std::map<TString,DataSet::Type> types_;
 
   const Type type_;
   const TString label_;
