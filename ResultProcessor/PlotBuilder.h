@@ -51,6 +51,7 @@ private:
   void storeCanvas(TCanvas* can, const TString &name) const;
   DataSet* dataSet(const TString &label) const;
   TString dataSetLabelInPlot(const TString &dataSetLabel) const;
+  TString dataSetTypeLabel(DataSet::Type type) const;
   void setYRange(TH1* &h, double logMin = -1.) const;
 };
 #endif

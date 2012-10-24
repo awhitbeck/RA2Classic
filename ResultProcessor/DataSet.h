@@ -14,7 +14,7 @@
 
 class DataSet {
 public:
-  enum Type { Data, MC, Bkg, Signal };
+  enum Type { Data, MC, Prediction, Signal };
 
   static std::vector<DataSet*> createDataSets(const Config &cfg, const TString key);
   static bool exists(const TString &label);

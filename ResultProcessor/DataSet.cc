@@ -27,7 +27,7 @@ DataSet::Type DataSet::toType(const TString &type) {
   DataSet::Type result;
   if( type == "Data" || type == "data" ) result = Data;
   else if( type == "MC" || type == "mc" ) result = MC;
-  else if( type == "Bkg" || type == "bkg" ) result = Bkg;
+  else if( type == "Prediction" || type == "prediction" ) result = Prediction;
   else if( type == "Signal" || type == "signal" ) result = Signal;
   else {
     std::cerr << "\n\nERROR in DataSet::toType(): type '" << type << "' does not exist" << std::endl;

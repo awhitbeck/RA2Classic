@@ -261,9 +261,6 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
   hRatioFrame->GetXaxis()->SetLabelSize(gStyle->GetLabelSize("X"));
   hRatioFrame->GetYaxis()->CenterTitle();
   hRatioFrame->GetYaxis()->SetTitleOffset(0.9*hRatioFrame->GetYaxis()->GetTitleOffset());
-
-
-
   for(std::vector<TH1*>::iterator it = hists1.begin();
       it != hists1.end(); ++it) {
     (*it)->GetXaxis()->SetLabelSize(0);
@@ -277,123 +274,215 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
     (*it)->GetYaxis()->SetTickLength(gStyle->GetTickLength("Y")/0.8);
   }
 
-
   TLegend* leg = legend(hists1.size()+hists2.size());
   TPaveText* title = 0;
-  if( type1 == DataSet::Data && type2 == DataSet::MC ) {
-    // Draw histograms
-    can->cd();
-    setYRange(hists2.front(),logy?3E-1:-1.);
-    hists2.front()->Draw();
-    for(std::vector<TH1*>::iterator it = hists2.begin();
-	it != hists2.end(); ++it) {
-      (*it)->Draw("HISTsame");
-    }
-    for(std::vector<TH1*>::iterator it = hists1.begin();
-	it != hists1.end(); ++it) {
-      (*it)->Draw("PE1same");
-    }
-    // Add legend entries (first data, than MC)
-    std::vector<TString>::const_iterator itL = legEntries1.begin();
-    for(std::vector<TH1*>::iterator itH = hists1.begin();
-	itH != hists1.end(); ++itH,++itL) {
-      leg->AddEntry(*itH,*itL,"P");
-    }
-    itL = legEntries2.begin();
-    for(std::vector<TH1*>::iterator itH = hists2.begin();
-	itH != hists2.end(); ++itH,++itL) {
-      leg->AddEntry(*itH,*itL,"F");
-    }
-    title = header(dataSetLabels1.front());
-    gPad->RedrawAxis();
-    // Add ratio plot
-    ratioPad->Draw();
-    ratioPad->cd();
-    hRatio = static_cast<TH1*>(hists1.front()->Clone("Ratio"));
-    hRatio->Divide(hists2.front());
-    hRatioFrame->GetYaxis()->SetTitle("#frac{Data}{Sim.}");
-    hRatioFrame->Draw("HIST");
-    hRatio->Draw("PE1same");
-  } else if( type2 == DataSet::Data && type1 == DataSet::MC ) {
-    setYRange(hists1.front(),logy?3E-1:-1.);
-    hists1.front()->Draw();
-    for(std::vector<TH1*>::iterator it = hists1.begin();
-	it != hists1.end(); ++it) {
-      (*it)->Draw("HISTsame");
-    }
-    for(std::vector<TH1*>::iterator it = hists2.begin();
-	it != hists2.end(); ++it) {
-      (*it)->Draw("PE1same");
-    }
-    title = header(dataSetLabels2.front());
-    gPad->RedrawAxis();
-    // Add ratio plot
-    ratioPad->Draw();
-    ratioPad->cd();
-    hRatio = static_cast<TH1*>(hists2.front()->Clone("Ratio"));
-    hRatio->Divide(hists1.front());
-    hRatioFrame->GetYaxis()->SetTitle("#frac{Data}{Sim.}");
-    hRatioFrame->Draw("HIST");
-    hRatio->Draw("PE1same");
+  TString ratioYTitle = "";
+
+  // Decide which hist is plotted data-like (dots, on top)
+  // and which hist is plotted mc-like (filled, below)
+  std::vector<TH1*>* histsData = 0;
+  std::vector<TH1*>* histsMC = 0;
+  std::vector<TString>* legEntriesData = 0;
+  std::vector<TString>* legEntriesMC = 0;
+  if( (type1 == DataSet::Data && type2 == DataSet::MC) ||
+      (type1 == DataSet::Data && type2 == DataSet::Prediction) ||
+      (type1 == DataSet::Prediction && type2 == DataSet::MC)      ) {
+    histsData      = &hists1; 
+    histsMC        = &hists2; 
+    legEntriesData = &legEntries1;
+    legEntriesMC   = &legEntries2;
+    title          = header(dataSetLabels1.front());
+    ratioYTitle    = "#frac{"+dataSetTypeLabel(type1)+"}{"+dataSetTypeLabel(type2)+"}";
+  } else if( (type2 == DataSet::Data && type1 == DataSet::MC) ||
+	     (type2 == DataSet::Data && type1 == DataSet::Prediction) ||
+	     (type2 == DataSet::Prediction && type1 == DataSet::MC)      ) {
+    histsData      = &hists1; 
+    histsMC        = &hists2; 
+    legEntriesData = &legEntries1;
+    legEntriesMC   = &legEntries2;
+    title          = header(dataSetLabels2.front());
+    ratioYTitle    = "#frac{"+dataSetTypeLabel(type2)+"}{"+dataSetTypeLabel(type1)+"}";
   } else if( type1 == DataSet::MC && type2 == DataSet::MC ) {
-    // Draw histograms
-    can->cd();
-    setYRange(hists2.front(),logy?3E-1:-1.);
-    hists2.front()->Draw();
-    for(std::vector<TH1*>::iterator it = hists2.begin();
-	it != hists2.end(); ++it) {
-      (*it)->Draw("HISTsame");
-    }
     for(std::vector<TH1*>::iterator it = hists1.begin();
 	it != hists1.end(); ++it) {
       (*it)->SetMarkerColor(kBlack);
       (*it)->SetLineColor(kBlack);
       (*it)->SetMarkerStyle(21);
-      (*it)->Draw("PE1same");
-    }
-    // Add legend entries
-    std::vector<TString>::const_iterator itL = legEntries1.begin();
-    for(std::vector<TH1*>::iterator itH = hists1.begin();
-	itH != hists1.end(); ++itH,++itL) {
-      leg->AddEntry(*itH,*itL,"P");
-    }
-    itL = legEntries2.begin();
-    for(std::vector<TH1*>::iterator itH = hists2.begin();
-	itH != hists2.end(); ++itH,++itL) {
-      leg->AddEntry(*itH,*itL,"F");
-    }
-    title = header();
-    gPad->RedrawAxis();
-    // Add ratio plot
-    ratioPad->Draw();
-    ratioPad->cd();
-    hRatio = static_cast<TH1*>(hists1.front()->Clone("Ratio"));
-    hRatio->Divide(hists2.front());
-    hRatioFrame->GetYaxis()->SetTitle("#frac{Sim.}{Sim.}");
-    hRatioFrame->Draw("HIST");
-    hRatio->Draw("PE1same");
-  } else {
-    setYRange(hists1.front(),logy?3E-1:-1.);
-    hists1.front()->Draw();
-    for(std::vector<TH1*>::iterator it = hists1.begin();
-	it != hists1.end(); ++it) {
-      (*it)->Draw("PE1same");
     }
     for(std::vector<TH1*>::iterator it = hists2.begin();
 	it != hists2.end(); ++it) {
-      (*it)->Draw("PE1same");
+      (*it)->SetMarkerColor((*it)->GetFillColor());
+      (*it)->SetLineColor((*it)->GetFillColor());
+      (*it)->SetMarkerStyle(0);
     }
-    title = header();
-    gPad->RedrawAxis();
-    // Add ratio plot
-    ratioPad->Draw();
-    ratioPad->cd();
-    hRatio = static_cast<TH1*>(hists2.front()->Clone("Ratio"));
-    hRatio->Divide(hists2.front());
-    hRatioFrame->GetYaxis()->SetTitle("Ratio");
-    hRatioFrame->Draw("HIST");
-    hRatio->Draw("PE1same");
+    histsData      = &hists1; 
+    histsMC        = &hists2; 
+    legEntriesData = &legEntries1;
+    legEntriesMC   = &legEntries2;
+    title          = header(dataSetLabels1.front());
+    ratioYTitle    = "#frac{"+dataSetTypeLabel(type1)+"}{"+dataSetTypeLabel(type2)+"}";
+  } else {
+    histsData      = &hists1; 
+    histsMC        = &hists2; 
+    legEntriesData = &legEntries1;
+    legEntriesMC   = &legEntries2;
+    title          = header(dataSetLabels1.front());
+    ratioYTitle    = "#frac{"+dataSetTypeLabel(type1)+"}{"+dataSetTypeLabel(type2)+"}";
   }
+
+  // Draw
+  can->cd();
+  setYRange(histsMC->front(),logy?3E-1:-1.);
+  histsMC->front()->Draw();
+  for(std::vector<TH1*>::iterator it = histsMC->begin();
+      it != histsMC->end(); ++it) {
+    (*it)->Draw("HISTsame");
+  }
+  for(std::vector<TH1*>::iterator it = histsData->begin();
+      it != histsData->end(); ++it) {
+    (*it)->Draw("PE1same");
+  }
+  // Add legend entries (first data, than MC)
+  std::vector<TString>::const_iterator itL = legEntriesData->begin();
+  for(std::vector<TH1*>::iterator itH = histsData->begin();
+      itH != histsData->end(); ++itH,++itL) {
+      leg->AddEntry(*itH,*itL,"P");
+    }
+  itL = legEntriesMC->begin();
+  for(std::vector<TH1*>::iterator itH = histsMC->begin();
+      itH != histsMC->end(); ++itH,++itL) {
+    leg->AddEntry(*itH,*itL,"F");
+  }
+  gPad->RedrawAxis();
+  // Add ratio plot
+  ratioPad->Draw();
+  ratioPad->cd();
+  hRatio = static_cast<TH1*>(histsData->front()->Clone("Ratio"));
+  hRatio->Divide(histsMC->front());
+  hRatioFrame->GetYaxis()->SetTitle(ratioYTitle);
+  hRatioFrame->Draw("HIST");
+  hRatio->Draw("PE1same");
+
+
+
+
+//   if( (type1 == DataSet::Data && type2 == DataSet::MC) ||
+//       (type1 == DataSet::Data && type2 == DataSet::Prediction) ||
+//       (type1 == DataSet::Pred && type2 == DataSet::MC)             ) {
+//     // Draw histograms
+//     can->cd();
+//     setYRange(hists2.front(),logy?3E-1:-1.);
+//     hists2.front()->Draw();
+//     for(std::vector<TH1*>::iterator it = hists2.begin();
+// 	it != hists2.end(); ++it) {
+//       (*it)->Draw("HISTsame");
+//     }
+//     for(std::vector<TH1*>::iterator it = hists1.begin();
+// 	it != hists1.end(); ++it) {
+//       (*it)->Draw("PE1same");
+//     }
+//     // Add legend entries (first data, than MC/Pred)
+//     std::vector<TString>::const_iterator itL = legEntries1.begin();
+//     for(std::vector<TH1*>::iterator itH = hists1.begin();
+// 	itH != hists1.end(); ++itH,++itL) {
+//       leg->AddEntry(*itH,*itL,"P");
+//     }
+//     itL = legEntries2.begin();
+//     for(std::vector<TH1*>::iterator itH = hists2.begin();
+// 	itH != hists2.end(); ++itH,++itL) {
+//       leg->AddEntry(*itH,*itL,"F");
+//     }
+//     title = header(dataSetLabels1.front());
+//     gPad->RedrawAxis();
+//     // Add ratio plot
+//     ratioPad->Draw();
+//     ratioPad->cd();
+//     hRatio = static_cast<TH1*>(hists1.front()->Clone("Ratio"));
+//     hRatio->Divide(hists2.front());
+//     hRatioFrame->GetYaxis()->SetTitle("#frac{Data}{"+(type2 == DataSet::MC ? "Sim." : "Pred.")+"}");
+//     hRatioFrame->Draw("HIST");
+//     hRatio->Draw("PE1same");
+//   } else if( (type2 == DataSet::Data && type1 == DataSet::MC) ||
+// 	     (type2 == DataSet::Data && type1 == DataSet::Prediction) ) { ) {
+//     setYRange(hists1.front(),logy?3E-1:-1.);
+//     hists1.front()->Draw();
+//     for(std::vector<TH1*>::iterator it = hists1.begin();
+// 	it != hists1.end(); ++it) {
+//       (*it)->Draw("HISTsame");
+//     }
+//     for(std::vector<TH1*>::iterator it = hists2.begin();
+// 	it != hists2.end(); ++it) {
+//       (*it)->Draw("PE1same");
+//     }
+//     title = header(dataSetLabels2.front());
+//     gPad->RedrawAxis();
+//     // Add ratio plot
+//     ratioPad->Draw();
+//     ratioPad->cd();
+//     hRatio = static_cast<TH1*>(hists2.front()->Clone("Ratio"));
+//     hRatio->Divide(hists1.front());
+//     hRatioFrame->GetYaxis()->SetTitle("#frac{Data}{"+(type1 == DataSet::MC ? "Sim." : "Pred.")+"}");
+//     hRatioFrame->Draw("HIST");
+//     hRatio->Draw("PE1same");
+//   } else if( type1 == DataSet::MC && type2 == DataSet::MC ) {
+//     // Draw histograms
+//     can->cd();
+//     setYRange(hists2.front(),logy?3E-1:-1.);
+//     hists2.front()->Draw();
+//     for(std::vector<TH1*>::iterator it = hists2.begin();
+// 	it != hists2.end(); ++it) {
+//       (*it)->Draw("HISTsame");
+//     }
+//     for(std::vector<TH1*>::iterator it = hists1.begin();
+// 	it != hists1.end(); ++it) {
+//       (*it)->SetMarkerColor(kBlack);
+//       (*it)->SetLineColor(kBlack);
+//       (*it)->SetMarkerStyle(21);
+//       (*it)->Draw("PE1same");
+//     }
+//     // Add legend entries
+//     std::vector<TString>::const_iterator itL = legEntries1.begin();
+//     for(std::vector<TH1*>::iterator itH = hists1.begin();
+// 	itH != hists1.end(); ++itH,++itL) {
+//       leg->AddEntry(*itH,*itL,"P");
+//     }
+//     itL = legEntries2.begin();
+//     for(std::vector<TH1*>::iterator itH = hists2.begin();
+// 	itH != hists2.end(); ++itH,++itL) {
+//       leg->AddEntry(*itH,*itL,"F");
+//     }
+//     title = header();
+//     gPad->RedrawAxis();
+//     // Add ratio plot
+//     ratioPad->Draw();
+//     ratioPad->cd();
+//     hRatio = static_cast<TH1*>(hists1.front()->Clone("Ratio"));
+//     hRatio->Divide(hists2.front());
+//     hRatioFrame->GetYaxis()->SetTitle("#frac{Sim.}{Sim.}");
+//     hRatioFrame->Draw("HIST");
+//     hRatio->Draw("PE1same");
+//   } else {
+//     setYRange(hists1.front(),logy?3E-1:-1.);
+//     hists1.front()->Draw();
+//     for(std::vector<TH1*>::iterator it = hists1.begin();
+// 	it != hists1.end(); ++it) {
+//       (*it)->Draw("PE1same");
+//     }
+//     for(std::vector<TH1*>::iterator it = hists2.begin();
+// 	it != hists2.end(); ++it) {
+//       (*it)->Draw("PE1same");
+//     }
+//     title = header();
+//     gPad->RedrawAxis();
+//     // Add ratio plot
+//     ratioPad->Draw();
+//     ratioPad->cd();
+//     hRatio = static_cast<TH1*>(hists2.front()->Clone("Ratio"));
+//     hRatio->Divide(hists2.front());
+//     hRatioFrame->GetYaxis()->SetTitle("Ratio");
+//     hRatioFrame->Draw("HIST");
+//     hRatio->Draw("PE1same");
+//   }
   title->Draw("same");
   leg->Draw("same");
   gPad->RedrawAxis();
@@ -495,14 +584,22 @@ void PlotBuilder::setStyle(TH1* h, const TString &dataSetLabel) const {
   if( markers_.find(dataSetLabel) != markers_.end() ) {
     h->SetMarkerStyle(markers_.find(dataSetLabel)->second);
   }
-  if( markers_.find(dataSetLabel) != colors_.end() ) {
+  if( colors_.find(dataSetLabel) != colors_.end() ) {
     int color = colors_.find(dataSetLabel)->second;
     if( type == DataSet::Data ) {
       h->SetMarkerColor(color);
       h->SetLineColor(color);
-    } else if( type == DataSet::MC || type == DataSet::Bkg ) {
+    } else if( type == DataSet::MC || type == DataSet::Prediction ) {
       h->SetFillColor(color);
       h->SetLineColor(color);
+    }
+  } else {
+    if( type == DataSet::Data ) {
+      h->SetMarkerColor(kGray);
+      h->SetLineColor(kGray);
+    } else if( type == DataSet::MC || type == DataSet::Prediction ) {
+      h->SetFillColor(kGray);
+      h->SetLineColor(kGray);
     }
   }
 }
@@ -619,6 +716,17 @@ TString PlotBuilder::dataSetLabelInPlot(const TString &dataSetLabel) const {
   if( it != dataSetLabelsInPlot_.end() ) dataSetLabelInPlot = it->second;
 
   return dataSetLabelInPlot;
+}
+
+
+TString PlotBuilder::dataSetTypeLabel(DataSet::Type type) const {
+  TString label = "";
+  if( type == DataSet::Data )            label = "Data";
+  else if( type == DataSet::MC )         label = "Sim.";
+  else if( type == DataSet::Prediction ) label = "Pred.";
+  else if( type == DataSet::Signal )     label = "Signal";
+
+  return label;
 }
 
 
