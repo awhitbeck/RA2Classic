@@ -148,10 +148,10 @@ void PlotBuilder::plotSpectrum(const TString &var, const TString &dataSetLabel, 
     h->SetLineWidth(1);
     h->Draw("HIST");
   }
-  TString titleNEvts = "(";
-  titleNEvts += static_cast<int>(h->Integral(1,100000));
-  titleNEvts += ")";
-  TPaveText* title = header(dataSetLabel,true,titleNEvts);
+  TString dataSetLabelInHeader = dataSetLabelInPlot(dataSetLabel)+" (";
+  dataSetLabelInHeader += static_cast<int>(h->Integral(1,100000));
+  dataSetLabelInHeader += ")";
+  TPaveText* title = header(true,dataSetLabelInHeader);
   title->Draw("same");
   if( logy ) can->SetLogy();
   gPad->RedrawAxis();
@@ -204,7 +204,7 @@ void PlotBuilder::plotSpectra(const TString &var, const std::vector<TString> &da
       hists.at(i)->Draw("HISTsame");
     }
   }
-  TPaveText* title = header();
+  TPaveText* title = header(false);
   title->Draw("same");
   leg->Draw("same");
   gPad->RedrawAxis();
@@ -291,7 +291,15 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
     histsMC        = &hists2; 
     legEntriesData = &legEntries1;
     legEntriesMC   = &legEntries2;
-    title          = header(dataSetLabels1.front());
+    if( type1 == DataSet::Prediction && type2 == DataSet::MC ) {
+      for(std::vector<TH1*>::iterator it = hists1.begin();
+	  it != hists1.end(); ++it) {
+	setMarkerStyle(*it,dataSetLabels1.front());
+      }
+      title        = header(false);
+    } else {
+      title        = header(true);
+    }
     ratioYTitle    = "#frac{"+dataSetTypeLabel(type1)+"}{"+dataSetTypeLabel(type2)+"}";
   } else if( (type2 == DataSet::Data && type1 == DataSet::MC) ||
 	     (type2 == DataSet::Data && type1 == DataSet::Prediction) ||
@@ -300,33 +308,33 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
     histsMC        = &hists2; 
     legEntriesData = &legEntries1;
     legEntriesMC   = &legEntries2;
-    title          = header(dataSetLabels2.front());
+    if( type2 == DataSet::Prediction && type1 == DataSet::MC ) {
+      for(std::vector<TH1*>::iterator it = hists2.begin();
+	  it != hists2.end(); ++it) {
+	setMarkerStyle(*it,dataSetLabels2.front());
+      }
+      title        = header(false);
+    } else {
+      title        = header(true);
+    }
     ratioYTitle    = "#frac{"+dataSetTypeLabel(type2)+"}{"+dataSetTypeLabel(type1)+"}";
   } else if( type1 == DataSet::MC && type2 == DataSet::MC ) {
     for(std::vector<TH1*>::iterator it = hists1.begin();
 	it != hists1.end(); ++it) {
-      (*it)->SetMarkerColor(kBlack);
-      (*it)->SetLineColor(kBlack);
-      (*it)->SetMarkerStyle(21);
-    }
-    for(std::vector<TH1*>::iterator it = hists2.begin();
-	it != hists2.end(); ++it) {
-      (*it)->SetMarkerColor((*it)->GetFillColor());
-      (*it)->SetLineColor((*it)->GetFillColor());
-      (*it)->SetMarkerStyle(0);
+      setMarkerStyle(*it,dataSetLabels1.front());
     }
     histsData      = &hists1; 
     histsMC        = &hists2; 
     legEntriesData = &legEntries1;
     legEntriesMC   = &legEntries2;
-    title          = header(dataSetLabels1.front());
+    title          = header(false);
     ratioYTitle    = "#frac{"+dataSetTypeLabel(type1)+"}{"+dataSetTypeLabel(type2)+"}";
   } else {
     histsData      = &hists1; 
     histsMC        = &hists2; 
     legEntriesData = &legEntries1;
     legEntriesMC   = &legEntries2;
-    title          = header(dataSetLabels1.front());
+    title          = header(false);
     ratioYTitle    = "#frac{"+dataSetTypeLabel(type1)+"}{"+dataSetTypeLabel(type2)+"}";
   }
 
@@ -362,127 +370,6 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
   hRatioFrame->GetYaxis()->SetTitle(ratioYTitle);
   hRatioFrame->Draw("HIST");
   hRatio->Draw("PE1same");
-
-
-
-
-//   if( (type1 == DataSet::Data && type2 == DataSet::MC) ||
-//       (type1 == DataSet::Data && type2 == DataSet::Prediction) ||
-//       (type1 == DataSet::Pred && type2 == DataSet::MC)             ) {
-//     // Draw histograms
-//     can->cd();
-//     setYRange(hists2.front(),logy?3E-1:-1.);
-//     hists2.front()->Draw();
-//     for(std::vector<TH1*>::iterator it = hists2.begin();
-// 	it != hists2.end(); ++it) {
-//       (*it)->Draw("HISTsame");
-//     }
-//     for(std::vector<TH1*>::iterator it = hists1.begin();
-// 	it != hists1.end(); ++it) {
-//       (*it)->Draw("PE1same");
-//     }
-//     // Add legend entries (first data, than MC/Pred)
-//     std::vector<TString>::const_iterator itL = legEntries1.begin();
-//     for(std::vector<TH1*>::iterator itH = hists1.begin();
-// 	itH != hists1.end(); ++itH,++itL) {
-//       leg->AddEntry(*itH,*itL,"P");
-//     }
-//     itL = legEntries2.begin();
-//     for(std::vector<TH1*>::iterator itH = hists2.begin();
-// 	itH != hists2.end(); ++itH,++itL) {
-//       leg->AddEntry(*itH,*itL,"F");
-//     }
-//     title = header(dataSetLabels1.front());
-//     gPad->RedrawAxis();
-//     // Add ratio plot
-//     ratioPad->Draw();
-//     ratioPad->cd();
-//     hRatio = static_cast<TH1*>(hists1.front()->Clone("Ratio"));
-//     hRatio->Divide(hists2.front());
-//     hRatioFrame->GetYaxis()->SetTitle("#frac{Data}{"+(type2 == DataSet::MC ? "Sim." : "Pred.")+"}");
-//     hRatioFrame->Draw("HIST");
-//     hRatio->Draw("PE1same");
-//   } else if( (type2 == DataSet::Data && type1 == DataSet::MC) ||
-// 	     (type2 == DataSet::Data && type1 == DataSet::Prediction) ) { ) {
-//     setYRange(hists1.front(),logy?3E-1:-1.);
-//     hists1.front()->Draw();
-//     for(std::vector<TH1*>::iterator it = hists1.begin();
-// 	it != hists1.end(); ++it) {
-//       (*it)->Draw("HISTsame");
-//     }
-//     for(std::vector<TH1*>::iterator it = hists2.begin();
-// 	it != hists2.end(); ++it) {
-//       (*it)->Draw("PE1same");
-//     }
-//     title = header(dataSetLabels2.front());
-//     gPad->RedrawAxis();
-//     // Add ratio plot
-//     ratioPad->Draw();
-//     ratioPad->cd();
-//     hRatio = static_cast<TH1*>(hists2.front()->Clone("Ratio"));
-//     hRatio->Divide(hists1.front());
-//     hRatioFrame->GetYaxis()->SetTitle("#frac{Data}{"+(type1 == DataSet::MC ? "Sim." : "Pred.")+"}");
-//     hRatioFrame->Draw("HIST");
-//     hRatio->Draw("PE1same");
-//   } else if( type1 == DataSet::MC && type2 == DataSet::MC ) {
-//     // Draw histograms
-//     can->cd();
-//     setYRange(hists2.front(),logy?3E-1:-1.);
-//     hists2.front()->Draw();
-//     for(std::vector<TH1*>::iterator it = hists2.begin();
-// 	it != hists2.end(); ++it) {
-//       (*it)->Draw("HISTsame");
-//     }
-//     for(std::vector<TH1*>::iterator it = hists1.begin();
-// 	it != hists1.end(); ++it) {
-//       (*it)->SetMarkerColor(kBlack);
-//       (*it)->SetLineColor(kBlack);
-//       (*it)->SetMarkerStyle(21);
-//       (*it)->Draw("PE1same");
-//     }
-//     // Add legend entries
-//     std::vector<TString>::const_iterator itL = legEntries1.begin();
-//     for(std::vector<TH1*>::iterator itH = hists1.begin();
-// 	itH != hists1.end(); ++itH,++itL) {
-//       leg->AddEntry(*itH,*itL,"P");
-//     }
-//     itL = legEntries2.begin();
-//     for(std::vector<TH1*>::iterator itH = hists2.begin();
-// 	itH != hists2.end(); ++itH,++itL) {
-//       leg->AddEntry(*itH,*itL,"F");
-//     }
-//     title = header();
-//     gPad->RedrawAxis();
-//     // Add ratio plot
-//     ratioPad->Draw();
-//     ratioPad->cd();
-//     hRatio = static_cast<TH1*>(hists1.front()->Clone("Ratio"));
-//     hRatio->Divide(hists2.front());
-//     hRatioFrame->GetYaxis()->SetTitle("#frac{Sim.}{Sim.}");
-//     hRatioFrame->Draw("HIST");
-//     hRatio->Draw("PE1same");
-//   } else {
-//     setYRange(hists1.front(),logy?3E-1:-1.);
-//     hists1.front()->Draw();
-//     for(std::vector<TH1*>::iterator it = hists1.begin();
-// 	it != hists1.end(); ++it) {
-//       (*it)->Draw("PE1same");
-//     }
-//     for(std::vector<TH1*>::iterator it = hists2.begin();
-// 	it != hists2.end(); ++it) {
-//       (*it)->Draw("PE1same");
-//     }
-//     title = header();
-//     gPad->RedrawAxis();
-//     // Add ratio plot
-//     ratioPad->Draw();
-//     ratioPad->cd();
-//     hRatio = static_cast<TH1*>(hists2.front()->Clone("Ratio"));
-//     hRatio->Divide(hists2.front());
-//     hRatioFrame->GetYaxis()->SetTitle("Ratio");
-//     hRatioFrame->Draw("HIST");
-//     hRatio->Draw("PE1same");
-//   }
   title->Draw("same");
   leg->Draw("same");
   gPad->RedrawAxis();
@@ -518,7 +405,7 @@ DataSet::Type PlotBuilder::createHistogram(const TString &dataSetLabel, const TS
   }
   setXTitle(h,var);
   setYTitle(h,var);
-  setStyle(h,dataSetLabel);
+  setGenericStyle(h,dataSetLabel);
   for(EventIt it = set->begin(); it != set->end(); ++it) {
     h->Fill((*it)->get(var),(*it)->weight());
   }
@@ -533,7 +420,7 @@ DataSet::Type PlotBuilder::createStack(const std::vector<TString> &dataSetLabels
       it != dataSetLabels.rend(); ++it) {
     TH1* h = 0;
     type = createHistogram(*it,var,nBins,xMin,xMax,h);
-    setStyle(h,*it);
+    setGenericStyle(h,*it);
     TString entry = " "+dataSetLabelInPlot(*it)+" (";
     entry += static_cast<int>(h->Integral(1,10000));
     entry += +")";
@@ -579,33 +466,64 @@ void PlotBuilder::setYTitle(TH1* h, const TString &var) const {
 }
 
 
-void PlotBuilder::setStyle(TH1* h, const TString &dataSetLabel) const {
-  DataSet::Type type = dataSet(dataSetLabel)->type();
-  if( markers_.find(dataSetLabel) != markers_.end() ) {
-    h->SetMarkerStyle(markers_.find(dataSetLabel)->second);
-  }
+int PlotBuilder::color(const TString &dataSetLabel) const {
+  // Default color
+  int color = kGray;
+  // Specified colors
   if( colors_.find(dataSetLabel) != colors_.end() ) {
-    int color = colors_.find(dataSetLabel)->second;
-    if( type == DataSet::Data ) {
-      h->SetMarkerColor(color);
-      h->SetLineColor(color);
-    } else if( type == DataSet::MC || type == DataSet::Prediction ) {
-      h->SetFillColor(color);
-      h->SetLineColor(color);
-    }
+    color = colors_.find(dataSetLabel)->second;
   } else {
+    // More specific default colors
+    DataSet::Type type = dataSet(dataSetLabel)->type();
     if( type == DataSet::Data ) {
-      h->SetMarkerColor(kGray);
-      h->SetLineColor(kGray);
-    } else if( type == DataSet::MC || type == DataSet::Prediction ) {
-      h->SetFillColor(kGray);
-      h->SetLineColor(kGray);
+      color = kBlack;
     }
+  }
+
+  return color;
+}
+
+
+int PlotBuilder::markerStyle(const TString &dataSetLabel) const {
+  // Default style
+  int style = 21;
+  // Specified styles
+  if( markers_.find(dataSetLabel) != markers_.end() ) {
+    style = markers_.find(dataSetLabel)->second;
+  } else {
+    // More specific default styles
+    DataSet::Type type = dataSet(dataSetLabel)->type();
+    if( type == DataSet::Data ) {
+      style = 21;
+    }
+  }
+
+  return style;
+}
+
+
+void PlotBuilder::setMarkerStyle(TH1* h, const TString &dataSetLabel) const {
+  h->SetMarkerStyle(markerStyle(dataSetLabel));
+  h->SetMarkerColor(color(dataSetLabel));
+  h->SetLineColor(h->GetMarkerColor());
+}
+
+
+void PlotBuilder::setGenericStyle(TH1* h, const TString &dataSetLabel) const {
+  DataSet::Type type = dataSet(dataSetLabel)->type();
+  if( type == DataSet::Data ) {
+    setMarkerStyle(h,dataSetLabel);
+  } else if( type == DataSet::MC || type == DataSet::Prediction ) {
+    int c = color(dataSetLabel);
+    h->SetMarkerStyle(0);
+    h->SetMarkerColor(c);
+    h->SetLineColor(c);
+    h->SetFillColor(c);
   }
 }
 
 
-TPaveText* PlotBuilder::header(const TString &dataSetLabel, bool doNotShowLabel, const TString &add) const {
+TPaveText* PlotBuilder::header(bool showLumi, const TString &add) const {
   double x0 = gStyle->GetPadLeftMargin();
   double x1 = 1.-gStyle->GetPadRightMargin();
   double y0 = 1.-gStyle->GetPadTopMargin();
@@ -617,8 +535,7 @@ TPaveText* PlotBuilder::header(const TString &dataSetLabel, bool doNotShowLabel,
   txt->SetTextAlign(12);
   txt->SetTextSize(0.05);
   txt->SetMargin(0.);
-  TString label = dataSetLabelInPlot(dataSetLabel);
-  txt->AddText("8 TeV"+(dataSetLabel != "" ? ",  "+lumiLabel(dataSetLabel) : "" )+(doNotShowLabel ? "" : ",  "+label)+",  "+dataSets_.front()->selection()+" "+add);
+  txt->AddText("8 TeV"+(showLumi ? ",  "+lumiLabel() : "" )+",  "+dataSets_.front()->selection()+(add != "" ? ",  "+add : ""));
   
   return txt;
 }
@@ -643,13 +560,8 @@ TLegend* PlotBuilder::legend(unsigned int nEntries) const {
 }
 
 
-TString PlotBuilder::lumiLabel(const TString &dataSetLabel) const {
-  TString label = "";
-  if( DataSet::type(dataSetLabel) == DataSet::Data ) {
-    label = GlobalParameters::lumi()+" fb^{-1}";
-  }
-
-  return label;
+TString PlotBuilder::lumiLabel() const {
+  return GlobalParameters::lumi()+" fb^{-1}";
 }
 
 

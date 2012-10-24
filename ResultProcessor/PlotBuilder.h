@@ -38,12 +38,15 @@ private:
   DataSet::Type createHistogram(const TString &dataSetLabel, const TString &var, int nBins, double min, double max, TH1* &h) const;
   DataSet::Type createStack(const std::vector<TString> &dataSetLabels, const TString &var, int nBins, double xMin, double xMax, std::vector<TH1*> &hists, std::vector<TString> &legEntries) const;
   void parseHistCfg(const TString &cfg, int &nBins, double &xMin, double &xMax, bool &logy) const;
-  void setStyle(TH1* h, const TString &dataSetLabel) const;
+  int color(const TString &dataSetLabel) const;
+  int markerStyle(const TString &dataSetLabel) const;
+  void setMarkerStyle(TH1* h, const TString &dataSetLabel) const;
+  void setGenericStyle(TH1* h, const TString &dataSetLabel) const;
   void setXTitle(TH1* h, const TString &var) const;
   void setYTitle(TH1* h, const TString &var) const;
-  TPaveText* header(const TString &dataSetLabel = "", bool doNotShowLabel = true, const TString &add = "") const;
+  TPaveText* header(bool showLumi, const TString &add = "") const;
   TLegend* legend(unsigned int nEntries) const;
-  TString lumiLabel(const TString &dataSetLabel) const;
+  TString lumiLabel() const;
   TString cleanName(const TString &name) const;
   TString plotName(const TString &var) const;
   TString plotName(const TString &var, const TString &dataSetLabel) const;
