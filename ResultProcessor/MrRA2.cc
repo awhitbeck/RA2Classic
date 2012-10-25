@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <iostream>
+#include <sys/stat.h>
 
 #include "TError.h"
 
@@ -31,13 +32,17 @@ MrRA2::MrRA2(const TString& configFileName) {
 
   // Control plots without selection
   std::cout << "\nProcessing the results" << std::endl;
-  makePlots(dataSets_,cfg);
+  TString outDir = GlobalParameters::resultDir()+"/preselection";
+  mkdir(outDir.Data(),S_IRWXU);
+  makePlots(dataSets_,cfg,outDir);
   std::cout << "  - for the preselection" << std::endl;
 
   // Plots after different selections
+  // Loop over defined selections
   for(std::vector<Selection*>::const_iterator itSel = selections_.begin();
       itSel != selections_.end(); ++itSel) {
     std::cout << "  - for the selection '" << (*itSel)->label() << "'" << std::endl;
+    // For each dataset, select subsets of events passing this selection
     std::vector<DataSet*> selectedDataSets;
     for(std::vector<DataSet*>::const_iterator itDat = dataSets_.begin();
 	itDat != dataSets_.end(); ++itDat) {
@@ -45,8 +50,13 @@ MrRA2::MrRA2(const TString& configFileName) {
       std::cout << "    " << "Dataset '" << (*itDat)->label() << "' (" << (*itDat)->size() << " entries in tree)" << std::endl;
       (*itSel)->print();
     }
-    makePlots(selectedDataSets,cfg);
-    EventInfoPrinter(selectedDataSets,cfg);
+    // Create output directory
+    
+    // Process the final result for this selection
+    outDir = GlobalParameters::resultDir()+"/"+(*itSel)->label();
+    mkdir(outDir.Data(),S_IRWXU);
+    makePlots(selectedDataSets,cfg,outDir); // Make plots
+    EventInfoPrinter(selectedDataSets,cfg); // Print event info (for tail scans) 
   }
 }
 

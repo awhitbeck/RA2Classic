@@ -16,8 +16,8 @@
 unsigned int PlotBuilder::count_ = 0;
 
 
-PlotBuilder::PlotBuilder(const std::vector<DataSet*> &dataSets, const Config &cfg)
-  : cfg_(cfg), canSize_(500), dataSets_(dataSets) {
+PlotBuilder::PlotBuilder(const std::vector<DataSet*> &dataSets, const Config &cfg, const TString &outDir)
+  : cfg_(cfg), canSize_(500), dataSets_(dataSets), outDir_(outDir) {
   setStyle("plot style");
   run("plot");
 }
@@ -149,7 +149,7 @@ void PlotBuilder::plotSpectrum(const TString &var, const TString &dataSetLabel, 
     h->Draw("HIST");
   }
   TString dataSetLabelInHeader = dataSetLabelInPlot(dataSetLabel)+" (";
-  dataSetLabelInHeader += static_cast<int>(h->Integral(1,100000));
+  dataSetLabelInHeader += static_cast<int>(h->Integral(1,h->GetNbinsX()));
   dataSetLabelInHeader += ")";
   TPaveText* title = header(true,dataSetLabelInHeader);
   title->Draw("same");
@@ -340,7 +340,8 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
 
   // Draw
   can->cd();
-  setYRange(histsMC->front(),logy?3E-1:-1.);
+  //setYRange(histsMC->front(),logy?3E-1:-1.);
+  histsMC->front()->GetYaxis()->SetRangeUser(3E-1,3E4);
   histsMC->front()->Draw();
   for(std::vector<TH1*>::iterator it = histsMC->begin();
       it != histsMC->end(); ++it) {
@@ -422,7 +423,7 @@ DataSet::Type PlotBuilder::createStack(const std::vector<TString> &dataSetLabels
     type = createHistogram(*it,var,nBins,xMin,xMax,h);
     setGenericStyle(h,*it);
     TString entry = " "+dataSetLabelInPlot(*it)+" (";
-    entry += static_cast<int>(h->Integral(1,10000));
+    entry += static_cast<int>(h->Integral(1,h->GetNbinsX()));
     entry += +")";
     legEntries.push_back(entry);
     
@@ -592,7 +593,7 @@ DataSet* PlotBuilder::dataSet(const TString &label) const {
 void PlotBuilder::storeCanvas(TCanvas* can, const TString &name) const {
   can->SetName(name);
   can->SetTitle(name);
-  can->SaveAs(name+".eps","eps");
+  can->SaveAs(outDir_+"/"+name+".eps","eps");
 }
 
 
