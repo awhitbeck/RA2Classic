@@ -6,9 +6,8 @@ MCEffCalculator = cms.EDAnalyzer(
 	      EventWeightTag = cms.InputTag("WeightProducer:weight"),           
               MuonIDTag = cms.InputTag("patMuonsPFID"),
               MuonIDISOTag = cms.InputTag("patMuonsPFIDIso"),
-              ElecIDTag = cms.InputTag("selectedPatElectronsPF"), 
+              ElecIDTag = cms.InputTag("patElectronsIDIso"), 
 	      ElecIDISOTag = cms.InputTag("patElectronsIDIso"),
-              JetTag = cms.InputTag("patJetsPF"),
 	      CaloJetTag = cms.InputTag("cleanPatJetsAK5Calo"),
               METTag = cms.InputTag("patMETsPF"),
               GenTag = cms.InputTag("genParticles"),                  
@@ -17,5 +16,7 @@ MCEffCalculator = cms.EDAnalyzer(
               minElecPt = cms.double(10),
 	      maxElecEta = cms.double(2.5),
               minJetPt = cms.double(30),
+              HTJets   = cms.InputTag('patJetsAK5PFPt50Eta25'),
+	      MhtTag   = cms.InputTag('mhtPF'),
 
 	)
