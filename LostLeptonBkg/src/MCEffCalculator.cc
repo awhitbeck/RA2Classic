@@ -54,8 +54,10 @@ MCEffCalculator::MCEffCalculator(const edm::ParameterSet& iConfig)
   minJetPt_ = iConfig.getParameter<double> ("minJetPt") ;
 
 // addiontial plot related variables
-   HtJetsTag_ = iConfig.getParameter<edm::InputTag>("HTJets");
-   MhtTag_ = iConfig.getParameter<edm::InputTag>("MhtTag");
+   HtJetsTag_ = iConfig.getParameter<edm::InputTag>("HTJetsTag");
+   MhtJetsTag_ = iConfig.getParameter<edm::InputTag>("MhtJetsTag");
+   HTTag_ = iConfig.getParameter<edm::InputTag>("HTTag");
+   MHTTag_ = iConfig.getParameter<edm::InputTag>("MHTTag");
 }
 
 
@@ -105,23 +107,28 @@ MCEffCalculator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 // addiontial input for plotting
   edm::Handle< edm::View<reco::Candidate> > htJets;
   iEvent.getByLabel(HtJetsTag_,htJets);
-  if( htJets.isValid() ) 
-  {
-    	nJets_ = htJets->size();
-       	// loop over all the jets to create HT
-  	for( edm::View <reco::Candidate>::const_iterator HTJetsCan = htJets->begin(); HTJetsCan!=htJets->end();HTJetsCan++)
-  	{
-   		ht_+= HTJetsCan->pt();
+  htJets->size();
 
-  	}
-  }
-  edm::Handle< edm::View<reco::Candidate> > mht;
-  iEvent.getByLabel(MhtTag_,mht);
-  if( mht.isValid() ) {
-    mht_ = mht->at(0).pt();
-  }
-
+  edm::Handle< edm::View<reco::Candidate> > mhtJets;
+  iEvent.getByLabel(MhtJetsTag_,mhtJets);
    
+
+  // HT & MHT
+  edm::Handle<double> ht;
+  iEvent.getByLabel(HTTag_,ht);
+
+    ht_ = *ht;
+
+  edm::Handle< edm::View<reco::Candidate> > mht;
+  iEvent.getByLabel(MHTTag_,mht);
+
+    mht_ = mht->at(0).pt();
+
+  
+
+
+
+
 
    // select muon id 13 on gen level
    // iterates over all gen particles
@@ -622,9 +629,9 @@ MCEffCalculator::ResetValues()
 
 
  	// additonal variables for plotting
-	ht_=0;
-	nJets_=0;
-	mht_=0;
+	ht_=-100;
+	nJets_=-1;
+	mht_=-100;
 }
 
 

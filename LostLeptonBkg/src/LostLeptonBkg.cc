@@ -67,6 +67,7 @@ LostLeptonBkg::LostLeptonBkg(const edm::ParameterSet& iConfig)
    produces<double>("deltaPtClosestJetMu");
    produces<int>("nCaloJets");
    produces<double> ("MTW");
+   produces<double> ("mtwCorrectionWeight");
    produces<double>("muonTotalWeight");
    produces<double>("elecTotalWeight");
    produces<double>("muonIsoWeight");
