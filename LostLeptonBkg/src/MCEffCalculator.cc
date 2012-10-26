@@ -96,6 +96,11 @@ MCEffCalculator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    iEvent.getByLabel(evtWeightTag_,eventWeight);
    eventWeight_ = *eventWeight;
 
+   edm::Handle< edm::View<reco::Candidate> > met;
+   iEvent.getByLabel(metTag_,met);
+   mt_= met->at(0).pt();
+
+
 
 // addiontial input for plotting
   edm::Handle< edm::View<reco::Candidate> > htJets;
@@ -254,7 +259,7 @@ MCEffCalculator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 								IsoMuonPTRelJet_=RecoMuonPTJet_/muonRecoPt_;
 								muonIsoPassedTH2F_->Fill(RecoMuonDeltaR_,RecoMuonPTJet_/muonRecoPt_,eventWeight_);
 								// MT calculation
-								mtw_= MTCalculator(iEvent, metTag_,muonIsoPt_,muonIsoEta_,muonIsoPhi_);
+								mtw_= MTWCalculator(iEvent, metTag_,muonIsoPt_,muonIsoPhi_);
 								MTWTH2F_->Fill(mtw_,mht_);
 							}
 							// found isolated muon but can not be matched to reco muon
@@ -362,7 +367,7 @@ MCEffCalculator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 								nIsoElec_=+1;
 								elecIsoPassedTH2F_->Fill(RecoElecDeltaR_,RecoElecPTJet_/elecRecoPt_,eventWeight_);
 								// MT calculation
-								mtElec_= MTCalculator(iEvent, metTag_,elecIsoPt_,elecIsoEta_,elecIsoPhi_);
+								mtwElec_= MTWCalculator(iEvent, metTag_,elecIsoPt_,elecIsoPhi_);
 							}
 							// found isolated elec but can not be matched to reco elec
 							else
@@ -479,7 +484,7 @@ MCEffCalculator::beginJob()
     tree_->Branch("GenDeltaRLepClosestJet",&deltaGenR_,"GenDeltaRLepClosestJet/F");
     tree_->Branch("ClosestJetElecGenPt",&closestJetToElecGenPt_,"ClosestJetElecGenPt/F");
     tree_->Branch("ClosestJetMuonGenPt",&closestJetToMuonGenPt_,"ClosestJetMuonGenPt/F");
-    tree_->Branch("MT",&mtw_,"MT/F");
+    tree_->Branch("MTW",&mtw_,"MTW/F");
 
     // discriminator for mc expectaiton selector +1 passed -1 failed
     tree_->Branch("nAccMu",&nAccMu_,"nAccMu/F");
@@ -507,6 +512,8 @@ MCEffCalculator::beginJob()
     tree_->Branch("HT",&ht_,"HT/F");
     tree_->Branch("MHT",&mht_,"MHT/F");
     tree_->Branch("NJets",&nJets_,"NJets/I");
+    tree_->Branch("Weight",&eventWeight_,"Weight/F");
+    tree_->Branch("MT",&mt_,"MT/F");
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -554,7 +561,6 @@ void
 MCEffCalculator::ResetValues()
 {
 
-	eventWeight_		=-100;
 	nGenMu_			=-100;
 	nGenElec_		=-100;
 	muonPTAccPassed_	=-100;
@@ -581,7 +587,8 @@ MCEffCalculator::ResetValues()
 	closestJetToMuonGenPt_	=-100;
 	closestJetToElecGenPt_	=-100;
 	mtw_			=-100;
-	mtElec_			=-100;
+	mt_			=-100;
+	mtwElec_		=-100;
 	RecoMuonDeltaR_		=-100;
 	RecoMuonPTJet_		=-100;
 	RecoMuonPTRelJet_	=-100;
@@ -697,16 +704,16 @@ std::pair <double,double> MCEffCalculator::DRToClosestJet(const edm::Event& iEve
 
 
 double
-MCEffCalculator::MTCalculator(const edm::Event& iEvent, edm::InputTag metTag, double lepPT, double lepEta, double lepPhi)
+MCEffCalculator::MTWCalculator(const edm::Event& iEvent, edm::InputTag metTag, double lepPT, double lepPhi)
 {
-double metPT =0;
-double dR = 0;
   edm::Handle< edm::View<reco::Candidate> > met;
   iEvent.getByLabel(metTag,met);
-    metPT = met->at(0).pt();
-
-dR = deltaR(met->at(0).eta(),met->at(0).phi(),lepEta,lepPhi);
-return sqrt(2*lepPT*metPT*(1-cos(dR)) );
+  double metPT = met->at(0).pt();
+  std::cout<<"MTWCalculator:metPT"<<metPT<<std::endl;
+ // dR = deltaR(met->at(0).eta(),met->at(0).phi(),lepEta,lepPhi);
+    double deltaPhi =reco::deltaPhi(lepPhi, met->at(0).phi());
+    std::cout<<"MTWCalculator:MTW"<<sqrt(2*lepPT*metPT*(1-cos(deltaPhi)) )<<std::endl;
+    return sqrt(2*lepPT*metPT*(1-cos(deltaPhi)) );
 
 }
 //define this as a plug-in

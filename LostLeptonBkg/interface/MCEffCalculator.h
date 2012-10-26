@@ -42,7 +42,7 @@ class MCEffCalculator : public edm::EDAnalyzer {
       ~MCEffCalculator();
 	// first deltaR second CloestJetPT
 	static std::pair <double,double> DRToClosestJet(const edm::Event& iEvent, edm::InputTag caloJetTag_, double lepEta, double lepPhi);
-	static double MTCalculator(const edm::Event& iEvent, edm::InputTag MTTag, double lepPT, double lepEta, double lepPhi);
+	static double MTWCalculator(const edm::Event& iEvent, edm::InputTag MTTag, double lepPT, double lepPhi);
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -67,17 +67,19 @@ class MCEffCalculator : public edm::EDAnalyzer {
   	edm::InputTag evtWeightTag_;
   	edm::InputTag muonIDTag_, muonIDISOTag_;
   	edm::InputTag elecIDTag_, elecIDISOTag_;
-  	edm::InputTag jetTag_;
+
 	edm::InputTag caloJetTag_;
   	edm::InputTag metTag_;
   	edm::InputTag genTag_;
 	
+	// additional input tags for plotting
+	edm::InputTag HtJetsTag_, MhtTag_;
 
 
       // Variables
 	//Input
 	double minMuonPt_, minElecPt_, minJetPt_, maxMuonEta_, maxElecEta_;
-	double eventWeight_;
+	float eventWeight_;
 	unsigned int nGenMu_, nGenElec_;
 	TH2F *muonIDPassedTH2F_, *muonIsoPassedTH2F_, *muonIsoPassedUpTH2F_, *muonIsoPassedDownTH2F_;
 	TH2F *elecIDPassedTH2F_, *elecIsoPassedTH2F_, *elecIsoPassedUpTH2F_, *elecIsoPassedDownTH2F_;
@@ -89,23 +91,26 @@ class MCEffCalculator : public edm::EDAnalyzer {
 	TH1F *MuonAccPassedTH1F_, *MuonAccFailedTH1F_;
 	TH1F *ElecAccPassedTH1F_, *ElecAccFailedTH1F_;
 
+	TH2F *MTWTH2F_;
+
 
 	//Tree and stuff to be filed in it
         TString treeName_;
         TTree* tree_;
-	int muonAcc_, elecAcc_;
+
 	int muonNumberRecoID_, elecNumberRecoID_;
 	Float_t muonPTAccPassed_, elecPTAccPassed_;
 	Float_t muonIDPassed_, muonIDFailed_, elecIDPassed_, elecIDFailed_, muonRecoPt_, muonRecoEta_, muonRecoPhi_, elecRecoPt_, elecRecoEta_, elecRecoPhi_;
 	Float_t muonGenPt_, muonGenEta_, muonGenPhi_, elecGenPt_, elecGenEta_, elecGenPhi_;
-	Float_t deltaGenR_, closestJetToMuonGenPt_,closestJetToElecGenPt_, mt_, mtElec_;
+	Float_t deltaGenR_, closestJetToMuonGenPt_,closestJetToElecGenPt_, mt_, mtw_, mtwElec_;
 	// reco iso eff plots
 	TH2F *elecIdEffTH2F_, *elecIsoEffTH2F_, *elecIsoEffUpTH2F_, *elecIsoEffDownTH2F_;
  	TH2F *muonIdEffTH2F_, *muonIsoEffTH2F_, *muonIsoEffUpTH2F_, *muonIsoEffDownTH2F_;	
 
 	//Varialbes used for studies
 	Float_t RecoMuonDeltaR_, RecoMuonPTJet_, RecoMuonPTRelJet_, IsoMuonDeltaR_, IsoMuonPTJet_, IsoMuonPTRelJet_, RecoGenMuDeltaR_;
-	unsigned int nRecoMu_, nRecoElec_, nIsoMu_, nIsoElec_;
+	// changed for now to Float_t since the plotting tool cant handel any int
+	Float_t nRecoMu_, nRecoElec_, nIsoMu_, nIsoElec_, nAccMu_, nAccElec_;
 	//not plotted
 	Float_t muonIsoPt_, muonIsoEta_, muonIsoPhi_;
 
@@ -113,4 +118,7 @@ class MCEffCalculator : public edm::EDAnalyzer {
 	//not plotted
 	Float_t elecIsoPt_, elecIsoEta_, elecIsoPhi_;
 
+	// only for plotting purposes
+	Float_t ht_, mht_;
+	int nJets_;
 };

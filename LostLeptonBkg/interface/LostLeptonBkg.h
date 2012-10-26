@@ -56,11 +56,12 @@ class LostLeptonBkg : public edm::EDProducer {
 	std::string EfficiencyFileName_;
 
   	// efficiencies created ones per job!
-	TH1F *muonAccSum_, *muonAccPassed_;
-	TH1F *elecAccSum_, *elecAccPassed_;
-	TH2F *muonRecoEff_, *muonIsoEff_;
-	TH2F *elecRecoEff_, *elecIsoEff_;
-	double muonAccEff_, elecAccEff_;
+	TH1F *MuonAccSum_, *MuonAccPassed_;
+	TH1F *ElecAccSum_, *ElecAccPassed_;
+	TH2F *MuonRecoEff_, *MuonIsoEff_;
+	TH2F *ElecRecoEff_, *ElecIsoEff_;
+	TH1F *MTWEff_;
+	double MuonAccEff_, ElecAccEff_;
 	
 	// Variables
 	float met_;
@@ -73,10 +74,18 @@ class LostLeptonBkg : public edm::EDProducer {
 	int nJets_;
 	int nCaloJets_;
 
+	
+	double muonIsoEff_, muonRecoEff_, muonTotalWeight_;
+	double muonIsoWeight_, muonRecoWeight_, muonAccWeight_;
+	double elecRecoEff_, elecIsoEff_, elecTotalWeight_;
+	double elecIsoWeight_, elecRecoWeight_, elecAccWeight_;
+	double mtwCorrection_;
+	double resultWeight_;
 
 	double deltaRMuJet_;
 	double deltaRMuMHT_;
-	double deltaPtMuJet_;
+	double PtClosestJet_;
+	double deltaPtClosestJetMu_;
 
 
 
