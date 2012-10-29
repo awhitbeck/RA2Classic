@@ -16,14 +16,14 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.source = cms.Source("PoolSource",
 	fileNames = cms.untracked.vstring(
-           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_240_3_Ttj.root',
-           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_65_3_oJh.root',
-           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_533_3_8FE.root',
-           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_246_3_xFc.root',
-           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_516_3_dGK.root',
-           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_201_3_3sC.root',
-           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_458_3_HwI.root',
-           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_345_3_t0O.root',  
+           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_312_1_l4U.root',
+           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_195_1_Dhl.root',
+           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_156_1_xny.root',
+           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_321_1_IhY.root',
+           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_230_1_bRi.root',
+           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_67_1_olT.root',
+           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_646_1_rR0.root',
+           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_500_1_agk.root', 
 	)
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 1000 ) )
@@ -38,74 +38,6 @@ process.GlobalTag.globaltag = cms.string('GR_R_52_V9D::All')
 
 ###############################################################################
 process.TFileService = cms.Service("TFileService",fileName = cms.string("Selection_OnData_2012.root") )
-###############################################################################
-
-###############################################################################
-process.load("RA2.FinalPlots.finalplots_cfi")
-process.load("RA2.Selection.RA2Selection_cff")
-###############################################################################
-
-###############################################################################
-# Selections with smeared Jets
-###############################################################################
-process.RA2PreSelection.writeVariables = True
-process.RA2PreSelection.onlySimulation = False
-
-process.RA2FinalHT500NoDeltaPhiSelection.writeVariables = True
-process.RA2FinalHT500NoDeltaPhiSelection.onlySimulation = False
-
-process.RA2FinalHT500Selection.writeVariables = True
-process.RA2FinalHT500Selection.onlySimulation = False
-
-process.RA2FinalHT800Selection.writeVariables = True
-process.RA2FinalHT800Selection.onlySimulation = False
-
-process.RA2FinalHT1000Selection.writeVariables = True
-process.RA2FinalHT1000Selection.onlySimulation = False
-
-process.RA2FinalHT1200Selection.writeVariables = True
-process.RA2FinalHT1200Selection.onlySimulation = False
-
-process.RA2FinalHT1400Selection.writeVariables = True
-process.RA2FinalHT1400Selection.onlySimulation = False
-###############################################################################
-
-###############################################################################
-# Final plotting with Data
-###############################################################################
-process.FinalPlotsRA2PreSelectionData = process.finalPlot.clone()
-process.FinalPlotsRA2PreSelectionData.selectionSequence = process.RA2PreSelection.selections.selectionSequence
-process.FinalPlotsRA2PreSelectionData.selection = 'RA2PreSelection'
-
-process.FinalPlotsRA2FinalHT500NoDeltaPhiSelectionData = process.finalPlot.clone()
-process.FinalPlotsRA2FinalHT500NoDeltaPhiSelectionData.weightName = 'weightProducer:weight'
-process.FinalPlotsRA2FinalHT500NoDeltaPhiSelectionData.selectionSequence = process.RA2FinalHT500NoDeltaPhiSelection.selections.selectionSequence
-process.FinalPlotsRA2FinalHT500NoDeltaPhiSelectionData.selection = 'RA2FinalHT500NoDeltaPhiSelection'
-
-process.FinalPlotsRA2FinalHT500Data = process.finalPlot.clone()
-process.FinalPlotsRA2FinalHT500Data.weightName = 'weightProducer:weight'
-process.FinalPlotsRA2FinalHT500Data.selectionSequence = process.RA2FinalHT500Selection.selections.selectionSequence
-process.FinalPlotsRA2FinalHT500Data.selection = 'RA2FinalHT500Selection'
-
-process.FinalPlotsRA2FinalHT800Data = process.finalPlot.clone()
-process.FinalPlotsRA2FinalHT800Data.weightName = 'weightProducer:weight'
-process.FinalPlotsRA2FinalHT800Data.selectionSequence = process.RA2FinalHT800Selection.selections.selectionSequence
-process.FinalPlotsRA2FinalHT800Data.selection = 'RA2FinalHT800Selection'
-
-process.FinalPlotsRA2FinalHT1000Data = process.finalPlot.clone()
-process.FinalPlotsRA2FinalHT1000Data.weightName = 'weightProducer:weight'
-process.FinalPlotsRA2FinalHT1000Data.selectionSequence = process.RA2FinalHT1000Selection.selections.selectionSequence
-process.FinalPlotsRA2FinalHT1000Data.selection = 'RA2FinalHT1000Selection'
-
-process.FinalPlotsRA2FinalHT1200Data = process.finalPlot.clone()
-process.FinalPlotsRA2FinalHT1200Data.weightName = 'weightProducer:weight'
-process.FinalPlotsRA2FinalHT1200Data.selectionSequence = process.RA2FinalHT1200Selection.selections.selectionSequence
-process.FinalPlotsRA2FinalHT1200Data.selection = 'RA2FinalHT1200Selection'
-
-process.FinalPlotsRA2FinalHT1400Data = process.finalPlot.clone()
-process.FinalPlotsRA2FinalHT1400Data.weightName = 'weightProducer:weight'
-process.FinalPlotsRA2FinalHT1400Data.selectionSequence = process.RA2FinalHT1400Selection.selections.selectionSequence
-process.FinalPlotsRA2FinalHT1400Data.selection = 'RA2FinalHT1400Selection'
 ###############################################################################
 
 ###############################################################################
@@ -134,6 +66,26 @@ process.EEBadScFilter.ResultSource = cms.InputTag("eeBadScFilter")
 
 ###############################################################################
 process.load('SandBox.Skims.RA2HT_cff')
+process.load('SandBox.Skims.RA2Leptons_cff')
+###############################################################################
+
+###############################################################################
+## --- Setup of TreeMaker ----------------------------------------------
+from RA2Classic.TreeMaker.treemaker_cfi import TreeMaker
+process.RA2TreeMaker = TreeMaker.clone(
+    TreeName         = cms.string("RA2PreSelection"),
+    VarsDouble       = cms.VInputTag(cms.InputTag('weightProducer:weight')),
+    VarsDoubleNamesInTree = cms.vstring('Weight'),
+    VertexCollection = cms.InputTag('goodVertices'),
+ #   HT               = cms.InputTag('htPF'),
+    HT               = cms.InputTag('htPFchs'),
+    HTJets           = cms.InputTag('HTJets'),
+ #   MHT              = cms.InputTag('mhtPF'),
+    MHT              = cms.InputTag('mhtPFchs'),
+    MHTJets          = cms.InputTag('MHTJets')
+    )
+process.load('RA2Classic.Utils.produceRA2JetsPFCHS_cff')
+#process.load('RA2Classic.Utils.produceRA2JetsAK5PF_cff')
 ###############################################################################
 
 ###############################################################################
@@ -145,7 +97,7 @@ process.load("HLTrigger.HLTcore.hltEventAnalyzerAOD_cfi")
 process.dump   = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.data = cms.Path(
-   #   process.htPFFilter *    # to be used for standard jets
+ #  process.htPFFilter *    # to be used for standard jets
    process.htPFchsFilter *     # to be used for chs jets 
    process.RA2_HBHENoiseFilterRA2 *
    process.RA2_beamHaloFilter *
@@ -157,18 +109,10 @@ process.data = cms.Path(
    process.RA2_EcalBEFilter *
    process.HcalLaserEventFilter *
    process.EEBadScFilter *
-	process.RA2PreSelection *
-	process.FinalPlotsRA2PreSelectionData *
-	process.RA2FinalHT500NoDeltaPhiSelection *
-	process.FinalPlotsRA2FinalHT500NoDeltaPhiSelectionData *
-	process.RA2FinalHT500Selection *
-	process.FinalPlotsRA2FinalHT500Data *
-	process.RA2FinalHT800Selection *
-	process.FinalPlotsRA2FinalHT800Data *
-	process.RA2FinalHT1000Selection *
-	process.FinalPlotsRA2FinalHT1000Data *
-	process.RA2FinalHT1200Selection *
-	process.FinalPlotsRA2FinalHT1200Data *
-	process.RA2FinalHT1400Selection *
-	process.FinalPlotsRA2FinalHT1400Data
+   process.ra2PFMuonVeto *
+   process.ra2ElectronVeto * 
+   process.produceRA2JetsPFCHS *
+ #  process.produceRA2JetsAK5PF *
+   process.RA2TreeMaker   
 )
+

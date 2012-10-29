@@ -16,14 +16,14 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.source = cms.Source("PoolSource",
 	fileNames = cms.untracked.vstring(
-           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_240_3_Ttj.root',
-           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_65_3_oJh.root',
-           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_533_3_8FE.root',
-           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_246_3_xFc.root',
-           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_516_3_dGK.root',
-           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_201_3_3sC.root',
-           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_458_3_HwI.root',
-           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_345_3_t0O.root',  
+           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_312_1_l4U.root',
+           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_195_1_Dhl.root',
+           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_156_1_xny.root',
+           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_321_1_IhY.root',
+           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_230_1_bRi.root',
+           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_67_1_olT.root',
+           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_646_1_rR0.root',
+           '/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v7/e99cf838fe40ef4081c91a81748e6000/RA2SkimsOnData_500_1_agk.root',              
 	)
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 1000 ) )
@@ -41,9 +41,7 @@ process.TFileService = cms.Service("TFileService",fileName = cms.string("QCDSmea
 ###############################################################################
 
 ###############################################################################
-process.load("RA2.QCDSmearProd.qcdsmearprod_cfi")
-process.load("RA2.FinalPlots.finalplots_cfi")
-process.load("RA2.Selection.RA2Selection_cff")
+process.load("RA2Classic.QCDBkgRS.qcdbkgrs_cfi")
 ###############################################################################
 
 ###############################################################################
@@ -51,9 +49,9 @@ process.load("RA2.Selection.RA2Selection_cff")
 ###############################################################################
 #process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer11_QCD_Pt_15to3000_TuneZ2_Flat_7TeV_pythia6_fine_v2.root'
 #process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCResolutions_Fall11_QCD_Pt-15to3000_TuneZ2_7TeV_pythia6_fine.root'
-process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6.root'
+process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withCHS_withPUReweighting_pixelcorr.root'
 process.QCDfromSmearing.BProbabilityFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/BJetProbability.root'
-process.QCDfromSmearing.jetCollection = process.PatTagNames.jetTag
+process.QCDfromSmearing.jetCollection = 'patJetsPF'
 process.QCDfromSmearing.uncertaintyName = ''
 #process.QCDfromSmearing.InputHisto1_HF = 'h_b_Jet1_ResponsePt'
 #process.QCDfromSmearing.InputHisto2_HF = 'h_b_Jet2_ResponsePt'
@@ -92,7 +90,7 @@ process.QCDfromSmearing.AdditionalSmearing	= cms.vdouble(1.052,1.052,1.052,1.052
 
 process.QCDfromSmearing.absoluteTailScaling = False
 process.QCDfromSmearing.SmearedJetPt = 0.
-process.QCDfromSmearing.RebalanceJetPt = 15.
+process.QCDfromSmearing.RebalanceJetPt = 13.
 process.QCDfromSmearing.RebalanceMode = 'MHThigh'
 process.QCDfromSmearing.weightName = 'prescaleweightProducer:weight'
 process.QCDfromSmearing.ControlPlots = True
@@ -110,139 +108,9 @@ process.QCDfromSmearing.HTcut_extremehigh = cms.double(1400.)
 ###############################################################################
 
 ###############################################################################
-# Selections with smeared Jets
-###############################################################################
-process.RA2PreSelection.writeVariables = True
-process.RA2PreSelection.onlySimulation = False
-
-process.RA2FinalHT500NoDeltaPhiSelection.writeVariables = True
-process.RA2FinalHT500NoDeltaPhiSelection.onlySimulation = True
-
-process.RA2FinalHT500Selection.writeVariables = True
-process.RA2FinalHT500Selection.onlySimulation = True
-
-process.RA2FinalHT800Selection.writeVariables = True
-process.RA2FinalHT800Selection.onlySimulation = True
-
-process.RA2FinalHT1000Selection.writeVariables = True
-process.RA2FinalHT1000Selection.onlySimulation = True
-
-process.RA2FinalHT1200Selection.writeVariables = True
-process.RA2FinalHT1200Selection.onlySimulation = True
-
-process.RA2FinalHT1400Selection.writeVariables = True
-process.RA2FinalHT1400Selection.onlySimulation = True
-
-#####
-
-process.RA2PreSelectionSmeared = process.RA2PreSelection.clone()
-process.RA2FinalHT500NoDeltaPhiSelectionSmeared = process.RA2FinalHT500NoDeltaPhiSelection.clone()
-process.RA2FinalHT500Smeared = process.RA2FinalHT500Selection.clone()
-process.RA2FinalHT800Smeared = process.RA2FinalHT800Selection.clone()
-process.RA2FinalHT1000Smeared = process.RA2FinalHT1000Selection.clone()
-process.RA2FinalHT1200Smeared = process.RA2FinalHT1200Selection.clone()
-process.RA2FinalHT1400Smeared = process.RA2FinalHT1400Selection.clone()
-###############################################################################
-
-###############################################################################
-# continue: Selections with smeared Jets
-
-RA2PreSelectionSmeared = cms.Sequence(process.RA2PreSelectionSmeared)
-RA2FinalHT500NoDeltaPhiSelectionSmeared = cms.Sequence(process.RA2FinalHT500NoDeltaPhiSelectionSmeared)
-RA2FinalHT500Smeared = cms.Sequence(process.RA2FinalHT500Smeared)
-RA2FinalHT800Smeared = cms.Sequence(process.RA2FinalHT800Smeared)
-RA2FinalHT1000Smeared = cms.Sequence(process.RA2FinalHT1000Smeared)
-RA2FinalHT1200Smeared = cms.Sequence(process.RA2FinalHT1200Smeared)
-RA2FinalHT1400Smeared = cms.Sequence(process.RA2FinalHT1400Smeared)
-
-from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
-
-massSearchReplaceAnyInputTag(RA2PreSelectionSmeared, process.RA2PreSelection.selections.selectors.JetSelection.jetTag, 'QCDfromSmearing:smearedJets')
-massSearchReplaceAnyInputTag(RA2FinalHT500NoDeltaPhiSelectionSmeared, process.RA2FinalHT500NoDeltaPhiSelection.selections.selectors.JetSelection.jetTag, 'QCDfromSmearing:smearedJets')
-massSearchReplaceAnyInputTag(RA2FinalHT500Smeared, process.RA2FinalHT500Selection.selections.selectors.JetSelection.jetTag, 'QCDfromSmearing:smearedJets')
-massSearchReplaceAnyInputTag(RA2FinalHT800Smeared, process.RA2FinalHT800Selection.selections.selectors.JetSelection.jetTag, 'QCDfromSmearing:smearedJets')
-massSearchReplaceAnyInputTag(RA2FinalHT1000Smeared, process.RA2FinalHT1000Selection.selections.selectors.JetSelection.jetTag, 'QCDfromSmearing:smearedJets')
-massSearchReplaceAnyInputTag(RA2FinalHT1200Smeared, process.RA2FinalHT1200Selection.selections.selectors.JetSelection.jetTag, 'QCDfromSmearing:smearedJets')
-massSearchReplaceAnyInputTag(RA2FinalHT1400Smeared, process.RA2FinalHT1400Selection.selections.selectors.JetSelection.jetTag, 'QCDfromSmearing:smearedJets')
-###############################################################################
-
-###############################################################################
-# Final plotting with smeared Jets
-###############################################################################
-process.finalPlot.weightName = 'prescaleweightProducer:weight'
-
-process.FinalPlotsRA2PreSelectionSmeared = process.finalPlot.clone()
-process.FinalPlotsRA2PreSelectionSmeared.selectionSequence = process.RA2PreSelectionSmeared.selections.selectionSequence
-process.FinalPlotsRA2PreSelectionSmeared.selection = 'RA2PreSelectionSmeared'
-
-process.FinalPlotsRA2FinalHT500NoDeltaPhiSelectionSmeared = process.finalPlot.clone()
-process.FinalPlotsRA2FinalHT500NoDeltaPhiSelectionSmeared.selectionSequence = process.RA2FinalHT500NoDeltaPhiSelectionSmeared.selections.selectionSequence
-process.FinalPlotsRA2FinalHT500NoDeltaPhiSelectionSmeared.selection = 'RA2FinalHT500NoDeltaPhiSelectionSmeared'
-
-process.FinalPlotsRA2FinalHT500Smeared = process.finalPlot.clone()
-process.FinalPlotsRA2FinalHT500Smeared.selectionSequence = process.RA2FinalHT500Smeared.selections.selectionSequence
-process.FinalPlotsRA2FinalHT500Smeared.selection = 'RA2FinalHT500Smeared'
-
-process.FinalPlotsRA2FinalHT800Smeared = process.finalPlot.clone()
-process.FinalPlotsRA2FinalHT800Smeared.selectionSequence = process.RA2FinalHT800Smeared.selections.selectionSequence
-process.FinalPlotsRA2FinalHT800Smeared.selection = 'RA2FinalHT800Smeared'
-
-process.FinalPlotsRA2FinalHT1000Smeared = process.finalPlot.clone()
-process.FinalPlotsRA2FinalHT1000Smeared.selectionSequence = process.RA2FinalHT1000Smeared.selections.selectionSequence
-process.FinalPlotsRA2FinalHT1000Smeared.selection = 'RA2FinalHT1000Smeared'
-
-process.FinalPlotsRA2FinalHT1200Smeared = process.finalPlot.clone()
-process.FinalPlotsRA2FinalHT1200Smeared.selectionSequence = process.RA2FinalHT1200Smeared.selections.selectionSequence
-process.FinalPlotsRA2FinalHT1200Smeared.selection = 'RA2FinalHT1200Smeared'
-
-process.FinalPlotsRA2FinalHT1400Smeared = process.finalPlot.clone()
-process.FinalPlotsRA2FinalHT1400Smeared.selectionSequence = process.RA2FinalHT1400Smeared.selections.selectionSequence
-process.FinalPlotsRA2FinalHT1400Smeared.selection = 'RA2FinalHT1400Smeared'
-###############################################################################
-
-###############################################################################
-# Final plotting with Data
-###############################################################################
-process.FinalPlotsRA2PreSelectionData = process.finalPlot.clone()
-process.FinalPlotsRA2PreSelectionData.weightName = 'prescaleweightProducer:weight'
-process.FinalPlotsRA2PreSelectionData.selectionSequence = process.RA2PreSelection.selections.selectionSequence
-process.FinalPlotsRA2PreSelectionData.selection = 'RA2PreSelection'
-
-process.FinalPlotsRA2FinalHT500NoDeltaPhiSelectionData = process.finalPlot.clone()
-process.FinalPlotsRA2FinalHT500NoDeltaPhiSelectionData.weightName = 'weightProducer:weight'
-process.FinalPlotsRA2FinalHT500NoDeltaPhiSelectionData.selectionSequence = process.RA2FinalHT500NoDeltaPhiSelection.selections.selectionSequence
-process.FinalPlotsRA2FinalHT500NoDeltaPhiSelectionData.selection = 'RA2FinalHT500NoDeltaPhiSelection'
-
-process.FinalPlotsRA2FinalHT500Data = process.finalPlot.clone()
-process.FinalPlotsRA2FinalHT500Data.weightName = 'weightProducer:weight'
-process.FinalPlotsRA2FinalHT500Data.selectionSequence = process.RA2FinalHT500Selection.selections.selectionSequence
-process.FinalPlotsRA2FinalHT500Data.selection = 'RA2FinalHT500Selection'
-
-process.FinalPlotsRA2FinalHT800Data = process.finalPlot.clone()
-process.FinalPlotsRA2FinalHT800Data.weightName = 'weightProducer:weight'
-process.FinalPlotsRA2FinalHT800Data.selectionSequence = process.RA2FinalHT800Selection.selections.selectionSequence
-process.FinalPlotsRA2FinalHT800Data.selection = 'RA2FinalHT800Selection'
-
-process.FinalPlotsRA2FinalHT1000Data = process.finalPlot.clone()
-process.FinalPlotsRA2FinalHT1000Data.weightName = 'weightProducer:weight'
-process.FinalPlotsRA2FinalHT1000Data.selectionSequence = process.RA2FinalHT1000Selection.selections.selectionSequence
-process.FinalPlotsRA2FinalHT1000Data.selection = 'RA2FinalHT1000Selection'
-
-process.FinalPlotsRA2FinalHT1200Data = process.finalPlot.clone()
-process.FinalPlotsRA2FinalHT1200Data.weightName = 'weightProducer:weight'
-process.FinalPlotsRA2FinalHT1200Data.selectionSequence = process.RA2FinalHT1200Selection.selections.selectionSequence
-process.FinalPlotsRA2FinalHT1200Data.selection = 'RA2FinalHT1200Selection'
-
-process.FinalPlotsRA2FinalHT1400Data = process.finalPlot.clone()
-process.FinalPlotsRA2FinalHT1400Data.weightName = 'weightProducer:weight'
-process.FinalPlotsRA2FinalHT1400Data.selectionSequence = process.RA2FinalHT1400Selection.selections.selectionSequence
-process.FinalPlotsRA2FinalHT1400Data.selection = 'RA2FinalHT1400Selection'
-###############################################################################
-
-###############################################################################
 # Weight producer
 ###############################################################################
-process.load("RA2.WeightProducer.prescaleweightproducer_cfi")
+process.load("RA2Classic.WeightProducer.prescaleweightproducer_cfi")
 process.prescaleweightProducer.PrescaleCut = -1
 ###############################################################################
 
@@ -272,6 +140,11 @@ process.EEBadScFilter.ResultSource = cms.InputTag("eeBadScFilter")
 
 ###############################################################################
 process.load('SandBox.Skims.RA2HT_cff')
+process.load('SandBox.Skims.RA2Leptons_cff')
+###############################################################################
+
+###############################################################################
+process.dump   = cms.EDAnalyzer("EventContentAnalyzer")
 ###############################################################################
 
 ###############################################################################
@@ -283,38 +156,50 @@ process.load("HLTrigger.HLTcore.hltEventAnalyzerAOD_cfi")
 process.dump   = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.prediction = cms.Path(
-    # process.dump *
-    #   process.htPFFilter *    # to be used for standard jets
-    process.htPFchsFilter *     # to be used for chs jets
-    process.RA2_HBHENoiseFilterRA2 *
-    process.RA2_beamHaloFilter *
-    process.RA2_eeNoiseFilter *
-    process.RA2_trackingFailureFilter *
-    process.RA2_inconsistentMuons *
-    process.RA2_greedyMuons *
-    process.RA2_EcalTPFilter *
-    process.RA2_EcalBEFilter *
-    process.HcalLaserEventFilter *
-    process.EEBadScFilter *
-    process.prescaleweightProducer *
-    process.RA2WeightSelection *
-    process.RA2PreSelection *
-    process.QCDfromSmearing *
-    process.RA2PreSelectionSmeared *
-    process.FinalPlotsRA2PreSelectionSmeared *
-    process.RA2FinalHT500NoDeltaPhiSelectionSmeared *
-    process.FinalPlotsRA2FinalHT500NoDeltaPhiSelectionSmeared *
-    process.RA2FinalHT500Smeared *
-    process.FinalPlotsRA2FinalHT500Smeared *
-    process.RA2FinalHT800Smeared *
-    process.FinalPlotsRA2FinalHT800Smeared *
-    process.RA2FinalHT1000Smeared *
-    process.FinalPlotsRA2FinalHT1000Smeared *
-    process.RA2FinalHT1200Smeared *
-    process.FinalPlotsRA2FinalHT1200Smeared * 
-    process.RA2FinalHT1400Smeared *
-    process.FinalPlotsRA2FinalHT1400Smeared
-    )
+#	process.dump *
+#   process.htPFFilter *    # to be used for standard jets
+   process.htPFchsFilter *  # to be used for chs jets
+   process.RA2_HBHENoiseFilterRA2 *
+   process.RA2_beamHaloFilter *
+   process.RA2_eeNoiseFilter *
+   process.RA2_trackingFailureFilter *
+   process.RA2_inconsistentMuons *
+   process.RA2_greedyMuons *
+   process.RA2_EcalTPFilter *
+   process.RA2_EcalBEFilter *
+   process.HcalLaserEventFilter *
+   process.EEBadScFilter *
+   process.ra2PFMuonVeto *
+   process.ra2ElectronVeto *
+	process.prescaleweightProducer *
+	process.QCDfromSmearing 
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

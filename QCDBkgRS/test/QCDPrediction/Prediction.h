@@ -46,6 +46,7 @@ private:
  
    // tree with selection
    TTree* RA2PreSelection; 
+   Int_t EvtNum_RA2;
    UShort_t vtxN_RA2;
    UShort_t NJets_RA2;
    Float_t weight_RA2;
@@ -70,6 +71,7 @@ private:
    // raw prediction histograms preselection 
    TH2F* HT_presel_pred_raw;
    TH2F* MHT_presel_pred_raw;
+   TH2F* NJets_presel_pred_raw;
    TH2F* Jet1Pt_presel_pred_raw;
    TH2F* Jet2Pt_presel_pred_raw;
    TH2F* Jet3Pt_presel_pred_raw;
@@ -95,6 +97,103 @@ private:
    TH2F* NJets_baseline_pred_raw;
    TH2F* HT_baseline_pred_raw;
    TH2F* MHT_baseline_pred_raw;
+
+   // baseline jet bin 1
+   TH2F* Jet1Pt_JetBin1_baseline_pred_raw;
+   TH2F* Jet2Pt_JetBin1_baseline_pred_raw;
+   TH2F* Jet1Eta_JetBin1_baseline_pred_raw;
+   TH2F* Jet2Eta_JetBin1_baseline_pred_raw;
+   TH2F* DeltaPhi1_JetBin1_baseline_pred_raw;
+   TH2F* DeltaPhi2_JetBin1_baseline_pred_raw;
+
+   // baseline jet bin 2
+   TH2F* Jet1Pt_JetBin2_baseline_pred_raw;
+   TH2F* Jet2Pt_JetBin2_baseline_pred_raw;
+   TH2F* Jet3Pt_JetBin2_baseline_pred_raw;
+   TH2F* Jet1Eta_JetBin2_baseline_pred_raw;
+   TH2F* Jet2Eta_JetBin2_baseline_pred_raw;
+   TH2F* Jet3Eta_JetBin2_baseline_pred_raw;
+   TH2F* DeltaPhi1_JetBin2_baseline_pred_raw;
+   TH2F* DeltaPhi2_JetBin2_baseline_pred_raw;
+   TH2F* DeltaPhi3_JetBin2_baseline_pred_raw;
+
+   // baseline jet bin 3
+   TH2F* Jet1Pt_JetBin3_baseline_pred_raw;
+   TH2F* Jet2Pt_JetBin3_baseline_pred_raw;
+   TH2F* Jet3Pt_JetBin3_baseline_pred_raw;
+   TH2F* Jet1Eta_JetBin3_baseline_pred_raw;
+   TH2F* Jet2Eta_JetBin3_baseline_pred_raw;
+   TH2F* Jet3Eta_JetBin3_baseline_pred_raw;
+   TH2F* DeltaPhi1_JetBin3_baseline_pred_raw;
+   TH2F* DeltaPhi2_JetBin3_baseline_pred_raw;
+   TH2F* DeltaPhi3_JetBin3_baseline_pred_raw;
+
+   // baseline jet bin 4
+   TH2F* Jet1Pt_JetBin4_baseline_pred_raw;
+   TH2F* Jet2Pt_JetBin4_baseline_pred_raw;
+   TH2F* Jet3Pt_JetBin4_baseline_pred_raw;
+   TH2F* Jet1Eta_JetBin4_baseline_pred_raw;
+   TH2F* Jet2Eta_JetBin4_baseline_pred_raw;
+   TH2F* Jet3Eta_JetBin4_baseline_pred_raw;
+   TH2F* DeltaPhi1_JetBin4_baseline_pred_raw;
+   TH2F* DeltaPhi2_JetBin4_baseline_pred_raw;
+   TH2F* DeltaPhi3_JetBin4_baseline_pred_raw;
+
+   // baseline without deltaPhi
+   TH2F* NJets_baseline_withoutDeltaPhi_withoutMHT_pred_raw;
+   TH2F* NJets_baseline_withoutDeltaPhi_pred_raw;
+
+   // baseline jet bin 1
+   TH2F* HT_JetBin1_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* MHT_JetBin1_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet1Pt_JetBin1_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet2Pt_JetBin1_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet3Pt_JetBin1_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet1Eta_JetBin1_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet2Eta_JetBin1_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet3Eta_JetBin1_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* DeltaPhi1_JetBin1_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* DeltaPhi2_JetBin1_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* DeltaPhi3_JetBin1_baseline_withoutDeltaPhi_pred_raw;
+
+   // baseline jet bin 2
+   TH2F* HT_JetBin2_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* MHT_JetBin2_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet1Pt_JetBin2_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet2Pt_JetBin2_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet3Pt_JetBin2_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet1Eta_JetBin2_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet2Eta_JetBin2_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet3Eta_JetBin2_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* DeltaPhi1_JetBin2_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* DeltaPhi2_JetBin2_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* DeltaPhi3_JetBin2_baseline_withoutDeltaPhi_pred_raw;
+
+   // baseline jet bin 3
+   TH2F* HT_JetBin3_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* MHT_JetBin3_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet1Pt_JetBin3_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet2Pt_JetBin3_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet3Pt_JetBin3_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet1Eta_JetBin3_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet2Eta_JetBin3_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet3Eta_JetBin3_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* DeltaPhi1_JetBin3_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* DeltaPhi2_JetBin3_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* DeltaPhi3_JetBin3_baseline_withoutDeltaPhi_pred_raw;
+
+   // baseline jet bin 4
+   TH2F* HT_JetBin4_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* MHT_JetBin4_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet1Pt_JetBin4_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet2Pt_JetBin4_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet3Pt_JetBin4_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet1Eta_JetBin4_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet2Eta_JetBin4_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* Jet3Eta_JetBin4_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* DeltaPhi1_JetBin4_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_pred_raw;
+   TH2F* DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_pred_raw;
 
    // raw prediction histograms 2 jets, HT 500-900 
    TH2F* MHT_JetBin1_HTlow_pred_raw;
@@ -139,6 +238,7 @@ private:
    // prediction histograms preselection
    TH1F* HT_presel_pred;
    TH1F* MHT_presel_pred;
+   TH1F* NJets_presel_pred;
    TH1F* Jet1Pt_presel_pred;
    TH1F* Jet2Pt_presel_pred;
    TH1F* Jet3Pt_presel_pred;
@@ -164,6 +264,106 @@ private:
    TH1F* NJets_baseline_pred;
    TH1F* HT_baseline_pred;
    TH1F* MHT_baseline_pred;
+
+   // prediction baseline jet bin 1
+   TH1F* Jet1Pt_JetBin1_baseline_pred;
+   TH1F* Jet2Pt_JetBin1_baseline_pred;
+   TH1F* Jet3Pt_JetBin1_baseline_pred;
+   TH1F* Jet1Eta_JetBin1_baseline_pred;
+   TH1F* Jet2Eta_JetBin1_baseline_pred;
+   TH1F* Jet3Eta_JetBin1_baseline_pred;
+   TH1F* DeltaPhi1_JetBin1_baseline_pred;
+   TH1F* DeltaPhi2_JetBin1_baseline_pred;
+   TH1F* DeltaPhi3_JetBin1_baseline_pred;
+
+   // prediction baseline jet bin 2
+   TH1F* Jet1Pt_JetBin2_baseline_pred;
+   TH1F* Jet2Pt_JetBin2_baseline_pred;
+   TH1F* Jet3Pt_JetBin2_baseline_pred;
+   TH1F* Jet1Eta_JetBin2_baseline_pred;
+   TH1F* Jet2Eta_JetBin2_baseline_pred;
+   TH1F* Jet3Eta_JetBin2_baseline_pred;
+   TH1F* DeltaPhi1_JetBin2_baseline_pred;
+   TH1F* DeltaPhi2_JetBin2_baseline_pred;
+   TH1F* DeltaPhi3_JetBin2_baseline_pred;
+
+   // prediction baseline jet bin 3
+   TH1F* Jet1Pt_JetBin3_baseline_pred;
+   TH1F* Jet2Pt_JetBin3_baseline_pred;
+   TH1F* Jet3Pt_JetBin3_baseline_pred;
+   TH1F* Jet1Eta_JetBin3_baseline_pred;
+   TH1F* Jet2Eta_JetBin3_baseline_pred;
+   TH1F* Jet3Eta_JetBin3_baseline_pred;
+   TH1F* DeltaPhi1_JetBin3_baseline_pred;
+   TH1F* DeltaPhi2_JetBin3_baseline_pred;
+   TH1F* DeltaPhi3_JetBin3_baseline_pred;
+
+   // prediction baseline jet bin 4
+   TH1F* Jet1Pt_JetBin4_baseline_pred;
+   TH1F* Jet2Pt_JetBin4_baseline_pred;
+   TH1F* Jet3Pt_JetBin4_baseline_pred;
+   TH1F* Jet1Eta_JetBin4_baseline_pred;
+   TH1F* Jet2Eta_JetBin4_baseline_pred;
+   TH1F* Jet3Eta_JetBin4_baseline_pred;
+   TH1F* DeltaPhi1_JetBin4_baseline_pred;
+   TH1F* DeltaPhi2_JetBin4_baseline_pred;
+   TH1F* DeltaPhi3_JetBin4_baseline_pred;
+
+   // prediction histograms baseline without deltaPhi
+   TH1F* NJets_baseline_withoutDeltaPhi_withoutMHT_pred;
+   TH1F* NJets_baseline_withoutDeltaPhi_pred;
+
+   // baseline jet bin 1
+   TH1F* HT_JetBin1_baseline_withoutDeltaPhi_pred;
+   TH1F* MHT_JetBin1_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet1Pt_JetBin1_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet2Pt_JetBin1_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet3Pt_JetBin1_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet1Eta_JetBin1_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet2Eta_JetBin1_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet3Eta_JetBin1_baseline_withoutDeltaPhi_pred;
+   TH1F* DeltaPhi1_JetBin1_baseline_withoutDeltaPhi_pred;
+   TH1F* DeltaPhi2_JetBin1_baseline_withoutDeltaPhi_pred;
+   TH1F* DeltaPhi3_JetBin1_baseline_withoutDeltaPhi_pred;
+
+   // baseline jet bin 2
+   TH1F* HT_JetBin2_baseline_withoutDeltaPhi_pred;
+   TH1F* MHT_JetBin2_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet1Pt_JetBin2_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet2Pt_JetBin2_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet3Pt_JetBin2_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet1Eta_JetBin2_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet2Eta_JetBin2_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet3Eta_JetBin2_baseline_withoutDeltaPhi_pred;
+   TH1F* DeltaPhi1_JetBin2_baseline_withoutDeltaPhi_pred;
+   TH1F* DeltaPhi2_JetBin2_baseline_withoutDeltaPhi_pred;
+   TH1F* DeltaPhi3_JetBin2_baseline_withoutDeltaPhi_pred;
+
+   // baseline jet bin 3
+   TH1F* HT_JetBin3_baseline_withoutDeltaPhi_pred;
+   TH1F* MHT_JetBin3_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet1Pt_JetBin3_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet2Pt_JetBin3_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet3Pt_JetBin3_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet1Eta_JetBin3_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet2Eta_JetBin3_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet3Eta_JetBin3_baseline_withoutDeltaPhi_pred;
+   TH1F* DeltaPhi1_JetBin3_baseline_withoutDeltaPhi_pred;
+   TH1F* DeltaPhi2_JetBin3_baseline_withoutDeltaPhi_pred;
+   TH1F* DeltaPhi3_JetBin3_baseline_withoutDeltaPhi_pred;
+
+   // baseline jet bin 4
+   TH1F* HT_JetBin4_baseline_withoutDeltaPhi_pred;
+   TH1F* MHT_JetBin4_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet1Pt_JetBin4_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet2Pt_JetBin4_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet3Pt_JetBin4_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet1Eta_JetBin4_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet2Eta_JetBin4_baseline_withoutDeltaPhi_pred;
+   TH1F* Jet3Eta_JetBin4_baseline_withoutDeltaPhi_pred;
+   TH1F* DeltaPhi1_JetBin4_baseline_withoutDeltaPhi_pred;
+   TH1F* DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_pred;
+   TH1F* DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_pred;
 
    //  prediction histograms 2-3 jets, HT 500-900 
    TH1F* MHT_JetBin1_HTlow_pred;
@@ -208,6 +408,7 @@ private:
    // selection histograms preselection
    TH1F* HT_presel_sel;
    TH1F* MHT_presel_sel;
+   TH1F* NJets_presel_sel;
    TH1F* Jet1Pt_presel_sel;
    TH1F* Jet2Pt_presel_sel;
    TH1F* Jet3Pt_presel_sel;
@@ -233,6 +434,107 @@ private:
    TH1F* NJets_baseline_sel;
    TH1F* HT_baseline_sel;
    TH1F* MHT_baseline_sel;
+
+   // selection baseline jet bin 1
+   TH1F* Jet1Pt_JetBin1_baseline_sel;
+   TH1F* Jet2Pt_JetBin1_baseline_sel;
+   TH1F* Jet3Pt_JetBin1_baseline_sel;
+   TH1F* Jet1Eta_JetBin1_baseline_sel;
+   TH1F* Jet2Eta_JetBin1_baseline_sel;
+   TH1F* Jet3Eta_JetBin1_baseline_sel;
+   TH1F* DeltaPhi1_JetBin1_baseline_sel;
+   TH1F* DeltaPhi2_JetBin1_baseline_sel;
+   TH1F* DeltaPhi3_JetBin1_baseline_sel;
+
+   // selection baseline jet bin 2
+   TH1F* Jet1Pt_JetBin2_baseline_sel;
+   TH1F* Jet2Pt_JetBin2_baseline_sel;
+   TH1F* Jet3Pt_JetBin2_baseline_sel;
+   TH1F* Jet1Eta_JetBin2_baseline_sel;
+   TH1F* Jet2Eta_JetBin2_baseline_sel;
+   TH1F* Jet3Eta_JetBin2_baseline_sel;
+   TH1F* DeltaPhi1_JetBin2_baseline_sel;
+   TH1F* DeltaPhi2_JetBin2_baseline_sel;
+   TH1F* DeltaPhi3_JetBin2_baseline_sel;
+
+   // selection baseline jet bin 3
+   TH1F* Jet1Pt_JetBin3_baseline_sel;
+   TH1F* Jet2Pt_JetBin3_baseline_sel;
+   TH1F* Jet3Pt_JetBin3_baseline_sel;
+   TH1F* Jet1Eta_JetBin3_baseline_sel;
+   TH1F* Jet2Eta_JetBin3_baseline_sel;
+   TH1F* Jet3Eta_JetBin3_baseline_sel;
+   TH1F* DeltaPhi1_JetBin3_baseline_sel;
+   TH1F* DeltaPhi2_JetBin3_baseline_sel;
+   TH1F* DeltaPhi3_JetBin3_baseline_sel;
+
+   // selection baseline jet bin 4
+   TH1F* Jet1Pt_JetBin4_baseline_sel;
+   TH1F* Jet2Pt_JetBin4_baseline_sel;
+   TH1F* Jet3Pt_JetBin4_baseline_sel;
+   TH1F* Jet1Eta_JetBin4_baseline_sel;
+   TH1F* Jet2Eta_JetBin4_baseline_sel;
+   TH1F* Jet3Eta_JetBin4_baseline_sel;
+   TH1F* DeltaPhi1_JetBin4_baseline_sel;
+   TH1F* DeltaPhi2_JetBin4_baseline_sel;
+   TH1F* DeltaPhi3_JetBin4_baseline_sel;
+
+   // selection histograms baseline without deltaPhi
+   TH1F* NJets_baseline_withoutDeltaPhi_withoutMHT_sel;
+   TH1F* NJets_baseline_withoutDeltaPhi_sel;
+
+   // baseline jet bin 1
+   TH1F* HT_JetBin1_baseline_withoutDeltaPhi_sel;
+   TH1F* MHT_JetBin1_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet1Pt_JetBin1_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet2Pt_JetBin1_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet3Pt_JetBin1_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet1Eta_JetBin1_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet2Eta_JetBin1_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet3Eta_JetBin1_baseline_withoutDeltaPhi_sel;
+   TH1F* DeltaPhi1_JetBin1_baseline_withoutDeltaPhi_sel;
+   TH1F* DeltaPhi2_JetBin1_baseline_withoutDeltaPhi_sel;
+   TH1F* DeltaPhi3_JetBin1_baseline_withoutDeltaPhi_sel;
+
+   // baseline jet bin 2
+   TH1F* HT_JetBin2_baseline_withoutDeltaPhi_sel;
+   TH1F* MHT_JetBin2_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet1Pt_JetBin2_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet2Pt_JetBin2_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet3Pt_JetBin2_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet1Eta_JetBin2_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet2Eta_JetBin2_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet3Eta_JetBin2_baseline_withoutDeltaPhi_sel;
+   TH1F* DeltaPhi1_JetBin2_baseline_withoutDeltaPhi_sel;
+   TH1F* DeltaPhi2_JetBin2_baseline_withoutDeltaPhi_sel;
+   TH1F* DeltaPhi3_JetBin2_baseline_withoutDeltaPhi_sel;
+
+   // baseline jet bin 3
+   TH1F* HT_JetBin3_baseline_withoutDeltaPhi_sel;
+   TH1F* MHT_JetBin3_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet1Pt_JetBin3_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet2Pt_JetBin3_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet3Pt_JetBin3_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet1Eta_JetBin3_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet2Eta_JetBin3_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet3Eta_JetBin3_baseline_withoutDeltaPhi_sel;
+   TH1F* DeltaPhi1_JetBin3_baseline_withoutDeltaPhi_sel;
+   TH1F* DeltaPhi2_JetBin3_baseline_withoutDeltaPhi_sel;
+   TH1F* DeltaPhi3_JetBin3_baseline_withoutDeltaPhi_sel;
+
+   // baseline jet bin 4
+   TH1F* HT_JetBin4_baseline_withoutDeltaPhi_sel;
+   TH1F* MHT_JetBin4_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet1Pt_JetBin4_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet2Pt_JetBin4_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet3Pt_JetBin4_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet1Eta_JetBin4_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet2Eta_JetBin4_baseline_withoutDeltaPhi_sel;
+   TH1F* Jet3Eta_JetBin4_baseline_withoutDeltaPhi_sel;
+   TH1F* DeltaPhi1_JetBin4_baseline_withoutDeltaPhi_sel;
+   TH1F* DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_sel;
+   TH1F* DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_sel;
+  
 
    //  selection histograms 2-3 jets, HT 500-900 
    TH1F* MHT_JetBin1_HTlow_sel;

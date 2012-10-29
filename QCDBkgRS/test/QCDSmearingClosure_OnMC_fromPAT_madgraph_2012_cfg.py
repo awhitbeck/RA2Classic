@@ -26,7 +26,7 @@ process.source = cms.Source("PoolSource",
     '/store/user/kheine/QCD_HT-500To1000_TuneZ2star_8TeV-madgraph-pythia6/RA2PreSelectionOnMC_HT-500To1000_Summer12-PU_S7_START52_V9-v1_v1/956a76b9479f1eb39208c1bee6fa7dc2/RA2SkimsOnMC_508_5_JH3.root',
  	)
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 1000 ) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 20000 ) )
 ###############################################################################
 ## Global tags and geometry
 # default configuration with frontier conditions
@@ -49,8 +49,8 @@ process.load("RA2Classic.QCDBkgRS.qcdbkgrs_cfi")
 #process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCResolutions_Summer12_QCD_HT_250To500_TuneZ2Star_madgraph_pythia6_v1.root'
 #process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCResolutions_Summer12_QCD_HT_500To1000_TuneZ2Star_madgraph_pythia6_v1.root'
 #process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCResolutions_Summer12_QCD_HT_1000ToInf_TuneZ2Star_madgraph_pythia6_v1.root'
-#process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCResolutions_Summer12_QCD_HT_250ToInf_TuneZ2Star_madgraph_pythia6_v1.root'
-process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withCHS_withPUReweighting_pixelcorr.root'
+process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCResolutions_Summer12_QCD_HT_100ToInf_TuneZ2Star_madgraph_pythia6_v1.root'
+#process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withCHS_withPUReweighting_pixelcorr.root'
 process.QCDfromSmearing.BProbabilityFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/BJetProbabilityMC_madgraph.root'
 process.QCDfromSmearing.jetCollection = 'patJetsPF' 
 #process.QCDfromSmearing.jetCollection = 'patJetsAK5PF'
@@ -61,18 +61,18 @@ process.QCDfromSmearing.uncertaintyName = ''
 #process.QCDfromSmearing.InputHisto1_NoHF = 'h_nob_Jet1_ResponsePt'
 #process.QCDfromSmearing.InputHisto2_NoHF = 'h_nob_Jet2_ResponsePt'
 #process.QCDfromSmearing.InputHisto3p_NoHF = 'h_nob_Jet3p_ResponsePt'
-#process.QCDfromSmearing.InputHisto1_HF = 'h_tot_JetAll_ResponsePt'
-#process.QCDfromSmearing.InputHisto2_HF = 'h_tot_JetAll_ResponsePt'
-#process.QCDfromSmearing.InputHisto3p_HF = 'h_tot_JetAll_ResponsePt'
-#process.QCDfromSmearing.InputHisto1_NoHF = 'h_tot_JetAll_ResponsePt'
-#process.QCDfromSmearing.InputHisto2_NoHF = 'h_tot_JetAll_ResponsePt'
-#process.QCDfromSmearing.InputHisto3p_NoHF = 'h_tot_JetAll_ResponsePt'
-process.QCDfromSmearing.InputHisto1_HF = 'h_b_JetAll_ResponsePt'
-process.QCDfromSmearing.InputHisto2_HF = 'h_b_JetAll_ResponsePt'
-process.QCDfromSmearing.InputHisto3p_HF = 'h_b_JetAll_ResponsePt'
-process.QCDfromSmearing.InputHisto1_NoHF = 'h_nob_JetAll_ResponsePt'
-process.QCDfromSmearing.InputHisto2_NoHF = 'h_nob_JetAll_ResponsePt'
-process.QCDfromSmearing.InputHisto3p_NoHF = 'h_nob_JetAll_ResponsePt'
+process.QCDfromSmearing.InputHisto1_HF = 'h_tot_JetAll_ResponsePt'
+process.QCDfromSmearing.InputHisto2_HF = 'h_tot_JetAll_ResponsePt'
+process.QCDfromSmearing.InputHisto3p_HF = 'h_tot_JetAll_ResponsePt'
+process.QCDfromSmearing.InputHisto1_NoHF = 'h_tot_JetAll_ResponsePt'
+process.QCDfromSmearing.InputHisto2_NoHF = 'h_tot_JetAll_ResponsePt'
+process.QCDfromSmearing.InputHisto3p_NoHF = 'h_tot_JetAll_ResponsePt'
+#process.QCDfromSmearing.InputHisto1_HF = 'h_b_JetAll_ResponsePt'
+#process.QCDfromSmearing.InputHisto2_HF = 'h_b_JetAll_ResponsePt'
+#process.QCDfromSmearing.InputHisto3p_HF = 'h_b_JetAll_ResponsePt'
+#process.QCDfromSmearing.InputHisto1_NoHF = 'h_nob_JetAll_ResponsePt'
+#process.QCDfromSmearing.InputHisto2_NoHF = 'h_nob_JetAll_ResponsePt'
+#process.QCDfromSmearing.InputHisto3p_NoHF = 'h_nob_JetAll_ResponsePt'
 process.QCDfromSmearing.NRebin = 1
 process.QCDfromSmearing.NJets = 2
 process.QCDfromSmearing.SmearCollection = 'Reco'
@@ -87,6 +87,7 @@ process.QCDfromSmearing.RebalanceMode = 'MHThigh'
 process.QCDfromSmearing.weightName = 'weightProducer:weight'
 process.QCDfromSmearing.ControlPlots = True
 process.QCDfromSmearing.Ntries = 100
+process.QCDfromSmearing.cleverPrescaleTreating = False
 process.QCDfromSmearing.MHTcut_low = cms.double(200.)
 process.QCDfromSmearing.MHTcut_medium = cms.double(350.)
 process.QCDfromSmearing.MHTcut_high = cms.double(500.)
@@ -113,8 +114,8 @@ process.weightProducer.Lumi             = 1000
 process.weightProducer.NumberEvts      = 13879218 #1000ToInf
 process.weightProducer.XS               = 204.0
 
-#process.weightProducer.FileNamePUDataDistribution = 'NONE'
-process.weightProducer.FileNamePUDataDistribution = 'RA2Classic/AdditionalInputFiles/data/DataPileupHistogram_RA2Summer12_190456-196531_8TeV_PromptReco_WOLowPU_pixelcorr.root'
+process.weightProducer.FileNamePUDataDistribution = 'NONE'
+#process.weightProducer.FileNamePUDataDistribution = 'RA2Classic/AdditionalInputFiles/data/DataPileupHistogram_RA2Summer12_190456-196531_8TeV_PromptReco_WOLowPU_pixelcorr.root'
 process.weightProducer.PU = 2 # 0==Flat10, 1==Fall11, 2==Summer12                        
 ###############################################################################
 
@@ -152,7 +153,8 @@ process.load('SandBox.Skims.RA2Leptons_cff')
 from RA2Classic.TreeMaker.treemaker_cfi import TreeMaker
 process.RA2TreeMaker = TreeMaker.clone(
     TreeName         = cms.string("RA2PreSelection"),
-    Weight           = cms.InputTag('weightProducer:weight'),
+    VarsDouble       = cms.VInputTag(cms.InputTag('weightProducer:weight')),
+    VarsDoubleNamesInTree = cms.vstring('Weight'),
     VertexCollection = cms.InputTag('goodVertices'),
  #   HT               = cms.InputTag('htPF'),
     HT               = cms.InputTag('htPFchs'),

@@ -46,8 +46,9 @@ process.load("RA2Classic.QCDBkgRS.qcdbkgrs_cfi")
 ###############################################################################
 # Rebalancing and Smearing configuration
 ###############################################################################
-process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withCHS_withPUReweighting_pixelcorr.root'
+#process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withCHS_withPUReweighting_pixelcorr.root'
 #process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withoutCHS_withoutPUReweighting.root'
+process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withCHS_withoutPUReweighting_fineLowPtBins.root'
 process.QCDfromSmearing.BProbabilityFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/BJetProbabilityMC.root'
 process.QCDfromSmearing.jetCollection = 'patJetsPF' 
 #process.QCDfromSmearing.jetCollection = 'patJetsAK5PF'
@@ -58,18 +59,18 @@ process.QCDfromSmearing.uncertaintyName = ''
 #process.QCDfromSmearing.InputHisto1_NoHF = 'h_nob_Jet1_ResponsePt'
 #process.QCDfromSmearing.InputHisto2_NoHF = 'h_nob_Jet2_ResponsePt'
 #process.QCDfromSmearing.InputHisto3p_NoHF = 'h_nob_Jet3p_ResponsePt'
-#process.QCDfromSmearing.InputHisto1_HF = 'h_tot_JetAll_ResponsePt'
-#process.QCDfromSmearing.InputHisto2_HF = 'h_tot_JetAll_ResponsePt'
-#process.QCDfromSmearing.InputHisto3p_HF = 'h_tot_JetAll_ResponsePt'
-#process.QCDfromSmearing.InputHisto1_NoHF = 'h_tot_JetAll_ResponsePt'
-#process.QCDfromSmearing.InputHisto2_NoHF = 'h_tot_JetAll_ResponsePt'
-#process.QCDfromSmearing.InputHisto3p_NoHF = 'h_tot_JetAll_ResponsePt'
-process.QCDfromSmearing.InputHisto1_HF = 'h_b_JetAll_ResponsePt'
-process.QCDfromSmearing.InputHisto2_HF = 'h_b_JetAll_ResponsePt'
-process.QCDfromSmearing.InputHisto3p_HF = 'h_b_JetAll_ResponsePt'
-process.QCDfromSmearing.InputHisto1_NoHF = 'h_nob_JetAll_ResponsePt'
-process.QCDfromSmearing.InputHisto2_NoHF = 'h_nob_JetAll_ResponsePt'
-process.QCDfromSmearing.InputHisto3p_NoHF = 'h_nob_JetAll_ResponsePt'
+process.QCDfromSmearing.InputHisto1_HF = 'h_tot_JetAll_ResponsePt'
+process.QCDfromSmearing.InputHisto2_HF = 'h_tot_JetAll_ResponsePt'
+process.QCDfromSmearing.InputHisto3p_HF = 'h_tot_JetAll_ResponsePt'
+process.QCDfromSmearing.InputHisto1_NoHF = 'h_tot_JetAll_ResponsePt'
+process.QCDfromSmearing.InputHisto2_NoHF = 'h_tot_JetAll_ResponsePt'
+process.QCDfromSmearing.InputHisto3p_NoHF = 'h_tot_JetAll_ResponsePt'
+#process.QCDfromSmearing.InputHisto1_HF = 'h_b_JetAll_ResponsePt'
+#process.QCDfromSmearing.InputHisto2_HF = 'h_b_JetAll_ResponsePt'
+#process.QCDfromSmearing.InputHisto3p_HF = 'h_b_JetAll_ResponsePt'
+#process.QCDfromSmearing.InputHisto1_NoHF = 'h_nob_JetAll_ResponsePt'
+#process.QCDfromSmearing.InputHisto2_NoHF = 'h_nob_JetAll_ResponsePt'
+#process.QCDfromSmearing.InputHisto3p_NoHF = 'h_nob_JetAll_ResponsePt'
 process.QCDfromSmearing.NRebin = 1
 process.QCDfromSmearing.NJets = 2
 process.QCDfromSmearing.SmearCollection = 'Reco'
@@ -84,6 +85,7 @@ process.QCDfromSmearing.RebalanceMode = 'MHThigh'
 process.QCDfromSmearing.weightName = 'weightProducer:weight'
 process.QCDfromSmearing.ControlPlots = True
 process.QCDfromSmearing.Ntries = 100
+process.QCDfromSmearing.cleverPrescaleTreating = False
 process.QCDfromSmearing.MHTcut_low = cms.double(200.)
 process.QCDfromSmearing.MHTcut_medium = cms.double(350.)
 process.QCDfromSmearing.MHTcut_high = cms.double(500.)
@@ -109,8 +111,8 @@ process.weightProducer.weight			= -1.0
 #process.weightProducer.Method		= 'BinnedPythia'
 #process.weightProducer.Lumi			= 1000
 
-#process.weightProducer.FileNamePUDataDistribution = 'NONE'
-process.weightProducer.FileNamePUDataDistribution = 'RA2Classic/AdditionalInputFiles/data/DataPileupHistogram_RA2Summer12_190456-196531_8TeV_PromptReco_WOLowPU_pixelcorr.root'
+process.weightProducer.FileNamePUDataDistribution = 'NONE'
+#process.weightProducer.FileNamePUDataDistribution = 'RA2Classic/AdditionalInputFiles/data/DataPileupHistogram_RA2Summer12_190456-196531_8TeV_PromptReco_WOLowPU_pixelcorr.root'
 process.weightProducer.PU = 2 # 0==Flat10, 1==Fall11, 2==Summer12                        
 ###############################################################################
 
@@ -148,7 +150,8 @@ process.load('SandBox.Skims.RA2Leptons_cff')
 from RA2Classic.TreeMaker.treemaker_cfi import TreeMaker
 process.RA2TreeMaker = TreeMaker.clone(
     TreeName         = cms.string("RA2PreSelection"),
-    Weight           = cms.InputTag('weightProducer:weight'),
+    VarsDouble       = cms.VInputTag(cms.InputTag('weightProducer:weight')),
+    VarsDoubleNamesInTree = cms.vstring('Weight'),
     VertexCollection = cms.InputTag('goodVertices'),
  #   HT               = cms.InputTag('htPF'),
     HT               = cms.InputTag('htPFchs'),
