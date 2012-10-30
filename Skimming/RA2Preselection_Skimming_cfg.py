@@ -1,4 +1,4 @@
-#  $Id: RA2Preselection_Skimming_cfg.py,v 1.1 2012/10/04 14:42:08 mschrode Exp $
+#  $Id: RA2Preselection_Skimming_cfg.py,v 1.2 2012/10/08 13:27:30 mschrode Exp $
 #
 # --- Configuration file for RA2 skims from AOD ---------------------------------
 #
@@ -43,4 +43,4 @@ print "******************************************************************"
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 from RA2Classic.Skimming.Preselection_cff import runRA2Preselection
 
-runRA2Preselection(process,globalTag=global_tag+"::All",isData=is_data,reportEveryEvt=5000,testFileName="/store/data/Run2012A/HT/AOD/13Jul2012-v1/00000/26B0D540-D0D2-E111-847D-00248C55CC9D.root")
+runRA2Preselection(process,globalTag=global_tag+"::All",isData=is_data,reportEveryEvt=5000,testFileName="/store/mc/Summer12_DR53X/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S10_START53_V7A-v2/0004/FE9FA8F7-2BF3-E111-A34E-001E672CC1E7.root")

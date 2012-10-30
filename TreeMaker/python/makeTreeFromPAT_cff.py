@@ -1,4 +1,4 @@
-# $Id: makeTreeFromPAT_cff.py,v 1.8 2012/09/19 14:44:08 mschrode Exp $
+# $Id: makeTreeFromPAT_cff.py,v 1.9 2012/09/28 09:47:47 mschrode Exp $
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -105,25 +105,28 @@ def makeTreeFromPAT(process,
         MinJetPt      = cms.double(30.0),
         taggingMode   = cms.bool(True)
         )
+    from RecoMET.METFilters.eeNoiseFilter_cfi import eeNoiseFilter
+    process.EENoiseFilter = eeNoiseFilter.clone(
+        taggingMode = cms.bool(True)
+        )
+    
     process.AdditionalFiltersInTagMode = cms.Sequence(
+        process.EENoiseFilter *
         process.PBNRFilter
         )
 
 
+
     ## --- Setup WeightProducer -------------------------------------------
     from RA2Classic.WeightProducer.getWeightProducer_cff import getWeightProducer
-    process.WeightProducer = getWeightProducer(process.source.fileNames[0])
-
-
-    for i in process.source.fileNames:
-        print "++++ process.source.fileNames: "+i
+    process.WeightProducer = getWeightProducer(testFileName)
         
 
     ## --- Setup of TreeMaker ----------------------------------------------
     FilterNames = cms.VInputTag()  # Append all filters in AdditionalFiltersInTagMode
     for f in process.AdditionalFiltersInTagMode.moduleNames():
         FilterNames.append(cms.InputTag(f))
-
+        
     from RA2Classic.TreeMaker.treemaker_cfi import TreeMaker
     process.RA2TreeMaker = TreeMaker.clone(
         TreeName          = cms.string("RA2PreSelection"),
@@ -134,9 +137,7 @@ def makeTreeFromPAT(process,
         MHTJets           = cms.InputTag('MHTJets'),
         VarsDouble        = cms.VInputTag(cms.InputTag('WeightProducer:weight')),
         VarsDoubleNamesInTree = cms.vstring('Weight'),
-        CandidateCollections  = cms.VInputTag('MHTJets','patMuonsPFIDIso','patElectronsIDIso'),
-        CandidateNamesInTree  = cms.vstring('Jets','PATMuonsPFIDIso','PATElectronsIDIso'),
-        Filters           = cms.VInputTag() #FilterNames
+        Filters           = FilterNames
         )
 
 
@@ -151,7 +152,7 @@ def makeTreeFromPAT(process,
         process.NumJetSelection *
         process.HTSelection *
         process.MHTSelection *
-#        process.AdditionalFiltersInTagMode *
+        process.AdditionalFiltersInTagMode *
         process.WeightProducer *
 #        process.dump *
         process.RA2TreeMaker

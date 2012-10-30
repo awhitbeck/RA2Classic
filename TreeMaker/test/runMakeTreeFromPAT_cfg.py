@@ -1,9 +1,26 @@
-# $Id: runMakeTreeFromPAT_cfg.py,v 1.2 2012/09/14 13:10:37 mschrode Exp $
+# $Id: runMakeTreeFromPAT_cfg.py,v 1.3 2012/09/19 14:01:37 mschrode Exp $
 #
 # Expects a file name as argument e.g.
-# cmsRun runMakeTreeFromPAT_cfg.py /store/user/kheine/ZJetsToNuNu_200_HT_400_TuneZ2Star_8TeV_madgraph/RA2PreSelectionOnMC_200_HT_400_Summer12-PU_S7_START52_V9-v3_v1//956a76b9479f1eb39208c1bee6fa7dc2/RA2SkimsOnMC_125_3_W97.root
+# cmsRun runMakeTreeFromPAT_cfg.py dataset=/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V2//528d417548fa47de754292e17c1b0d17/RA2Skim_105_1_Tzb.root
 
-import sys
+import sys,os
+
+dataSetName = ""
+if hasattr(sys,"argv"):
+    for arg in sys.argv :
+        pairs = arg.split(',')
+        for pair in pairs:
+            vals = pair.split('=')
+            if len(vals) == 2 :
+                if vals[0] == "dataset":
+                    dataSetName = vals[1]
+
+print "***** SETUP ************************************"
+print "  dataSetName : "+dataSetName
+print "************************************************"
+
+# The process needs to be defined AFTER reading sys.argv,
+# otherwise edmConfigHash fails
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("RA2EventSelection")
 
@@ -15,5 +32,5 @@ makeTreeFromPAT(process,
                 HTMin=500.,
                 MHTMin=200.,
                 reportEveryEvt=5000,
-                testFileName=sys.argv[2],
+                testFileName=dataSetName,
                 numProcessedEvt=100)

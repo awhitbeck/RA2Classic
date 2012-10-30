@@ -1,4 +1,4 @@
-# $Id: Preselection_cff.py,v 1.2 2012/10/04 14:42:08 mschrode Exp $
+# $Id: Preselection_cff.py,v 1.3 2012/10/08 13:25:56 mschrode Exp $
 #
 # Process setup for RA2 skims
 
@@ -24,7 +24,7 @@ def runRA2Preselection(process,
 
     #-- Meta data to be logged in DBS ---------------------------------------------
     process.configurationMetadata = cms.untracked.PSet(
-        version = cms.untracked.string('$Revision: 1.2 $'),
+        version = cms.untracked.string('$Revision: 1.3 $'),
         name = cms.untracked.string('$Source: /local/reps/CMSSW/UserCode/kheine/RA2Classic/Skimming/python/Preselection_cff.py,v $'),
         annotation = cms.untracked.string('SUSY pattuple definition')
         )
@@ -153,7 +153,8 @@ def runRA2Preselection(process,
     process.hcalLaserEventFilter.taggingMode  = True
     process.eeBadScFilter.taggingMode         = True
     process.ra2PBNR.taggingMode               = True
-
+    process.ecalLaserCorrFilter.taggingMode   = True
+    
     process.load("SandBox.Skims.provInfoMuons_cfi")
     process.load("SandBox.Skims.provInfoElectrons_cfi")
 

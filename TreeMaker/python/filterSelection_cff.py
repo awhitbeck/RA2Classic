@@ -1,4 +1,4 @@
-# $Id: $
+# $Id: filterSelection_cff.py,v 1.1 2012/08/02 14:37:00 mschrode Exp $
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -31,19 +31,26 @@ ecalBEFilter = booleanFilter.clone(
 hcalLaserFilter = booleanFilter.clone(
     ResultSource = cms.InputTag("hcalLaserEventFilter")
     )
+ecalLaserFilter = booleanFilter.clone(
+    ResultSource= cms.InputTag("ecalLaserCorrFilter")
+    )
 eeBadScFilter = booleanFilter.clone(
     ResultSource = cms.InputTag("eeBadScFilter")
+    )
+pbnrFilter = booleanFilter.clone(
+    ResultSource = cms.InputTag("ra2PBNR")
     )
 
 filterSelection = cms.Sequence(
     HBHENoiseFilter *
     beamHaloFilter *
-    eeNoiseFilter *
+    #eeNoiseFilter *
     trackingFailureFilter *
     inconsistentMuonFilter *
     greedyMuonFilter *
     ecalTPFilter *
     ecalBEFilter *
     hcalLaserFilter *
+    #ecalLaserFilter *
     eeBadScFilter
     )
