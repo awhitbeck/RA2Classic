@@ -167,6 +167,8 @@ def makeTreeFromPAT(process,
 	MuonIDISOTag = cms.InputTag("patMuonsPFIDIso"),
         ElecIDTag = cms.InputTag("selectedPatElectronsPF"), 
 	ElecIDISOTag = cms.InputTag("selectedPatElectronsPF"),
+	HTTag	   = cms.InputTag(htInputCol),
+ 	MHTTag	   = cms.InputTag(mhtInputCol),
  #	CaloJetTag = cms.InputTag("ak5CaloJetsL2L3")
     )
 
@@ -194,7 +196,7 @@ def makeTreeFromPAT(process,
 #	process.patElectronsID *
 	process.RA2Selector *
 #	process.ak5CaloJetsL2L3 *
-	process.LostLeptonBkgMCEffCalculator *
-	process.RA2TreeMaker 
+	process.LostLeptonBkgMCEffCalculator 
+#	process.RA2TreeMaker 
 
         )

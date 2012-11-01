@@ -58,6 +58,8 @@ MCEffCalculator::MCEffCalculator(const edm::ParameterSet& iConfig)
    MhtJetsTag_ = iConfig.getParameter<edm::InputTag>("MhtJetsTag");
    HTTag_ = iConfig.getParameter<edm::InputTag>("HTTag");
    MHTTag_ = iConfig.getParameter<edm::InputTag>("MHTTag");
+   NVTag_ = iConfig.getParameter<edm::InputTag>("VertexCollection");
+
 }
 
 
@@ -80,6 +82,7 @@ MCEffCalculator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 {
    // resets all the values
    ResetValues();
+
    using namespace edm;
    edm::Handle < reco::GenParticleCollection > genParticles;
    iEvent.getByLabel(genTag_, genParticles);
@@ -107,7 +110,8 @@ MCEffCalculator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 // addiontial input for plotting
   edm::Handle< edm::View<reco::Candidate> > htJets;
   iEvent.getByLabel(HtJetsTag_,htJets);
-  htJets->size();
+
+  nJets_ = htJets->size();
 
   edm::Handle< edm::View<reco::Candidate> > mhtJets;
   iEvent.getByLabel(MhtJetsTag_,mhtJets);
@@ -123,6 +127,13 @@ MCEffCalculator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   iEvent.getByLabel(MHTTag_,mht);
 
     mht_ = mht->at(0).pt();
+
+  edm::Handle<reco::VertexCollection> vertices;
+  iEvent.getByLabel(NVTag_,vertices);
+  if( vertices.isValid() ) 
+  {
+    	nV_ = vertices->size();
+  }
 
   
 
@@ -160,35 +171,6 @@ MCEffCalculator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 		}
 	
 	}
-
-
-
-
-/*
-	if(abs(cand->pdgId()) == 13 && cand->status() ==3)
-	{
-		muonPt_  = cand->pt();
-		muonEta_ = cand->eta();
-		muonPhi_ = cand->phi();
-		// true if the muon is out of the detector acceptance
-		if( muonPt_ < minMuonPt_ || muonEta_> maxMuonEta_) 
-		{
-			std::cout<<"muonAccFailed_="<<muonAccFailed_<<std::endl;
-			std::cout<<"muonPt_="<<muonPt_<<std::endl;
-			muonAccFailed_=eventWeight_;
-			muonAccFailedQuadError_=eventWeight_*eventWeight_;
-		}
-		else 
-		{
-			std::cout<<"muonAccPassed_="<<muonAccPassed_<<std::endl;
-			std::cout<<"muonPt_="<<muonPt_<<std::endl;
-			muonAccPassed_=eventWeight_;
-			muonAccPassedQuadError_=eventWeight_*eventWeight_;
-		}
-	}
-	
-	if (abs(cand->pdgId()) ==24)
-*/
 	
    }
 
@@ -196,25 +178,18 @@ MCEffCalculator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 // one muon has been found the three different efficiencies will be determined now. first acc than reco and final iso the results will be stored in th2f histogramms.
    if (nGenMu_==1 && nGenElec_==0)
    {
-	//test comparison of Muons within the MuID MuIDISO and reco
-
-	
 	deltaGenR_ = DRToClosestJet(iEvent,caloJetTag_, muonGenEta_, muonGenPhi_).first;
 	closestJetToMuonGenPt_ = DRToClosestJet(iEvent,caloJetTag_, muonGenEta_,muonGenPhi_).second;
-	
-	
-	
-	std::cout<<"ngenMu_=1 and nGenEl =0"<<std::endl;
-	// selects muons with a minimum pt
 
-	// decided if the muon passed or failed the acc/id/iso criteria 
+	// decided if the muon passed or failed the acc criteria 
 	if( std::abs(muonGenEta_)> maxMuonEta_ )
 	{	
-		// This histogramm is used for the actual acceptance caluclation
-		MuonAccFailedTH1F_->Fill(muonGenPt_,eventWeight_);
-		nAccMu_=-1;
 		
-		}
+		MuonAccFailedTH1F_->Fill(muonGenPt_,eventWeight_);
+		nAccMu_-=1;
+		isExpectation_+=1;
+		
+	}
 	// else the muon is within the acceptance
 	else 
 	{
@@ -222,211 +197,188 @@ MCEffCalculator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 		// This histogramm is used for the actual acceptance caluclation
 		MuonAccPassedTH1F_->Fill(muonGenPt_,eventWeight_);
 		muonPTAccPassed_=muonGenPt_;
+		///////////////////// ID checking
 		//check if ID criteria are matched
 		muonNumberRecoID_=MuID->size();
 		//true if no Mu has been reconstructed
-		if (MuID->size() ==0)
+		std::cout<<"MCEffCalculator:MuIdCanhas:"<<muonNumberRecoID_<<std::endl;
+			//found nRecoMu_+=1;
+		for( edm::View <reco::Candidate>::const_iterator MuIDCand = MuID->begin(); MuIDCand!=MuID->end();MuIDCand++)
 		{
-			std::cout<<"MuID->size()==0 but acc passed"<<std::endl;
+			muonRecoPt_ = MuIDCand->pt();
+			std::cout<<"MCEffCalculator:MuRecoPt:"<<muonRecoPt_<<std::endl;
+			std::cout<<"MCEffCalculator:MuGenPt:"<<muonGenPt_<<std::endl;
+			muonRecoEta_ = MuIDCand->eta();
+			std::cout<<"MCEffCalculator:MuRecoEta:"<<muonRecoEta_<<std::endl;
+			std::cout<<"MCEffCalculator:MuGenEta:"<<muonGenEta_<<std::endl;
+			muonRecoPhi_ = MuIDCand->phi();
+			std::cout<<"MCEffCalculator:MuRecoPhi:"<<muonRecoPhi_<<std::endl;
+			std::cout<<"MCEffCalculator:MuGenPhi:"<<muonGenPhi_<<std::endl;
+			RecoGenMuDeltaR_=deltaR(muonGenEta_,muonGenPhi_,muonRecoEta_,muonRecoPhi_);
+			// true if the muon can be matched to a gen muon
+			std::cout<<"MCEffCalculator:RecoGenMuDeltaR_:"<<RecoGenMuDeltaR_<<std::endl;
+			std::cout<<"MCEffCalculator:RecoMuTag:"<<muonIDTag_<<std::endl;	
+			if (deltaR(muonGenEta_,muonGenPhi_,muonRecoEta_,muonRecoPhi_) < 0.3)
+			{
+				nRecoMu_=+1;
+				RecoMuonDeltaR_=DRToClosestJet(iEvent, caloJetTag_,muonRecoEta_,muonRecoPhi_).first;
+				RecoMuonPTJet_=DRToClosestJet(iEvent, caloJetTag_,muonRecoEta_,muonRecoPhi_).second;
+				RecoMuonPTRelJet_=RecoMuonPTJet_/muonRecoPt_;
+				muonIDPassedTH2F_->Fill(RecoMuonDeltaR_,RecoMuonPTJet_/muonRecoPt_,eventWeight_);
+				// muon Iso check true if there are isolated muons
+				for( edm::View <reco::Candidate>::const_iterator MuIDIsoCand = MuIDISO->begin(); MuIDIsoCand!=MuIDISO->end();MuIDIsoCand++)
+				{
+					muonIsoPt_ = MuIDIsoCand->pt();
+					muonIsoEta_ = MuIDIsoCand->eta();
+					muonIsoPhi_ = MuIDIsoCand->phi();
+					// true if Iso is fulfilled
+					if (deltaR(muonIsoEta_,muonIsoPhi_,muonRecoEta_,muonRecoPhi_) < 0.1)
+					{	
+						isExpectation_=-1;
+						nIsoMu_=+1;
+						IsoMuonDeltaR_=RecoMuonDeltaR_;
+						IsoMuonPTJet_=RecoMuonPTJet_;
+						IsoMuonPTRelJet_=RecoMuonPTJet_/muonRecoPt_;
+						muonIsoPassedTH2F_->Fill(RecoMuonDeltaR_,RecoMuonPTJet_/muonRecoPt_,eventWeight_);
+					}
+					if(nIsoMu_>0) break;
+				}
+
+				if (nIsoMu_==0)
+				{
+					isExpectation_+=1;
+					nIsoMu_=-1;
+					muonIsoFailedTH2F_->Fill(RecoMuonDeltaR_,RecoMuonPTJet_/muonRecoPt_,eventWeight_);
+				}
+			}
+			if (nRecoMu_>0) break;
+		}
+		// no gen muon could be matched to a reco muon
+		if (nRecoMu_==0)
+		{
 			nRecoMu_=-1;
 			muonIDFailedTH2F_->Fill(deltaGenR_,closestJetToMuonGenPt_/muonGenPt_,eventWeight_);
+			isExpectation_ +=1;
 		}
-		else
-		{
-			std::cout<<"MuID size="<<MuID->size()<<std::endl;
-			for( edm::View <reco::Candidate>::const_iterator MuIDCand = MuID->begin(); MuIDCand!=MuID->end();MuIDCand++)
-			{
-				muonRecoPt_ = MuIDCand->pt();
-				muonRecoEta_ = MuIDCand->eta();
-				muonRecoPhi_ = MuIDCand->phi();
-				// true if the reco and 
-				RecoGenMuDeltaR_=deltaR(muonGenEta_,muonGenPhi_,muonRecoEta_,muonRecoPhi_);
-				if (deltaR(muonGenEta_,muonGenPhi_,muonRecoEta_,muonRecoPhi_) < 0.3)
-				{
-					nRecoMu_=+1;
-					RecoMuonDeltaR_=DRToClosestJet(iEvent, caloJetTag_,muonRecoEta_,muonRecoPhi_).first;
-					RecoMuonPTJet_=DRToClosestJet(iEvent, caloJetTag_,muonRecoEta_,muonRecoPhi_).second;
-					RecoMuonPTRelJet_=RecoMuonPTJet_/muonRecoPt_;
-					muonIDPassedTH2F_->Fill(RecoMuonDeltaR_,RecoMuonPTJet_/muonRecoPt_,eventWeight_);
-					std::cout<<"muonIDPassed deltaR:"<<RecoMuonDeltaR_<<std::endl<<"ptCloestJet:"<<RecoMuonPTJet_<<std::endl<<"EventWeight"<<eventWeight_<<std::endl<<std::endl;
-					//check if Iso is fulfilled
-					if (MuIDISO->size() > 0 )
-					{
-						for( edm::View <reco::Candidate>::const_iterator MuIDIsoCand = MuIDISO->begin(); MuIDIsoCand!=MuIDISO->end();MuIDIsoCand++)
-						{
-							muonIsoPt_ = MuIDIsoCand->pt();
-							muonIsoEta_ = MuIDIsoCand->eta();
-							muonIsoPhi_ = MuIDIsoCand->phi();
-							// true if Iso is fulfilled
-							if (deltaR(muonIsoEta_,muonIsoPhi_,muonRecoEta_,muonRecoPhi_) < 0.1)
-							{
-								nIsoMu_=+1;
-								IsoMuonDeltaR_=RecoMuonDeltaR_;
-								IsoMuonPTJet_=RecoMuonPTJet_;
-								IsoMuonPTRelJet_=RecoMuonPTJet_/muonRecoPt_;
-								muonIsoPassedTH2F_->Fill(RecoMuonDeltaR_,RecoMuonPTJet_/muonRecoPt_,eventWeight_);
-								// MT calculation
-								mtw_= MTWCalculator(iEvent, metTag_,muonIsoPt_,muonIsoPhi_);
-								MTWTH2F_->Fill(mtw_,mht_);
-							}
-							// found isolated muon but can not be matched to reco muon
-							else
-							{
-								nIsoMu_=-1;
-								muonIsoFailedTH2F_->Fill(RecoMuonDeltaR_,RecoMuonPTJet_/muonRecoPt_,eventWeight_);
-							}
-						// makes sure only one mu has been matched and enteres the eff.
-						break;
-						}
-					}
-					// no isolated muon has been found so will be concidert to be iso failed
-					else
-					{
-						nIsoMu_=-1;
-						muonIsoFailedTH2F_->Fill(RecoMuonDeltaR_,RecoMuonPTJet_/muonRecoPt_,eventWeight_);
-					}
-					// makes sure only one mu has been matched and enteres the eff.
-					break;
-				}
-				// muon found but can not be matched to a gen muon so failed
-				else
-				{
-					nRecoMu_=-1;
-					muonIDFailedTH2F_->Fill(RecoMuonDeltaR_,RecoMuonPTJet_/muonRecoPt_,eventWeight_);
-				}
-				
-			}
+		///////////////////// ID checking DONE
 
-		}
 	}
-
-
-
-	
    }
+
+
+
+
+
+
+
+
+// one elec has been found the three different efficiencies will be determined now. first acc than reco and final iso the results will be stored in th2f histogramms.
    if (nGenElec_==1 && nGenMu_==0)
    {
-
-
 	deltaGenR_ = DRToClosestJet(iEvent,caloJetTag_, elecGenEta_, elecGenPhi_).first;
-	closestJetToElecGenPt_ = DRToClosestJet(iEvent,caloJetTag_, elecGenEta_, elecGenPhi_).second;
-	std::cout<<"ngenEl_=1 and nGenMu =0"<<std::endl;	
+	closestJetToElecGenPt_ = DRToClosestJet(iEvent,caloJetTag_, elecGenEta_,elecGenPhi_).second;
 
-	
-	// true if the electron is out of the acceptance
-	if(std::abs(elecGenEta_)> maxElecEta_ ||  (1.4442 < std::abs(elecGenEta_)  && (std::abs(elecGenEta_) < 1.566) ) )
-	{
-		// This histogramm is used for the actual acceptance caluclation
-		ElecAccFailedTH1F_->Fill(elecGenPt_,eventWeight_);
-		nAccElec_=-1;
+	// decided if the elec passed or failed the acc criteria 
+	if( std::abs(elecGenEta_)> maxElecEta_ )
+	{	
 		
-
+		ElecAccFailedTH1F_->Fill(elecGenPt_,eventWeight_);
+		nAccElec_-=1;
+		isExpectation_+=1;
+		
 	}
-	// will run when electron is within the acceptance
+	// else the elec is within the acceptance
 	else 
 	{
 		nAccElec_=+1;
-		elecPTAccPassed_=elecGenPt_;	
 		// This histogramm is used for the actual acceptance caluclation
 		ElecAccPassedTH1F_->Fill(elecGenPt_,eventWeight_);
-		
+		elecPTAccPassed_=elecGenPt_;
+		///////////////////// ID checking
+		//check if ID criteria are matched
 		elecNumberRecoID_=ElecID->size();
-		//true if no Mu has been reconstructed
-		if (ElecID->size() ==0)
+		//true if no elec has been reconstructed
+
+			//found nRecoelec_+=1;
+		for( edm::View <reco::Candidate>::const_iterator ElecIDCand = ElecID->begin(); ElecIDCand!=ElecID->end();ElecIDCand++)
+		{
+
+			elecRecoPt_ = ElecIDCand->pt();
+			std::cout<<"MCEffCalculator:ERecoPt:"<<elecRecoPt_<<std::endl;
+			std::cout<<"MCEffCalculator:EGenPt:"<<elecGenPt_<<std::endl;
+			elecRecoEta_ = ElecIDCand->eta();
+			std::cout<<"MCEffCalculator:ERecoEta:"<<elecRecoEta_<<std::endl;
+			std::cout<<"MCEffCalculator:EGenEta:"<<elecGenEta_<<std::endl;
+			elecRecoPhi_ = ElecIDCand->phi();
+			std::cout<<"MCEffCalculator:ERecoPhi:"<<elecRecoPhi_<<std::endl;
+			std::cout<<"MCEffCalculator:EGenPhi:"<<elecGenPhi_<<std::endl;
+			RecoGenElecDeltaR_=deltaR(elecGenEta_,elecGenPhi_,elecRecoEta_,elecRecoPhi_);
+			// true if the elec can be matched to a gen elec
+			if (deltaR(elecGenEta_,elecGenPhi_,elecRecoEta_,elecRecoPhi_) < 0.3)
+			{
+				nRecoElec_=+1;
+				RecoElecDeltaR_=DRToClosestJet(iEvent, caloJetTag_,elecRecoEta_,elecRecoPhi_).first;
+				RecoElecPTJet_=DRToClosestJet(iEvent, caloJetTag_,elecRecoEta_,elecRecoPhi_).second;
+				RecoElecPTRelJet_=RecoElecPTJet_/elecRecoPt_;
+				elecIDPassedTH2F_->Fill(RecoElecDeltaR_,RecoElecPTJet_/elecRecoPt_,eventWeight_);
+				// elec Iso check true if there are isolated elec
+				if (ElecIDISO->size() > 0 )
+				{
+					for( edm::View <reco::Candidate>::const_iterator ElecIDIsoCand = ElecIDISO->begin(); ElecIDIsoCand!=ElecIDISO->end();ElecIDIsoCand++)
+					{
+						elecIsoPt_ = ElecIDIsoCand->pt();
+						elecIsoEta_ = ElecIDIsoCand->eta();
+						elecIsoPhi_ = ElecIDIsoCand->phi();
+						// true if Iso is fulfilled
+						if (deltaR(elecIsoEta_,elecIsoPhi_,elecRecoEta_,elecRecoPhi_) < 0.1)
+						{
+							isExpectation_=-1;
+							nIsoElec_=+1;
+							IsoElecDeltaR_=RecoElecDeltaR_;
+							IsoElecPTJet_=RecoElecPTJet_;
+							IsoElecPTRelJet_=RecoElecPTJet_/elecRecoPt_;
+							elecIsoPassedTH2F_->Fill(RecoElecDeltaR_,RecoElecPTJet_/elecRecoPt_,eventWeight_);
+						}
+					if(nIsoElec_>0) break;
+					}
+				}
+				if (nIsoElec_==0)
+				{
+					isExpectation_+=1;
+					nIsoElec_=-1;
+					elecIsoFailedTH2F_->Fill(RecoElecDeltaR_,RecoElecPTJet_/elecRecoPt_,eventWeight_);
+				}
+			}
+		if (nRecoElec_>0) break;
+		}
+		// no gen elec could be matched to a reco elec
+		if (nRecoElec_==0)
 		{
 			nRecoElec_=-1;
-			std::cout<<"ElecID->size()==0 but acc passed"<<std::endl;
-					elecIDFailedTH2F_->Fill(deltaGenR_,closestJetToElecGenPt_/elecGenPt_,eventWeight_);
+			elecIDFailedTH2F_->Fill(deltaGenR_,closestJetToElecGenPt_/elecGenPt_,eventWeight_);
+			isExpectation_ +=1;
 		}
-		else
-		{
-			std::cout<<"ElecID size="<<ElecID->size()<<std::endl;
-			for( edm::View <reco::Candidate>::const_iterator ElecIDCand = ElecID->begin(); ElecIDCand!=ElecID->end();ElecIDCand++)
-			{
-				
-				elecRecoPt_ = ElecIDCand->pt();
-				elecRecoEta_ = ElecIDCand->eta();
-				elecRecoPhi_ = ElecIDCand->phi();
-				// true if the elec can be reconstructed
-				RecoGenElecDeltaR_=deltaR(elecGenEta_,elecGenPhi_,elecRecoEta_,elecRecoPhi_);
-				if (deltaR(elecGenEta_,elecGenPhi_,elecRecoEta_,elecRecoPhi_) < 0.3)
-				{
-					
-					RecoElecDeltaR_=DRToClosestJet(iEvent, caloJetTag_,elecRecoEta_,elecRecoPhi_).first;
-					RecoElecPTJet_=DRToClosestJet(iEvent, caloJetTag_,elecRecoEta_,elecRecoPhi_).second;
-					RecoElecPTRelJet_=RecoElecPTJet_/elecRecoPt_;
-					nRecoElec_=+1;
-					elecIDPassedTH2F_->Fill(RecoElecDeltaR_,RecoElecPTJet_/elecRecoPt_,eventWeight_);
-					std::cout<<"elecIDPassed deltaR:"<<RecoElecDeltaR_<<std::endl<<"ptCloestJet:"<<RecoElecPTJet_<<std::endl<<"EventWeight"<<eventWeight_<<std::endl<<std::endl;
-					//check if Iso is fulfilled
-					if (ElecIDISO->size() > 0 )
-					{
-						for( edm::View <reco::Candidate>::const_iterator ElecIDIsoCand = ElecIDISO->begin(); ElecIDIsoCand!=ElecIDISO->end();ElecIDIsoCand++)
-						{
-							elecIsoPt_ = ElecIDIsoCand->pt();
-							elecIsoEta_ = ElecIDIsoCand->eta();
-							elecIsoPhi_ = ElecIDIsoCand->phi();
-							if (deltaR(elecIsoEta_,elecIsoPhi_,elecRecoEta_,elecRecoPhi_) < 0.1)
-							{
-								IsoElecDeltaR_=RecoElecDeltaR_;
-								IsoElecPTJet_=RecoElecPTJet_;
-								IsoElecPTRelJet_=RecoElecPTJet_/elecRecoPt_;
-								nIsoElec_=+1;
-								elecIsoPassedTH2F_->Fill(RecoElecDeltaR_,RecoElecPTJet_/elecRecoPt_,eventWeight_);
-								// MT calculation
-								mtwElec_= MTWCalculator(iEvent, metTag_,elecIsoPt_,elecIsoPhi_);
-							}
-							// found isolated elec but can not be matched to reco elec
-							else
-							{
-								nIsoElec_=-1;
-								elecIsoFailedTH2F_->Fill(RecoElecDeltaR_,RecoElecPTJet_/elecRecoPt_,eventWeight_);
-							}
-						// makes sure only one elec has been matched and enteres the eff.
-						break;
-						}
-					}
-					// no isolated elec has been found so will be concidert to be iso failed
-					else
-					{
-						nIsoElec_=-1;
-						elecIsoFailedTH2F_->Fill(RecoElecDeltaR_,RecoElecPTJet_/elecRecoPt_,eventWeight_);
-					}
-					// makes sure only one elec has been matched and enteres the eff.
-					break;
-				}
-				// elec found but can not be matched to a gen elec failed
-				else
-				{
-					nRecoElec_=-1;
-					elecIDFailedTH2F_->Fill(RecoElecDeltaR_,RecoElecPTJet_/elecRecoPt_,eventWeight_);
-				}
-				
-			}
-
-		}
+		///////////////////// ID checking DONE
 
 	}
-
-
    }
+
+
+   leptons_ = nGenMu_ + nGenElec_;
 // Resets all values to default if more than 1 gen muon or gen elec is found in the event
    if (nGenMu_==2 || (nGenMu_+nGenElec_)>1)
    {
-	unsigned int i =nGenMu_;
-	
-	nGenMu_=i;	
+
    }
    if (nGenElec_==2 || (nGenMu_+nGenElec_) > 1)
    {
-	unsigned int i =nGenElec_;
 
-	nGenElec_=i;	
    }
 
 
 
   tree_->Fill();
+
 }
 
 
@@ -470,6 +422,7 @@ MCEffCalculator::beginJob()
 
 //create branches in the tree
     
+    tree_->Branch("nLeptons",&leptons_,"nLeptons/I");
     tree_->Branch("MuonPTAccPassed",&muonPTAccPassed_,"MuonPTAccPassed/F");
     tree_->Branch("MuonIDPassed",&muonIDPassed_,"MuonIDPassed/F");
     tree_->Branch("MuonIDFailed",&muonIDFailed_,"MuonIDFailed/F");
@@ -494,13 +447,13 @@ MCEffCalculator::beginJob()
     tree_->Branch("MTW",&mtw_,"MTW/F");
 
     // discriminator for mc expectaiton selector +1 passed -1 failed
-    tree_->Branch("nAccMu",&nAccMu_,"nAccMu/F");
-    tree_->Branch("nRecoMu",&nRecoMu_,"nRecoMu/F");
-    tree_->Branch("nIsoMu",&nIsoMu_,"nIsoMu/F");
+    tree_->Branch("nAccMu",&nAccMu_,"nAccMu/I");
+    tree_->Branch("nRecoMu",&nRecoMu_,"nRecoMu/I");
+    tree_->Branch("nIsoMu",&nIsoMu_,"nIsoMu/I");
 
-    tree_->Branch("nAccElec",&nAccElec_,"nAccElec/F");
-    tree_->Branch("nRecoElec",&nRecoElec_,"nRecoElec/F");
-    tree_->Branch("nIsoElec",&nIsoElec_,"nIsoElec/F");
+    tree_->Branch("nAccElec",&nAccElec_,"nAccElec/I");
+    tree_->Branch("nRecoElec",&nRecoElec_,"nRecoElec/I");
+    tree_->Branch("nIsoElec",&nIsoElec_,"nIsoElec/I");
 
     //Testing variables
     tree_->Branch("RecoLevelMuonDeltaR",&RecoMuonDeltaR_,"RecoLevelMuonDeltaR/F");
@@ -518,9 +471,11 @@ MCEffCalculator::beginJob()
     // plotting values
     tree_->Branch("HT",&ht_,"HT/F");
     tree_->Branch("MHT",&mht_,"MHT/F");
-    tree_->Branch("NJets",&nJets_,"NJets/I");
+    tree_->Branch("NJets",&nJets_,"NJets/s");
     tree_->Branch("Weight",&eventWeight_,"Weight/F");
     tree_->Branch("MT",&mt_,"MT/F");
+    tree_->Branch("NVtx",&nV_,"NVtx/s");
+    tree_->Branch("IsExpectation",&isExpectation_,"IsExpectation/I");
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -568,8 +523,7 @@ void
 MCEffCalculator::ResetValues()
 {
 
-	nGenMu_			=-100;
-	nGenElec_		=-100;
+
 	muonPTAccPassed_	=-100;
 	elecPTAccPassed_	=-100;
 	muonNumberRecoID_	=-100;
@@ -625,13 +579,14 @@ MCEffCalculator::ResetValues()
 	nRecoMu_=0;
 	nRecoElec_=0;
 	nIsoMu_=0;
+	isExpectation_ = 0;
 	nIsoElec_=0;
-
 
  	// additonal variables for plotting
 	ht_=-100;
-	nJets_=-1;
+	nJets_=0;
 	mht_=-100;
+	nV_ =0;
 }
 
 

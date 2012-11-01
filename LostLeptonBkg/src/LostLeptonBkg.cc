@@ -57,7 +57,7 @@ LostLeptonBkg::LostLeptonBkg(const edm::ParameterSet& iConfig)
    //if do put with a label
    produces<double>("LostLeptonWeight");
    produces<double>("Met");
-   produces<int>("nMu");
+   produces<int>("nLeptons");
    produces<double>("MuPt");
    produces<double>("MuEta");
    produces<double>("MuPhi");
@@ -67,6 +67,7 @@ LostLeptonBkg::LostLeptonBkg(const edm::ParameterSet& iConfig)
    produces<double>("deltaPtClosestJetMu");
    produces<int>("nCaloJets");
    produces<double> ("MTW");
+   produces<int> ("MTWCut");
    produces<double> ("mtwCorrectionWeight");
    produces<double>("muonTotalWeight");
    produces<double>("elecTotalWeight");
@@ -155,6 +156,7 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   {
 	// the jet must not have the same energy as the muon
 	nMu_ = Mu->size();
+	
 	if (nMu_!=1) std::cout<<"Number of Muons="<<nMu_<<std::endl;
 	MuPt_ = Mu->at(0).pt();
 	MuEta_ = Mu->at(0).eta();
@@ -258,14 +260,14 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 		//additional corrections
 		if (MTWCut_) mtwCorrection_ = muonTotalWeight_ + elecTotalWeight_ + (muonTotalWeight_ + elecTotalWeight_) * ( ( 1 / MTWEff_->GetBinContent(MTWEff_->GetXaxis()->FindBin(mht_) ) ) - 1);
-
+		
 		// total lostlepton weight
 		resultWeight_ = muonTotalWeight_ + elecTotalWeight_;
-		if (MTWCut_)resultWeight_= mtwCorrection_;
+		//if (MTWCut_)resultWeight_= mtwCorrection_;
 	std::cout<<"lostleptonweights calculated"<<std::endl;
 
    std::auto_ptr<int> pOut3(new int(nMu_));
-   iEvent.put(pOut3, "nMu");
+   iEvent.put(pOut3, "nLeptons");
    std::auto_ptr<double> pOut4(new double(MuPt_));
    iEvent.put(pOut4, "MuPt");
    std::auto_ptr<double> pOut5(new double(MuEta_));
@@ -284,6 +286,8 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.put(pOut10, "nCaloJets");
    std::auto_ptr<double> pOut11a(new double(mtw_));
    iEvent.put(pOut11a, "MTW");
+   std::auto_ptr<int> pOut32(new int(MTWCut_) );
+   iEvent.put(pOut32, "MTWCut");
 
    std::auto_ptr<double> aOut1(new double(MuonAccEff_));
    iEvent.put(aOut1,"muonAccEff");

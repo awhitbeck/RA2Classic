@@ -16,7 +16,11 @@ MCEffCalculator = cms.EDAnalyzer(
               minElecPt = cms.double(10),
 	      maxElecEta = cms.double(2.5),
               minJetPt = cms.double(30),
-              HTJets   = cms.InputTag('patJetsAK5PFPt50Eta25'),
-	      MhtTag   = cms.InputTag('mhtPF'),
+              HTJetsTag   = cms.InputTag('patJetsAK5PFPt50Eta25'),
+	      MhtJetsTag   = cms.InputTag('mhtPF'),
+	      HTTag	   = cms.InputTag('htInputCol'),
+ 	      MHTTag	   = cms.InputTag('mhtInputCol'),
+	      VertexCollection  = cms.InputTag('goodVertices'),
+
 
 	)

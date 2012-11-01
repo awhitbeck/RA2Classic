@@ -13,9 +13,6 @@ def makeTreeFromPAT(process,
                     reportEveryEvt=10,
                     testFileName=["/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_99_3_TPC.root"],
                     numProcessedEvt=1000):
-	
-    HTMin=500.
-    MHTMin=200.
     
     ## --- Log output ------------------------------------------------------
     process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -186,12 +183,18 @@ def makeTreeFromPAT(process,
         HTJets            = cms.InputTag('HTJets'),
         MHT               = cms.InputTag(mhtInputCol),
         MHTJets           = cms.InputTag('MHTJets'),
-        VarsDouble        = cms.VInputTag(cms.InputTag('WeightProducer:weight'),cms.InputTag('LostLeptonBkgProducer:LostLeptonWeight'),cms.InputTag('LostLeptonBkgProducer:Met'),cms.InputTag('LostLeptonBkgProducer:nMu'),cms.InputTag('LostLeptonBkgProducer:MuPt'),cms.InputTag('LostLeptonBkgProducer:MuEta'),cms.InputTag('LostLeptonBkgProducer:MuPhi' ),cms.InputTag('LostLeptonBkgProducer:deltaRMuJet'),cms.InputTag('LostLeptonBkgProducer:deltaRMuMHT' ),cms.InputTag('LostLeptonBkgProducer:deltaPtMuJet'),cms.InputTag('LostLeptonBkgProducer:muonTotalWeight'),cms.InputTag('LostLeptonBkgProducer:elecTotalWeight'),cms.InputTag('LostLeptonBkgProducer:muonIsoWeight'),cms.InputTag('LostLeptonBkgProducer:muonRecoWeight') ,cms.InputTag('LostLeptonBkgProducer:muonAccWeight'),cms.InputTag('LostLeptonBkgProducer:elecIsoWeight'),cms.InputTag('LostLeptonBkgProducer:elecRecoWeight'),cms.InputTag('LostLeptonBkgProducer:elecAccWeight'),cms.InputTag('LostLeptonBkgProducer:muonAccEff'),cms.InputTag('LostLeptonBkgProducer:elecAccEff'),cms.InputTag('LostLeptonBkgProducer:muonRecoEff'),cms.InputTag('LostLeptonBkgProducer:elecRecoEff'),cms.InputTag('LostLeptonBkgProducer:muonIsoEff'),cms.InputTag('LostLeptonBkgProducer:elecIsoEff'),cms.InputTag('LostLeptonBkgProducer:MTW')
+        VarsDouble        = cms.VInputTag(cms.InputTag('WeightProducer:weight'),cms.InputTag('LostLeptonBkgProducer:LostLeptonWeight'),cms.InputTag('LostLeptonBkgProducer:Met'),cms.InputTag('LostLeptonBkgProducer:nMu'),cms.InputTag('LostLeptonBkgProducer:MuPt'),cms.InputTag('LostLeptonBkgProducer:MuEta'),cms.InputTag('LostLeptonBkgProducer:MuPhi' ),cms.InputTag('LostLeptonBkgProducer:deltaRMuJet'),cms.InputTag('LostLeptonBkgProducer:deltaRMuMHT' ),cms.InputTag('LostLeptonBkgProducer:deltaPtMuJet'),cms.InputTag('LostLeptonBkgProducer:muonTotalWeight'),cms.InputTag('LostLeptonBkgProducer:elecTotalWeight'),cms.InputTag('LostLeptonBkgProducer:muonIsoWeight'),cms.InputTag('LostLeptonBkgProducer:muonRecoWeight') ,cms.InputTag('LostLeptonBkgProducer:muonAccWeight'),cms.InputTag('LostLeptonBkgProducer:elecIsoWeight'),cms.InputTag('LostLeptonBkgProducer:elecRecoWeight'),cms.InputTag('LostLeptonBkgProducer:elecAccWeight'),cms.InputTag('LostLeptonBkgProducer:muonAccEff'),cms.InputTag('LostLeptonBkgProducer:elecAccEff'),cms.InputTag('LostLeptonBkgProducer:muonRecoEff'),cms.InputTag('LostLeptonBkgProducer:elecRecoEff'),cms.InputTag('LostLeptonBkgProducer:muonIsoEff'),cms.InputTag('LostLeptonBkgProducer:elecIsoEff'),cms.InputTag('LostLeptonBkgProducer:MTW'),cms.InputTag('LostLeptonBkgProducer:mtwCorrectionWeight'),cms.InputTag('LostLeptonBkgProducer:nLeptons')
 	),
-        VarsDoubleNamesInTree = cms.vstring('Weight','LostLeptonWeight','Met','numberOfMuons','MuPT','MuEta','MuPhi','DeltaRMuJet','DeltaRMuMHT','DeltaPtMuJet','muonTotalWeight','elecTotalWeight','muonIsoWeight','muonRecoWeight','muonAccWeight','elecIsoWeight','elecRecoWeight','elecAccWeight','muonAccEff','elecAccEff','muonRecoEff','elecRecoEff','muonIsoEff','elecIsoEff','MTW'), 
+        VarsDoubleNamesInTree = cms.vstring('Weight','LostLeptonWeight','Met','numberOfMuons','MuPT','MuEta','MuPhi','DeltaRMuJet','DeltaRMuMHT','DeltaPtMuJet','muonTotalWeight','elecTotalWeight','muonIsoWeight','muonRecoWeight','muonAccWeight','elecIsoWeight','elecRecoWeight','elecAccWeight','muonAccEff','elecAccEff','muonRecoEff','elecRecoEff','muonIsoEff','elecIsoEff','MTW','mtwCorrectionWeight','nLeptons'), 
         Filters           = FilterNames
         )
 	
+	
+	# filter used to slecte the RA2 baseline important for efficiency caluclaiton
+    from RA2Classic.Utils.RA2Selection_cfi import RA2Selection
+    process.RA2Selector = RA2Selection.clone(
+	
+	)
 	
 
    ## ---- Load lost lepton moduels
@@ -203,7 +206,8 @@ def makeTreeFromPAT(process,
     	HTJets		= cms.InputTag('HTJets'),
 	MetTag		= cms.InputTag('pfMet'),
 	CaloJetTag	= cms.InputTag('cleanPatJetsAK5Calo'),
-	MTWCut		= cms.bool(True)
+	MTWCut		= cms.bool(True),
+	EfficiencyFileName = cms.string('MCEffOnlyW.root'),
     )
 
 
@@ -222,6 +226,7 @@ def makeTreeFromPAT(process,
         process.MHTSelection *
         process.AdditionalFiltersInTagMode *
         process.WeightProducer *
+	process.RA2Selector *
 	process.LostLeptonBkgProducer *
 #        process.dump *
         process.RA2TreeMaker
