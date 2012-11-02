@@ -1,3 +1,4 @@
+#include <cassert>
 #include <cstdlib>
 #include <iostream>
 #include <vector>
@@ -9,7 +10,10 @@
 #include "Variable.h"
 
 
-Events EventBuilder::operator()(const TString &fileName, const TString &treeName, const TString &weightVar, double weightScale) const {
+Events EventBuilder::operator()(const TString &fileName, const TString &treeName, const TString &weight, const std::vector<TString> &uncDn, const std::vector<TString> &uncUp, const std::vector<TString> &uncLabel, double scale) const {
+  assert( uncDn.size() == uncUp.size() );
+  assert( uncDn.size() == uncLabel.size() );
+
   // Get tree from file
   TFile file(fileName,"READ");
   TTree* tree = 0;
@@ -28,7 +32,19 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
   unsigned int idxInt_t = 0;
   unsigned int idxUInt_t = 0;
   unsigned int idxUShort_t = 0;
-  Float_t weightFromTree = 1.;
+
+  // Parse weight variable
+  Float_t varWeight = 1.;
+  if( weight.IsFloat() ) varWeight = weight.Atof();
+
+  // Parse uncertainty source variables
+  std::vector<Float_t> varsUncDn(uncDn.size(),0.);
+  std::vector<Float_t> varsUncUp(uncUp.size(),0.);
+  for(unsigned int i = 0; i < uncDn.size(); ++i) {
+    if( uncDn.at(i).IsFloat() ) varsUncDn.at(i) = uncDn.at(i).Atof();
+    if( uncUp.at(i).IsFloat() ) varsUncUp.at(i) = uncUp.at(i).Atof();
+  }
+
   // Setup branches
   for(std::vector<TString>::const_iterator it = Variable::begin(); it != Variable::end(); ++it) {
     bool treeHasVar = true;
@@ -41,8 +57,16 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
     if( Variable::type(*it) == "Float_t" ) {
       if( treeHasVar ) tree->SetBranchAddress(*it,&varsFloat_t.at(idxFloat_t));
       ++idxFloat_t;
-      if( *it == weightVar && treeHasVar ) {
-	tree->SetBranchAddress(*it,&weightFromTree);
+      if( *it == weight && treeHasVar ) {
+	tree->SetBranchAddress(*it,&varWeight);
+      }
+      for(unsigned int i = 0; i < uncDn.size(); ++i) {
+	if( *it == uncDn.at(i) && treeHasVar ) {
+	  tree->SetBranchAddress(*it,&varsUncDn.at(i));
+	}
+	if( *it == uncUp.at(i) && treeHasVar ) {
+	  tree->SetBranchAddress(*it,&varsUncUp.at(i));
+	}
       }
     } else if( Variable::type(*it) == "Int_t" ) {
       if( treeHasVar ) tree->SetBranchAddress(*it,&varsInt_t.at(idxInt_t));
@@ -66,7 +90,7 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
     tree->GetEntry(i);
 
     // Create new event and fill variables
-    Event* evt = new Event();
+    Event* evt = new Event(varWeight*scale);
     idxFloat_t = 0;
     idxInt_t = 0;
     idxUInt_t = 0;
@@ -86,7 +110,18 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
 	++idxUShort_t;
       }
     }
-    evt->setWeight(weightFromTree*weightScale);
+
+    for(unsigned int i = 0; i < uncDn.size(); ++i) {
+      double udn = varsUncDn.at(i);
+      double uup = varsUncUp.at(i);
+      if( !uncDn.at(i).IsFloat() ) {
+	udn = (varWeight - udn) / varWeight;
+      }
+      if( !uncUp.at(i).IsFloat() ) {
+	uup = (uup - varWeight) / varWeight;
+      }
+      evt->addRelUnc(udn,uup,uncLabel.at(i));
+    }
 
     evts.push_back(evt);
   }

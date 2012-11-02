@@ -113,6 +113,16 @@ bool Config::split(const std::string &str, const std::string &delim, std::string
 
 
 // ----------------------------------------------------------------------------
+TString Config::after(const TString &str, const TString &delim) {
+  TString first = "";
+  TString second = "";
+  Config::split(str,delim,first,second);
+
+  return second;
+}
+
+
+// ----------------------------------------------------------------------------
 bool Config::enclosed(const TString &str, const TString &delimStart, const TString &delimEnd, TString &encl) {
   bool hasDelims = false;
   std::string strt(str.Data());
@@ -191,4 +201,29 @@ TString Config::Attributes::value(const TString &name) const {
   if( it != values_.end() ) val = it->second;
 
   return val;
+}
+
+
+std::vector<TString> Config::Attributes::listOfNames() const {
+  std::vector<TString> list(values_.size());
+  unsigned int i = 0;
+  for(std::map<TString,TString>::const_iterator it = values_.begin();
+      it != values_.end(); ++it,++i) {
+    list.at(i) = it->first;
+  }
+
+  return list;
+}
+
+
+std::vector<TString> Config::Attributes::listOfNames(const TString &containedStr) const {
+  std::vector<TString> list;
+  for(std::map<TString,TString>::const_iterator it = values_.begin();
+      it != values_.end(); ++it) {
+    if( (it->first).Contains(containedStr) ) {
+      list.push_back(it->first);
+    }
+  }
+
+  return list;
 }

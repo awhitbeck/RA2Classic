@@ -190,5 +190,5 @@ DataSet* Cut::operator()(const DataSet* dataSet) const {
   }
   count_ = passed.size();
 
-  return new SelectedDataSet(dataSet->type(),dataSet->label(),label(),passed,dataSet->weightScale());
+  return new SelectedDataSet(dataSet->type(),dataSet->label(),label(),passed);
 }

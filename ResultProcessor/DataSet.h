@@ -26,7 +26,6 @@ public:
   Type type() const { return type_; }
   TString label() const { return label_; }
   TString selection() const { return selectionLabel_; }
-  double weightScale() const { return weightScale_; }
 
   unsigned int size() const { return evts_.size(); }
   EventIt begin() const { return evts_.begin(); }
@@ -38,7 +37,7 @@ public:
 
 
 protected:
-  DataSet(Type type, const TString &label, const TString &selection, const Events &evts, double weightScale);	// This constructor is meant for use in SelectedDataSet
+  DataSet(Type type, const TString &label, const TString &selection, const Events &evts);	// This constructor is meant for use in SelectedDataSet
 
 
 private:
@@ -47,20 +46,19 @@ private:
 
   const Type type_;
   const TString label_;
-  const double weightScale_;	// Each event has a weight from the tree times weightScale_
   const bool hasMother_;
 
   TString selectionLabel_;
   Events evts_;
 
-  DataSet(Type type, const TString &label, const TString &selection, const TString &fileName, const TString &treeName, const TString &weightVarName, double weightScale);
+  DataSet(Type type, const TString &label, const TString &selection, const TString &fileName, const TString &treeName, const TString &weight, const std::vector<TString> &uncDn, const std::vector<TString> &uncUp, const std::vector<TString> &uncLabel, double scale);
 };
 
 
 class SelectedDataSet : public DataSet {
 public:
-  SelectedDataSet(Type type, const TString &label, const TString &selection, const Events &evts, double weightScale)
-    : DataSet(type,label,selection,evts,weightScale) {};
+  SelectedDataSet(Type type, const TString &label, const TString &selection, const Events &evts)
+    : DataSet(type,label,selection,evts) {};
   ~SelectedDataSet() {};
 };
 #endif

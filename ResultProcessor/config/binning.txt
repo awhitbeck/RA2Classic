@@ -1,0 +1,77 @@
+# Specify global parameters
+global :: id: RA2
+global :: lumi: 5.295
+
+
+# Specify the variables that are read from the ntuple and their type
+event content :: name: HT; type: Float_t; label: H_{T}; unit: GeV
+event content :: name: MHT; type: Float_t; label: #slash{H}_{T}; unit: GeV
+event content :: name: NJets; type: UShort_t; label: N(Jets)
+event content :: name: DeltaPhi1; type: Float_t; label: #Delta#Phi_{1}
+event content :: name: DeltaPhi2; type: Float_t; label: #Delta#Phi_{2}
+event content :: name: DeltaPhi3; type: Float_t; label: #Delta#Phi_{3}
+
+
+# Specify the data source and label the type of data
+dataset :: label: Data; type: data; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/53X_V2/RA2Ntuple_Run2012AB-ReReco.root; tree: RA2TreeMaker/RA2PreSelection
+
+
+
+selection :: label: baseline__NJet_2;    cuts: DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 1 < NJets < 3
+selection :: label: baseline__NJet_3-5;  cuts: DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 2 < NJets < 6
+
+selection :: label: NJet_2__HT_0500-0750__MHT_200-300;    cuts: baseline__NJet_2   + 500 < HT < 750   + 200 < MHT < 300
+selection :: label: NJet_2__HT_0500-0750__MHT_300-450;    cuts: baseline__NJet_2   + 500 < HT < 750   + 300 < MHT < 450
+selection :: label: NJet_2__HT_0500-0750__MHT_450-600;    cuts: baseline__NJet_2   + 500 < HT < 750   + 450 < MHT < 600
+selection :: label: NJet_2__HT_0500-0750__MHT_600-Inf;    cuts: baseline__NJet_2   + 500 < HT < 750   + MHT > 600      
+
+selection :: label: NJet_2__HT_0750-1000__MHT_100-200;    cuts: baseline__NJet_2   + 750 < HT < 1000  + 100 < MHT < 200
+selection :: label: NJet_2__HT_0750-1000__MHT_200-300;    cuts: baseline__NJet_2   + 750 < HT < 1000  + 200 < MHT < 300
+selection :: label: NJet_2__HT_0750-1000__MHT_300-450;    cuts: baseline__NJet_2   + 750 < HT < 1000  + 300 < MHT < 450
+selection :: label: NJet_2__HT_0750-1000__MHT_450-600;    cuts: baseline__NJet_2   + 750 < HT < 1000  + 450 < MHT < 600
+selection :: label: NJet_2__HT_0750-1000__MHT_600-Inf;    cuts: baseline__NJet_2   + 750 < HT < 1000  + MHT > 600      
+
+selection :: label: NJet_2__HT_1000-1250__MHT_100-200;    cuts: baseline__NJet_2   + 1000 < HT < 1250 + 100 < MHT < 200
+selection :: label: NJet_2__HT_1000-1250__MHT_200-300;    cuts: baseline__NJet_2   + 1000 < HT < 1250 + 200 < MHT < 300 
+selection :: label: NJet_2__HT_1000-1250__MHT_300-450;    cuts: baseline__NJet_2   + 1000 < HT < 1250 + 300 < MHT < 450 
+selection :: label: NJet_2__HT_1000-1250__MHT_450-600;    cuts: baseline__NJet_2   + 1000 < HT < 1250 + 450 < MHT < 600 
+selection :: label: NJet_2__HT_1000-1250__MHT_600-Inf;    cuts: baseline__NJet_2   + 1000 < HT < 1250 + MHT > 600       
+
+selection :: label: NJet_2__HT_1250-1500__MHT_100-200;    cuts: baseline__NJet_2   + 1250 < HT < 1500 + 100 < MHT < 200 
+selection :: label: NJet_2__HT_1250-1500__MHT_300-450;    cuts: baseline__NJet_2   + 1250 < HT < 1500 + 300 < MHT < 450  
+selection :: label: NJet_2__HT_1250-1500__MHT_450-Inf;    cuts: baseline__NJet_2   + 1250 < HT < 1500 + MHT > 450      
+
+selection :: label: NJet_2__HT_1500-Inf__MHT_100-200;     cuts: baseline__NJet_2   + HT > 1500        + 100 < MHT < 200
+selection :: label: NJet_2__HT_1500-Inf__MHT_200-350;     cuts: baseline__NJet_2   + HT > 1500        + 200 < MHT < 350
+selection :: label: NJet_2__HT_1500-Inf__MHT_350-Inf;     cuts: baseline__NJet_2   + HT > 1500        + MHT > 350      
+
+
+selection :: label: NJet_3-5__HT_0500-0750__MHT_200-300;    cuts: baseline__NJet_3-5   + 500 < HT < 750   + 200 < MHT < 300
+selection :: label: NJet_3-5__HT_0500-0750__MHT_300-450;    cuts: baseline__NJet_3-5   + 500 < HT < 750   + 300 < MHT < 450
+selection :: label: NJet_3-5__HT_0500-0750__MHT_450-600;    cuts: baseline__NJet_3-5   + 500 < HT < 750   + 450 < MHT < 600
+selection :: label: NJet_3-5__HT_0500-0750__MHT_600-Inf;    cuts: baseline__NJet_3-5   + 500 < HT < 750   + MHT > 600      
+
+selection :: label: NJet_3-5__HT_0750-1000__MHT_100-200;    cuts: baseline__NJet_3-5   + 750 < HT < 1000  + 100 < MHT < 200
+selection :: label: NJet_3-5__HT_0750-1000__MHT_200-300;    cuts: baseline__NJet_3-5   + 750 < HT < 1000  + 200 < MHT < 300
+selection :: label: NJet_3-5__HT_0750-1000__MHT_300-450;    cuts: baseline__NJet_3-5   + 750 < HT < 1000  + 300 < MHT < 450
+selection :: label: NJet_3-5__HT_0750-1000__MHT_450-600;    cuts: baseline__NJet_3-5   + 750 < HT < 1000  + 450 < MHT < 600
+selection :: label: NJet_3-5__HT_0750-1000__MHT_600-Inf;    cuts: baseline__NJet_3-5   + 750 < HT < 1000  + MHT > 600      
+
+selection :: label: NJet_3-5__HT_1000-1250__MHT_100-200;    cuts: baseline__NJet_3-5   + 1000 < HT < 1250 + 100 < MHT < 200
+selection :: label: NJet_3-5__HT_1000-1250__MHT_200-300;    cuts: baseline__NJet_3-5   + 1000 < HT < 1250 + 200 < MHT < 300 
+selection :: label: NJet_3-5__HT_1000-1250__MHT_300-450;    cuts: baseline__NJet_3-5   + 1000 < HT < 1250 + 300 < MHT < 450 
+selection :: label: NJet_3-5__HT_1000-1250__MHT_450-600;    cuts: baseline__NJet_3-5   + 1000 < HT < 1250 + 450 < MHT < 600 
+selection :: label: NJet_3-5__HT_1000-1250__MHT_600-Inf;    cuts: baseline__NJet_3-5   + 1000 < HT < 1250 + MHT > 600       
+
+selection :: label: NJet_3-5__HT_1250-1500__MHT_100-200;    cuts: baseline__NJet_3-5   + 1250 < HT < 1500 + 100 < MHT < 200 
+selection :: label: NJet_3-5__HT_1250-1500__MHT_300-450;    cuts: baseline__NJet_3-5   + 1250 < HT < 1500 + 300 < MHT < 450  
+selection :: label: NJet_3-5__HT_1250-1500__MHT_450-Inf;    cuts: baseline__NJet_3-5   + 1250 < HT < 1500 + MHT > 450      
+
+selection :: label: NJet_3-5__HT_1500-Inf__MHT_100-200;     cuts: baseline__NJet_3-5   + HT > 1500        + 100 < MHT < 200
+selection :: label: NJet_3-5__HT_1500-Inf__MHT_200-350;     cuts: baseline__NJet_3-5   + HT > 1500        + 200 < MHT < 350
+selection :: label: NJet_3-5__HT_1500-Inf__MHT_350-Inf;     cuts: baseline__NJet_3-5   + HT > 1500        + MHT > 350      
+
+
+plot :: variable: HT; dataset: Data; histogram: 25, 500, 3000, log
+plot :: variable: MHT; dataset: Data; histogram:  32, 200, 1800, log
+plot :: variable: NJets; dataset: Data; histogram: 12, -0.5, 11.5

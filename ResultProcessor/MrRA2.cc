@@ -7,6 +7,7 @@
 #include "EventInfoPrinter.h"
 #include "GlobalParameters.h"
 #include "MrRA2.h"
+#include "SelectionPrinter.h"
 #include "Variable.h"
 
 
@@ -39,6 +40,7 @@ MrRA2::MrRA2(const TString& configFileName) {
 
   // Plots after different selections
   // Loop over defined selections
+  SelectionPrinter selPrinter;
   for(std::vector<Selection*>::const_iterator itSel = selections_.begin();
       itSel != selections_.end(); ++itSel) {
     std::cout << "  - for the selection '" << (*itSel)->label() << "'" << std::endl;
@@ -49,6 +51,7 @@ MrRA2::MrRA2(const TString& configFileName) {
       selectedDataSets.push_back((**itSel)(*itDat));
       std::cout << "    " << "Dataset '" << (*itDat)->label() << "' (" << (*itDat)->size() << " entries in tree)" << std::endl;
       (*itSel)->print();
+      selPrinter.add((*itDat)->label(),(*itSel)->label(),selectedDataSets.back()->size());
     }
     // Create output directory
     
@@ -58,6 +61,9 @@ MrRA2::MrRA2(const TString& configFileName) {
     makePlots(selectedDataSets,cfg,outDir); // Make plots
     EventInfoPrinter(selectedDataSets,cfg); // Print event info (for tail scans) 
   }
+
+  // Print selected yields
+  selPrinter();
 }
 
 MrRA2::~MrRA2() {

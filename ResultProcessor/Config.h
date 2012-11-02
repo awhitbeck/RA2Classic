@@ -16,6 +16,8 @@ public:
     bool hasName(const TString &name) const { return values_.find(name) != values_.end(); }
     TString value(const TString &name) const;
     unsigned int nValues() const { return values_.size(); }
+    std::vector<TString> listOfNames() const;
+    std::vector<TString> listOfNames(const TString &containedStr) const;
 
   private:
     std::map<TString,TString> values_;
@@ -25,6 +27,7 @@ public:
 
   static bool split(const TString &str, const TString &delim, std::vector<TString> &parts);
   static bool split(const TString &str, const TString &delim, TString &first, TString &second);
+  static TString after(const TString &str, const TString &delim);
   static bool enclosed(const TString &str, const TString &delimStart, const TString &delimEnd, TString &encl);
   static int color(const TString &cfg);
 

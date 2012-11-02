@@ -49,19 +49,84 @@ std::vector<DataSet*> DataSet::createDataSets(const Config &cfg, const TString k
       TString type = it->value("type");
       TString file = it->value("file");
       TString tree = it->value("tree");
-      TString weightVarFromTree = "";
-      double weightScale = 1.;
-      if( it->nValues() == 5 ) {
-	TString weightScaleStr;
-	if( Config::split(it->value("weight"),"*",weightScaleStr,weightVarFromTree) ) {
-	  weightScale = weightScaleStr.Atof();
-	} else if( Variable::exists(it->value("weight")) ){
-	  weightVarFromTree = it->value("weight");
-	} else {
-	  weightScale = it->value("weight").Atof();
+      TString weight = "";
+      double scale = 1.;
+      std::vector<TString> uncDn;
+      std::vector<TString> uncUp;
+      std::vector<TString> uncLabel;
+      if( it->hasName("weight") ) {
+	weight = it->value("weight");
+	if( !(Variable::exists(weight) || weight.IsFloat()) ) {
+	  std::cerr << "\n\nERROR in DataSet::createDataSets(): wrong config syntax" << std::endl;
+	  std::cerr << "  when specifying the weight in line with key '" << key << "'" << std::endl;
+	  std::cerr << "  Syntax is '..., weight : expr, ...', where 'expr' is either a float or an existing variable" << std::endl;
 	}
       }
-      dataSets.push_back(new DataSet(DataSet::toType(type),label,"preselection",file,tree,weightVarFromTree,weightScale));
+      if( it->hasName("scale") ) {
+	if( !(it->value("weight")).IsFloat() ) {
+	  std::cerr << "\n\nERROR in DataSet::createDataSets(): wrong config syntax" << std::endl;
+	  std::cerr << "  when specifying the scale in line with key '" << key << "'" << std::endl;
+	  std::cerr << "  Syntax is '..., scale : expr, ...', where 'expr' is a float" << std::endl;
+	}
+	scale = (it->value("weight")).Atof();
+      }
+      // Optionally, parse uncertainties:
+      // Get all key-value pairs that contain the key 'uncertainty'
+      // The expected format is 'uncertainty <label> : ...'
+      std::vector<TString> uncNames = it->listOfNames("uncertainty");
+      for(std::vector<TString>::const_iterator uit = uncNames.begin();
+	  uit != uncNames.end(); ++uit) {
+	// Find uncertainty label
+	TString tmp = "";	// this will just read 'uncertainty' and is ignored
+	TString ul = "";	// this will be the label, if specified
+	Config::split(*uit," ",tmp,ul);
+
+	// Special case: no uncertainty label specified
+	// Assume this is the total uncertainty and there are
+	// no other sources
+	if( ul == "" ) {
+	  if( uncNames.size() > 1 ) {
+	    std::cerr << "\n\nERROR in DataSet::createDataSets(): wrong config syntax" << std::endl;
+	    std::cerr << "  when specifying the uncertainties in line with key '" << key << "'" << std::endl;
+	    exit(-1);
+	  }
+	  ul = "syst. uncert.";	// Default uncertainty label
+	}
+	uncLabel.push_back(ul);
+
+	// Now, parse the uncertainty value for the lower and upper
+	// uncertainty variables
+	std::vector<TString> uCfgs;
+	Config::split(it->value(*uit),",",uCfgs);
+	// Case 1: one uncertainty, used as symmetric uncertainty
+	if( uCfgs.size() == 1 ) {
+	  uncDn.push_back(uCfgs.front());
+	  uncUp.push_back(uCfgs.front());
+	}
+	// Case 2: separate lower and upper uncertainty,
+	// specified by '-' and '+', respectively
+	else if( uCfgs.size() == 2 &&
+		 ( 
+		  ( uCfgs.at(0).Contains("+") && uCfgs.at(1).Contains("-") )
+		  ||
+		  ( uCfgs.at(0).Contains("-") && uCfgs.at(1).Contains("+") )
+		  )
+		 ) {
+	  if( uCfgs.at(0).Contains("+") && uCfgs.at(1).Contains("-") ) {
+	    uncDn.push_back(Config::after(uCfgs.at(1),"-"));
+	    uncUp.push_back(Config::after(uCfgs.at(0),"+"));
+	  } else if( uCfgs.at(0).Contains("-") && uCfgs.at(1).Contains("+") ) {
+	    uncDn.push_back(Config::after(uCfgs.at(0),"-"));
+	    uncUp.push_back(Config::after(uCfgs.at(1),"+"));
+	  }
+	}
+	else {
+	  std::cerr << "\n\nERROR in DataSet::createDataSets(): wrong config syntax" << std::endl;
+	  std::cerr << "  when specifying the uncertainties in line with key '" << key << "'" << std::endl;
+	  exit(-1);
+	}
+      }
+      dataSets.push_back(new DataSet(DataSet::toType(type),label,"preselection",file,tree,weight,uncDn,uncUp,uncLabel,scale));
     } else {
       std::cerr << "\n\nERROR in DataSet::createDataSets(): wrong config syntax" << std::endl;
       std::cerr << "  in line with key '" << key << "'" << std::endl;
@@ -76,8 +141,8 @@ std::vector<DataSet*> DataSet::createDataSets(const Config &cfg, const TString k
 
 
 
-DataSet::DataSet(Type type, const TString &label, const TString &selection, const TString &fileName, const TString &treeName, const TString &weightVarName, double weightScale)
-  : hasMother_(false), type_(type), label_(label), selectionLabel_(selection), weightScale_(weightScale) {
+DataSet::DataSet(Type type, const TString &label, const TString &selection, const TString &fileName, const TString &treeName, const TString &weight, const std::vector<TString> &uncDn, const std::vector<TString> &uncUp, const std::vector<TString> &uncLabel, double scale)
+  : hasMother_(false), type_(type), label_(label), selectionLabel_(selection) {
   if( exists(label) ) {
     std::cerr << "\n\nERROR in DataSet::DataSet(): a dataset with label '" << label << "' already exists." << std::endl;
     exit(-1);
@@ -85,12 +150,12 @@ DataSet::DataSet(Type type, const TString &label, const TString &selection, cons
   DataSet::labels_.insert(label);
   DataSet::types_[label] = type;
   EventBuilder ebd;
-  evts_ = ebd(fileName,treeName,weightVarName,weightScale_);
+  evts_ = ebd(fileName,treeName,weight,uncDn,uncUp,uncLabel,scale);
 }
 
 
-DataSet::DataSet(Type type, const TString &label, const TString &selection, const Events &evts, double weightScale)
-  : hasMother_(true), type_(type), label_(label), selectionLabel_(selection), weightScale_(weightScale) {
+DataSet::DataSet(Type type, const TString &label, const TString &selection, const Events &evts)
+  : hasMother_(true), type_(type), label_(label), selectionLabel_(selection) {
   for(EventIt it = evts.begin(); it != evts.end(); ++it) {
     evts_.push_back(*it);
   }
