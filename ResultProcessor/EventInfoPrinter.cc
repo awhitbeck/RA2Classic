@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: EventInfoPrinter.cc,v 1.1 2012/09/12 16:26:28 mschrode Exp $
 
 #include <algorithm>
 #include <fstream>
@@ -12,13 +12,14 @@
 
 EventInfoPrinter::EventInfoPrinter(const std::vector<DataSet*> &dataSets, const Config &cfg) :
   cfg_(cfg), dataSets_(dataSets) {
-  init("print event info");
-  selectEvents();
-  print();
+  if( init("print event info") ) {
+    selectEvents();
+    print();
+  }
 }
 
 
-void EventInfoPrinter::init(const TString &key) {
+bool EventInfoPrinter::init(const TString &key) {
   std::vector<Config::Attributes> attrList = cfg_.listOfAttributes(key);
   for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
       it != attrList.end(); ++it) {
@@ -37,6 +38,8 @@ void EventInfoPrinter::init(const TString &key) {
       exit(-1);
     }
   }
+
+  return attrList.size() > 0;
 }
 
 

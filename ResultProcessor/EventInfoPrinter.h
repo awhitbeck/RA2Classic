@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: EventInfoPrinter.h,v 1.1 2012/09/12 16:26:28 mschrode Exp $
 
 #ifndef EVENT_INFO_PRINTER_H
 #define EVENT_INFO_PRINTER_H
@@ -24,7 +24,7 @@ private:
   std::map< TString, unsigned int > selectionVariables_;
   std::map< TString, std::set<const Event*> > printedEvts_;
 
-  void init(const TString &key);
+  bool init(const TString &key);
   void selectEvents();
   void print() const;
   std::list<TString> listOfPrintedVariables() const;
