@@ -28,6 +28,7 @@ public:
   TString selection() const { return selectionLabel_; }
 
   unsigned int size() const { return evts_.size(); }
+  double yield() const;		// Return weighted number of events
   EventIt begin() const { return evts_.begin(); }
   EventIt end() const { return evts_.end(); }
 

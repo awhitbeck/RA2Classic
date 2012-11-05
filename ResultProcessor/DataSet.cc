@@ -63,12 +63,12 @@ std::vector<DataSet*> DataSet::createDataSets(const Config &cfg, const TString k
 	}
       }
       if( it->hasName("scale") ) {
-	if( !(it->value("weight")).IsFloat() ) {
+	if( !(it->value("scale")).IsFloat() ) {
 	  std::cerr << "\n\nERROR in DataSet::createDataSets(): wrong config syntax" << std::endl;
 	  std::cerr << "  when specifying the scale in line with key '" << key << "'" << std::endl;
 	  std::cerr << "  Syntax is '..., scale : expr, ...', where 'expr' is a float" << std::endl;
 	}
-	scale = (it->value("weight")).Atof();
+	scale = (it->value("scale")).Atof();
       }
       // Optionally, parse uncertainties:
       // Get all key-value pairs that contain the key 'uncertainty'
@@ -169,4 +169,14 @@ DataSet::~DataSet() {
     }
   }
   evts_.clear();
+}
+
+
+double DataSet::yield() const {
+  double y = 0.;
+  for(EventIt it = evts_.begin(); it != evts_.end(); ++it) {
+    y += (*it)->weight();
+  }
+
+  return y;
 }
