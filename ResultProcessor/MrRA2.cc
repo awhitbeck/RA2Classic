@@ -7,7 +7,7 @@
 #include "EventInfoPrinter.h"
 #include "GlobalParameters.h"
 #include "MrRA2.h"
-#include "SelectionPrinter.h"
+#include "EventYieldPrinter.h"
 #include "Variable.h"
 
 
@@ -40,7 +40,7 @@ MrRA2::MrRA2(const TString& configFileName) {
 
   // Plots after different selections
   // Loop over defined selections
-  SelectionPrinter selPrinter;
+  EventYieldPrinter evtYieldPrinter;
   for(std::vector<Selection*>::const_iterator itSel = selections_.begin();
       itSel != selections_.end(); ++itSel) {
     std::cout << "  - for the selection '" << (*itSel)->label() << "'" << std::endl;
@@ -51,7 +51,11 @@ MrRA2::MrRA2(const TString& configFileName) {
       selectedDataSets.push_back((**itSel)(*itDat));
       std::cout << "    " << "Dataset '" << (*itDat)->label() << "' (" << (*itDat)->size() << " entries in tree)" << std::endl;
       (*itSel)->print();
-      selPrinter.add((*itDat)->label(),(*itSel)->label(),selectedDataSets.back()->size());
+      if( (*itDat)->type() == DataSet::Data ) {
+	evtYieldPrinter.add((*itDat)->label(),(*itSel)->label(),selectedDataSets.back()->size());
+      } else {
+	evtYieldPrinter.add((*itDat)->label(),(*itSel)->label(),selectedDataSets.back()->size(),selectedDataSets.back()->yield());
+      }
     }
     // Create output directory
     
@@ -63,7 +67,7 @@ MrRA2::MrRA2(const TString& configFileName) {
   }
 
   // Print selected yields
-  selPrinter();
+  evtYieldPrinter();
 }
 
 MrRA2::~MrRA2() {
