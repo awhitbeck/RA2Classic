@@ -1,4 +1,4 @@
-# $Id: getWeightProducer_cff.py,v 1.5 2012/10/19 12:41:12 adraeger Exp $
+# $Id: getWeightProducer_cff.py,v 1.6 2012/10/19 12:56:34 adraeger Exp $
 #
 # Returns a WeightProducer module that knows at runtime
 # which data sample is produced and thus, what weights
@@ -11,6 +11,9 @@
 import FWCore.ParameterSet.Config as cms
 
 def getWeightProducer(fileName):
+
+    mcVersion = "none"                  # For lumi and PU weights
+    applyWeight = False
 
 
     ## --- Setup default WeightProducer ------------------------------------
@@ -28,8 +31,6 @@ def getWeightProducer(fileName):
 
 
     ## --- Adjust WeightProducer for Summer12_5_2_X MC samples --------------------
-
-    mcVersion = "none"                  # For lumi and PU weights
 
     # For ttbar
     if "TTJets_TuneZ2star_8TeV-madgraph-tauola" in fileName and "Summer12-PU_S7_START52_V9-v1" in fileName:
@@ -85,52 +86,76 @@ def getWeightProducer(fileName):
         weightProducer.NumberEvts = cms.double(9998154)
         weightProducer.Exponent   = cms.double(-4.5)
 
-    # Defaults for MC
-    if mcVersion == "Summer12_5_2_X":
-        weightProducer.weight     = cms.double(-1.)
-        weightProducer.Lumi       = cms.double(5088)
-        weightProducer.PU         = cms.int32(2)
-##        weightProducer.FileNamePUDataDistribution = cms.string("RA2Classic/AdditionalInputFiles/DataPileupHistogram_RA2Summer12_5_2_X_190456-196531_8TeV_PromptReco_WOLowPU.root")
-        # grid-control requires additional input files to be in the data directory
-        weightProducer.FileNamePUDataDistribution = cms.string("RA2Classic/WeightProducer/data/DataPileupHistogram_RA2Summer12_190456-196531_8TeV_PromptReco_WOLowPU.root")
-
-
 
     ## --- Adjust WeightProducer for Summer12_5_3_X MC samples --------------------
 
-    mcVersion = "none"                  # For lumi and PU weights
-
     # For ttbar
-    if "TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v1_V1" in fileName:
+    if "TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v1" in fileName:
         mcVersion = "Summer12_5_3_X"
         weightProducer.Method     = cms.string("Constant")
         weightProducer.XS         = cms.double(234)
         weightProducer.NumberEvts = cms.double(6923750)
-   # For wpj
 
-    if "WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v2_v2" in fileName:
+    # For wpj
+    if "WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v2" in fileName:
         mcVersion = "Summer12_5_3_X"
         weightProducer.Method     = cms.string("Constant")
         weightProducer.XS         = cms.double(36257.2)
         weightProducer.NumberEvts = cms.double(57709905)
 
+    # For ZJets
+    if "ZJetsToNuNu_50_HT_100_TuneZ2Star_8TeV_madgraph" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v1" in fileName:
+        mcVersion = "Summer12_5_3_X"
+        weightProducer.Method     = cms.string("Constant")
+        weightProducer.XS         = cms.double(452.75)
+        weightProducer.NumberEvts = cms.double(4040980)
+    if "ZJetsToNuNu_100_HT_200_TuneZ2Star_8TeV_madgraph" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v1" in fileName:
+        mcVersion = "Summer12_5_3_X"
+        weightProducer.Method     = cms.string("Constant")
+        weightProducer.XS         = cms.double(190.39)
+        weightProducer.NumberEvts = cms.double(4416646)         
+    if "ZJetsToNuNu_200_HT_400_TuneZ2Star_8TeV_madgraph" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v1" in fileName:
+        mcVersion = "Summer12_5_3_X"
+        weightProducer.Method     = cms.string("Constant")
+        weightProducer.XS         = cms.double(49.28)
+        weightProducer.NumberEvts = cms.double(5055885)         
+    if "ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v1" in fileName:
+        mcVersion = "Summer12_5_3_X"
+        weightProducer.Method     = cms.string("Constant")
+        weightProducer.XS         = cms.double(6.26)
+        weightProducer.NumberEvts = cms.double(1006928)         
 
+    # For QCD
+    if "QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v1" in fileName:
+        mcVersion = "Summer12_5_3_X"
+        weightProducer.Method     = cms.string("PtHat")
+        weightProducer.XS         = cms.double(2.99913994e+10)
+        weightProducer.NumberEvts = cms.double(9991674)
+        weightProducer.Exponent   = cms.double(-4.5)
+
+
+
+    ## --- PU Reweighting and Lumi ------------------------------------------------
          
+    if mcVersion == "Summer12_5_2_X":
+        weightProducer.weight     = cms.double(-1.)
+        weightProducer.Lumi       = cms.double(5088)
+        weightProducer.PU         = cms.int32(2) # PU S7
+##        weightProducer.FileNamePUDataDistribution = cms.string("RA2Classic/AdditionalInputFiles/DataPileupHistogram_RA2Summer12_5_2_X_190456-196531_8TeV_PromptReco_WOLowPU.root")
+        # grid-control requires additional input files to be in the data directory
+        weightProducer.FileNamePUDataDistribution = cms.string("RA2Classic/WeightProducer/data/DataPileupHistogram_RA2Summer12_190456-196531_8TeV_PromptReco_WOLowPU.root")
+        applyWeight = True
 
-    # Defaults for MC
     if mcVersion == "Summer12_5_3_X":
         weightProducer.weight     = cms.double(-1.)
         weightProducer.Lumi       = cms.double(5295)
-        weightProducer.PU         = cms.int32(2)
+        weightProducer.PU         = cms.int32(3) # PU S10
 ##        weightProducer.FileNamePUDataDistribution = cms.string("RA2Classic/AdditionalInputFiles/DataPileupHistogram_RA2Summer12_5_2_X_190456-196531_8TeV_PromptReco_WOLowPU.root")
         # grid-control requires additional input files to be in the data directory
         weightProducer.FileNamePUDataDistribution = cms.string("RA2Classic/WeightProducer/data/DataPileupHistogram_RA2Summer12_190456-196531_AB.root")
+        applyWeight = True
 
-
-
-
-
-
-
+    if applyWeight:
+        print "Setup WeightProducer for '"+fileName+"'"
 
     return weightProducer
