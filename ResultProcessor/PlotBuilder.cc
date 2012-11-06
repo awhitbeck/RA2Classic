@@ -136,17 +136,25 @@ void PlotBuilder::plotSpectrum(const TString &var, const TString &dataSetLabel, 
   bool logy = false;
   parseHistCfg(histCfg,nBins,xMin,xMax,logy);
   TH1* h = 0;
-  DataSet::Type type = createHistogram(dataSetLabel,var,nBins,xMin,xMax,h);
+  TGraphAsymmErrors* u = 0;
+  DataSet::Type type = createDistribution(dataSetLabel,var,h,u,nBins,xMin,xMax);
 
   TCanvas *can = new TCanvas("can","",canSize_,canSize_);
   //can->SetWindowSize(canSize_+(canSize_-can->GetWw()),canSize_+(canSize_-can->GetWh()));
   if( type == DataSet::Data ) {
     h->Draw("PE1");
+    if( u ) {
+      u->Draw("E2same");
+      h->Draw("PE1same");
+    }
   } else {
     h->SetLineColor(kBlack);
     h->SetLineStyle(1);
     h->SetLineWidth(1);
     h->Draw("HIST");
+    if( u ) {
+      u->Draw("E2same");
+    }
   }
   TString dataSetLabelInHeader = dataSetLabelInPlot(dataSetLabel)+" (";
   dataSetLabelInHeader += static_cast<int>(h->Integral(1,h->GetNbinsX()));
@@ -159,6 +167,7 @@ void PlotBuilder::plotSpectrum(const TString &var, const TString &dataSetLabel, 
 
   delete title;
   delete h;
+  if( u ) delete u;
   delete can;
 }
 
@@ -176,7 +185,9 @@ void PlotBuilder::plotSpectra(const TString &var, const std::vector<TString> &da
   for(std::vector<TString>::const_iterator it = dataSetLabels.begin();
       it != dataSetLabels.end(); ++it) {
     TH1* h = 0;
-    types.push_back(createHistogram(*it,var,nBins,xMin,xMax,h));
+    TGraphAsymmErrors* u = 0;
+    types.push_back(createDistribution(*it,var,h,u,nBins,xMin,xMax));
+    if( u ) delete u;
     if( h->Integral() ) h->Scale(1./h->Integral("width"));
     h->GetYaxis()->SetTitle("Probability Density");
     if( types.back() != DataSet::Data ) {
@@ -230,10 +241,12 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
 
   std::vector<TH1*> hists1;
   std::vector<TString> legEntries1;
-  DataSet::Type type1 = createStack(dataSetLabels1,var,nBins,xMin,xMax,hists1,legEntries1);
+  TGraphAsymmErrors* unc1 = 0;
+  DataSet::Type type1 = createStack(dataSetLabels1,var,hists1,legEntries1,unc1,nBins,xMin,xMax);
   std::vector<TH1*> hists2;
   std::vector<TString> legEntries2;
-  DataSet::Type type2 = createStack(dataSetLabels2,var,nBins,xMin,xMax,hists2,legEntries2);
+  TGraphAsymmErrors* unc2 = 0;
+  DataSet::Type type2 = createStack(dataSetLabels2,var,hists2,legEntries2,unc2,nBins,xMin,xMax);
 
   TCanvas* can = new TCanvas("can","",canSize_,canSize_);
   can->SetBottomMargin(0.2 + 0.8*can->GetBottomMargin()-0.2*can->GetTopMargin());
@@ -284,6 +297,8 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
   std::vector<TH1*>* histsMC = 0;
   std::vector<TString>* legEntriesData = 0;
   std::vector<TString>* legEntriesMC = 0;
+  TGraphAsymmErrors* uncData = 0;
+  TGraphAsymmErrors* uncMC = 0;
   if( (type1 == DataSet::Data && type2 == DataSet::MC) ||
       (type1 == DataSet::Data && type2 == DataSet::Prediction) ||
       (type1 == DataSet::Prediction && type2 == DataSet::MC)      ) {
@@ -291,6 +306,8 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
     histsMC        = &hists2; 
     legEntriesData = &legEntries1;
     legEntriesMC   = &legEntries2;
+    uncData        = unc1;
+    uncMC          = unc2;
     if( type1 == DataSet::Prediction && type2 == DataSet::MC ) {
       for(std::vector<TH1*>::iterator it = hists1.begin();
 	  it != hists1.end(); ++it) {
@@ -304,10 +321,12 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
   } else if( (type2 == DataSet::Data && type1 == DataSet::MC) ||
 	     (type2 == DataSet::Data && type1 == DataSet::Prediction) ||
 	     (type2 == DataSet::Prediction && type1 == DataSet::MC)      ) {
-    histsData      = &hists1; 
-    histsMC        = &hists2; 
-    legEntriesData = &legEntries1;
-    legEntriesMC   = &legEntries2;
+    histsData      = &hists2; 
+    histsMC        = &hists1; 
+    legEntriesData = &legEntries2;
+    legEntriesMC   = &legEntries1;
+    uncData        = unc2;
+    uncMC          = unc1;
     if( type2 == DataSet::Prediction && type1 == DataSet::MC ) {
       for(std::vector<TH1*>::iterator it = hists2.begin();
 	  it != hists2.end(); ++it) {
@@ -325,6 +344,8 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
     }
     histsData      = &hists1; 
     histsMC        = &hists2; 
+    uncData        = unc1;
+    uncMC          = unc2;
     legEntriesData = &legEntries1;
     legEntriesMC   = &legEntries2;
     title          = header(false);
@@ -332,6 +353,8 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
   } else {
     histsData      = &hists1; 
     histsMC        = &hists2; 
+    uncData        = unc1;
+    uncMC          = unc2;
     legEntriesData = &legEntries1;
     legEntriesMC   = &legEntries2;
     title          = header(false);
@@ -347,6 +370,8 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
       it != histsMC->end(); ++it) {
     (*it)->Draw("HISTsame");
   }
+  // Plot only MC uncertainty band
+  if( uncMC ) uncMC->Draw("E2same");
   for(std::vector<TH1*>::iterator it = histsData->begin();
       it != histsData->end(); ++it) {
     (*it)->Draw("PE1same");
@@ -363,13 +388,26 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
     leg->AddEntry(*itH,*itL,"F");
   }
   gPad->RedrawAxis();
-  // Add ratio plot
+  // Add ratio plot (data/MC)
   ratioPad->Draw();
   ratioPad->cd();
   hRatio = static_cast<TH1*>(histsData->front()->Clone("Ratio"));
   hRatio->Divide(histsMC->front());
   hRatioFrame->GetYaxis()->SetTitle(ratioYTitle);
   hRatioFrame->Draw("HIST");
+  TGraphAsymmErrors* uncRatio = 0;
+  if( uncMC ) {
+    uncRatio = static_cast<TGraphAsymmErrors*>(uncMC->Clone());
+    for(unsigned int i = 0; i < uncRatio->GetN(); ++i) {
+      double denom  = uncRatio->GetY()[i];
+      if( denom > 0. ) {
+	uncRatio->GetY()[i] = 1.;
+	uncRatio->GetEYlow()[i] = uncRatio->GetEYlow()[i]/denom;
+	uncRatio->GetEYhigh()[i] = uncRatio->GetEYhigh()[i]/denom;
+      }
+    }
+    uncRatio->Draw("E2same");
+  }
   hRatio->Draw("PE1same");
   title->Draw("same");
   leg->Draw("same");
@@ -385,6 +423,9 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
       it != hists2.end(); ++it) {
     delete *it;
   }
+  if( unc1 ) delete unc1;
+  if( unc2 ) delete unc2;
+  if( uncRatio ) delete uncRatio;
   delete leg;
   delete title;
   delete can;
@@ -393,10 +434,13 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
 }
 
 
-DataSet::Type PlotBuilder::createHistogram(const TString &dataSetLabel, const TString &var, int nBins, double min, double max, TH1* &h) const {
+// Fill distribution of variable 'var' for dataSet with label 'dataSetLabel'
+// and an uncertainty band 'uncert'. 
+// ----------------------------------------------------------------------------
+DataSet::Type PlotBuilder::createDistribution(const TString &dataSetLabel, const TString &var, TH1* &h, TGraphAsymmErrors* &uncert, int nBins, double min, double max) const {
   ++PlotBuilder::count_;
   
-  DataSet* set = dataSet(dataSetLabel);
+  // Create histogram  
   TString name = "plot";
   name += count_;
   h = new TH1D(name,"",nBins,min,max);
@@ -407,20 +451,78 @@ DataSet::Type PlotBuilder::createHistogram(const TString &dataSetLabel, const TS
   setXTitle(h,var);
   setYTitle(h,var);
   setGenericStyle(h,dataSetLabel);
+
+  // Create temporary histograms to store uncertainties
+  TH1* hDn = static_cast<TH1*>(h->Clone(name+"Dn"));
+  TH1* hUp = static_cast<TH1*>(h->Clone(name+"Up"));
+
+  // Fill distributions
+  DataSet* set = dataSet(dataSetLabel);
   for(EventIt it = set->begin(); it != set->end(); ++it) {
-    h->Fill((*it)->get(var),(*it)->weight());
+    double v = (*it)->get(var);
+    h->Fill(v,(*it)->weight());
+    if( (*it)->hasUnc() ) {
+      hDn->Fill(v,(*it)->weightUncDn());
+      hUp->Fill(v,(*it)->weightUncUp());
+    }
   }
+
+  // Create uncertainty band
+  if( hDn->GetEntries() && hDn->GetEntries() ) {
+    std::vector<double> x(h->GetNbinsX());
+    std::vector<double> xe(h->GetNbinsX());
+    std::vector<double> y(h->GetNbinsX());
+    std::vector<double> yed(h->GetNbinsX());
+    std::vector<double> yeu(h->GetNbinsX());
+    for(unsigned int i = 0; i < x.size(); ++i) {
+      int bin = i+1;
+      x.at(i) = h->GetBinCenter(bin);
+      xe.at(i) = h->GetBinWidth(bin)/2.;
+      y.at(i) = h->GetBinContent(bin);
+      yed.at(i) = std::abs(h->GetBinContent(bin)-hDn->GetBinContent(bin));
+      yeu.at(i) = std::abs(h->GetBinContent(bin)-hUp->GetBinContent(bin));
+    }
+    uncert = new TGraphAsymmErrors(x.size(),&(x.front()),&(y.front()),&(xe.front()),&(xe.front()),&(yed.front()),&(yeu.front()));
+    uncert->SetMarkerStyle(1);
+    uncert->SetMarkerColor(kBlue+2);
+    uncert->SetFillColor(uncert->GetMarkerColor());
+    uncert->SetLineColor(uncert->GetMarkerColor());
+    uncert->SetFillStyle(3004);
+  }
+
+  // Delete temporary hists
+  delete hDn;
+  delete hUp;
 
   return set->type();
 }
 
 
-DataSet::Type PlotBuilder::createStack(const std::vector<TString> &dataSetLabels, const TString &var, int nBins, double xMin, double xMax, std::vector<TH1*> &hists, std::vector<TString> &legEntries) const {
+DataSet::Type PlotBuilder::createStack(const std::vector<TString> &dataSetLabels, const TString &var, std::vector<TH1*> &hists, std::vector<TString> &legEntries, TGraphAsymmErrors* &uncert, int nBins, double xMin, double xMax) const {
   DataSet::Type type;
+  uncert = 0;
   for(std::vector<TString>::const_reverse_iterator it = dataSetLabels.rbegin();
       it != dataSetLabels.rend(); ++it) {
     TH1* h = 0;
-    type = createHistogram(*it,var,nBins,xMin,xMax,h);
+    TGraphAsymmErrors* u = 0;
+    type = createDistribution(*it,var,h,u,nBins,xMin,xMax);
+    if( u ) {
+      if( uncert ) {		// Add uncertainties in quadrature
+	for(unsigned int i = 0; i < uncert->GetN(); ++i) {
+	  double y1  = uncert->GetY()[i];
+	  double ed1 = uncert->GetEYlow()[i];
+	  double eu1 = uncert->GetEYhigh()[i];
+	  double y2  = u->GetY()[i];
+	  double ed2 = u->GetEYlow()[i];
+	  double eu2 = u->GetEYhigh()[i];
+	  uncert->GetY()[i] = y1+y2;
+ 	  uncert->SetPointEYlow(i,sqrt(ed1*ed1+ed2*ed2));
+ 	  uncert->SetPointEYhigh(i,sqrt(eu1*eu1+eu2*eu2));
+	}
+      } else {
+	uncert = u;
+      }
+    }
     setGenericStyle(h,*it);
     TString entry = " "+dataSetLabelInPlot(*it)+" (";
     entry += static_cast<int>(h->Integral(1,h->GetNbinsX()));
@@ -566,18 +668,6 @@ TString PlotBuilder::lumiLabel() const {
 }
 
 
-TString PlotBuilder::cleanName(const TString &name) const {
-  TString cleanedName = name;
-  cleanedName.ReplaceAll(">","gtr");
-  cleanedName.ReplaceAll(" ","_");
-  cleanedName.ReplaceAll("#","");
-  cleanedName.ReplaceAll("{","");
-  cleanedName.ReplaceAll("}","");
-
-  return cleanedName;
-}
-
-
 DataSet* PlotBuilder::dataSet(const TString &label) const {
   DataSet* dset = 0;
   for(std::vector<DataSet*>::const_iterator it = dataSets_.begin();
@@ -598,12 +688,12 @@ void PlotBuilder::storeCanvas(TCanvas* can, const TString &name) const {
 
 
 TString PlotBuilder::plotName(const TString &var) const {
-  return cleanName(GlobalParameters::analysisId()+"_"+var+"_"+dataSets_.front()->selection());
+  return GlobalParameters::cleanName(GlobalParameters::analysisId()+"_"+var+"_"+dataSets_.front()->selection());
 }
 
 
 TString PlotBuilder::plotName(const TString &var, const TString &dataSetLabel) const {
-  return cleanName(GlobalParameters::analysisId()+"_"+var+"_"+dataSetLabel+"_"+dataSets_.front()->selection());
+  return GlobalParameters::cleanName(GlobalParameters::analysisId()+"_"+var+"_"+dataSetLabel+"_"+dataSets_.front()->selection());
 }
 
 
@@ -619,7 +709,7 @@ TString PlotBuilder::plotName(const TString &var, const std::vector<TString> &da
     label2 += "+"+*it;
   }
 
-  return cleanName(GlobalParameters::analysisId()+"_"+var+"_"+label1+"_vs_"+label2+"_"+dataSets_.front()->selection());
+  return GlobalParameters::cleanName(GlobalParameters::analysisId()+"_"+var+"_"+label1+"_vs_"+label2+"_"+dataSets_.front()->selection());
 }
 
 

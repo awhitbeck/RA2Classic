@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "TCanvas.h"
+#include "TGraphAsymmErrors.h"
 #include "TH1.h"
 #include "TLegend.h"
 #include "TPaveText.h"
@@ -36,8 +37,8 @@ private:
   void plotSpectrum(const TString &var, const TString &dataLabel, const TString &histCfg) const;
   void plotSpectra(const TString &var, const std::vector<TString> &dataSetLabels, const TString &histCfg) const;
   void plotComparisonOfSpectra(const TString &var, const std::vector<TString> &dataSetLabels1, const std::vector<TString> &dataSetLabels2, const TString &histCfg) const;
-  DataSet::Type createHistogram(const TString &dataSetLabel, const TString &var, int nBins, double min, double max, TH1* &h) const;
-  DataSet::Type createStack(const std::vector<TString> &dataSetLabels, const TString &var, int nBins, double xMin, double xMax, std::vector<TH1*> &hists, std::vector<TString> &legEntries) const;
+  DataSet::Type createDistribution(const TString &dataSetLabel, const TString &var, TH1* &h, TGraphAsymmErrors* &uncert, int nBins, double min, double max) const;
+  DataSet::Type createStack(const std::vector<TString> &dataSetLabels, const TString &var, std::vector<TH1*> &hists, std::vector<TString> &legEntries, TGraphAsymmErrors* &uncert, int nBins, double xMin, double xMax) const;
   void parseHistCfg(const TString &cfg, int &nBins, double &xMin, double &xMax, bool &logy) const;
   int color(const TString &dataSetLabel) const;
   int markerStyle(const TString &dataSetLabel) const;
@@ -48,7 +49,6 @@ private:
   TPaveText* header(bool showLumi, const TString &add = "") const;
   TLegend* legend(unsigned int nEntries) const;
   TString lumiLabel() const;
-  TString cleanName(const TString &name) const;
   TString plotName(const TString &var) const;
   TString plotName(const TString &var, const TString &dataSetLabel) const;
   TString plotName(const TString &var, const std::vector<TString> &dataSetLabels1, const std::vector<TString> &dataSetLabels2) const;

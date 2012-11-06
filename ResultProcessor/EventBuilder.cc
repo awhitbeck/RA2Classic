@@ -40,9 +40,23 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
   // Parse uncertainty source variables
   std::vector<Float_t> varsUncDn(uncDn.size(),0.);
   std::vector<Float_t> varsUncUp(uncUp.size(),0.);
+  std::vector<bool> symUnc(uncDn.size(),false);
   for(unsigned int i = 0; i < uncDn.size(); ++i) {
     if( uncDn.at(i).IsFloat() ) varsUncDn.at(i) = uncDn.at(i).Atof();
     if( uncUp.at(i).IsFloat() ) varsUncUp.at(i) = uncUp.at(i).Atof();
+    if( uncDn.at(i) == uncUp.at(i) ) symUnc.at(i) = true;
+  }
+
+  // Catch to-be-fixed case if weight variable is also used in uncertainty
+  if( !weight.IsFloat() ) {
+    for(unsigned int i = 0; i < uncDn.size(); ++i) {
+      if( (!uncDn.at(i).IsFloat() && uncDn.at(i) == weight) ||
+	  (!uncUp.at(i).IsFloat() && uncUp.at(i) == weight)    ) {
+	std::cerr << "\n\nERROR: The same tree-variable is used as weight and as uncertainty." << std::endl;
+	std::cerr << "       Case needs to be implemented.\n" << std::endl;
+	exit(-1);
+      }
+    }
   }
 
   // Setup branches
@@ -64,7 +78,7 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
 	if( *it == uncDn.at(i) && treeHasVar ) {
 	  tree->SetBranchAddress(*it,&varsUncDn.at(i));
 	}
-	if( *it == uncUp.at(i) && treeHasVar ) {
+	if( *it == uncUp.at(i) && treeHasVar && !symUnc.at(i) ) {
 	  tree->SetBranchAddress(*it,&varsUncUp.at(i));
 	}
       }
@@ -114,6 +128,7 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
     for(unsigned int i = 0; i < uncDn.size(); ++i) {
       double udn = varsUncDn.at(i);
       double uup = varsUncUp.at(i);
+      if( symUnc.at(i) ) uup = udn;
       if( !uncDn.at(i).IsFloat() ) {
 	udn = (varWeight - udn) / varWeight;
       }
