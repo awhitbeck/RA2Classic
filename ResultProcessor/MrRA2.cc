@@ -60,7 +60,7 @@ MrRA2::MrRA2(const TString& configFileName) {
     // Create output directory
     
     // Process the final result for this selection
-    outDir = GlobalParameters::resultDir()+"/"+(*itSel)->label();
+    outDir = GlobalParameters::resultDir()+"/"+GlobalParameters::cleanName((*itSel)->label());
     mkdir(outDir.Data(),S_IRWXU);
     makePlots(selectedDataSets,cfg,outDir); // Make plots
     EventInfoPrinter(selectedDataSets,cfg); // Print event info (for tail scans) 

@@ -25,3 +25,18 @@ void GlobalParameters::init(const Config &cfg, const TString &key) {
 
   std::cout << "ok" << std::endl;
 }
+
+
+TString GlobalParameters::cleanName(const TString &name) {
+  TString cleanedName = name;
+  cleanedName.ReplaceAll(">","gtr");
+  cleanedName.ReplaceAll(" ","_");
+  cleanedName.ReplaceAll("#","");
+  cleanedName.ReplaceAll("{","");
+  cleanedName.ReplaceAll("}","");
+
+  return cleanedName;
+}
+
+
+
