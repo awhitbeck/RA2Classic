@@ -13,6 +13,9 @@ bkglostlepton = cms.EDProducer(
 	MTWMax		= cms.double('100'),
 	MTWCut		= cms.bool(True),
 	MinMuPT		= cms.double('5'),
-	MinElecPT	= cms.double('10')
+	MinElecPT	= cms.double('10'),
+        HTTag	   	= cms.InputTag('htInputCol'),
+        MHTTag	   	= cms.InputTag('mhtInputCol'),
+        VertexCollection= cms.InputTag('goodVertices'),
 
 )

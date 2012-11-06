@@ -15,6 +15,7 @@
 
 #include <TH2F.h>
 #include <TFile.h>
+#include "TTree.h"
 //
 // class declaration
 //
@@ -43,7 +44,7 @@ class LostLeptonBkg : public edm::EDProducer {
 	edm::InputTag HtJetsTag_;
 	edm::InputTag MetTag_;
 	edm::InputTag MuonTag_;
-	edm::InputTag MhtTag_;
+	edm::InputTag MhtTag_,HTTag_,MHTTag_, NVTag_;
 	edm::InputTag CaloJetTag_;
 	edm::InputTag evtWeightTag_;
 
@@ -51,7 +52,7 @@ class LostLeptonBkg : public edm::EDProducer {
 	double MTWMax_;
 	bool MTWCut_;
  	double MinMuPT_, MinElecPT_;
-	double eventWeight_;
+	Float_t eventWeight_;
 
 	std::string EfficiencyFileName_;
 
@@ -61,33 +62,35 @@ class LostLeptonBkg : public edm::EDProducer {
 	TH2F *MuonRecoEff_, *MuonIsoEff_;
 	TH2F *ElecRecoEff_, *ElecIsoEff_;
 	TH1F *MTWEff_;
-	double MuonAccEff_, ElecAccEff_;
+	Float_t MuonAccEff_, ElecAccEff_;
 	
 	// Variables
 	float met_;
-	float mht_;
+	float mht_, ht_;
 	float mtw_; 
 	int nMu_;
-	double MuPt_;
-	double MuEta_;
-	double MuPhi_;
-	int nJets_;
+	Float_t MuPt_;
+	Float_t MuEta_;
+	Float_t MuPhi_;
+	UShort_t nV_, nJets_;
 	int nCaloJets_;
 
 	
-	double muonIsoEff_, muonRecoEff_, muonTotalWeight_;
-	double muonIsoWeight_, muonRecoWeight_, muonAccWeight_;
-	double elecRecoEff_, elecIsoEff_, elecTotalWeight_;
-	double elecIsoWeight_, elecRecoWeight_, elecAccWeight_;
-	double mtwCorrection_;
-	double resultWeight_;
+	Float_t muonIsoEff_, muonRecoEff_, muonTotalWeight_;
+	Float_t muonIsoWeight_, muonRecoWeight_, muonAccWeight_;
+	Float_t elecRecoEff_, elecIsoEff_, elecTotalWeight_;
+	Float_t elecIsoWeight_, elecRecoWeight_, elecAccWeight_;
+	Float_t mtwCorrection_;
+	Float_t resultWeight_;
 
-	double deltaRMuJet_;
-	double deltaRMuMHT_;
-	double PtClosestJet_;
-	double deltaPtClosestJetMu_;
+	Float_t deltaRMuJet_;
+	Float_t deltaRMuMHT_;
+	Float_t PtClosestJet_;
+	Float_t deltaPtClosestJetMu_;
+	int muPromtMatched_;
 
 
+        TTree* tree_;
 
 
       // ----------member data ---------------------------

@@ -74,6 +74,7 @@ class MCEffCalculator : public edm::EDAnalyzer {
 	
 	// additional input tags for plotting
 	edm::InputTag HtJetsTag_, MhtJetsTag_, HTTag_,MHTTag_, NVTag_;
+   	edm::InputTag muonPromtMatchedTag_;
 
 
       // Variables
@@ -122,4 +123,6 @@ class MCEffCalculator : public edm::EDAnalyzer {
 	Float_t ht_, mht_;
 	UShort_t nJets_, nV_;
 	int isExpectation_;
+	int nMuInIsoMuCollection_;
+	int muPromtMatched_;
 };

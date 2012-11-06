@@ -42,6 +42,7 @@ MCEffCalculator::MCEffCalculator(const edm::ParameterSet& iConfig)
   // muon elec tags
   muonIDTag_ = iConfig.getParameter<edm::InputTag> ("MuonIDTag");
   muonIDISOTag_= iConfig.getParameter<edm::InputTag> ("MuonIDISOTag");
+  muonPromtMatchedTag_= iConfig.getParameter<edm::InputTag> ("MuonPromtMatchedTag");
   elecIDTag_ = iConfig.getParameter<edm::InputTag> ("ElecIDTag");
   elecIDISOTag_ = iConfig.getParameter<edm::InputTag> ("ElecIDISOTag");
   caloJetTag_ =iConfig.getParameter<edm::InputTag> ("CaloJetTag");
@@ -91,6 +92,10 @@ MCEffCalculator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    iEvent.getByLabel(muonIDTag_,MuID);
    edm::Handle <edm::View <reco::Candidate> > MuIDISO;
    iEvent.getByLabel(muonIDISOTag_,MuIDISO);
+
+   edm::Handle <edm::View <reco::Candidate> > MuPromtMatched;
+   iEvent.getByLabel(muonPromtMatchedTag_,MuPromtMatched);
+
    // get a collection of reco elec.
    edm::Handle <edm::View <reco::Candidate> > ElecID;
    iEvent.getByLabel(elecIDTag_,ElecID);
@@ -137,7 +142,10 @@ MCEffCalculator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   
 
-
+  if (MuPromtMatched.isValid() )
+  {
+	muPromtMatched_ = MuPromtMatched->size();
+  }
 
 
 
@@ -240,6 +248,8 @@ MCEffCalculator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 						IsoMuonPTJet_=RecoMuonPTJet_;
 						IsoMuonPTRelJet_=RecoMuonPTJet_/muonRecoPt_;
 						muonIsoPassedTH2F_->Fill(RecoMuonDeltaR_,RecoMuonPTJet_/muonRecoPt_,eventWeight_);
+						mtw_= MTWCalculator(iEvent, metTag_,muonIsoPt_,muonIsoPhi_);
+						MTWTH2F_->Fill(mtw_,mht_);
 					}
 					if(nIsoMu_>0) break;
 				}
@@ -375,7 +385,7 @@ MCEffCalculator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
    }
 
-
+    nMuInIsoMuCollection_= MuIDISO->size();
 
   tree_->Fill();
 
@@ -461,11 +471,13 @@ MCEffCalculator::beginJob()
     tree_->Branch("RecoLevelMuonRelPTJet",&RecoMuonPTRelJet_,"RecoLevelMuonRelPTJet/F");
     tree_->Branch("RecoVsGenLevelMuonDeltaR",&RecoGenMuDeltaR_,"RecoVsGenLevelMuonDeltaR/F");
 
-
-
     tree_->Branch("IsoLevelMuonDeltaR",&IsoMuonDeltaR_,"IsoLevelMuonDeltaR/F");
     tree_->Branch("IsoLevelMuonPTJet",&IsoMuonPTJet_,"IsoLevelMuonPTJet/F");
     tree_->Branch("IsoLevelMuonRelPTJet",&IsoMuonPTRelJet_,"IsoLevelMuonRelPTJet/F");
+
+    // test if the cs is the same as the selected one from the matching
+    tree_->Branch("nMuInIsoMuCollection",&nMuInIsoMuCollection_,"nMuInIsoMuCollection/I");
+    tree_->Branch("muPromtMatched",&muPromtMatched_,"muPromtMatched/I");
 
 
     // plotting values
@@ -582,6 +594,8 @@ MCEffCalculator::ResetValues()
 	isExpectation_ = 0;
 	nIsoElec_=0;
 
+	// TESTING VARIABLES
+	nMuInIsoMuCollection_=0;
  	// additonal variables for plotting
 	ht_=-100;
 	nJets_=0;

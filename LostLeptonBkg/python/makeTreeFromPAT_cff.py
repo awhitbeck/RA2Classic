@@ -1,4 +1,4 @@
-# $Id: makeTreeFromPAT_cff.py,v 1.6 2012/09/17 14:39:19 mschrode Exp $
+# $Id: makeTreeFromPAT_cff.py,v 1.2 2012/11/01 12:17:43 adraeger Exp $
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -56,7 +56,7 @@ def makeTreeFromPAT(process,
     if invertLeptonVeto:
 	from SandBox.Skims.RA2Leptons_cff import countPatMuons
 	process.CSMuon = countPatMuons.clone()
-	process.CSMuon.src = cms.InputTag('patMuonsPFIDIso')
+	process.CSMuon.src = cms.InputTag('promtLeptons:PromtMuon')
 	process.CSMuon.minNumber = cms.uint32(1)
 	process.CSMuon.maxNumber = cms.uint32(1)
     	process.LeptonVeto = cms.Sequence(
@@ -206,8 +206,15 @@ def makeTreeFromPAT(process,
     	HTJets		= cms.InputTag('HTJets'),
 	MetTag		= cms.InputTag('pfMet'),
 	CaloJetTag	= cms.InputTag('cleanPatJetsAK5Calo'),
+	MuonTag		= cms.InputTag('promtLeptons:PromtMuon'),
 	MTWCut		= cms.bool(True),
 	EfficiencyFileName = cms.string('MCEffOnlyW.root'),
+    )
+
+    from RA2Classic.LostLeptonBkg.promtisomu_cfi import promtIsoMu
+    process.promtLeptons = promtIsoMu.clone(
+	MuonIDISOTag = cms.InputTag("patMuonsPFIDIso")
+ #	CaloJetTag = cms.InputTag("ak5CaloJetsL2L3")
     )
 
 
@@ -219,7 +226,8 @@ def makeTreeFromPAT(process,
     
     process.WriteTree = cms.Path(
         process.CleaningSelection *
-        process.LeptonVeto *
+	process.promtLeptons *
+ #       process.LeptonVeto *
 	process.ProduceRA2Jets *
         process.NumJetSelection *
         process.HTSelection *
@@ -227,7 +235,7 @@ def makeTreeFromPAT(process,
         process.AdditionalFiltersInTagMode *
         process.WeightProducer *
 	process.RA2Selector *
-	process.LostLeptonBkgProducer *
+	process.LostLeptonBkgProducer 
 #        process.dump *
-        process.RA2TreeMaker
+#        process.RA2TreeMaker
         )

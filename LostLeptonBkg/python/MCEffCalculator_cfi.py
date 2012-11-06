@@ -6,6 +6,7 @@ MCEffCalculator = cms.EDAnalyzer(
 	      EventWeightTag = cms.InputTag("WeightProducer:weight"),           
               MuonIDTag = cms.InputTag("patMuonsPFID"),
               MuonIDISOTag = cms.InputTag("patMuonsPFIDIso"),
+	      MuonPromtMatchedTag = cms.InputTag("promtLeptons:PromtMuon"),
               ElecIDTag = cms.InputTag("patElectronsIDIso"), 
 	      ElecIDISOTag = cms.InputTag("patElectronsIDIso"),
 	      CaloJetTag = cms.InputTag("cleanPatJetsAK5Calo"),

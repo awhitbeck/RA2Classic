@@ -13,7 +13,7 @@
 //
 // Original Author:  Arne-Rasmus Draeger,,,uni-hamburg
 //         Created:  Tue Sep 25 13:40:40 CEST 2012
-// $Id$
+// $Id: LostLeptonBkg.cc,v 1.3 2012/11/01 12:20:51 adraeger Exp $
 //
 //
 
@@ -51,6 +51,9 @@ LostLeptonBkg::LostLeptonBkg(const edm::ParameterSet& iConfig)
    MTWCut_ = iConfig.getParameter <bool> ("MTWCut");
    MinMuPT_ = iConfig.getParameter <double> ("MinMuPT");
    MinElecPT_ = iConfig.getParameter <double> ("MinElecPT");
+   HTTag_ = iConfig.getParameter<edm::InputTag>("HTTag");
+   MHTTag_ = iConfig.getParameter<edm::InputTag>("MHTTag");
+   NVTag_ = iConfig.getParameter<edm::InputTag>("VertexCollection");
    //register your products
 
 
@@ -109,6 +112,7 @@ LostLeptonBkg::~LostLeptonBkg()
 void
 LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+	std::cout<<"LostLeptonBkg:EventLoopStarted"<<std::endl;
    using namespace edm;
    ResetValues();
    
@@ -123,14 +127,32 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if( htJets.isValid() ) {
     nJets_ = htJets->size();
   }
+//  edm::Handle< edm::View<reco::Candidate> > mht;
+ // iEvent.getByLabel(MhtTag_,mht);
+ // if( mht.isValid() ) {
+  //  mht_ = mht->at(0).pt();
+ // }
+
   edm::Handle< edm::View<reco::Candidate> > mht;
-  iEvent.getByLabel(MhtTag_,mht);
-  if( mht.isValid() ) {
+  iEvent.getByLabel(MHTTag_,mht);
+
     mht_ = mht->at(0).pt();
-  }
+
    edm::Handle<double> eventWeight;
    iEvent.getByLabel(evtWeightTag_,eventWeight);
    eventWeight_ = *eventWeight;
+
+  edm::Handle<double> ht;
+  iEvent.getByLabel(HTTag_,ht);
+  ht_ = *ht;
+
+  edm::Handle<reco::VertexCollection> vertices;
+  iEvent.getByLabel(NVTag_,vertices);
+  if( vertices.isValid() ) 
+  {
+    	nV_ = vertices->size();
+  }
+
  
 
 
@@ -152,11 +174,11 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // start the prediciton from Muon CS
 
-  if(Mu.isValid() ) 
+  if(Mu.isValid() && Mu->size() > 0 ) 
   {
 	// the jet must not have the same energy as the muon
 	nMu_ = Mu->size();
-	
+	std::cout<<"LostLeptonBkg:MuTag="<<MuonTag_<<std::endl;
 	if (nMu_!=1) std::cout<<"Number of Muons="<<nMu_<<std::endl;
 	MuPt_ = Mu->at(0).pt();
 	MuEta_ = Mu->at(0).eta();
@@ -349,6 +371,8 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.put(pOut2, "Met");
 
    std::cout<<"EventLoopDoneExitingPrdocuer"<<std::endl;
+	std::cout<<"LostLeptonBkg:LostLeptonWeight:"<<resultWeight_<<std::endl;
+   tree_->Fill();
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -431,7 +455,39 @@ LostLeptonBkg::beginJob()
   // isolation
 
   ElecIsoEff_ = (TH2F*)dElec->Get("ElecIsoEff");
-  
+
+// output
+
+    	edm::Service<TFileService> fs;
+  	tree_ = fs->make<TTree>("LostLeptonBkg","LostLeptonBkg");
+
+    tree_->Branch("muPromtMatched",&nMu_,"muPromtMatched/I");
+    tree_->Branch("MTW",&mtw_,"MTW/F");
+
+    tree_->Branch("RecoLevelMuonDeltaR",&deltaRMuJet_,"RecoLevelMuonDeltaR/F");
+    tree_->Branch("RecoLevelMuonRelPTJet",&deltaPtClosestJetMu_,"RecoLevelMuonRelPTJet/F");
+
+
+    tree_->Branch("LostLeptonWeight",&resultWeight_,"LostLeptonWeight/F");
+    tree_->Branch("muonAccEff",&MuonAccEff_,"muonAccEff");
+    tree_->Branch("muonIsoWeight",&muonIsoWeight_,"muonIsoWeight/F");
+    tree_->Branch("muonRecoWeight",&muonRecoWeight_,"muonRecoWeight/F");
+    tree_->Branch("muonAccWeight",&muonAccWeight_,"muonAccWeight/F");
+
+    tree_->Branch("elecAccWeight",&elecAccWeight_,"elecAccWeight/F");
+    tree_->Branch("elecRecoWeight",&elecRecoWeight_,"elecRecoWeight/F");
+    tree_->Branch("elecIsoWeight",&elecIsoWeight_,"elecIsoWeight/F");
+
+    tree_->Branch("mtwCorrection",&mtwCorrection_,"mtwCorrection/F");
+    // plotting values
+    tree_->Branch("HT",&ht_,"HT/F");
+    tree_->Branch("MHT",&mht_,"MHT/F");
+    tree_->Branch("NJets",&nJets_,"NJets/s");
+    tree_->Branch("Weight",&eventWeight_,"Weight/F");
+    tree_->Branch("NVtx",&nV_,"NVtx/s");
+    tree_->Branch("MT",&met_,"MT/F");
+//    tree_->Branch("NVtx",&nV_,"NVtx/s");
+
 
 }
 void 
@@ -475,6 +531,7 @@ LostLeptonBkg::ResetValues()
 	muonTotalWeight_=-1;
 	elecTotalWeight_=-1;
 	mtwCorrection_=0;
+	resultWeight_=-1;
 
 
 }

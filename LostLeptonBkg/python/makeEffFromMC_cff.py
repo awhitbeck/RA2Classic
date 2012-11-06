@@ -1,4 +1,4 @@
-# $Id: makeEffFromMC_cff.py,v 1.1 2012/10/12 12:49:28 adraeger Exp $
+# $Id: makeEffFromMC_cff.py,v 1.3 2012/11/01 12:17:12 adraeger Exp $
 #
 
 
@@ -173,6 +173,27 @@ def makeTreeFromPAT(process,
     )
 
 
+    from RA2Classic.LostLeptonBkg.promtisomu_cfi import promtIsoMu
+    process.promtLeptons = promtIsoMu.clone(
+	MuonIDISOTag = cms.InputTag("patMuonsPFIDIso")
+ #	CaloJetTag = cms.InputTag("ak5CaloJetsL2L3")
+    )
+
+ #  process.lostLeptonPrediction = llPrediction()
+    from RA2Classic.LostLeptonBkg.bkglostlepton_cfi import bkglostlepton
+    process.LostLeptonBkgProducer = bkglostlepton.clone(
+    	HTJets		= cms.InputTag('HTJets'),
+	MetTag		= cms.InputTag('pfMet'),
+	CaloJetTag	= cms.InputTag('cleanPatJetsAK5Calo'),
+	MuonTag		= cms.InputTag('promtLeptons:PromtMuon'),
+	MTWCut		= cms.bool(True),
+	EfficiencyFileName = cms.string('MCEff.root'),
+	HTTag	   = cms.InputTag(htInputCol),
+ 	MHTTag	   = cms.InputTag(mhtInputCol),
+    )
+
+
+
  #electrons selectors for ID electrons
     from SandBox.Skims.electronSelector_cfi import electronSelector
     process.patElectronsID = electronSelector.clone(
@@ -193,10 +214,12 @@ def makeTreeFromPAT(process,
         process.MHTSelection *
         process.AdditionalFiltersInTagMode *
         process.WeightProducer *
+	process.promtLeptons *
 #	process.patElectronsID *
 	process.RA2Selector *
 #	process.ak5CaloJetsL2L3 *
-	process.LostLeptonBkgMCEffCalculator 
+	process.LostLeptonBkgMCEffCalculator *
+	process.LostLeptonBkgProducer
 #	process.RA2TreeMaker 
 
         )

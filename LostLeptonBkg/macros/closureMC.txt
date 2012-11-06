@@ -54,9 +54,9 @@ event content :: name: GenDeltaRLepClosestJet; type: Float_t
 dataset :: label: MCEx; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/MC_Expectation.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight
 
 dataset :: label: MCPr; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/MC_Prediction.root; tree: RA2TreeMaker/RA2PreSelection; weight: LostLeptonWeight
-#dataset :: label: MCPr; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/wpjPrediction5_2.root; tree: RA2TreeMaker/RA2PreSelection; weight: LostLeptonWeight
+#dataset :: label: MCPrCS; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/wpjPrediction5_2.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight
 
-
+#dataset :: label: MCExCS; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/MC_Expectation.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight
 
 
 ########### seperate closures
@@ -89,8 +89,10 @@ dataset :: label: WJetsPrEAcc; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm
 
 ##################################################################
 # Specify the event selection
-selection :: label: baseline; cuts: IsExpectation > 0.5 (MCEx) NJets > 2 + DeltaPhi1 > 0.5 (MCPr) + DeltaPhi2 > 0.5 (MCPr) + DeltaPhi3 > 0.3 (MCPr) + HT > 500 + MHT > 200
+selection :: label: baseline; cuts: IsExpectation > 0.5 (MCEx) + NJets > 2 + DeltaPhi1 > 0.5 (MCPr) + DeltaPhi2 > 0.5 (MCPr) + DeltaPhi3 > 0.3 (MCPr) + HT > 500 + MHT > 200
 #selection :: label: baseline; cuts: HT > 500 + MTW < 100 (MCPr) + nLeptons > 0 (MCEx) + nLeptons < 2 (MCEx) + nIsoMu < 0.5 (MCEx) + nIsoElec < 0.5 (MCEx)
+
+#selection :: label: CScomparison; cuts: baseline + IsExpectation < 0.5 (MCExCS) + nIsoMu > 0.5 (MCExCS) 
 
 ##### MC closures
 
@@ -133,24 +135,37 @@ selection :: label: ElecOutIsoMTWCUT; cuts: ElecOutIso + MTW < 100 (WJetsExEIso)
 plot style :: dataset: MCEx; plot label: Expecation; marker: 20; color: 2
 plot style :: dataset: MCPr; plot label: Prediciton; marker: 20; color: 5
 
+plot style :: dataset: WJetsPrMuIso; plot label: Prediciton; marker: 20; color: 2
+plot style :: dataset: WJetsExMuIso; plot label: Expecation; marker: 20; color: 5
+
+plot style :: dataset: WJetsPrMuReco; plot label: Prediciton; marker: 20; color: 2
+plot style :: dataset: WJetsExMuReco; plot label: Expecation; marker: 20; color: 5
+
+plot style :: dataset: WJetsPrMuAcc; plot label: Prediciton; marker: 20; color: 2
+plot style :: dataset: WJetsExMuAcc; plot label: Expecation; marker: 20; color: 5
 
 
 ########################################################################
 # Plot a spectrum
-plot :: variable: HT; dataset: MCEx; histogram: 27, 400, 3000, log
-plot :: variable: IsExpectation; dataset: MCEx; histogram: 20, -10, 10
-plot :: variable: nLeptons; dataset: MCEx; histogram: 20, -10, 10
-plot :: variable: NJets; dataset: MCEx; histogram: 20, -10, 10
-plot :: variable: HT; dataset1: MCPr; dataset2: MCEx; histogram: 27, 400, 3000, log
-plot :: variable: MHT; dataset1: MCPr; dataset2: MCEx; histogram: 34, 180, 1800, log
-plot :: variable: NJets; dataset1: MCPr; dataset2: MCEx; histogram: 20, 0, 20, log
-plot :: variable: MTW; dataset1: MCPr; dataset2: MCEx; histogram: 40, 0, 200, log
+#plot :: variable: HT; dataset: MCEx; histogram: 27, 400, 3000, log
+#plot :: variable: IsExpectation; dataset: MCEx; histogram: 20, -10, 10
+#plot :: variable: nLeptons; dataset: MCEx; histogram: 20, -10, 10
+#plot :: variable: NJets; dataset: MCEx; histogram: 20, -10, 10
+#plot :: variable: HT; dataset1: MCPr; dataset2: MCEx; histogram: 27, 400, 3000, log
+#plot :: variable: MHT; dataset1: MCPr; dataset2: MCEx; histogram: 34, 180, 1800, log
+#plot :: variable: NJets; dataset1: MCPr; dataset2: MCEx; histogram: 20, 0, 20, log
+#plot :: variable: MTW; dataset1: MCPr; dataset2: MCEx; histogram: 40, 0, 200, log
 
 
 
 
 
 ##### seperate for each contribution
+
+plot :: variable: HT; dataset1: MCPr; dataset2: MCEx; histogram: 25, 500, 3000, log
+plot :: variable: MHT; dataset1: MCPr; dataset2: MCEx; histogram: 32, 200, 1800, log
+plot :: variable: NJets; dataset1: MCPr; dataset2: MCEx; histogram: 20, 0, 20, log
+
 
 plot :: variable: HT; dataset1: WJetsPrMuIso; dataset2: WJetsExMuIso; histogram: 25, 500, 3000, log
 plot :: variable: MHT; dataset1: WJetsPrMuIso; dataset2: WJetsExMuIso; histogram: 32, 200, 1800, log
@@ -163,6 +178,10 @@ plot :: variable: NJets; dataset1: WJetsPrMuReco; dataset2: WJetsExMuReco; histo
 plot :: variable: HT; dataset1: WJetsPrMuAcc; dataset2: WJetsExMuAcc; histogram: 25, 500, 3000, log
 plot :: variable: MHT; dataset1: WJetsPrMuAcc; dataset2: WJetsExMuAcc; histogram: 32, 200, 1800, log
 plot :: variable: NJets; dataset1: WJetsPrMuAcc; dataset2: WJetsExMuAcc; histogram: 20, 0, 20, log
+
+#plot :: variable: HT; dataset1: MCPrCS; dataset2: MCExCS; histogram: 25, 500, 3000, log
+#plot :: variable: MHT; dataset1: MCPrCS; dataset2: MCExCS; histogram: 32, 200, 1800, log
+#plot :: variable: NJets; dataset1: MCPrCS; dataset2: MCExCS; histogram: 20, 0, 20, log
 
 
 
