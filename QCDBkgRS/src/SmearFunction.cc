@@ -2,9 +2,9 @@
 #include "../interface/SmearFunction.h"
 
 #include <TROOT.h>
+#include <TPostScript.h>
 #include <TCanvas.h>
 #include <TStyle.h>
-#include <TPostScript.h>
 
 using namespace std;
 
@@ -332,53 +332,84 @@ void SmearFunction::CalculateSmearFunctions() {
          }
       }
    }
+   /*
+   gROOT->Reset();
+   gROOT->SetStyle("Plain");
+   gStyle->SetStatColor(0);
+   gStyle->SetCanvasColor(0);
+   gStyle->SetPadColor(0);
+   gStyle->SetPadBorderMode(0);
+   gStyle->SetCanvasBorderMode(0);
+   gStyle->SetFrameBorderMode(0);
+   gStyle->SetOptStat(0);
+   gStyle->SetStatBorderSize(2);
+   gStyle->SetOptTitle(1);
+   gStyle->SetPadTickX(1);
+   gStyle->SetPadTickY(1);
+   gStyle->SetPadBorderSize(2);
+   gStyle->SetPalette(51, 0);
+   gStyle->SetPadBottomMargin(0.25);
+   gStyle->SetPadTopMargin(0.10);
+   gStyle->SetPadLeftMargin(0.2);
+   gStyle->SetPadRightMargin(0.05);
+   gStyle->SetTitleOffset(1.2, "X");
+   gStyle->SetTitleOffset(1.6, "Y");
+   gStyle->SetTitleOffset(1.0, "Z");
+   gStyle->SetLabelSize(0.05, "X");
+   gStyle->SetLabelSize(0.05, "Y");
+   gStyle->SetLabelSize(0.05, "Z");
+   gStyle->SetLabelOffset(0.02, "X");
+   gStyle->SetLabelOffset(0.02, "Y");
+   gStyle->SetLabelOffset(0.02, "Z");
+   gStyle->SetTitleSize(0.05, "X");
+   gStyle->SetTitleSize(0.05, "Y");
+   gStyle->SetTitleSize(0.05, "Z");
+   gStyle->SetTitleColor(1);
+   gStyle->SetTitleFillColor(0);
+   gStyle->SetTitleFontSize(0.06);
+   gStyle->SetTitleY(0.99);
+   gStyle->SetTitleX(0.15);
+   gStyle->SetTitleBorderSize(0);
+   gStyle->SetLineWidth(2);
+   gStyle->SetHistLineWidth(2);
+   gStyle->SetLegendBorderSize(0);
+   gStyle->SetNdivisions(505, "X");
+   gStyle->SetMarkerSize(0.8);
+   gStyle->SetTickLength(0.03);
+   gROOT->ForceStyle();
 
-//    gROOT->Reset();
-//    gROOT->SetStyle("Plain");
-//    gStyle->SetStatColor(0);
-//    gStyle->SetCanvasColor(0);
-//    gStyle->SetPadColor(0);
-//    gStyle->SetPadBorderMode(0);
-//    gStyle->SetCanvasBorderMode(0);
-//    gStyle->SetFrameBorderMode(0);
-//    gStyle->SetOptStat(0);
-//    gStyle->SetStatBorderSize(2);
-//    gStyle->SetOptTitle(1);
-//    gStyle->SetPadTickX(1);
-//    gStyle->SetPadTickY(1);
-//    gStyle->SetPadBorderSize(2);
-//    gStyle->SetPalette(51, 0);
-//    gStyle->SetPadBottomMargin(0.25);
-//    gStyle->SetPadTopMargin(0.10);
-//    gStyle->SetPadLeftMargin(0.2);
-//    gStyle->SetPadRightMargin(0.05);
-//    gStyle->SetTitleOffset(1.2, "X");
-//    gStyle->SetTitleOffset(1.6, "Y");
-//    gStyle->SetTitleOffset(1.0, "Z");
-//    gStyle->SetLabelSize(0.05, "X");
-//    gStyle->SetLabelSize(0.05, "Y");
-//    gStyle->SetLabelSize(0.05, "Z");
-//    gStyle->SetLabelOffset(0.02, "X");
-//    gStyle->SetLabelOffset(0.02, "Y");
-//    gStyle->SetLabelOffset(0.02, "Z");
-//    gStyle->SetTitleSize(0.05, "X");
-//    gStyle->SetTitleSize(0.05, "Y");
-//    gStyle->SetTitleSize(0.05, "Z");
-//    gStyle->SetTitleColor(1);
-//    gStyle->SetTitleFillColor(0);
-//    gStyle->SetTitleFontSize(0.06);
-//    gStyle->SetTitleY(0.99);
-//    gStyle->SetTitleX(0.15);
-//    gStyle->SetTitleBorderSize(0);
-//    gStyle->SetLineWidth(2);
-//    gStyle->SetHistLineWidth(2);
-//    gStyle->SetLegendBorderSize(0);
-//    gStyle->SetNdivisions(505, "X");
-//    gStyle->SetMarkerSize(0.8);
-//    gStyle->SetTickLength(0.03);
-//    gROOT->ForceStyle();
+   TString psfile = "SmearFunctions";//(outputfile_ + uncertaintyName_).c_str();
+   TCanvas *c = new TCanvas("", "", 800, 800);
+   c->cd();
+   c->Print(psfile + ".ps(");
+   for (unsigned int i_flav = 0; i_flav < 2; ++i_flav) {
+      for (unsigned int i_jet = 0; i_jet < 3; ++i_jet) {
+         for (unsigned int i_Pt = 0; i_Pt < PtBinEdges_.size() - 1; ++i_Pt) {
+            for (unsigned int i_eta = 0; i_eta < EtaBinEdges_.size() - 1; ++i_eta) {
+               char cname[100];
+               sprintf(cname, "c_Pt%i_Eta%i_Jet%i_JetFlavor%i", i_Pt, i_eta, i_jet + 1, i_flav);
+               c->SetName(cname);
+               c->SetLogy();
+               smearFunc.at(i_flav).at(i_jet).at(i_eta).at(i_Pt)->SetTitle(cname);
+               smearFunc.at(i_flav).at(i_jet).at(i_eta).at(i_Pt)->SetLineColor(kBlack);
+               smearFunc_Core.at(i_flav).at(i_jet).at(i_eta).at(i_Pt)->SetLineColor(kGreen);
+               smearFunc_LowerTail.at(i_flav).at(i_jet).at(i_eta).at(i_Pt)->SetLineColor(kRed);
+               smearFunc_UpperTail.at(i_flav).at(i_jet).at(i_eta).at(i_Pt)->SetLineColor(kMagenta);
+               smearFunc_scaled.at(i_flav).at(i_jet).at(i_eta).at(i_Pt)->SetLineColor(kBlue);
+               smearFunc.at(i_flav).at(i_jet).at(i_eta).at(i_Pt)->Draw();
+               smearFunc_Core.at(i_flav).at(i_jet).at(i_eta).at(i_Pt)->Draw("same");
+               smearFunc_LowerTail.at(i_flav).at(i_jet).at(i_eta).at(i_Pt)->Draw("same");
+               smearFunc_UpperTail.at(i_flav).at(i_jet).at(i_eta).at(i_Pt)->Draw("same");
+               smearFunc_scaled.at(i_flav).at(i_jet).at(i_eta).at(i_Pt)->Draw("same");
+               c->Print(psfile + ".ps");
+            }
+         }
+      }
+   }
+   c->Print(psfile + ".ps)");*/
+ 
    
-//    string ending = ".ps";
+  //  string ending = ".ps";
 //    TPostScript* psfile = new TPostScript((outputfile_ + uncertaintyName_ + ending).c_str(), 111);
 //    psfile->NewPage();
 //    for (unsigned int i_flav = 0; i_flav < 2; ++i_flav) {
@@ -514,17 +545,51 @@ void SmearFunction::FillSigmaHistsForRebalancing() {
             if (smearFunc_total.at(i_jet).at(i_eta).at(i_Pt)->GetEntries() > 50) {
                double RMS = smearFunc_total.at(i_jet).at(i_eta).at(i_Pt)->GetRMS();
                double MEAN = smearFunc_total.at(i_jet).at(i_eta).at(i_Pt)->GetMean();
+
+           //     if( i_jet == 1 ){
+//                   cout << "------------------------" << endl;
+//                   cout << "Pt Bin:" << i_Pt << endl;
+//                   cout << "Eta Bin:" << i_eta << endl;
+//                   cout << "RMS:" << RMS << endl;
+//                   cout << "Mean:" << MEAN << endl;
+//                   cout << "------------------------" << endl;
+//                }
+
                TF1* fitfunction = new TF1("f", "gaus(0)", MEAN - 1 * RMS, MEAN + 1 * RMS);
                fitfunction->SetParameters(smearFunc_total.at(i_jet).at(i_eta).at(i_Pt)->GetMaximum(), MEAN, RMS);
-               smearFunc_total.at(i_jet).at(i_eta).at(i_Pt)->Fit(fitfunction, "LLRQN");
+               smearFunc_total.at(i_jet).at(i_eta).at(i_Pt)->Fit(fitfunction, "LLRQNM");
+
+             //   if( i_jet == 1 ){
+//                   cout << "Fit Prob:" << fitfunction->GetProb() << endl;
+//                   cout << "fitted mean:" << fitfunction->GetParameter(1) << endl;
+//                   cout << "sigma:" << fitfunction->GetParameter(2) << endl;
+//                   cout << "sigma error:" << fitfunction->GetParError(2) << endl;
+//                   cout << "------------------------" << endl;
+//                }
+
+               double SigmaAfterFit = RMS;
+               double SigmaAfterFitError = smearFunc_total.at(i_jet).at(i_eta).at(i_Pt)->GetRMSError();
+               if( fitfunction->GetParameter(2) < RMS ){
+                  SigmaAfterFit = std::abs(fitfunction->GetParameter(2));
+                  SigmaAfterFitError = fitfunction->GetParError(2);
+               }
+
+              //  cout << "SigmaAfterFit:" << SigmaAfterFit << endl;
+//                cout << "SigmaAfterFitError:" << SigmaAfterFitError << endl;
+
                double Pt = SigmaPtHist_scaled_total.at(i_jet).at(i_eta)->GetBinCenter(i_Pt);
                double eta = (EtaBinEdges_.at(i_eta) + EtaBinEdges_.at(i_eta + 1)) / 2;
                double f = GetAdditionalSmearing(Pt, eta);
-               SigmaPtHist_total.at(i_jet).at(i_eta)->SetBinContent(i_Pt + 1, std::abs(fitfunction->GetParameter(2)));
-               SigmaPtHist_total.at(i_jet).at(i_eta)->SetBinError(i_Pt + 1, fitfunction->GetParError(2));
-               SigmaPtHist_scaled_total.at(i_jet).at(i_eta)->SetBinContent(i_Pt + 1, std::abs(fitfunction->GetParameter(2))
-                                                                           * f);
-               SigmaPtHist_scaled_total.at(i_jet).at(i_eta)->SetBinError(i_Pt + 1, fitfunction->GetParError(2) * f);
+             //   SigmaPtHist_total.at(i_jet).at(i_eta)->SetBinContent(i_Pt + 1, std::abs(fitfunction->GetParameter(2)));
+//                SigmaPtHist_total.at(i_jet).at(i_eta)->SetBinError(i_Pt + 1, fitfunction->GetParError(2));
+//                SigmaPtHist_scaled_total.at(i_jet).at(i_eta)->SetBinContent(i_Pt + 1, std::abs(fitfunction->GetParameter(2))
+//                                                                            * f);
+//                SigmaPtHist_scaled_total.at(i_jet).at(i_eta)->SetBinError(i_Pt + 1, fitfunction->GetParError(2) * f);
+
+               SigmaPtHist_total.at(i_jet).at(i_eta)->SetBinContent(i_Pt + 1, SigmaAfterFit);
+               SigmaPtHist_total.at(i_jet).at(i_eta)->SetBinError(i_Pt + 1, SigmaAfterFitError);
+               SigmaPtHist_scaled_total.at(i_jet).at(i_eta)->SetBinContent(i_Pt + 1, SigmaAfterFit * f);
+               SigmaPtHist_scaled_total.at(i_jet).at(i_eta)->SetBinError(i_Pt + 1, SigmaAfterFitError * f);
    
             }
          }

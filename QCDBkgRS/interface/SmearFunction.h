@@ -10,6 +10,9 @@
 #include "TFile.h"
 #include "TMath.h"
 #include "TArray.h"
+#include "TPostScript.h"
+#include "TCanvas.h"
+#include "TStyle.h"
 
 #include <memory>
 #include <string>

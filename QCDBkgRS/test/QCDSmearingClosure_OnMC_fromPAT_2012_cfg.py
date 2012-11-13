@@ -48,7 +48,11 @@ process.load("RA2Classic.QCDBkgRS.qcdbkgrs_cfi")
 ###############################################################################
 #process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withCHS_withPUReweighting_pixelcorr.root'
 #process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withoutCHS_withoutPUReweighting.root'
-process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withCHS_withoutPUReweighting_fineLowPtBins.root'
+#process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withCHS_withoutPUReweighting_fineLowPtBins.root'
+#process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2Star_Flat_8TeV_pythia6_NoPU_withCHS.root'
+#process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2star_Flat_8TeV_pythia6_withCHS_withoutPUReweighting.root'
+process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2star_Flat_8TeV_pythia6_withCHS_withoutPUReweighting.root'
+
 process.QCDfromSmearing.BProbabilityFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/BJetProbabilityMC.root'
 process.QCDfromSmearing.jetCollection = 'patJetsPF' 
 #process.QCDfromSmearing.jetCollection = 'patJetsAK5PF'
@@ -80,7 +84,7 @@ process.QCDfromSmearing.AdditionalSmearing = cms.vdouble(1.0)
 process.QCDfromSmearing.LowerTailScaling = cms.vdouble(1.0)
 process.QCDfromSmearing.UpperTailScaling = cms.vdouble(1.0)
 process.QCDfromSmearing.SmearedJetPt = 0.
-process.QCDfromSmearing.RebalanceJetPt = 13.
+process.QCDfromSmearing.RebalanceJetPt = 15.
 process.QCDfromSmearing.RebalanceMode = 'MHThigh'
 process.QCDfromSmearing.weightName = 'weightProducer:weight'
 process.QCDfromSmearing.ControlPlots = True
@@ -101,12 +105,22 @@ process.QCDfromSmearing.HTcut_extremehigh = cms.double(1400.)
 ###############################################################################
 process.load("RA2Classic.WeightProducer.weightProducer_cfi")
 process.weightProducer.weightName	= 'weight'
-process.weightProducer.Method			= 'PtHat'
-process.weightProducer.Exponent		= -4.5
-process.weightProducer.XS				= 2.99913994e+10
-process.weightProducer.NumberEvts	= 9998154
-process.weightProducer.Lumi			= 1000
-process.weightProducer.weight			= -1.0
+
+## QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6
+#process.weightProducer.Method			= 'PtHat'
+#process.weightProducer.Exponent		= -4.5
+#process.weightProducer.XS				= 2.99913994e+10
+#process.weightProducer.NumberEvts	= 9998154
+#process.weightProducer.Lumi			= 1000
+#process.weightProducer.weight			= -1.0
+
+## QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6
+process.weightProducer.Method          = 'PtHat'
+process.weightProducer.Exponent        = -4.5
+process.weightProducer.XS              = 2.99815997e+10
+process.weightProducer.NumberEvts      = 9993618
+process.weightProducer.Lumi            = 1000
+process.weightProducer.weight          = -1.0
 
 #process.weightProducer.Method		= 'BinnedPythia'
 #process.weightProducer.Lumi			= 1000

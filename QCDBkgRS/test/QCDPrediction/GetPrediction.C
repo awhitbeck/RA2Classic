@@ -206,7 +206,7 @@ int main()
    TChain* selection = new TChain("RA2TreeMaker/RA2PreSelection");
 
    // open files for MC --- pythia QCD ---- //
-   /* ifstream myfile ("filelist_pythia_chs_pt13_withPUReweighting_noCleverPSTreating_mc.txt");
+   ifstream myfile ("filelist_pythia_chs_TuneZ2star_pt15_withoutPUReweighting_FitProb01_v1_mc.txt");
    if (myfile.is_open()) {
       while( myfile.good() ) {
          getline (myfile,root_file);
@@ -218,13 +218,13 @@ int main()
 
       }
       myfile.close();
-      }*/
+   }
 
-   prediction->Add("/afs/naf.desy.de/user/k/kriheine/scratch/CMSSW_5_2_5/src/RA2Classic/QCDBkgRS/test/QCDSmearing_OnData_reduced_2012.root");
-   selection->Add("/afs/naf.desy.de/user/k/kriheine/scratch/CMSSW_5_2_5/src/RA2Classic/QCDBkgRS/test/Selection_OnData_2012.root");
+   //prediction->Add("/afs/naf.desy.de/user/k/kriheine/scratch/CMSSW_5_2_5/src/RA2Classic/QCDBkgRS/test/QCDSmearing_OnData_reduced_2012.root");
+   //selection->Add("/afs/naf.desy.de/user/k/kriheine/scratch/CMSSW_5_2_5/src/RA2Classic/QCDBkgRS/test/Selection_OnData_2012.root");
 
    // open files for MC --- madgraph QCD ---- //
-   /* ifstream myfile1 ("filelist_madgraph_chs_pt13_withoutPUReweighting_HT250-500_v2_mc.txt");
+   /* ifstream myfile1 ("filelist_madgraph_chs_pt13_withoutPUReweighting_HT250-500_Res250-Inf_v1_mc.txt");
    if (myfile1.is_open()) {
       while( myfile1.good() ) {
          getline (myfile1,root_file);
@@ -238,7 +238,7 @@ int main()
       myfile1.close();
    }
 
-   ifstream myfile2 ("filelist_madgraph_chs_pt13_withoutPUReweighting_HT500-1000_v2_mc.txt");
+   ifstream myfile2 ("filelist_madgraph_chs_pt13_withoutPUReweighting_HT500-1000_Res250-Inf_v1_mc.txt");
    if (myfile2.is_open()) {
       while( myfile2.good() ) {
          getline (myfile2,root_file);
@@ -252,7 +252,7 @@ int main()
       myfile2.close();
    }
 
-   ifstream myfile3 ("filelist_madgraph_chs_pt13_withoutPUReweighting_HT1000-inf_v2_mc.txt");
+   ifstream myfile3 ("filelist_madgraph_chs_pt13_withoutPUReweighting_HT1000-inf_Res250-Inf_v1_mc.txt");
    if (myfile3.is_open()) {
       while( myfile3.good() ) {
          getline (myfile3,root_file);
@@ -266,12 +266,61 @@ int main()
       myfile3.close();
       }*/
 
+   // files for data prediction
+   /* ifstream myfile1 ("filelist_prediction_525_Run2012A_HT_PromptReco_v1_data.txt");
+   if (myfile1.is_open()) {
+      while( myfile1.good() ) {
+         getline (myfile1,root_file);
+         cout << root_file << endl;
+
+         TString path = root_file;
+         prediction->Add(path);
+      }
+      myfile1.close();
+   }
+
+   ifstream myfile2 ("filelist_prediction_525_Run2012B_JetHT_PromptReco_v1_data.txt");
+   if (myfile2.is_open()) {
+      while( myfile2.good() ) {
+         getline (myfile2,root_file);
+         cout << root_file << endl;
+
+         TString path = root_file;
+         prediction->Add(path);
+      }
+      myfile2.close();
+   }
+
+   ifstream myfile3 ("filelist_selection_525_Run2012A_HT_PromptReco_v1_data.txt");
+   if (myfile3.is_open()) {
+      while( myfile3.good() ) {
+         getline (myfile3,root_file);
+         cout << root_file << endl;
+
+         TString path = root_file;
+         selection->Add(path);
+      }
+      myfile3.close();
+   }
+
+   ifstream myfile4 ("filelist_selection_525_Run2012B_HTMHT_PromptReco_v1_data.txt");
+   if (myfile4.is_open()) {
+      while( myfile4.good() ) {
+         getline (myfile4,root_file);
+         cout << root_file << endl;
+
+         TString path = root_file;
+         selection->Add(path);
+      }
+      myfile4.close();
+      }*/
+
    // ------------------------------------------------------------------- //
      
    // initialize new Prediction object
    Prediction *pred_;
    pred_ = new Prediction(*prediction, *selection);
-   bool isData = true;
+   bool isData = false;
   
    TString LumiTitle;
    if( isData ) LumiTitle = "CMS preliminary, L = 5.1 fb^{  -1}, #sqrt{s} = 8 TeV";
@@ -282,17 +331,22 @@ int main()
    //TString postfix = "_genJets_withChsJets_withPUReweighting_withBProb";
    //TString postfix = "_genJets_withChsJets_withPUReweighting_madgraph_PythiaResolutions";
  
-   TString postfix = "_test_data";
+   // TString postfix = "_test";
+   // TString postfix = "_chsJets_Z2star_NoPU_pt0";
+   TString postfix = "_chsJets_Z2star_withoutPUReweighting_pt15_FitProb01";
    // TString postfix = "_chsJets_withPUReweighting_pt10";
    //TString postfix = "_chsJets_withPUReweighting_pt10_noCleverPSTreating_cutOnEventWeight";
    // TString postfix = "_chsJets_withPUReweighting_pt15_noCleverPSTreating_cutOnEventWeight";
-   // TString postfix = "_chsJets_withPUReweighting_pt13_NSmear1";
+   //TString postfix = "_chsJets_withoutPUReweighting_pt15_fineLowPtBins";
+   //TString postfix = "_chsJets_withoutPUReweighting_pt13_fineLowPtBins";
    //TString postfix = "_chsJets_withPUReweighting_pt13_noCleverPSTreating_cutOnEventWeight_Vtx15";
    // TString postfix = "_chsJets_withPUReweighting_WithBProb_pt13";
 
-   // TString postfix = "_chsJets_withoutPUReweighting_madgraph_pt13_noCleverPSTreating_cutOnEventWeight";
+   //TString postfix = "_chsJets_withoutPUReweighting_madgraph_pt13_Res250-Inf";
    //TString postfix = "_chsJets_withPUReweighting_madgraph_PythiaResolutions_withBProb_pt13";
    // TString postfix = "_chsJets_withPUReweighting_madgraph_PythiaResolutions_pt13";
+
+   // TString postfix = "_chsJets_525_Run2012AB_PromptReco_data_v1";
 
    vector<TString> xTitle_presel;
    xTitle_presel.push_back("H_{T} (GeV)");
@@ -863,467 +917,474 @@ int main()
    double MHThigh = 500;
    int SmearRep = 100;
   
+
+   TString prediction_type = "_data";
+   if( !isData ) prediction_type = "_mc";
+ 
+   ofstream prediction_outfile;
+   prediction_outfile.open("outpout_GetPrediction/Prediction" + prediction_type + ".txt");
     
    // QCD predictions in search bins
    // first jet multiplicity bin
-   cout << "----------------------" << endl;
-   cout << "----------------------" << endl;
-   cout << "NJets = 2 " << endl;
-   cout << "----------------------" << endl;
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTlow << "-" << HTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"),
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "NJets = 2 " << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"),
                                                       MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError( pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHTlow, MHTmedium)
         << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"),
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"),
                                                       MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError( pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHTlow, MHTmedium)
         << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), 
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), 
                                                       MHTlow, MHTmedium)/ pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHTlow, MHTmedium); 
 
-   cout << "----------------------" << endl;
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTlow << "-" << HTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHTmedium, MHThigh) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHTmedium, MHThigh) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHTmedium, MHThigh) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHTmedium, MHThigh) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHTmedium, MHThigh); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHTmedium, MHThigh); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTlow << "-" << HTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT > " << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHThigh, -1) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT > " << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHThigh, -1) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHThigh, -1) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHThigh, -1) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHThigh, -1); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHThigh, -1); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTmedium << "-" << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHTlow, MHTmedium) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHTlow, MHTmedium) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHTlow, MHTmedium) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHTlow, MHTmedium) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHTlow, MHTmedium); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHTlow, MHTmedium); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTmedium << "-" << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHTmedium, MHThigh) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHTmedium, MHThigh) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHTmedium, MHThigh) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHTmedium, MHThigh) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHTmedium, MHThigh); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHTmedium, MHThigh); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTmedium << "-" << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT > " << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHThigh, -1) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT > " << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHThigh, -1) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHThigh, -1) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHThigh, -1) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHThigh, -1)/pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHThigh, -1); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHThigh, -1)/pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHThigh, -1); 
+   prediction_outfile << "----------------------" << endl;
 
- cout << "----------------------" << endl;
-   cout << "HT > " << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTmedium) 
+ prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT > " << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTmedium) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTmedium) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTmedium) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTmedium); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTmedium); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT > " << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTmedium, MHThigh) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT > " << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTmedium, MHThigh) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTmedium, MHThigh) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTmedium, MHThigh) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTmedium, MHThigh); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTmedium, MHThigh); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT > " << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT > " << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHThigh, -1) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT > " << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT > " << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHThigh, -1) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHThigh, -1) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHThigh, -1) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHThigh, -1); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHThigh, -1); 
+   prediction_outfile << "----------------------" << endl;
 
 
    // second jet multiplicity bin
-   cout << "----------------------" << endl;
-   cout << "----------------------" << endl;
-   cout << "NJets = 3 - 5" << endl;
-   cout << "----------------------" << endl;
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTlow << "-" << HTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTmedium) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "NJets = 3 - 5" << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTmedium) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTmedium) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTmedium) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTmedium); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTmedium); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTlow << "-" << HTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTmedium, MHThigh) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTmedium, MHThigh) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTmedium, MHThigh) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTmedium, MHThigh) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTmedium, MHThigh); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTmedium, MHThigh); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTlow << "-" << HTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT > " << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHThigh, -1) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT > " << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHThigh, -1) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHThigh, -1) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHThigh, -1) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHThigh, -1); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHThigh, -1); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTmedium << "-" << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHTlow, MHTmedium) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHTlow, MHTmedium) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHTlow, MHTmedium) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHTlow, MHTmedium) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHTlow, MHTmedium); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHTlow, MHTmedium); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTmedium << "-" << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHTmedium, MHThigh) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHTmedium, MHThigh) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHTmedium, MHThigh) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHTmedium, MHThigh) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHTmedium, MHThigh); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHTmedium, MHThigh); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTmedium << "-" << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT > " << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHThigh, -1) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT > " << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHThigh, -1) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHThigh, -1) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHThigh, -1) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHThigh, -1); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHThigh, -1); 
+   prediction_outfile << "----------------------" << endl;
 
- cout << "----------------------" << endl;
-   cout << "HT > " << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTmedium) 
+ prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT > " << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTmedium) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTmedium) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTmedium) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTmedium); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTmedium); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT > " << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTmedium, MHThigh) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT > " << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTmedium, MHThigh) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTmedium, MHThigh) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTmedium, MHThigh) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTmedium, MHThigh); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTmedium, MHThigh); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT > " << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT > " << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHThigh, -1) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT > " << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT > " << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHThigh, -1) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHThigh, -1) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHThigh, -1) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHThigh, -1); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHThigh, -1); 
+   prediction_outfile << "----------------------" << endl;
 
    // third jet multiplicity bin
-   cout << "----------------------" << endl;
-   cout << "----------------------" << endl;
-   cout << "NJets = 6 or 7" << endl;
-   cout << "----------------------" << endl;
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTlow << "-" << HTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTmedium) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "NJets = 6 or 7" << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTmedium) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTmedium) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTmedium) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTmedium); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTmedium); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTlow << "-" << HTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTmedium, MHThigh) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTmedium, MHThigh) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTmedium, MHThigh) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTmedium, MHThigh) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTmedium, MHThigh); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTmedium, MHThigh); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTlow << "-" << HTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT > " << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHThigh, -1) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT > " << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHThigh, -1) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHThigh, -1) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHThigh, -1) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHThigh, -1); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHThigh, -1); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTmedium << "-" << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHTlow, MHTmedium) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHTlow, MHTmedium) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHTlow, MHTmedium) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHTlow, MHTmedium) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHTlow, MHTmedium); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHTlow, MHTmedium); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTmedium << "-" << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHTmedium, MHThigh) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHTmedium, MHThigh) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHTmedium, MHThigh) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHTmedium, MHThigh) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHTmedium, MHThigh); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHTmedium, MHThigh); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTmedium << "-" << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT > " << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHThigh, -1) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT > " << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHThigh, -1) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHThigh, -1) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHThigh, -1) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHThigh, -1); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHThigh, -1); 
+   prediction_outfile << "----------------------" << endl;
 
- cout << "----------------------" << endl;
-   cout << "HT > " << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTmedium) 
+ prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT > " << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTmedium) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTmedium) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTmedium) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTmedium); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTmedium); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT > " << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTmedium, MHThigh) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT > " << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTmedium, MHThigh) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTmedium, MHThigh) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTmedium, MHThigh) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTmedium, MHThigh); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTmedium, MHThigh); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT > " << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT > " << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHThigh, -1) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT > " << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT > " << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHThigh, -1) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHThigh, -1) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHThigh, -1) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHThigh, -1); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHThigh, -1); 
+   prediction_outfile << "----------------------" << endl;
 
    // fourth jet multiplicity bin
-   cout << "----------------------" << endl;
-   cout << "----------------------" << endl;
-   cout << "NJets >= 8" << endl;
-   cout << "----------------------" << endl;
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTlow << "-" << HTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTmedium) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "NJets >= 8" << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTmedium) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTmedium) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTmedium) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTmedium); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTmedium); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTlow << "-" << HTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTmedium, MHThigh) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTmedium, MHThigh) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTmedium, MHThigh) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTmedium, MHThigh) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTmedium, MHThigh); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTmedium, MHThigh); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTlow << "-" << HTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT > " << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHThigh, -1) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT > " << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHThigh, -1) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHThigh, -1) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHThigh, -1) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHThigh, -1); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHThigh, -1); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTmedium << "-" << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTlow << "-" << MHTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
 
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHTlow, MHTmedium) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHTlow, MHTmedium) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHTlow, MHTmedium) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHTlow, MHTmedium) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHTlow, MHTmedium); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHTlow, MHTmedium); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTmedium << "-" << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHTmedium, MHThigh) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHTmedium, MHThigh) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHTmedium, MHThigh) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHTmedium, MHThigh) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHTmedium, MHThigh); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHTmedium, MHThigh); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT = " << HTmedium << "-" << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT > " << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHThigh, -1) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT > " << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHThigh, -1) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHThigh, -1) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHThigh, -1) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHThigh, -1); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHThigh, -1); 
+   prediction_outfile << "----------------------" << endl;
 
- cout << "----------------------" << endl;
-   cout << "HT > " << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTmedium) 
+ prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT > " << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTmedium) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTmedium) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTmedium) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTmedium) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTmedium); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTmedium); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT > " << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTmedium, MHThigh) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT > " << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTmedium, MHThigh) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTmedium, MHThigh) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTmedium, MHThigh) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTmedium, MHThigh) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTmedium, MHThigh); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTmedium, MHThigh); 
+   prediction_outfile << "----------------------" << endl;
 
-   cout << "----------------------" << endl;
-   cout << "HT > " << HThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "MHT > " << MHThigh << endl;
-   cout << "----------------------" << endl;
-   cout << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHThigh, -1) 
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "HT > " << HThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "MHT > " << MHThigh << endl;
+   prediction_outfile << "----------------------" << endl;
+   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHThigh, -1) << endl;
-   cout << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHThigh, -1) 
+   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHThigh, -1) 
         << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHThigh, -1) << endl;
-   cout << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHThigh, -1); 
-   cout << "----------------------" << endl;
+   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHThigh, -1); 
+   prediction_outfile << "----------------------" << endl;
    
+   prediction_outfile.close();
 
    return 1;
 }

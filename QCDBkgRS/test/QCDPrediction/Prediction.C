@@ -563,7 +563,7 @@ Prediction::Prediction(TChain& QCDPrediction, TChain& RA2PreSelection)
       HT_new->Fill(HT);
 
       // select reasonable event weights
-      if( weight < 500000. ) {
+      if( weight < 30000. ) {
 
          // cut on vertices
          //  if( vtxN <= 15 ){
@@ -874,7 +874,7 @@ Prediction::Prediction(TChain& QCDPrediction, TChain& RA2PreSelection)
       if( i%100000 == 0 ) std::cout << "event (selection): " << i << '\n';
 
 
-      if( weight_RA2 > 500000. ) {
+      if( weight_RA2 > 50000. ) {
 
          cout << "------------------------------" << endl;
          cout << "Event: " << EvtNum_RA2 << endl;
@@ -887,7 +887,7 @@ Prediction::Prediction(TChain& QCDPrediction, TChain& RA2PreSelection)
       }
 
       // select reasonable event weights
-      if( weight_RA2 < 500000. ) {
+      if( weight_RA2 < 30000. ) {
 
          // cut on vertices
          //  if( vtxN_RA2 <= 15 ){

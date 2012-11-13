@@ -136,6 +136,7 @@ private:
    std::string outputfile_;
    int NRebin_;
    bool controlPlots_;
+   bool isData_;
    bool absoluteTailScaling_;
    bool cleverPrescaleTreating_;
    double A0RMS_;
@@ -210,34 +211,32 @@ private:
    TH2F* h_bProb_NJets5p6;
    TH2F* h_bProb_NJets7p;
 
+   TH1F* h_nJets_gen;
    TH1F* h_nJets_reco;
    TH1F* h_nJets_reb;
    TH1F* h_nJets_smear;
+   TH1F* h_JetPt_gen;
    TH1F* h_JetPt_reco;
    TH1F* h_JetPt_reb;
    TH1F* h_JetPt_smear;
    
+   TH1F *h_HT_gen, *h_HT_rec, *h_HT_smeared, *h_HT_reb;
+   TH1F *h_deltaPhiJet1Jet2_gen, *h_deltaPhiJet1Jet2_rec, *h_deltaPhiJet1Jet2_smeared, *h_deltaPhiJet1Jet2_reb;
+   TH1F *h_HT_JetBin1_gen, *h_HT_JetBin1_rec, *h_HT_JetBin1_smeared, *h_HT_JetBin1_reb;
+   TH1F *h_HT_JetBin2_gen, *h_HT_JetBin2_rec, *h_HT_JetBin2_smeared, *h_HT_JetBin2_reb;
+   TH1F *h_HT_JetBin3_gen, *h_HT_JetBin3_rec, *h_HT_JetBin3_smeared, *h_HT_JetBin3_reb;
+   TH1F *h_HT_JetBin4_gen, *h_HT_JetBin4_rec, *h_HT_JetBin4_smeared, *h_HT_JetBin4_reb;
    TH1F *h_HTall_gen, *h_HTall_rec, *h_HTall_smeared, *h_HTall_reb;
    TH1F *h_HThigh_gen, *h_HThigh_rec, *h_HThigh_smeared, *h_HThigh_reb;
    TH1F *h_MHTall_gen, *h_MHTall_rec, *h_MHTall_smeared, *h_MHTall_reb;
    TH1F *h_MHThigh_gen, *h_MHThigh_rec, *h_MHThigh_smeared, *h_MHThigh_reb;
    
-   TH1F *h_deltaR_reb_gen, *h_deltaR_gen_reb;
-
    TH1F *h_RecJetMatched_Pt, *h_RecJetNotMatched_Pt;
-    
-   TH1F *h_HTall_gen_matched, *h_HTall_reb_matched;
-   TH1F *h_MHTall_gen_matched, *h_MHTall_reb_matched; 
-   TH1F *h_HThigh_gen_matched, *h_HThigh_reb_matched;
-   TH1F *h_MHThigh_gen_matched, *h_MHThigh_reb_matched; 
-   
-   TH1F *h_deltaPhiJet1MHTallGen, *h_deltaPhiJet1MHTallReb;
-   TH1F *h_deltaEtaJet1MHTallGen, *h_deltaEtaJet1MHTallReb;
-   TH1F *h_deltaRJet1MHTallGen, *h_deltaRJet1MHTallReb;
-   TH1F *h_deltaPhiJet1MHThighGen, *h_deltaPhiJet1MHThighReb;
-   TH1F *h_deltaEtaJet1MHThighGen, *h_deltaEtaJet1MHThighReb;
-   TH1F *h_deltaRJet1MHThighGen, *h_deltaRJet1MHThighReb;
-   
+   TH1F *h_RecJetMatched_JetBin1_Pt, *h_RecJetNotMatched_JetBin1_Pt;
+   TH1F *h_RecJetMatched_JetBin2_Pt, *h_RecJetNotMatched_JetBin2_Pt;
+   TH1F *h_RecJetMatched_JetBin3_Pt, *h_RecJetNotMatched_JetBin3_Pt;
+   TH1F *h_RecJetMatched_JetBin4_Pt, *h_RecJetNotMatched_JetBin4_Pt;
+       
    TH1F *h_fitProb;
    TH1F *h_weight;
    TH1F *h_weightedWeight;

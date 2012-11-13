@@ -109,10 +109,10 @@ process.weightProducer.Method           = 'Constant'
 process.weightProducer.Lumi             = 1000
 #process.weightProducer.NumberEvts       = 27057349 #250To500
 #process.weightProducer.XS               = 276000.0
-#process.weightProducer.NumberEvts      = 32255694 #500To1000
-#process.weightProducer.XS               = 8426.0
-process.weightProducer.NumberEvts      = 13879218 #1000ToInf
-process.weightProducer.XS               = 204.0
+process.weightProducer.NumberEvts      = 32255694 #500To1000
+process.weightProducer.XS               = 8426.0
+#process.weightProducer.NumberEvts      = 13879218 #1000ToInf
+#process.weightProducer.XS               = 204.0
 
 process.weightProducer.FileNamePUDataDistribution = 'NONE'
 #process.weightProducer.FileNamePUDataDistribution = 'RA2Classic/AdditionalInputFiles/data/DataPileupHistogram_RA2Summer12_190456-196531_8TeV_PromptReco_WOLowPU_pixelcorr.root'
