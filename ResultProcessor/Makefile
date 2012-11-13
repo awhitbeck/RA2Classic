@@ -23,7 +23,7 @@ Event.o: Event.h Event.cc
 EventBuilder.o: EventBuilder.h EventBuilder.cc Event.h Variable.h
 	g++ $(CFLAG) -c  EventBuilder.cc
 
-EventInfoPrinter.o: EventInfoPrinter.h EventInfoPrinter.cc Config.h DataSet.h Event.h Variable.h
+EventInfoPrinter.o: EventInfoPrinter.h EventInfoPrinter.cc Config.h DataSet.h Event.h GlobalParameters.h Variable.h
 	g++ $(CFLAG) -c  EventInfoPrinter.cc
 
 EventYieldPrinter.o: EventYieldPrinter.cc EventYieldPrinter.h
