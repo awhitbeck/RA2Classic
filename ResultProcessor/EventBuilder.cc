@@ -28,10 +28,12 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
   std::vector<Int_t> varsInt_t(Variable::nVars(),0);
   std::vector<UInt_t> varsUInt_t(Variable::nVars(),0);
   std::vector<UShort_t> varsUShort_t(Variable::nVars(),0);
+  std::vector<UChar_t> varsUChar_t(Variable::nVars(),0);
   unsigned int idxFloat_t = 0;
   unsigned int idxInt_t = 0;
   unsigned int idxUInt_t = 0;
   unsigned int idxUShort_t = 0;
+  unsigned int idxUChar_t = 0;
 
   // Parse weight variable
   Float_t varWeight = 1.;
@@ -91,6 +93,9 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
     } else if( Variable::type(*it) == "UShort_t" ) {
       if( treeHasVar ) tree->SetBranchAddress(*it,&varsUShort_t.at(idxUShort_t));
       ++idxUShort_t;
+    } else if( Variable::type(*it) == "UChar_t" ) {
+      if( treeHasVar ) tree->SetBranchAddress(*it,&varsUChar_t.at(idxUChar_t));
+      ++idxUChar_t;
     }
   }  
 
@@ -109,6 +114,7 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
     idxInt_t = 0;
     idxUInt_t = 0;
     idxUShort_t = 0;
+    idxUChar_t = 0;
     for(std::vector<TString>::const_iterator it = Variable::begin(); it != Variable::end(); ++it) {
       if( Variable::type(*it) == "Float_t" ) {
 	evt->set(*it,varsFloat_t.at(idxFloat_t));
@@ -122,6 +128,9 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
       } else if( Variable::type(*it) == "UShort_t" ) {
 	evt->set(*it,varsUShort_t.at(idxUShort_t));
 	++idxUShort_t;
+      } else if( Variable::type(*it) == "UChar_t" ) {
+	evt->set(*it,varsUChar_t.at(idxUChar_t));
+	++idxUChar_t;
       }
     }
 
