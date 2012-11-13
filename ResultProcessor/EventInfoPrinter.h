@@ -1,4 +1,4 @@
-// $Id: EventInfoPrinter.h,v 1.1 2012/09/12 16:26:28 mschrode Exp $
+// $Id: EventInfoPrinter.h,v 1.2 2012/11/02 16:18:58 mschrode Exp $
 
 #ifndef EVENT_INFO_PRINTER_H
 #define EVENT_INFO_PRINTER_H
@@ -28,7 +28,9 @@ private:
   void selectEvents();
   void print() const;
   std::list<TString> listOfPrintedVariables() const;
+  bool printAllEvents() const;
 
+  // To sort evts according to one of their quantities
   class EvtValPair {
   public:
     static bool valueGreaterThan(const EvtValPair *idx1, const EvtValPair *idx2);
