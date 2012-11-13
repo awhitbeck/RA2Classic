@@ -1,3 +1,5 @@
+#include <iomanip>
+#include <iostream>
 #include <cmath>
 #include <cstdlib>
 
@@ -131,7 +133,7 @@ Cut::Cut(const TString &cut)
     if( cutCfg.size() == 2 ) {
       var_ = cutCfg.at(0);
       min_ = cutCfg.at(1).Atof();
-      max_ = 99999.;
+      max_ = 99999999.;
       varIsAbs_ = false;
     } else {
       std::cerr << "\n\nERROR in Cut::Cut(): wrong syntax" << std::endl;
@@ -142,7 +144,7 @@ Cut::Cut(const TString &cut)
     Config::split(cut_,"<",cutCfg);
     if( cutCfg.size() == 2 ) { // Expect VAR < X
       var_ = cutCfg.at(0);
-      min_ = -99999.;
+      min_ = -99999999.;
       max_ = cutCfg.at(1).Atof();
       varIsAbs_ = false;
     } else if( cutCfg.size() == 3 ) { // Expect X < VAR < Y
@@ -182,11 +184,13 @@ DataSet* Cut::operator()(const DataSet* dataSet) const {
       if( varIsAbs_ ) val = std::abs(val);
       if( val > min_ && val < max_ ) {
 	passed.push_back(*it);
+//       } else {
+// 	if( var_ == "HT" ) std::cout << std::setprecision(10) << ">>> " << var_ << ": " << val << " > " << min_ << " && " << val << " < " << max_ << std::endl;
+
       }
     } else {
       passed.push_back(*it);
     }
-    //      std::cout << ">>> " << var_ << ": " << val << " > " << min_ << " && " << val << " < " << max_ << std::endl;
   }
   count_ = passed.size();
 
