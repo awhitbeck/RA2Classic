@@ -21,6 +21,25 @@ public:
   ~PlotBuilder();
 
 private:
+  class HistParams {
+  public:
+    HistParams() : nBins_(1), xMin_(0), xMax_(1), logy_(false), norm_(false) {};
+    HistParams(const TString &cfg);
+
+    int nBins() const { return nBins_; }
+    double xMin() const { return xMin_; }
+    double xMax() const { return xMax_; }
+    bool logy() const { return logy_; }
+    bool norm() const { return norm_; }
+
+  private:
+    int nBins_;
+    double xMin_;
+    double xMax_;
+    bool logy_;
+    bool norm_;
+  };
+
   static unsigned int count_;
 
   const Config &cfg_;
@@ -34,12 +53,11 @@ private:
 
   void run(const TString &key) const;
   void setStyle(const TString &key);
-  void plotSpectrum(const TString &var, const TString &dataLabel, const TString &histCfg) const;
-  void plotSpectra(const TString &var, const std::vector<TString> &dataSetLabels, const TString &histCfg) const;
-  void plotComparisonOfSpectra(const TString &var, const std::vector<TString> &dataSetLabels1, const std::vector<TString> &dataSetLabels2, const TString &histCfg) const;
-  DataSet::Type createDistribution(const TString &dataSetLabel, const TString &var, TH1* &h, TGraphAsymmErrors* &uncert, int nBins, double min, double max) const;
-  DataSet::Type createStack(const std::vector<TString> &dataSetLabels, const TString &var, std::vector<TH1*> &hists, std::vector<TString> &legEntries, TGraphAsymmErrors* &uncert, int nBins, double xMin, double xMax) const;
-  void parseHistCfg(const TString &cfg, int &nBins, double &xMin, double &xMax, bool &logy) const;
+  void plotSpectrum(const TString &var, const TString &dataLabel, const HistParams &histParams) const;
+  void plotSpectra(const TString &var, const std::vector<TString> &dataSetLabels, const HistParams &histParams) const;
+  void plotComparisonOfSpectra(const TString &var, const std::vector<TString> &dataSetLabels1, const std::vector<TString> &dataSetLabels2, const HistParams &histParams) const;
+  DataSet::Type createDistribution(const TString &dataSetLabel, const TString &var, TH1* &h, TGraphAsymmErrors* &uncert, const HistParams &histParams) const;
+  DataSet::Type createStack(const std::vector<TString> &dataSetLabels, const TString &var, std::vector<TH1*> &hists, std::vector<TString> &legEntries, TGraphAsymmErrors* &uncert, const HistParams &histParams) const;
   int color(const TString &dataSetLabel) const;
   int markerStyle(const TString &dataSetLabel) const;
   void setMarkerStyle(TH1* h, const TString &dataSetLabel) const;
@@ -57,5 +75,6 @@ private:
   TString dataSetLabelInPlot(const TString &dataSetLabel) const;
   TString dataSetTypeLabel(DataSet::Type type) const;
   void setYRange(TH1* &h, double logMin = -1.) const;
+  bool checkForUnderOverFlow(const TH1* h, const TString &var, const TString &dataSetLabel) const;
 };
 #endif

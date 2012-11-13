@@ -58,14 +58,14 @@ void PlotBuilder::run(const TString &key) const {
 	std::cerr << "\n\nERROR in PlotBuilder::run(): variable '" << variable << "' does not exist" << std::endl;
 	exit(-1);
       }
-      TString histogram = it->value("histogram");
+      HistParams histParams(it->value("histogram"));
       if( it->hasName("dataset") ) { // Sinlge spectrum
 	TString dataset = it->value("dataset");
 	if( !DataSet::exists(dataset) ) {
 	  std::cerr << "\n\nERROR in PlotBuilder::run(): dataset '" << dataset << "' does not exist" << std::endl;
 	  exit(-1);
 	}
-	plotSpectrum(variable,dataset,histogram);
+	plotSpectrum(variable,dataset,histParams);
       } else if( it->hasName("datasets") ) { // Comparison of several datasets (normalised histograms)
 	std::vector<TString> dataLabels;
 	Config::split(it->value("datasets"),",",dataLabels);
@@ -76,7 +76,7 @@ void PlotBuilder::run(const TString &key) const {
 	    exit(-1);
 	  }
 	}
-	plotSpectra(variable,dataLabels,histogram);
+	plotSpectra(variable,dataLabels,histParams);
       } else if( it->hasName("dataset1") && it->hasName("dataset2") ) {	// Comparison of two stacked datasets
 	std::vector<TString> dataLabels1;
 	std::vector<TString> dataLabels2;
@@ -96,7 +96,7 @@ void PlotBuilder::run(const TString &key) const {
 	    exit(-1);
 	  }
 	}
-	plotComparisonOfSpectra(variable,dataLabels1,dataLabels2,histogram);
+	plotComparisonOfSpectra(variable,dataLabels1,dataLabels2,histParams);
       }
     } else {
       std::cerr << "\n\nERROR in PlotBuilder::run(): wrong syntax" << std::endl;
@@ -108,36 +108,14 @@ void PlotBuilder::run(const TString &key) const {
 }
 
 
-void PlotBuilder::parseHistCfg(const TString &cfg, int &nBins, double &xMin, double &xMax, bool &logy) const {
-  // Set defaults
-  nBins = 100;
-  xMin = 0.;
-  xMax = 5000.;
-  logy = false;
+void PlotBuilder::plotSpectrum(const TString &var, const TString &dataSetLabel, const HistParams &histParams) const {
 
-  // Parse to overwrite defaults
-  std::vector<TString> cfgs;
-  if( Config::split(cfg,",",cfgs) ) {
-    for(unsigned int i = 0; i < cfgs.size(); ++i) {
-      if( i == 0 ) nBins = cfgs.at(i).Atoi();
-      else if( i == 1 ) xMin = cfgs.at(i).Atof();
-      else if( i == 2 ) xMax = cfgs.at(i).Atof();
-      else if( i == 3 && cfgs.at(i) == "log" ) logy = true;
-    }
-  }
-}
-
-
-void PlotBuilder::plotSpectrum(const TString &var, const TString &dataSetLabel, const TString &histCfg) const {
-  
-  int nBins = 100;
-  double xMin = 0.;
-  double xMax = 5000.;
-  bool logy = false;
-  parseHistCfg(histCfg,nBins,xMin,xMax,logy);
   TH1* h = 0;
   TGraphAsymmErrors* u = 0;
-  DataSet::Type type = createDistribution(dataSetLabel,var,h,u,nBins,xMin,xMax);
+  DataSet::Type type = createDistribution(dataSetLabel,var,h,u,histParams);
+
+  // Under-/Overflow warning
+  checkForUnderOverFlow(h,var,dataSetLabel);
 
   TCanvas *can = new TCanvas("can","",canSize_,canSize_);
   //can->SetWindowSize(canSize_+(canSize_-can->GetWw()),canSize_+(canSize_-can->GetWh()));
@@ -161,7 +139,7 @@ void PlotBuilder::plotSpectrum(const TString &var, const TString &dataSetLabel, 
   dataSetLabelInHeader += ")";
   TPaveText* title = header(true,dataSetLabelInHeader);
   title->Draw("same");
-  if( logy ) can->SetLogy();
+  if( histParams.logy() ) can->SetLogy();
   gPad->RedrawAxis();
   storeCanvas(can,plotName(var,dataSetLabel));
 
@@ -172,13 +150,7 @@ void PlotBuilder::plotSpectrum(const TString &var, const TString &dataSetLabel, 
 }
 
 
-void PlotBuilder::plotSpectra(const TString &var, const std::vector<TString> &dataSetLabels, const TString &histCfg) const {
-  int nBins = 100;
-  double xMin = 0.;
-  double xMax = 5000.;
-  bool logy = false;
-  parseHistCfg(histCfg,nBins,xMin,xMax,logy);
-
+void PlotBuilder::plotSpectra(const TString &var, const std::vector<TString> &dataSetLabels, const HistParams &histParams) const {
   std::vector<TH1*> hists;
   std::vector<DataSet::Type> types;
   TLegend* leg = legend(dataSetLabels.size());
@@ -186,10 +158,12 @@ void PlotBuilder::plotSpectra(const TString &var, const std::vector<TString> &da
       it != dataSetLabels.end(); ++it) {
     TH1* h = 0;
     TGraphAsymmErrors* u = 0;
-    types.push_back(createDistribution(*it,var,h,u,nBins,xMin,xMax));
+    types.push_back(createDistribution(*it,var,h,u,histParams));
     if( u ) delete u;
-    if( h->Integral() ) h->Scale(1./h->Integral("width"));
-    h->GetYaxis()->SetTitle("Probability Density");
+    if( histParams.norm() && h->Integral() ) {
+      h->Scale(1./h->Integral("width"));
+      h->GetYaxis()->SetTitle("Probability Density");
+    }
     if( types.back() != DataSet::Data ) {
       h->SetLineColor(h->GetFillColor());
       h->SetLineWidth(3);
@@ -198,7 +172,8 @@ void PlotBuilder::plotSpectra(const TString &var, const std::vector<TString> &da
     } else {
       leg->AddEntry(h," "+dataSetLabelInPlot(*it),"P");
     }
-    setYRange(h,logy?3E-6:-1.);
+    if( histParams.norm() ) setYRange(h,histParams.logy()?3E-6:-1.);
+    else setYRange(h,histParams.logy()?3E-1:-1.);
     hists.push_back(h);
   }
 
@@ -219,7 +194,7 @@ void PlotBuilder::plotSpectra(const TString &var, const std::vector<TString> &da
   title->Draw("same");
   leg->Draw("same");
   gPad->RedrawAxis();
-  if( logy ) can->SetLogy();
+  if( histParams.logy() ) can->SetLogy();
   storeCanvas(can,plotName(var));
 
   delete title;
@@ -232,21 +207,15 @@ void PlotBuilder::plotSpectra(const TString &var, const std::vector<TString> &da
 }
 
 
-void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<TString> &dataSetLabels1, const std::vector<TString> &dataSetLabels2, const TString &histCfg) const {
-  int nBins = 100;
-  double xMin = 0.;
-  double xMax = 5000.;
-  bool logy = false;
-  parseHistCfg(histCfg,nBins,xMin,xMax,logy);
-
+void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<TString> &dataSetLabels1, const std::vector<TString> &dataSetLabels2, const HistParams &histParams) const {
   std::vector<TH1*> hists1;
   std::vector<TString> legEntries1;
   TGraphAsymmErrors* unc1 = 0;
-  DataSet::Type type1 = createStack(dataSetLabels1,var,hists1,legEntries1,unc1,nBins,xMin,xMax);
+  DataSet::Type type1 = createStack(dataSetLabels1,var,hists1,legEntries1,unc1,histParams);
   std::vector<TH1*> hists2;
   std::vector<TString> legEntries2;
   TGraphAsymmErrors* unc2 = 0;
-  DataSet::Type type2 = createStack(dataSetLabels2,var,hists2,legEntries2,unc2,nBins,xMin,xMax);
+  DataSet::Type type2 = createStack(dataSetLabels2,var,hists2,legEntries2,unc2,histParams);
 
   TCanvas* can = new TCanvas("can","",canSize_,canSize_);
   can->SetBottomMargin(0.2 + 0.8*can->GetBottomMargin()-0.2*can->GetTopMargin());
@@ -412,7 +381,7 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
   title->Draw("same");
   leg->Draw("same");
   gPad->RedrawAxis();
-  if( logy ) can->SetLogy();
+  if( histParams.logy() ) can->SetLogy();
   storeCanvas(can,plotName(var,dataSetLabels1,dataSetLabels2));
 
   for(std::vector<TH1*>::iterator it = hists1.begin();
@@ -437,15 +406,15 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const std::vector<
 // Fill distribution of variable 'var' for dataSet with label 'dataSetLabel'
 // and an uncertainty band 'uncert'. 
 // ----------------------------------------------------------------------------
-DataSet::Type PlotBuilder::createDistribution(const TString &dataSetLabel, const TString &var, TH1* &h, TGraphAsymmErrors* &uncert, int nBins, double min, double max) const {
+DataSet::Type PlotBuilder::createDistribution(const TString &dataSetLabel, const TString &var, TH1* &h, TGraphAsymmErrors* &uncert, const HistParams &histParams) const {
   ++PlotBuilder::count_;
   
   // Create histogram  
   TString name = "plot";
   name += count_;
-  h = new TH1D(name,"",nBins,min,max);
+  h = new TH1D(name,"",histParams.nBins(),histParams.xMin(),histParams.xMax());
   h->Sumw2();
-  if( max > 1000. ) {
+  if( histParams.xMax() > 1000. ) {
     h->GetXaxis()->SetNdivisions(505);
   }
   setXTitle(h,var);
@@ -498,14 +467,14 @@ DataSet::Type PlotBuilder::createDistribution(const TString &dataSetLabel, const
 }
 
 
-DataSet::Type PlotBuilder::createStack(const std::vector<TString> &dataSetLabels, const TString &var, std::vector<TH1*> &hists, std::vector<TString> &legEntries, TGraphAsymmErrors* &uncert, int nBins, double xMin, double xMax) const {
+DataSet::Type PlotBuilder::createStack(const std::vector<TString> &dataSetLabels, const TString &var, std::vector<TH1*> &hists, std::vector<TString> &legEntries, TGraphAsymmErrors* &uncert, const HistParams &histParams) const {
   DataSet::Type type;
   uncert = 0;
   for(std::vector<TString>::const_reverse_iterator it = dataSetLabels.rbegin();
       it != dataSetLabels.rend(); ++it) {
     TH1* h = 0;
     TGraphAsymmErrors* u = 0;
-    type = createDistribution(*it,var,h,u,nBins,xMin,xMax);
+    type = createDistribution(*it,var,h,u,histParams);
     if( u ) {
       if( uncert ) {		// Add uncertainties in quadrature
 	for(unsigned int i = 0; i < uncert->GetN(); ++i) {
@@ -747,4 +716,36 @@ void PlotBuilder::setYRange(TH1* &h, double logMin) const {
     max = (max-min)/relHistHeight + min;
   }
   h->GetYaxis()->SetRangeUser(min,max);
+}
+
+
+bool PlotBuilder::checkForUnderOverFlow(const TH1* h, const TString &var, const TString &dataSetLabel) const {
+  bool underOverFlow = true;
+  if( h->GetBinContent(0) > 0 ) {
+    std::cerr << "--> WARNING: Underflow in " << var << " distribution in dataset " << dataSetLabel << std::endl;
+  } else if( h->GetBinContent(h->GetNbinsX()) > 0 ) {
+    std::cerr << "--> WARNING: Overflow in " << var << " distribution in dataset " << dataSetLabel << std::endl;
+  } else {
+    underOverFlow = false;
+  }
+
+  return underOverFlow;
+}
+
+
+
+PlotBuilder::HistParams::HistParams(const TString &cfg)
+  : nBins_(1), xMin_(0), xMax_(1), logy_(false), norm_(false) {
+
+  // Parse to overwrite defaults
+  std::vector<TString> cfgs;
+  if( Config::split(cfg,",",cfgs) ) {
+    for(unsigned int i = 0; i < cfgs.size(); ++i) {
+      if( i == 0 ) nBins_ = cfgs.at(i).Atoi();
+      else if( i == 1 ) xMin_ = cfgs.at(i).Atof();
+      else if( i == 2 ) xMax_ = cfgs.at(i).Atof();
+      else if( i > 2 && cfgs.at(i) == "log" ) logy_ = true;
+      else if( i > 2 && cfgs.at(i) == "norm" ) norm_ = true;
+    }
+  }
 }
