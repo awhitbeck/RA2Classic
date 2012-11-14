@@ -436,6 +436,22 @@ DataSet::Type PlotBuilder::createDistribution(const TString &dataSetLabel, const
     }
   }
 
+  // Fill overflow bin
+  if( histParams.hasOverflowBin() ) {
+    double val = h->GetBinContent(h->GetNbinsX()) + h->GetBinContent(h->GetNbinsX()+1);
+    double err = sqrt( h->GetBinError(h->GetNbinsX())*h->GetBinError(h->GetNbinsX()) + h->GetBinError(h->GetNbinsX()+1)*h->GetBinError(h->GetNbinsX()+1) );
+    h->SetBinContent(h->GetNbinsX(),val);
+    h->SetBinError(h->GetNbinsX(),err);
+    val = hDn->GetBinContent(hDn->GetNbinsX()) + hDn->GetBinContent(hDn->GetNbinsX()+1);
+    err = sqrt( hDn->GetBinError(hDn->GetNbinsX())*hDn->GetBinError(hDn->GetNbinsX()) + hDn->GetBinError(hDn->GetNbinsX()+1)*hDn->GetBinError(hDn->GetNbinsX()+1) );
+    hDn->SetBinContent(hDn->GetNbinsX(),val);
+    hDn->SetBinError(hDn->GetNbinsX(),err);
+    val = hUp->GetBinContent(hUp->GetNbinsX()) + hUp->GetBinContent(hUp->GetNbinsX()+1);
+    err = sqrt( hUp->GetBinError(hUp->GetNbinsX())*hUp->GetBinError(hUp->GetNbinsX()) + hUp->GetBinError(hUp->GetNbinsX()+1)*hUp->GetBinError(hUp->GetNbinsX()+1) );
+    hUp->SetBinContent(hUp->GetNbinsX(),val);
+    hUp->SetBinError(hUp->GetNbinsX(),err);
+  }
+
   // Create uncertainty band
   if( hDn->GetEntries() && hDn->GetEntries() ) {
     std::vector<double> x(h->GetNbinsX());
@@ -735,7 +751,7 @@ bool PlotBuilder::checkForUnderOverFlow(const TH1* h, const TString &var, const 
 
 
 PlotBuilder::HistParams::HistParams(const TString &cfg)
-  : nBins_(1), xMin_(0), xMax_(1), logy_(false), norm_(false) {
+  : nBins_(1), xMin_(0), xMax_(1), logy_(false), norm_(false), hasOverflowBin_(true) {
 
   // Parse to overwrite defaults
   std::vector<TString> cfgs;
@@ -748,4 +764,9 @@ PlotBuilder::HistParams::HistParams(const TString &cfg)
       else if( i > 2 && cfgs.at(i) == "norm" ) norm_ = true;
     }
   }
+
+  // Overflow bin
+  double binWidth = (xMax_-xMin_)/nBins_;
+  xMax_ += binWidth;
+  nBins_ += 1;
 }

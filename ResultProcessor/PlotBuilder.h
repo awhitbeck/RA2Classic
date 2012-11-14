@@ -23,7 +23,7 @@ public:
 private:
   class HistParams {
   public:
-    HistParams() : nBins_(1), xMin_(0), xMax_(1), logy_(false), norm_(false) {};
+    HistParams() : nBins_(1), xMin_(0), xMax_(1), logy_(false), norm_(false), hasOverflowBin_(true) {};
     HistParams(const TString &cfg);
 
     int nBins() const { return nBins_; }
@@ -31,6 +31,7 @@ private:
     double xMax() const { return xMax_; }
     bool logy() const { return logy_; }
     bool norm() const { return norm_; }
+    bool hasOverflowBin() const { return hasOverflowBin_; }
 
   private:
     int nBins_;
@@ -38,6 +39,7 @@ private:
     double xMax_;
     bool logy_;
     bool norm_;
+    bool hasOverflowBin_;
   };
 
   static unsigned int count_;
