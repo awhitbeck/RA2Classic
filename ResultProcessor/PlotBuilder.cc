@@ -442,18 +442,23 @@ DataSet::Type PlotBuilder::createDistribution(const TString &dataSetLabel, const
     double err = sqrt( h->GetBinError(h->GetNbinsX())*h->GetBinError(h->GetNbinsX()) + h->GetBinError(h->GetNbinsX()+1)*h->GetBinError(h->GetNbinsX()+1) );
     h->SetBinContent(h->GetNbinsX(),val);
     h->SetBinError(h->GetNbinsX(),err);
-    val = hDn->GetBinContent(hDn->GetNbinsX()) + hDn->GetBinContent(hDn->GetNbinsX()+1);
-    err = sqrt( hDn->GetBinError(hDn->GetNbinsX())*hDn->GetBinError(hDn->GetNbinsX()) + hDn->GetBinError(hDn->GetNbinsX()+1)*hDn->GetBinError(hDn->GetNbinsX()+1) );
-    hDn->SetBinContent(hDn->GetNbinsX(),val);
-    hDn->SetBinError(hDn->GetNbinsX(),err);
-    val = hUp->GetBinContent(hUp->GetNbinsX()) + hUp->GetBinContent(hUp->GetNbinsX()+1);
-    err = sqrt( hUp->GetBinError(hUp->GetNbinsX())*hUp->GetBinError(hUp->GetNbinsX()) + hUp->GetBinError(hUp->GetNbinsX()+1)*hUp->GetBinError(hUp->GetNbinsX()+1) );
-    hUp->SetBinContent(hUp->GetNbinsX(),val);
-    hUp->SetBinError(hUp->GetNbinsX(),err);
+
+    if( hDn->GetEntries() ) {
+      val = hDn->GetBinContent(hDn->GetNbinsX()) + hDn->GetBinContent(hDn->GetNbinsX()+1);
+      err = sqrt( hDn->GetBinError(hDn->GetNbinsX())*hDn->GetBinError(hDn->GetNbinsX()) + hDn->GetBinError(hDn->GetNbinsX()+1)*hDn->GetBinError(hDn->GetNbinsX()+1) );
+      hDn->SetBinContent(hDn->GetNbinsX(),val);
+      hDn->SetBinError(hDn->GetNbinsX(),err);
+    }
+    if( hUp->GetEntries() ) {
+      val = hUp->GetBinContent(hUp->GetNbinsX()) + hUp->GetBinContent(hUp->GetNbinsX()+1);
+      err = sqrt( hUp->GetBinError(hUp->GetNbinsX())*hUp->GetBinError(hUp->GetNbinsX()) + hUp->GetBinError(hUp->GetNbinsX()+1)*hUp->GetBinError(hUp->GetNbinsX()+1) );
+      hUp->SetBinContent(hUp->GetNbinsX(),val);
+      hUp->SetBinError(hUp->GetNbinsX(),err);
+    }
   }
 
   // Create uncertainty band
-  if( hDn->GetEntries() && hDn->GetEntries() ) {
+  if( hDn->GetEntries() && hUp->GetEntries() ) {
     std::vector<double> x(h->GetNbinsX());
     std::vector<double> xe(h->GetNbinsX());
     std::vector<double> y(h->GetNbinsX());
@@ -739,7 +744,7 @@ bool PlotBuilder::checkForUnderOverFlow(const TH1* h, const TString &var, const 
   bool underOverFlow = true;
   if( h->GetBinContent(0) > 0 ) {
     std::cerr << "--> WARNING: Underflow in " << var << " distribution in dataset " << dataSetLabel << std::endl;
-  } else if( h->GetBinContent(h->GetNbinsX()) > 0 ) {
+  } else if( h->GetBinContent(h->GetNbinsX()+1) > 0 ) {
     std::cerr << "--> WARNING: Overflow in " << var << " distribution in dataset " << dataSetLabel << std::endl;
   } else {
     underOverFlow = false;
