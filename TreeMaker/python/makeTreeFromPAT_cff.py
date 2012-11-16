@@ -1,11 +1,10 @@
-# $Id: makeTreeFromPAT_cff.py,v 1.10 2012/10/30 21:13:24 mschrode Exp $
+# $Id: makeTreeFromPAT_cff.py,v 1.11 2012/11/12 13:11:48 mschrode Exp $
 #
 
 import FWCore.ParameterSet.Config as cms
 
 def makeTreeFromPAT(process,
                     outFileName,
-                    useCHSJets=True,
                     NJetsMin=2,
                     HTMin=350.,
                     MHTMin=0.,
@@ -46,27 +45,31 @@ def makeTreeFromPAT(process,
 
     # Filter-related selection
     process.load('RA2Classic.TreeMaker.filterSelection_cff')
-    process.load('SandBox.Skims.RA2Leptons_cff')
-
-    process.CleaningSelection = cms.Sequence(
-        process.filterSelection
+    from RecoMET.METFilters.jetIDFailureFilter_cfi import jetIDFailure
+    process.PBNRFilter = jetIDFailure.clone(
+        JetSource = cms.InputTag('MHTJets'),
+        MinJetPt      = cms.double(30.0),
+        taggingMode   = cms.bool(False)
         )
+    process.filterSelection += process.PBNRFilter
+    from RecoMET.METFilters.multiEventFilter_cfi import multiEventFilter
+    process.HCALLaserEvtFilterList2012 = multiEventFilter.clone(
+        file        = cms.FileInPath('EventFilter/HcalRawToDigi/data/AllBadHCALLaser.txt'),
+        taggingMode = cms.bool(False)
+        )
+    process.filterSelection += process.HCALLaserEvtFilterList2012
+
+    process.load('SandBox.Skims.RA2Leptons_cff')
     process.LeptonVeto = cms.Sequence(
         process.ra2PFMuonVeto *
         process.ra2ElectronVeto
         )
 
     # Produce RA2 jets (produces the collections HTJets and MHTJets)
-    if useCHSJets:
-        process.load('RA2Classic.Utils.produceRA2JetsPFCHS_cff')
-        process.ProduceRA2Jets = cms.Sequence(
-            process.produceRA2JetsPFCHS
-            )
-    else:
-        process.load('RA2Classic.Utils.produceRA2JetsAK5PF_cff')
-        process.ProduceRA2Jets = cms.Sequence(
-            process.produceRA2JetsAK5PF
-            )
+    process.load('RA2Classic.Utils.produceRA2JetsPFCHS_cff')
+    process.ProduceRA2Jets = cms.Sequence(
+        process.produceRA2JetsPFCHS
+        )
 
     # Select events with at least 'NJetsMin' of the above jets
     from PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi import countPatJets
@@ -76,10 +79,7 @@ def makeTreeFromPAT(process,
         )
 
     # HT selection
-    htInputCol = 'htPF'
-    if useCHSJets:
-        htInputCol = 'htPFchs'
-
+    htInputCol = 'htPFchs'
     from SandBox.Skims.RA2HT_cff import htPFFilter
     process.HTSelection = htPFFilter.clone(
         HTSource = cms.InputTag(htInputCol),
@@ -87,10 +87,7 @@ def makeTreeFromPAT(process,
         )
 
     # MHT selection
-    mhtInputCol = 'mhtPF'
-    if useCHSJets:
-        mhtInputCol = 'mhtPFchs'
-
+    mhtInputCol = 'mhtPFchs'
     from SandBox.Skims.RA2MHT_cff import mhtPFFilter
     process.MHTSelection = mhtPFFilter.clone(
         MHTSource = cms.InputTag(mhtInputCol),
@@ -102,27 +99,6 @@ def makeTreeFromPAT(process,
     from RA2Classic.WeightProducer.getWeightProducer_cff import getWeightProducer
     process.WeightProducer = getWeightProducer(testFileName)
 
-
-    ## --- Additional Filters (tagging mode) ------------------------------
-    from RecoMET.METFilters.jetIDFailureFilter_cfi import jetIDFailure
-    process.PBNRFilter = jetIDFailure.clone(
-        JetSource = cms.InputTag('MHTJets'),
-        MinJetPt      = cms.double(30.0),
-        taggingMode   = cms.bool(True)
-        )
-    from RecoMET.METFilters.multiEventFilter_cfi import multiEventFilter
-    process.HCALLaserEvtFilterList2012 = multiEventFilter.clone(
-        file        = cms.FileInPath('EventFilter/HcalRawToDigi/data/AllBadHCALLaser.txt'),
-        taggingMode = cms.bool(True)
-        )
-
-    process.AdditionalFiltersInTagMode = cms.Sequence(
-        process.PBNRFilter *
-        process.HCALLaserEvtFilterList2012
-        )
-
-
-        
 
     ## --- Setup of TreeMaker ----------------------------------------------
     FilterNames = cms.VInputTag()
@@ -150,7 +126,7 @@ def makeTreeFromPAT(process,
         MHTJets           = cms.InputTag('MHTJets'),
         VarsDouble        = cms.VInputTag(cms.InputTag('WeightProducer:weight')),
         VarsDoubleNamesInTree = cms.vstring('Weight'),
-        Filters           = FilterNames
+        Filters           = cms.VInputTag()#FilterNames
         )
 
 
@@ -160,8 +136,7 @@ def makeTreeFromPAT(process,
     
     process.WriteTree = cms.Path(
         process.ProduceRA2Jets *
-        process.AdditionalFiltersInTagMode *
-        #process.CleaningSelection *
+        process.filterSelection *
         process.LeptonVeto *
         process.NumJetSelection *
         process.HTSelection *
