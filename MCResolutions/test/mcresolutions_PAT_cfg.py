@@ -6,47 +6,23 @@
 #  https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatLayer1DefV12
 #
 #  Run as
-#  'cmsRun mcresolutions_PAT_cfg.py <command-line key>=<value>,<command-line key>=value,...
+#  'cmsRun mcresolutions_PAT_cfg.py <command-line key>=<value>, <command-line key>=value>,...'
 
+
+import FWCore.ParameterSet.Config as cms
 
 #-- Global Parameters: Set Via Command-Line Arguments -------------------------
-# default values
-runOnMC          = True                 # command-line key: is_mc
-dataSetName      = ""                   # command-line key: data_set
-globalTag        = ""                   # command-line key: global_tag
-lumi             = 1000                 # command-line key: lumi
-doPUReweighting  = False                # command-line key: pu_reweighting
-mcResoJetTag     = "patJetsPF"          # command-line key: jet_tag
-mcResoFileName   = "MCResoDefault.root" # command-line key: out_name
+from RA2Classic.Utils.CommandLineParams import CommandLineParams
+parameters = CommandLineParams()
+#parameters.printParameters()
 
-# parse command line arguments
-import sys,os
-if hasattr(sys,"argv") :
-    for args in sys.argv :
-        arg = args.split(',')
-        for val in arg:
-            val = val.split('=')
-            if len(val)==2 :
-                if val[0]=="is_mc":
-                    if val[1]=="True":
-                        runOnMC=True
-                    else:
-                        runOnMC=False
-                elif val[0]=="data_set":
-                    dataSetName=val[1]
-                elif val[0]=="global_tag":
-                    globalTag=val[1]
-                    globalTag+="::All"
-                elif val[0]=="lumi":
-                    lumi=val[1]
-                elif val[0]=="pu_reweighting":
-                    doPUReweighting=val[1]
-                elif val[0]=="jet_tag":
-                    mcResoJetTag=val[1]
-                elif val[0]=="out_name":
-                    mcResoFileName=val[1]
-
-
+runOnMC          = parameters.value("is_mc",True)
+dataSetName      = parameters.value("data_set","")
+globalTag        = parameters.value("global_tag","")+"::All"
+lumi             = parameters.value("lumi",1000.0)
+doPUReweighting  = parameters.value("pu_reweighting",False)
+mcResoJetTag     = parameters.value("jet_tag","patJetsPF")
+mcResoFileName   = parameters.value("out_name","MCResoDefault.root")
 
 print "*** JOB SETUP ****************************************************"
 print "  is_mc          : "+str(runOnMC)
