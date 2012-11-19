@@ -1,7 +1,7 @@
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id: TreeMaker.h,v 1.6 2012/09/19 14:44:07 mschrode Exp $
+// $Id: TreeMaker.h,v 1.7 2012/09/22 13:59:57 mschrode Exp $
 //
 //
 
@@ -77,6 +77,11 @@ private:
   std::vector<edm::InputTag> varsDoubleTags_;
   std::vector<std::string> varsDoubleNamesInTree_;
   std::vector<Float_t> varsDouble_;
+
+  std::vector<edm::InputTag> varsDoubleTagsV_;//JL
+  std::vector<std::string> varsDoubleNamesInTreeV_;//JL
+  std::vector<UShort_t> varsDoubleVN_;//JL
+  std::vector<Float_t*> varsDoubleV_;//JL
 
   // Any edm::Candidates
   std::vector<edm::InputTag> candidatesInputTag_;

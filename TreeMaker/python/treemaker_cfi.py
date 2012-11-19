@@ -1,4 +1,4 @@
-# $Id: treemaker_cfi.py,v 1.6 2012/09/19 14:44:08 mschrode Exp $
+# $Id: treemaker_cfi.py,v 1.7 2012/09/22 13:59:57 mschrode Exp $
 
 # Description: Writes ntuples (ROOT tree) for RA2Classic analysis
 #
@@ -63,6 +63,10 @@ TreeMaker = cms.EDAnalyzer(
     # this vector is not specified, the generic names "<InputTag::label()>"
     # are used.
     VarsDoubleNamesInTree = cms.vstring(),
+
+    #JL
+    VarsDoubleV        = cms.VInputTag(),
+    VarsDoubleNamesInTreeV = cms.vstring(),
 
     # list of filter decisions (bool) written from filters in tag mode
     # will be stored as "Filter_..."

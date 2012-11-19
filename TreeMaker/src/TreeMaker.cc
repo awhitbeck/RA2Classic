@@ -57,7 +57,7 @@
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id: TreeMaker.cc,v 1.8 2012/09/19 14:44:07 mschrode Exp $
+// $Id: TreeMaker.cc,v 1.9 2012/09/22 13:59:57 mschrode Exp $
 //
 //
 
@@ -94,6 +94,8 @@ TreeMaker::TreeMaker(const edm::ParameterSet& iConfig)
   candidatesNameInTree_ = iConfig.getParameter< std::vector<std::string> >("CandidateNamesInTree");
   varsDoubleTags_ = iConfig.getParameter< std::vector<edm::InputTag> >("VarsDouble");
   varsDoubleNamesInTree_ = iConfig.getParameter< std::vector<std::string> >("VarsDoubleNamesInTree");
+  varsDoubleTagsV_ = iConfig.getParameter< std::vector<edm::InputTag> >("VarsDoubleV");//JL
+  varsDoubleNamesInTreeV_ = iConfig.getParameter< std::vector<std::string> >("VarsDoubleNamesInTreeV");//JL
   filterDecisionTags_ = iConfig.getParameter< std::vector<edm::InputTag> >("Filters");
 
   // Setup vector of filter decisions with correct size
@@ -105,6 +107,10 @@ TreeMaker::TreeMaker(const edm::ParameterSet& iConfig)
     candidatesEta_.push_back(new Float_t[nMaxCandidates_]);
     candidatesPhi_.push_back(new Float_t[nMaxCandidates_]);
   }
+  varsDoubleVN_ = std::vector<UShort_t>(varsDoubleTagsV_.size(),0);
+  for(unsigned int i = 0; i < varsDoubleTagsV_.size(); ++i) //JL
+    varsDoubleV_ .push_back(new Float_t[120]);//JL
+
 }
 
 TreeMaker::~TreeMaker() {
@@ -113,6 +119,8 @@ TreeMaker::~TreeMaker() {
     delete [] candidatesEta_.at(i);
     delete [] candidatesPhi_.at(i);
   }
+  for(unsigned int i = 0; i < varsDoubleTagsV_.size(); ++i)//JL
+    delete [] varsDoubleV_.at(i);//JL
 }
 
 
@@ -209,6 +217,23 @@ TreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
   }
 
+  //<JL
+  //std::cout<<"================"<<std::endl;
+  for(unsigned int i = 0; i < varsDoubleTagsV_.size(); ++i) {
+    edm::Handle< std::vector<double> > varV;
+    iEvent.getByLabel(varsDoubleTagsV_.at(i),varV);
+    if( varV.isValid() ) {
+      varsDoubleVN_.at(i) = varV->size();
+      //std::cout<<"Num="<<varsDoubleVN_.at(i)<<" "<<varV->size()<<std::endl;
+      for(unsigned int j = 0; j < varV->size(); ++j) {
+	varsDoubleV_.at(i)[j] = varV->at(j);
+	//std::cout<<varsDoubleV_.at(i)[j]<<" "<<varV->at(j)<<std::endl;;
+      }
+    }
+  }
+
+  //JL>
+
   // Filter decisions
   for(unsigned int i = 0; i < filterDecisionTags_.size(); ++i) {
     edm::Handle<bool> dec;
@@ -273,6 +298,16 @@ TreeMaker::beginJob() {
     tree_->Branch((name+"Eta").c_str(),candidatesEta_.at(i),(name+"Eta["+name+"Num]/F").c_str());
     tree_->Branch((name+"Phi").c_str(),candidatesPhi_.at(i),(name+"Phi["+name+"Num]/F").c_str());
   }
+  //<JL
+  for(unsigned int i = 0; i < varsDoubleV_.size(); ++i) {
+    std::string name = varsDoubleTagsV_.at(i).label();
+    if( i < varsDoubleNamesInTreeV_.size() ) {
+      name = varsDoubleNamesInTreeV_.at(i);
+    }
+    tree_->Branch((name+"Num").c_str(),&(varsDoubleVN_.at(i)),(name+"Num/s").c_str());
+    tree_->Branch(name.c_str(),varsDoubleV_.at(i),(name+"["+name+"Num]/F").c_str());
+  }
+  //JL>
 }
 
 
@@ -349,6 +384,14 @@ TreeMaker::setBranchVariablesToDefault() {
       candidatesPhi_.at(i)[j] = 0.;
     }
   }
+  //<JL
+  for(unsigned int i = 0; i < varsDoubleV_.size(); ++i) {
+    varsDoubleVN_.at(i) = 0.;
+    for(unsigned int j = 0; j < 120; ++j) {
+      varsDoubleV_.at(i)[j] = 1.;
+    }
+  }
+  //JL>
 }
 
 
