@@ -1,29 +1,31 @@
-# $Id: $
+# $Id: makeTreeFromSignalScan_cff.py,v 1.1 2012/09/28 09:48:24 mschrode Exp $
 #
 # If using this function in a .py config, you need to make
 # 'from PhysicsTools.PatAlgos.patTemplate_cfg import *' in
 # that file first. Can't do it here
 
 
-import FWCore.ParameterSet.Config as cms
-
+#import FWCore.ParameterSet.Config as cms
+from PhysicsTools.PatAlgos.patTemplate_cfg import *
+process.outpath.remove(process.out)
 def makeTreeFromSignalScan(process,
                            globalTag,
                            smsModel,
                            smsMotherMass,
                            smsLSPMass,
+                           SMStopol,
                            xs=1,
                            numEvtsInSample=1,
                            lumi=5.088,
                            reportEveryEvt=5000,
                            testFileName="/store/mc/Summer12/WJetsToLNu_HT-400ToInf_8TeV-madgraph/AODSIM/PU_S7_START52_V9-v1/0000/041CF749-57A0-E111-B6DD-0026189438DA.root",
                            numProcessedEvt=20):
-
+    
 
     #-- Meta data to be logged in DBS ---------------------------------------------
     process.configurationMetadata = cms.untracked.PSet(
         version = cms.untracked.string('$Revision: 1.1 $'),
-        name = cms.untracked.string('$Source: /local/reps/CMSSW/UserCode/kheine/RA2Classic/Skimming/python/Preselection_cff.py,v $'),
+        name = cms.untracked.string('$Source: /local/reps/CMSSW/UserCode/kheine/RA2Classic/TreeMaker/python/makeTreeFromSignalScan_cff.py,v $'),
         annotation = cms.untracked.string('SUSY pattuple definition')
         )
 
@@ -192,7 +194,23 @@ def makeTreeFromSignalScan(process,
         SusyScanLSPMass    = cms.double(smsLSPMass),
         SusyScanFracLSP    = cms.double(0.0)
         )
-
+    
+    
+    #---JL
+    #--for PDF sys
+    process.pdfWeight = cms.EDProducer("PdfWeightProducer",
+                                       PdfInfoTag = cms.untracked.InputTag("generator"),
+                                       PdfSetNames = cms.untracked.vstring("cteq66.LHgrid","MSTW2008nlo68cl.LHgrid","NNPDF20_100.LHgrid")
+                                       #PdfSetNames = cms.untracked.vstring("NNPDF20_100.LHgrid")
+                                       )
+    #---for ISR sys
+    process.lastParticles = cms.EDProducer("ISRProducer")
+    process.ISRsys = cms.Sequence(process.lastParticles)
+    
+    #---put the susy params
+    process.load("RA2Classic.SUSYParams.susyparams_cfi")
+    process.susyparams.Model = cms.string(SMStopol)
+    #-- end JL
 
     ## --- Setup of TreeMaker ----------------------------------------------
     process.TFileService = cms.Service(
@@ -208,10 +226,12 @@ def makeTreeFromSignalScan(process,
         HTJets            = cms.InputTag('patJetsPFchsPt50Eta25'),
         MHT               = cms.InputTag('mhtPFchs'),
         MHTJets           = cms.InputTag('patJetsPFchsPt30'),
-        VarsDouble        = cms.VInputTag(cms.InputTag('WeightProducer:weight')),
-        VarsDoubleNamesInTree = cms.vstring('Weight'),
+        VarsDouble        = cms.VInputTag(cms.InputTag('WeightProducer:weight'),"susyparams:m0","susyparams:m12","susyparams:evtProcID"),
+        VarsDoubleNamesInTree = cms.vstring('Weight',"massMom","massDau","procID"),
         CandidateCollections  = cms.VInputTag('patJetsPFchsPt30','patMuonsPFIDIso','patElectronsIDIso'),
         CandidateNamesInTree  = cms.vstring('Jets','PATMuonsPFIDIso','PATElectronsIDIso'),
+        VarsDoubleV = cms.VInputTag("pdfWeight:cteq66","pdfWeight:MSTW2008nlo68cl","pdfWeight:NNPDF20"),
+        VarsDoubleNamesInTreeV = cms.vstring("cteq66","MSTW2008nlo68cl","NNPDF20")
         )
 
     #process.dump   = cms.EDAnalyzer("EventContentAnalyzer")
@@ -226,6 +246,11 @@ def makeTreeFromSignalScan(process,
         process.mhtPFchsFilter *
         process.postPFchsMHTCounter *
         process.WeightProducer *
+        #--JL
+        process.pdfWeight*
+        process.ISRsys*
+        process.susyparams*
+        #--end JL
         process.RA2TreeMaker
         )
 
