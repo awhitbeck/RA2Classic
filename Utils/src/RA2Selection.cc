@@ -13,7 +13,7 @@
 //
 // Original Author:  Arne-Rasmus Draeger,,,uni-hamburg
 //         Created:  Mon Oct 22 11:46:48 CEST 2012
-// $Id$
+// $Id: RA2Selection.cc,v 1.1 2012/11/01 12:50:39 adraeger Exp $
 //
 //
 
@@ -71,49 +71,34 @@ RA2Selection::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double ht=0;
   edm::Handle< edm::View<reco::Candidate> > htJets;
   iEvent.getByLabel(HtJetsTag_,htJets);
-  std::cout<<"RA2Filter:nejts"<<htJets->size()<<std::endl;
-  std::cout<<"RA2Filter:deltaPhi1_"<<deltaPhi1_<<std::endl;
-  std::cout<<"RA2Filter:deltaPhi2_"<<deltaPhi2_<<std::endl;
-  std::cout<<"RA2Filter:deltaPhi3_"<<deltaPhi3_<<std::endl;
+
   if(htJets->size() < nJets_) return false;
-  std::cout<<"RA2Filter:aa"<<std::endl;
    for( edm::View <reco::Candidate>::const_iterator HTJetsCan = htJets->begin(); HTJetsCan!=htJets->end();HTJetsCan++)
   	{
    		ht+= HTJetsCan->pt();
  	}
-  std::cout<<"RA2Filter:bb"<<std::endl;
 
   if(ht < HTMin_) return false;
-  std::cout<<"RA2Filter:c"<<std::endl;
   edm::Handle< edm::View<reco::Candidate> > mht;
   iEvent.getByLabel(MhtTag_,mht);
-  std::cout<<"RA2Filter:dd"<<std::endl;
   if( mht->at(0).pt() < MHTMin_ ) return false;
-  std::cout<<"RA2Filter:ee"<<std::endl;
   edm::Handle< edm::View<reco::Candidate> > mhtJets;
   iEvent.getByLabel(MhtJetTag_,mhtJets);
   if( mhtJets.isValid() && mht.isValid() ) 
   {
-	  std::cout<<"RA2Filter:ff"<<std::endl;
     	if( mhtJets->size() > 0 ) 
 	{
-	  std::cout<<"RA2Filter:gg"<<std::endl;
       		deltaPhi1 = std::abs(reco::deltaPhi(mhtJets->at(0).phi(),mht->at(0).phi()));
-		std::cout<<"RA2Selection:deltaPhi1Caluclated to be:"<<deltaPhi1<<std::endl;
 		if(deltaPhi1 < deltaPhi1_) return false;
       		if( mhtJets->size() > 1 ) 
 		{	
 
 			deltaPhi2 = std::abs(reco::deltaPhi(mhtJets->at(1).phi(),mht->at(0).phi()));
-			std::cout<<"RA2Selection:deltaPhi2Caluclated to be:"<<deltaPhi2<<std::endl;
 			if(deltaPhi2 < deltaPhi2_) return false;
-			std::cout<<"RA2Filter:Jet22222"<<std::endl;
 			if( mhtJets->size() > 2 ) 
 			{
 
 	  			deltaPhi3 = std::abs(reco::deltaPhi(mhtJets->at(2).phi(),mht->at(0).phi()));
-				std::cout<<"RA2Selection:deltaPhi3Caluclated to be:"<<deltaPhi3<<std::endl;
-				std::cout<<"RA2Selection:deltaPhi3"<<deltaPhi3<<std::endl;
 				if (deltaPhi3 < deltaPhi3_) return false;
 			}
       		}
@@ -121,7 +106,6 @@ RA2Selection::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
 
-std::cout<<"RA2Selection:ReturnTrue"<<std::endl;
    return true;
 }
 
