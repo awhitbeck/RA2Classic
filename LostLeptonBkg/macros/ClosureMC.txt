@@ -18,19 +18,30 @@ event content :: name: GenDeltaRLepClosestJet; type: Float_t
 #selection stuff
 event content :: name: IsExpectation; type: Int_t
 event content :: name: muPromtMatched; type: Int_t
+event content :: name: MuonGenPt; type: Float_t; label: #mu_{T}; unit: GeV
 
 
 # weights
 event content :: name: LostLeptonWeight; type: Float_t
+event content :: name: resultWeight2; type: Float_t
 event content :: name: Weight; type: Float_t
 
 event content :: name: muonIsoWeight; type: Float_t
 event content :: name: muonRecoWeight; type: Float_t
 event content :: name: muonAccWeight; type: Float_t
 
+event content :: name: muonIsoWeight2; type: Float_t
+event content :: name: muonRecoWeight2; type: Float_t
+event content :: name: muonAccWeight2; type: Float_t
+
+
 event content :: name: elecIsoWeight; type: Float_t
 event content :: name: elecRecoWeight; type: Float_t
 event content :: name: elecAccWeight; type: Float_t
+
+event content :: name: elecIsoWeight2; type: Float_t
+event content :: name: elecRecoWeight2; type: Float_t
+event content :: name: elecAccWeight2; type: Float_t
 
 #efficiencies studies values
 
@@ -43,100 +54,130 @@ event content :: name: nRecoElec; type: Int_t
 event content :: name: nIsoElec; type: Int_t
 
 
-event content :: name: RecoLevelMuonDeltaR; type: Float_t
+event content :: name: RecoLevelMuonDeltaR; type: Float_t; label: #Delta R
 event content :: name: RecoLevelMuonRelPTJet; type: Float_t
 
+#inconsistency of the CS studies
+
+event content :: name: nMuInIsoMuCollection; type: Int_t
+event content :: name: MuonGenPt; type: Float_t
+event content :: name: MuonGenEta; type: Float_t
+event content :: name: MuonGenPhi; type: Float_t
+
+event content :: name: muAllIsoWeight; type: Float_t
+event content :: name: muAllIsoWeight2; type: Float_t
 ################################################################################################3
 # Specify the data source and label the type of data
-dataset :: label: MCEx; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/w.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight
+dataset :: label: MCEx; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/mc.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight
 
-dataset :: label: MCPr; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/w.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: LostLeptonWeight
+dataset :: label: MCPr; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/mc.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: resultWeight2
+
+# specify for CS studies
+
+dataset :: label: MCExMuCollection; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/mc.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight
 
 
 ########### seperate closures
 
 #each contribuiton for expectation
 
-dataset :: label: WJetsExMuIso; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/w.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight
-dataset :: label: WJetsExMuReco; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/w.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight
-dataset :: label: WJetsExMuAcc; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/w.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight
+dataset :: label: WJetsExMuIso; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/mc.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight
+dataset :: label: WJetsExMuReco; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/mc.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight
+dataset :: label: WJetsExMuReco2; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/mc.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight
+dataset :: label: WJetsExMuAcc; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/mc.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight
 
-dataset :: label: WJetsExEIso; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/w.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight
-dataset :: label: WJetsExEReco; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/w.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight
-dataset :: label: WJetsExEAcc; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/w.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight
+dataset :: label: WJetsExEIso; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/mc.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight
+dataset :: label: WJetsExEReco; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/mc.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight
+dataset :: label: WJetsExEAcc; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/mc.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight
 
 # each contribuiton for prediction plotted
 #muons
-dataset :: label: WJetsPrMuIso; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/w.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonIsoWeight
-dataset :: label: WJetsPrMuReco; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/w.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonRecoWeight
-dataset :: label: WJetsPrMuAcc; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/w.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonAccWeight
+dataset :: label: WJetsPrMuIso; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonIsoWeight2
+dataset :: label: WJetsPrMuReco; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonRecoWeight2
+dataset :: label: WJetsPrMuAcc; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonAccWeight2
 
 #electrons
-dataset :: label: WJetsPrEIso; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/w.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: elecIsoWeight
-dataset :: label: WJetsPrEReco; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/w.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: elecRecoWeight
-dataset :: label: WJetsPrEAcc; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/w.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: elecAccWeight
+dataset :: label: WJetsPrEIso; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: elecIsoWeight2
+dataset :: label: WJetsPrEReco; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: elecRecoWeight2
+dataset :: label: WJetsPrEAcc; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: elecAccWeight2
 
-
-
+#special closure
+dataset :: label: WJetsPrMuIsoTotal; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_2_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muAllIsoWeight2
 
 
 
 ##################################################################
 # Specify the event selection
-selection :: label: baseline; cuts: IsExpectation > 0.5 (MCEx) + muPromtMatched > 0.5 (MCPr, WJetsPrMuIso, WJetsPrMuAcc, WJetsPrMuReco, WJetsPrEIso, WJetsPrEReco, WJetsPrEAcc)
-#selection :: label: baseline; cuts: HT > 500 + MTW < 100 (MCPr) + nLeptons > 0 (MCEx) + nLeptons < 2 (MCEx) + nIsoMu < 0.5 (MCEx) + nIsoElec < 0.5 (MCEx)
+selection :: label: baseline; cuts: IsExpectation > 0.5 (MCEx) + muPromtMatched > 0.5 (MCPr, WJetsPrMuIso, WJetsPrMuAcc, WJetsPrMuReco, WJetsPrEIso, WJetsPrEReco, WJetsPrEAcc, WJetsPrMuIsoTotal)
+#selection :: label: baseline; cuts: HT > 500 + MTW < 100 (MCPr) + nLeptons > 0 (MCEx) + nLeptons < 2 (MCEx) + nIsoMu < 0.5 (MCEx) + nIsoElec < 0.5 (MCEx) + NJets > 2
 
 #selection :: label: CScomparison; cuts: baseline + IsExpectation < 0.5 (MCExCS) + nIsoMu > 0.5 (MCExCS) 
 
-##### MC closures
+#special selection
+selection :: label: CSCompare; cuts: nMuInIsoMuCollection > 0 (MCExMuCollection)+ nMuInIsoMuCollection < 1.5 (MCExMuCollection)
 
-selection :: label: baseline + NJet 3-5; cuts: baseline + NJets > 2 + NJets < 6
-selection :: label: baseline + NJet 6-7; cuts: baseline + NJets > 5 + NJets < 8
-selection :: label: baseline + NJet > 7; cuts: baseline + NJets > 7
+
+##### MC closures
+selection :: label: total baseline; cuts: IsExpectation > 0.3 (MCEx) + muPromtMatched > 0.5 (MCPr)
+
+#selection :: label: baseline + NJet 3-5; cuts: baseline + NJets > 2 + NJets < 6
+#selection :: label: baseline + NJet 6-7; cuts: baseline + NJets > 5 + NJets < 8
+#selection :: label: baseline + NJet > 7; cuts: baseline + NJets > 7
 
 # selections for the efficiencies
-selection :: label: MuOutAcc; cuts: nAccMu < -0.5 (WJetsExMuAcc) + baseline
-#selection :: label: MuInAcc; cuts: nAccMu > 0.5  + nRecoMu < -0.5 + baseline
-selection :: label: MuOutAccMTWCUT; cuts: MuOutAcc + MTW < 100 (WJetsExMuAcc) + baseline
+selection :: label: MuOutAcc; cuts: nAccMu < -0.5 (WJetsExMuAcc) + baseline 
+#selection :: label: MuOutAcc + NJets > 2 + NJets < 6; cuts: nAccMu < -0.5 (WJetsExMuAcc) + baseline + NJets > 2 + NJets < 6
+#selection :: label: MuOutAcc + NJets > 5 + NJets < 8; cuts: nAccMu < -0.5 (WJetsExMuAcc) + baseline + NJets > 5 + NJets < 8
+#selection :: label: MuOutAcc + NJets > 7; cuts: nAccMu < -0.5 (WJetsExMuAcc) + baseline + NJets > 7
 
-selection :: label: MuOutReco; cuts: nRecoMu < -0.5 (WJetsExMuReco) + baseline
+#selection :: label: MuInAcc; cuts: nAccMu > 0.5  + nRecoMu < -0.5 + baseline
+#selection :: label: MuOutAccMTWCUT; cuts: MuOutAcc + MTW < 100 (WJetsExMuAcc) + baseline
+
+selection :: label: MuOutReco; cuts: nRecoMu < -0.5 (WJetsExMuReco) + baseline + MuonGenPt > 10 (WJetsExMuReco)
+#selection :: label: MuOutReco + NJets > 2 + NJets < 6; cuts: nRecoMu < -0.5 (WJetsExMuReco) + baseline + MuonGenPt > 10 (WJetsExMuReco) + NJets > 2 + NJets < 6
+#selection :: label: MuOutReco + NJets > 5 + NJets < 8; cuts: nRecoMu < -0.5 (WJetsExMuReco) + baseline + MuonGenPt > 10 (WJetsExMuReco) + NJets > 5 + NJets < 8
+#selection :: label: MuOutReco + NJets > 7; cuts: nRecoMu < -0.5 (WJetsExMuReco) + baseline + MuonGenPt > 10 (WJetsExMuReco) + NJets > 7
+#selection :: label: MuIsoTotal; cuts: nRecoMu > 0.5 (WJetsExMuReco2) + baseline
 #selection :: label: MuInReco; cuts: nRecoMu > 0.5 + nIsoMu < -0.5 + baseline
-selection :: label: MuOutRecoMTWCUT; cuts: MuOutReco + MTW < 100 (WJetsExMuReco) + baseline
+#selection :: label: MuOutRecoMTWCUT; cuts: MuOutReco + MTW < 100 (WJetsExMuReco) + baseline
 
 selection :: label: MuOutIso; cuts: nIsoMu < -0.5 (WJetsExMuIso) + baseline 
+#selection :: label: MuOutIso + NJets > 2 + NJets < 6; cuts: nIsoMu < -0.5 (WJetsExMuIso) + baseline + NJets > 2 + NJets < 6
+#selection :: label: MuOutIso + NJets > 5 + NJets < 8; cuts: nIsoMu < -0.5 (WJetsExMuIso) + baseline + NJets > 5 + NJets < 8
+#selection :: label: MuOutIso + NJets > 7; cuts: nIsoMu < -0.5 (WJetsExMuIso) + baseline + NJets > 7
 #selection :: label: MuInIso; cuts: nIsoMu > 0.5 + baseline
-selection :: label: MuOutIsoMTWCUT; cuts: MuOutIso + MTW < 100 (WJetsExMuIso)  + baseline
+#selection :: label: MuOutIsoMTWCUT; cuts: MuOutIso + MTW < 100 (WJetsExMuIso)  + baseline
 
 
 
 
-selection :: label: ElecOutAcc; cuts: nAccElec < -0.5 (WJetsExEAcc)
+selection :: label: ElecOutAcc; cuts: nAccElec < -0.5 (WJetsExEAcc) + baseline
 #selection :: label: ElecInAcc; cuts: nAccElec > 0.5 + nRecoElec < -0.5
-selection :: label: ElecOutAccMTWCUT; cuts: ElecOutAcc + MTW < 100 (WJetsExEAcc)
+#selection :: label: ElecOutAccMTWCUT; cuts: ElecOutAcc + MTW < 100 (WJetsExEAcc)
 
-selection :: label: ElecOutReco; cuts: nRecoElec < -0.5 (WJetsExEReco)
+selection :: label: ElecOutReco; cuts: nRecoElec < -0.5 (WJetsExEReco)+ baseline
 #selection :: label: ElecInReco; cuts: nRecoElec > 0.5 + nIsoElec < -0.5
-selection :: label: ElecOutRecoMTWCUT; cuts: ElecOutReco + MTW < 100 (WJetsExEReco)
+#selection :: label: ElecOutRecoMTWCUT; cuts: ElecOutReco + MTW < 100 (WJetsExEReco)
 
-selection :: label: ElecOutIso; cuts: nIsoElec < -0.5 (WJetsExEIso)
+selection :: label: ElecOutIso; cuts: nIsoElec < -0.5 (WJetsExEIso) + baseline
 #selection :: label: ElecInIso; cuts: nIsoElec > 0.5
-selection :: label: ElecOutIsoMTWCUT; cuts: ElecOutIso + MTW < 100 (WJetsExEIso)
+#selection :: label: ElecOutIsoMTWCUT; cuts: ElecOutIso + MTW < 100 (WJetsExEIso)
 
 
 
 #######################################################################
 # Specify what variables to plot and some style settings
-plot style :: dataset: MCEx; plot label: Expecation; marker: 20; color: 2
-plot style :: dataset: MCPr; plot label: Prediciton; marker: 20; color: 5
+plot style :: dataset: MCEx; plot label: Expectation; marker: 20; color: 2
+plot style :: dataset: MCPr; plot label: Prediction; marker: 20; color: 5
 
-plot style :: dataset: WJetsPrMuIso; plot label: Prediciton; marker: 20; color: 2
-plot style :: dataset: WJetsExMuIso; plot label: Expecation; marker: 20; color: 5
+plot style :: dataset: WJetsPrMuIso; plot label: Prediction; marker: 20; color: 2
+plot style :: dataset: WJetsExMuIso; plot label: Expectation; marker: 20; color: 5
 
-plot style :: dataset: WJetsPrMuReco; plot label: Prediciton; marker: 20; color: 2
-plot style :: dataset: WJetsExMuReco; plot label: Expecation; marker: 20; color: 5
+plot style :: dataset: WJetsPrMuReco; plot label: Prediction; marker: 20; color: 2
+plot style :: dataset: WJetsExMuReco; plot label: Expectation; marker: 20; color: 5
 
-plot style :: dataset: WJetsPrMuAcc; plot label: Prediciton; marker: 20; color: 2
-plot style :: dataset: WJetsExMuAcc; plot label: Expecation; marker: 20; color: 5
+plot style :: dataset: WJetsPrMuAcc; plot label: Prediction; marker: 20; color: 2
+plot style :: dataset: WJetsExMuAcc; plot label: Expectation; marker: 20; color: 5
 
 
 ########################################################################
@@ -151,7 +192,13 @@ plot style :: dataset: WJetsExMuAcc; plot label: Expecation; marker: 20; color: 
 plot :: variable: MTW; dataset1: MCPr; dataset2: MCEx; histogram: 40, 0, 200, log
 
 
-
+# special closure for cs checks
+plot :: variable: HT; dataset1: MCExMuCollection; dataset2: MCEx; histogram: 25, 500, 3000, log
+plot :: variable: MHT; dataset1: MCExMuCollection; dataset2: MCEx; histogram: 32, 200, 1800, log
+plot :: variable: NJets; dataset1: MCExMuCollection; dataset2: MCEx; histogram: 20, 0, 20, log
+plot :: variable: RecoLevelMuonDeltaR; dataset1: MCExMuCollection; dataset2: MCEx; histogram: 10, 0, 5, log
+plot :: variable: RecoLevelMuonRelPTJet; dataset1: MCExMuCollection; dataset2: MCEx; histogram: 60, 0, 60, log
+plot :: variable: MuonGenPt; dataset1: MCExMuCollection; dataset2: MCEx; histogram: 50, 0, 250, log
 
 
 ##### seperate for each contribution
@@ -159,24 +206,63 @@ plot :: variable: MTW; dataset1: MCPr; dataset2: MCEx; histogram: 40, 0, 200, lo
 plot :: variable: HT; dataset1: MCPr; dataset2: MCEx; histogram: 25, 500, 3000, log
 plot :: variable: MHT; dataset1: MCPr; dataset2: MCEx; histogram: 32, 200, 1800, log
 plot :: variable: NJets; dataset1: MCPr; dataset2: MCEx; histogram: 20, 0, 20, log
-plot :: variable: RecoLevelMuonDeltaR; dataset1: MCPr; dataset2: MCEx; histogram: 20, 0, 5, log
+#plot :: variable: RecoLevelMuonDeltaR; dataset1: MCPr; dataset2: MCEx; histogram: 10, 0, 5, log
+#plot :: variable: RecoLevelMuonRelPTJet; dataset1: MCPr; dataset2: MCEx; histogram: 60, 0, 60, log
 
 
 
-plot :: variable: HT; dataset1: WJetsPrMuIso; dataset2: WJetsExMuIso; histogram: 25, 500, 3000, log
-plot :: variable: MHT; dataset1: WJetsPrMuIso; dataset2: WJetsExMuIso; histogram: 32, 200, 1800, log
-plot :: variable: NJets; dataset1: WJetsPrMuIso; dataset2: WJetsExMuIso; histogram: 20, 0, 20, log
-plot :: variable: RecoLevelMuonDeltaR; dataset1: WJetsPrMuIso; dataset2: WJetsExMuIso; histogram: 20, 0, 5, log
+plot :: variable: HT; dataset1: WJetsPrMuIso; dataset2: WJetsExMuIso; histogram: 20, 500, 2500, log
+plot :: variable: MHT; dataset1: WJetsPrMuIso; dataset2: WJetsExMuIso; histogram: 26, 200, 1500, log
+plot :: variable: NJets; dataset1: WJetsPrMuIso; dataset2: WJetsExMuIso; histogram: 14, 0, 14, log
+plot :: variable: RecoLevelMuonDeltaR; dataset1: WJetsPrMuIso; dataset2: WJetsExMuIso; histogram: 10, 0, 5, log
+plot :: variable: RecoLevelMuonRelPTJet; dataset1: WJetsPrMuIso; dataset2: WJetsExMuIso; histogram: 60, 0, 60, log
+plot :: variable: MuonGenPt; dataset1: WJetsPrMuIso; dataset2: WJetsExMuIso; histogram: 20, 10, 200, log
 
-plot :: variable: HT; dataset1: WJetsPrMuReco; dataset2: WJetsExMuReco; histogram: 25, 500, 3000, log
-plot :: variable: MHT; dataset1: WJetsPrMuReco; dataset2: WJetsExMuReco; histogram: 32, 200, 1800, log
-plot :: variable: NJets; dataset1: WJetsPrMuReco; dataset2: WJetsExMuReco; histogram: 20, 0, 20, log
-plot :: variable: RecoLevelMuonDeltaR; dataset1: WJetsPrMuReco; dataset2: WJetsExMuReco; histogram: 20, 0, 5, log
 
-plot :: variable: HT; dataset1: WJetsPrMuAcc; dataset2: WJetsExMuAcc; histogram: 25, 500, 3000, log
-plot :: variable: MHT; dataset1: WJetsPrMuAcc; dataset2: WJetsExMuAcc; histogram: 32, 200, 1800, log
-plot :: variable: NJets; dataset1: WJetsPrMuAcc; dataset2: WJetsExMuAcc; histogram: 20, 0, 20, log
-plot :: variable: RecoLevelMuonDeltaR; dataset1: WJetsPrMuAcc; dataset2: WJetsExMuAcc; histogram: 20, 0, 5, log
+plot :: variable: HT; dataset1: WJetsExMuReco; dataset2: WJetsPrMuIsoTotal; histogram: 20, 500, 2500, log
+plot :: variable: MHT; dataset1: WJetsExMuReco; dataset2: WJetsPrMuIsoTotal; histogram: 26, 200, 1500, log
+plot :: variable: NJets; dataset1: WJetsExMuReco; dataset2: WJetsPrMuIsoTotal; histogram: 14, 0, 14, log
+plot :: variable: RecoLevelMuonDeltaR; dataset1: WJetsExMuReco; dataset2: WJetsPrMuIsoTotal; histogram: 10, 0, 5, log
+plot :: variable: RecoLevelMuonRelPTJet; dataset1: WJetsExMuReco; dataset2: WJetsPrMuIsoTotal; histogram: 60, 0, 60, log
+plot :: variable: MuonGenPt; dataset1: WJetsExMuReco; dataset2: WJetsPrMuIsoTotal; histogram: 20, 0, 200, log
+
+
+plot :: variable: HT; dataset1: WJetsPrMuReco; dataset2: WJetsExMuReco; histogram: 20, 500, 2500, log
+plot :: variable: MHT; dataset1: WJetsPrMuReco; dataset2: WJetsExMuReco; histogram: 26, 200, 1500, log
+plot :: variable: NJets; dataset1: WJetsPrMuReco; dataset2: WJetsExMuReco; histogram: 14, 0, 14, log
+plot :: variable: RecoLevelMuonDeltaR; dataset1: WJetsPrMuReco; dataset2: WJetsExMuReco; histogram: 10, 0, 5, log
+plot :: variable: RecoLevelMuonRelPTJet; dataset1: WJetsPrMuReco; dataset2: WJetsExMuReco; histogram: 60, 0, 60, log
+plot :: variable: MuonGenPt; dataset1: WJetsPrMuReco; dataset2: WJetsExMuReco; histogram: 20, 0, 200, log
+
+
+plot :: variable: HT; dataset1: WJetsPrMuAcc; dataset2: WJetsExMuAcc; histogram: 20, 500, 2500, log
+plot :: variable: MHT; dataset1: WJetsPrMuAcc; dataset2: WJetsExMuAcc; histogram: 26, 200, 1500, log
+plot :: variable: NJets; dataset1: WJetsPrMuAcc; dataset2: WJetsExMuAcc; histogram: 14, 0, 14, log
+plot :: variable: RecoLevelMuonDeltaR; dataset1: WJetsPrMuAcc; dataset2: WJetsExMuAcc; histogram: 10, 0, 5, log
+plot :: variable: RecoLevelMuonRelPTJet; dataset1: WJetsPrMuIso; dataset2: WJetsExMuIso; histogram: 60, 0, 60, log
+
+
+
+plot :: variable: HT; dataset1: WJetsPrEIso; dataset2: WJetsExEIso; histogram: 25, 500, 3000, log
+plot :: variable: MHT; dataset1: WJetsPrEIso; dataset2: WJetsExEIso; histogram: 32, 200, 1800, log
+plot :: variable: NJets; dataset1: WJetsPrEIso; dataset2: WJetsExEIso; histogram: 14, 0, 14, log
+plot :: variable: RecoLevelMuonDeltaR; dataset1: WJetsPrEIso; dataset2: WJetsExEIso; histogram: 40, 0, 10, log
+plot :: variable: RecoLevelMuonRelPTJet; dataset1: WJetsPrEIso; dataset2: WJetsExEIso; histogram: 60, 0, 60, log
+
+
+plot :: variable: HT; dataset1: WJetsPrEReco; dataset2: WJetsExEReco; histogram: 25, 500, 3000, log
+plot :: variable: MHT; dataset1: WJetsPrEReco; dataset2: WJetsExEReco; histogram: 32, 200, 1800, log
+plot :: variable: NJets; dataset1: WJetsPrEReco; dataset2: WJetsExEReco; histogram: 14, 0, 14, log
+plot :: variable: RecoLevelMuonDeltaR; dataset1: WJetsPrEReco; dataset2: WJetsExEReco; histogram: 40, 0, 10, log
+plot :: variable: RecoLevelMuonRelPTJet; dataset1: WJetsPrEIso; dataset2: WJetsExEIso; histogram: 60, 0, 60, log
+
+plot :: variable: HT; dataset1: WJetsPrEAcc; dataset2: WJetsExEAcc; histogram: 25, 500, 3000, log
+plot :: variable: MHT; dataset1: WJetsPrEAcc; dataset2: WJetsExEAcc; histogram: 32, 200, 1800, log
+plot :: variable: NJets; dataset1: WJetsPrEAcc; dataset2: WJetsExEAcc; histogram: 14, 0, 14, log
+plot :: variable: RecoLevelMuonDeltaR; dataset1: WJetsPrEAcc; dataset2: WJetsExEAcc; histogram: 40, 0, 10, log
+plot :: variable: RecoLevelMuonRelPTJet; dataset1: WJetsPrEIso; dataset2: WJetsExEIso; histogram: 60, 0, 60, log
+
+
 
 #plot :: variable: HT; dataset1: MCPrCS; dataset2: MCExCS; histogram: 25, 500, 3000, log
 #plot :: variable: MHT; dataset1: MCPrCS; dataset2: MCExCS; histogram: 32, 200, 1800, log
