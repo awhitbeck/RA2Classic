@@ -13,7 +13,7 @@
 //
 // Original Author:  Arne-Rasmus Draeger,,,uni-hamburg
 //         Created:  Tue Sep 25 13:40:40 CEST 2012
-// $Id: LostLeptonBkg.cc,v 1.3 2012/11/01 12:20:51 adraeger Exp $
+// $Id: LostLeptonBkg.cc,v 1.4 2012/11/06 10:45:25 adraeger Exp $
 //
 //
 
@@ -54,44 +54,7 @@ LostLeptonBkg::LostLeptonBkg(const edm::ParameterSet& iConfig)
    HTTag_ = iConfig.getParameter<edm::InputTag>("HTTag");
    MHTTag_ = iConfig.getParameter<edm::InputTag>("MHTTag");
    NVTag_ = iConfig.getParameter<edm::InputTag>("VertexCollection");
-   //register your products
 
-
-   //if do put with a label
-   produces<double>("LostLeptonWeight");
-   produces<double>("Met");
-   produces<int>("nLeptons");
-   produces<double>("MuPt");
-   produces<double>("MuEta");
-   produces<double>("MuPhi");
-   produces<double>("deltaRMuJet");
-   produces<double>("deltaRMuMHT");
-   produces<double>("deltaPtMuJet");
-   produces<double>("deltaPtClosestJetMu");
-   produces<int>("nCaloJets");
-   produces<double> ("MTW");
-   produces<int> ("MTWCut");
-   produces<double> ("mtwCorrectionWeight");
-   produces<double>("muonTotalWeight");
-   produces<double>("elecTotalWeight");
-   produces<double>("muonIsoWeight");
-   produces<double>("muonRecoWeight");
-   produces<double>("muonAccWeight");
-   produces<double>("elecIsoWeight");
-   produces<double>("elecRecoWeight");
-   produces<double>("elecAccWeight");
-   produces<double>("mtwCorrection");
-
-   // used efficiencies
-   produces<double>("muonAccEff");
-   produces<double>("elecAccEff");
-   produces<double>("muonRecoEff");
-   produces<double>("elecRecoEff");
-   produces<double>("muonIsoEff");
-   produces<double>("elecIsoEff");
-
-   //now do what ever other initialization is needed
-  
 }
 
 
@@ -112,7 +75,7 @@ LostLeptonBkg::~LostLeptonBkg()
 void
 LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-	std::cout<<"LostLeptonBkg:EventLoopStarted"<<std::endl;
+   std::cout<<"LostLeptonBkg:EventLoopStarted"<<std::endl;
    using namespace edm;
    ResetValues();
    
@@ -174,16 +137,23 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // start the prediciton from Muon CS
 
-  if(Mu.isValid() && Mu->size() > 0 ) 
+  if(Mu.isValid() && Mu->size() == 1 )
   {
 	// the jet must not have the same energy as the muon
 	nMu_ = Mu->size();
-	std::cout<<"LostLeptonBkg:MuTag="<<MuonTag_<<std::endl;
+//	std::cout<<"LostLeptonBkg:MuTag="<<MuonTag_<<std::endl;
 	if (nMu_!=1) std::cout<<"Number of Muons="<<nMu_<<std::endl;
 	MuPt_ = Mu->at(0).pt();
 	MuEta_ = Mu->at(0).eta();
 	MuPhi_ = Mu->at(0).phi();
-	std::cout<<"MuFoundStepOneCompleted!"<<std::endl;
+
+	// remove muon from nOfJets if muon is clustered as single jet
+
+	for (unsigned int i=0; i<nJets_;i++)
+	{
+		if( abs(htJets->at(i).pt() - MuPt_)/MuPt_ < 0.1 && deltaR(htJets->at(i).eta(),htJets->at(i).phi(), MuEta_,MuPhi_) < 0.2 ) nJets_-=1;
+	}
+//	std::cout<<"MuFoundStepOneCompleted!"<<std::endl;
 
   	// calculate relative values for the muon and jets usw.
 
@@ -192,11 +162,11 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	{
 //	std::pair<double,double> DRtoClostestJet;
 //	PtclosestJet = MCEffCalculator::DRToClosestJet(caloJets, 2,3,4);
-		std::cout<<"CaloJetsValid"<<std::endl;
+//		std::cout<<"CaloJetsValid"<<std::endl;
 		deltaRMuJet_ = MCEffCalculator::DRToClosestJet(iEvent,CaloJetTag_, MuEta_, MuPhi_).first;
 		PtClosestJet_ = MCEffCalculator::DRToClosestJet(iEvent,CaloJetTag_, MuEta_, MuPhi_).second;
 		deltaPtClosestJetMu_ =PtClosestJet_/MuPt_;
-		std::cout<<"deltaRandRelPTcalculated:"<<deltaPtClosestJetMu_<<std::endl;
+//		std::cout<<"deltaRandRelPTcalculated:"<<deltaPtClosestJetMu_<<std::endl;
 		
   	}
 	
@@ -204,63 +174,69 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if( mht.isValid() ) 
 	{
     		deltaRMuMHT_ = deltaR(mht->at(0).eta(), mht->at(0).phi(),MuEta_,MuPhi_);
-		std::cout<<"MHT is valid"<<std::endl;
+//		std::cout<<"MHT is valid"<<std::endl;
 		
 	}
 	// calculate MTw
 	mtw_= MCEffCalculator::MTWCalculator(iEvent, MetTag_, MuPt_, MuPhi_);
-	std::cout<<"mtw calculated. MTW="<<mtw_<<std::endl;
+//	std::cout<<"mtw calculated. MTW="<<mtw_<<std::endl;
 	
 	// do the MTW cut
-	std::cout<<"MTWCut_bool"<<MTWCut_<<std::endl;
-	std::cout<<"MTWMax_"<<MTWMax_<<std::endl;
-
+//	std::cout<<"MTWCut_bool"<<MTWCut_<<std::endl;
+//	std::cout<<"MTWMax_"<<MTWMax_<<std::endl;
+	
 		// calculate lost lepton Estimation weights from the eff.	
 		// calulcate the delta r and lepton bin for iso and reco
-		std::cout<<"MuonFound starting to get the curent efficiencies"<<std::endl;
+//		std::cout<<"MuonFound starting to get the curent efficiencies"<<std::endl;
 		int muonIsoXaxis= MuonIsoEff_->GetXaxis()->FindBin(deltaRMuJet_);
+		if (deltaRMuJet_> muonIsoXMax_) muonIsoXaxis= MuonIsoEff_->GetXaxis()->FindBin(muonIsoXMax_);
 		// check if the deltaRmuJet is greater thatn the maximum in the histogramm
-		std::cout<<"a"<<std::endl;
+//		std::cout<<"a"<<std::endl;
 		if (muonIsoXaxis > MuonIsoEff_->GetNbinsX()) muonIsoXaxis-=1;
-		std::cout<<"muonIsoXaxis has been found"<<std::endl;
+//		std::cout<<"muonIsoXaxis has been found"<<std::endl;
 		int muonIsoYaxis= MuonIsoEff_->GetYaxis()->FindBin(deltaPtClosestJetMu_);
 		// check if the deltaPTclosestJetMu is greater than the maximum stored in the histogramm
 		if (muonIsoYaxis > MuonIsoEff_->GetNbinsY()) muonIsoYaxis-=1;
-		std::cout<<"1";
+//		std::cout<<"1";
 		int muonRecoXaxis = MuonRecoEff_->GetXaxis()->FindBin(deltaRMuJet_);
 		if (muonRecoXaxis > MuonRecoEff_->GetNbinsX() ) muonRecoXaxis-=1;
-		std::cout<<"2";
+//		std::cout<<"2";
 		int muonRecoYaxis = MuonRecoEff_->GetYaxis()->FindBin(deltaPtClosestJetMu_);
 		if (muonRecoYaxis > MuonRecoEff_->GetNbinsY() ) muonRecoYaxis-=1;
-		std::cout<<"3";
+//		std::cout<<"3";
 
 		int elecIsoXaxis= ElecIsoEff_->GetXaxis()->FindBin(deltaRMuJet_);
 		if (elecIsoXaxis > ElecIsoEff_->GetNbinsX() ) elecIsoXaxis-=1;
-		std::cout<<"4";
+//		std::cout<<"4";
 		int elecIsoYaxis= ElecIsoEff_->GetYaxis()->FindBin(deltaPtClosestJetMu_);
 		if (elecIsoYaxis > ElecIsoEff_->GetNbinsY() ) elecIsoYaxis-=1;
-		std::cout<<"5";
+//		std::cout<<"5";
 		int elecRecoXaxis = ElecRecoEff_->GetXaxis()->FindBin(deltaRMuJet_);
 		if (elecRecoXaxis > ElecRecoEff_->GetNbinsX() ) elecRecoXaxis-=1;
-		std::cout<<"6";
+//		std::cout<<"6";
 		int elecRecoYaxis = ElecRecoEff_->GetYaxis()->FindBin(deltaPtClosestJetMu_);
 		if (elecRecoYaxis > ElecRecoEff_->GetNbinsY() ) elecRecoYaxis-=1;
-		std::cout<<"7";
+//		std::cout<<"7";
 
 
 		// LostLepton background estimation weights for each contribution
-		std::cout<<"b"<<std::endl;
+//		std::cout<<"b"<<std::endl;
 		// the muon isolation fraction
 		muonIsoEff_ = MuonIsoEff_->GetBinContent(muonIsoXaxis,muonIsoYaxis );
+		if (muonIsoEff_ <0.01 || muonIsoEff_ > 1) std::cout<<"LostLeptonBkg::Warning the muonIso eff is "<<muonIsoEff_<<" and will most likely cause problems!"<<std::endl;
+		std::cout<<"LostLeptonBkg:MuonIsoEff"<<muonIsoEff_<<std::endl;
 		muonIsoWeight_ = eventWeight_ * (1 - muonIsoEff_)/muonIsoEff_;	
-		std::cout<<"c"<<std::endl;
+//		std::cout<<"c"<<std::endl;
 		// the muon reconstruciton fraction
 		muonRecoEff_ = MuonRecoEff_->GetBinContent(muonRecoXaxis,muonRecoYaxis );
-		muonRecoWeight_ = eventWeight_ * 1/muonIsoEff_ * (1-muonRecoEff_)/muonRecoEff_;
-		std::cout<<"d"<<std::endl;
+		if (muonRecoEff_ <0.01 || muonRecoEff_ > 1) std::cout<<"LostLeptonBkg::Warning the eff muonReco is "<<muonRecoEff_<<" and will most likely cause problems!"<<std::endl;
+		std::cout<<"LostLeptonBkg:MuonRecoEff"<<muonRecoEff_<<std::endl;
+		muonRecoWeight_ = eventWeight_ * 1 / muonIsoEff_ * (1-muonRecoEff_)/muonRecoEff_;
+		muAllIsoWeight_ =  eventWeight_ * 1 / muonIsoEff_;
+//		std::cout<<"d"<<std::endl;
 		// the muon out of acceptance fraction
 		muonAccWeight_ = eventWeight_ * 1/muonIsoEff_ * 1/muonRecoEff_ *(1-MuonAccEff_)/MuonAccEff_;
-		std::cout<<"e"<<std::endl;
+//		std::cout<<"e"<<std::endl;
 		// total muon weight
 		muonTotalWeight_ = muonIsoWeight_ + muonRecoWeight_ + muonAccWeight_;
 
@@ -286,89 +262,101 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		// total lostlepton weight
 		resultWeight_ = muonTotalWeight_ + elecTotalWeight_;
 		//if (MTWCut_)resultWeight_= mtwCorrection_;
+
+	// addional weight calculator
+	// check if any of the values is out of the eff bining
+
+
+		int muonAccXaxis2= MuonAccEff2_->GetXaxis()->FindBin(mht_);
+		if (muonAccXaxis2 > MuonAccEff2_->GetNbinsX()) muonAccXaxis2-=1;
+	
+		int muonIsoXaxis2= MuonIsoEff2_->GetXaxis()->FindBin(deltaRMuJet_);
+		// check if the deltaRmuJet is greater thatn the maximum in the histogramm
+//		std::cout<<"a"<<std::endl;
+		if (muonIsoXaxis2 > MuonIsoEff2_->GetNbinsX()) muonIsoXaxis2-=1;
+//		std::cout<<"muonIsoXaxis has been found"<<std::endl;
+		int muonIsoYaxis2= MuonIsoEff2_->GetYaxis()->FindBin(MuPt_);
+		// check if the deltaPTclosestJetMu is greater than the maximum stored in the histogramm
+		if (muonIsoYaxis2 > MuonIsoEff2_->GetNbinsY()) muonIsoYaxis2-=1;
+//		std::cout<<"1";
+		int muonRecoXaxis2 = MuonRecoEff2_->GetXaxis()->FindBin(deltaRMuJet_);
+		if (muonRecoXaxis2 > MuonRecoEff2_->GetNbinsX() ) muonRecoXaxis2-=1;
+//		std::cout<<"2";
+		int muonRecoYaxis2 = MuonRecoEff2_->GetYaxis()->FindBin(MuPt_);
+		if (muonRecoYaxis2 > MuonRecoEff2_->GetNbinsY() ) muonRecoYaxis2-=1;
+//		std::cout<<"3";
+		muonIsoEff2_ = MuonIsoEff2_->GetBinContent(muonIsoXaxis2,muonIsoYaxis2 );
+		if (muonIsoEff2_ <0.01 || muonIsoEff2_ > 1) error_+=100;
+		muonIsoWeight2_ = eventWeight_ * (1 - muonIsoEff2_)/muonIsoEff2_;	
+
+		muonRecoEff2_ = MuonRecoEff2_->GetBinContent(muonRecoXaxis2,muonRecoYaxis2 );
+		if (muonRecoEff2_ <0.01 || muonRecoEff2_ > 1) error_+=1000;
+		muonRecoWeight2_ = eventWeight_ * 1 / muonIsoEff2_ * (1-muonRecoEff2_)/muonRecoEff2_;
+		muAllIsoWeight2_ =  eventWeight_ * 1 / muonIsoEff2_;
+//		std::cout<<"d"<<std::endl;
+		// the muon out of acceptance fraction
+		muonAccEff2_ = MuonAccEff2_->GetBinContent(muonAccXaxis2);
+		muonAccWeight2_ = eventWeight_ * 1/muonIsoEff2_ * 1/muonRecoEff2_ *(1-muonAccEff2_)/muonAccEff2_;
+//		std::cout<<"e"<<std::endl;
+		// total muon weight
+		totalMuons_ = eventWeight_ / (muonAccEff2_ * muonRecoEff2_ * muonIsoEff2_);
+		muonTotalWeight2_ = muonIsoWeight2_ + muonRecoWeight2_ + muonAccWeight2_;
+
+
+		// electrons
+		int elecAccXaxis2 = ElecAccEff2_->GetXaxis()->FindBin(mht_);
+		if (elecAccXaxis2 > ElecAccEff2_->GetNbinsX()) elecAccXaxis2-=1;
+	
+		int elecIsoXaxis2= ElecIsoEff2_->GetXaxis()->FindBin(deltaRMuJet_);
+		// check if the deltaRmuJet is greater thatn the maximum in the histogramm
+//		std::cout<<"a"<<std::endl;
+		if (elecIsoXaxis2 > ElecIsoEff2_->GetNbinsX()) elecIsoXaxis2-=1;
+//		std::cout<<"muonIsoXaxis has been found"<<std::endl;
+		int elecIsoYaxis2= ElecIsoEff2_->GetYaxis()->FindBin(MuPt_);
+		// check if the deltaPTclosestJetMu is greater than the maximum stored in the histogramm
+		if (elecIsoYaxis2 > ElecIsoEff2_->GetNbinsY()) elecIsoYaxis2-=1;
+//		std::cout<<"1";
+		int elecRecoXaxis2 = ElecRecoEff2_->GetXaxis()->FindBin(deltaRMuJet_);
+		if (elecRecoXaxis2 > ElecRecoEff2_->GetNbinsX() ) elecRecoXaxis2-=1;
+//		std::cout<<"2";
+		int elecRecoYaxis2 = ElecRecoEff2_->GetYaxis()->FindBin(MuPt_);
+		if (elecRecoYaxis2 > ElecRecoEff2_->GetNbinsY() ) elecRecoYaxis2-=1;
+//		std::cout<<"3";
+
+		// totalMuons_ are the total number of muons including all not iso reoc and acc muons! should be by definiton equal to the electron amount
+		elecAccEff2_ = ElecAccEff2_->GetBinContent(elecAccXaxis2);
+		if (elecAccEff2_ >1 || elecAccEff2_ <0.01) error_+=10000;
+		elecAccWeight2_ = totalMuons_ * (1 - elecAccEff2_);
+
+		elecRecoEff2_ = ElecRecoEff2_->GetBinContent(elecRecoXaxis2,elecRecoYaxis2 );
+		if (elecRecoEff2_ <0.01 || elecRecoEff2_ > 1) error_+=100000;
+		elecRecoWeight2_ = totalMuons_ * (elecAccEff2_) * (1 - elecRecoEff2_);
+
+		elecIsoEff2_ = ElecIsoEff2_->GetBinContent(elecIsoXaxis2,elecIsoYaxis2 );
+		if (elecIsoEff2_ <0.01 || elecIsoEff2_ > 1) error_+=1000000;
+		elecIsoWeight2_ = totalMuons_ * elecAccEff2_ * elecRecoEff2_ * (1 - elecIsoEff2_);
+
+		elecTotalWeight2_ = elecAccWeight2_ + elecRecoWeight2_ + elecIsoWeight2_;
+		resultWeight2_ = muonTotalWeight2_ + elecTotalWeight2_;
+
+		if(MTWCut_)
+		{
+			int MTWbin = MTWEff_->GetXaxis()->FindBin(mht_);
+			if ( MTWbin > MTWEff_->GetNbinsX() ) MTWbin -=1;
+			resultWeight2MTW_ = resultWeight2_ / MTWEff_->GetBinContent(MTWbin );
+		}
+		// electron
+
+
+
 	std::cout<<"lostleptonweights calculated"<<std::endl;
 
-   std::auto_ptr<int> pOut3(new int(nMu_));
-   iEvent.put(pOut3, "nLeptons");
-   std::auto_ptr<double> pOut4(new double(MuPt_));
-   iEvent.put(pOut4, "MuPt");
-   std::auto_ptr<double> pOut5(new double(MuEta_));
-   iEvent.put(pOut5, "MuEta");
-   std::auto_ptr<double> pOut6(new double(MuPhi_));
-   iEvent.put(pOut6, "MuPhi");
-   std::auto_ptr<double> pOut7(new double(deltaRMuJet_));
-   iEvent.put(pOut7, "deltaRMuJet");
-   std::auto_ptr<double> pOut8(new double(deltaRMuMHT_));
-   iEvent.put(pOut8, "deltaRMuMHT");
-   std::auto_ptr<double> pOut9(new double(PtClosestJet_));
-   iEvent.put(pOut9, "deltaPtMuJet");
-   std::auto_ptr<double> pOut9a(new double(deltaPtClosestJetMu_));
-   iEvent.put(pOut9a, "deltaPtClosestJetMu");
-   std::auto_ptr<int> pOut10(new int(nCaloJets_));
-   iEvent.put(pOut10, "nCaloJets");
-   std::auto_ptr<double> pOut11a(new double(mtw_));
-   iEvent.put(pOut11a, "MTW");
-   std::auto_ptr<int> pOut32(new int(MTWCut_) );
-   iEvent.put(pOut32, "MTWCut");
 
-   std::auto_ptr<double> aOut1(new double(MuonAccEff_));
-   iEvent.put(aOut1,"muonAccEff");
-   std::auto_ptr<double> aOut2(new double(ElecAccEff_));
-   iEvent.put(aOut2,"elecAccEff");
-   std::auto_ptr<double> aOut3(new double(muonRecoEff_));
-   iEvent.put(aOut3,"muonRecoEff");
-   std::auto_ptr<double> aOut4(new double(elecRecoEff_));
-   iEvent.put(aOut4,"elecRecoEff");
-   std::auto_ptr<double> aOut5(new double(muonIsoEff_));
-   iEvent.put(aOut5,"muonIsoEff");
-   std::auto_ptr<double> aOut6(new double(elecIsoEff_));
-   iEvent.put(aOut6,"elecIsoEff");
-
-
-   // store all the different weights in the event
-   
-   std::auto_ptr<double> pOut111(new double(mtwCorrection_));
-   iEvent.put(pOut111, "mtwCorrectionWeight");
-   std::auto_ptr<double> pOut1(new double(resultWeight_));
-   iEvent.put(pOut1, "LostLeptonWeight");
-   std::cout<<"resultWeight_"<<resultWeight_<<std::endl;
-   std::auto_ptr<double> pOut2a(new double(muonTotalWeight_));
-   iEvent.put(pOut2a, "muonTotalWeight");
-   std::auto_ptr<double> pOut3b(new double(elecTotalWeight_));
-   iEvent.put(pOut3b, "elecTotalWeight");
-   std::auto_ptr<double> pOut4b(new double(muonIsoWeight_));
-   iEvent.put(pOut4b, "muonIsoWeight");
-   std::auto_ptr<double> pOut5b(new double(muonRecoWeight_));
-   iEvent.put(pOut5b, "muonRecoWeight");
-   std::auto_ptr<double> pOut6b(new double(muonAccWeight_));
-   iEvent.put(pOut6b, "muonAccWeight");
-   std::auto_ptr<double> pOut7b(new double(elecIsoWeight_));
-   iEvent.put(pOut7b, "elecIsoWeight");
-   std::auto_ptr<double> pOut8b(new double(elecRecoWeight_));
-   iEvent.put(pOut8b, "elecRecoWeight");
-   std::auto_ptr<double> pOut9b(new double(elecAccWeight_));
-   iEvent.put(pOut9b, "elecAccWeight");
-   std::cout<<"MuonValidIfSchleifeFertig"<<std::endl;
   }
-/* This is an event example
-   //Read 'ExampleData' from the Event
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
+  if (!Mu.isValid() ) error_+=1;
+  if ( Mu->size() != 1 ) error_+=10;
 
-   //Use the ExampleData to create an ExampleData2 which 
-   // is put into the Event
-   std::auto_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
-   iEvent.put(pOut);
-*/
 
-/* this is an EventSetup example
-   //Read SetupData from the SetupRecord in the EventSetup
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-*/
-
-   std::auto_ptr<double> pOut2(new double(met_));
-   iEvent.put(pOut2, "Met");
 
    std::cout<<"EventLoopDoneExitingPrdocuer"<<std::endl;
 	std::cout<<"LostLeptonBkg:LostLeptonWeight:"<<resultWeight_<<std::endl;
@@ -392,16 +380,7 @@ LostLeptonBkg::beginJob()
   TDirectory *dElec = (TDirectory*)effInput->Get("Electron");
   
   //muons
-  // acceptance
-  MuonAccSum_ = (TH1F*)dMuon->Get("MuonAccSum");
-  MuonAccPassed_ = (TH1F*)dMuon->Get("MuonAccPassed");
-  MuonAccEff_ = MuonAccPassed_->Integral(MuonAccPassed_->FindBin(MinMuPT_),(MuonAccPassed_->GetNbinsX()+1))/MuonAccSum_->Integral(0,(MuonAccSum_->GetNbinsX()+1));
 
-  std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!muonAccEff_"<<MuonAccEff_<<std::endl;
-  std::cout<<"MinMuPT is set to"<<MinMuPT_<<std::endl;
-  std::cout<<"Integral boarders"<<MuonAccPassed_->FindBin(MinMuPT_)<<std::endl;
-  std::cout<<"The Integral for PassedMuons"<<MuonAccPassed_->Integral(MuonAccPassed_->FindBin(MinMuPT_),(MuonAccPassed_->GetNbinsX()+1))<<std::endl;
-  std::cout<<"The Integral for All muons"<<MuonAccSum_->Integral(0,(MuonAccSum_->GetNbinsX()+1))<<std::endl;
 
   //MTW cut eff
   if (MTWCut_)
@@ -431,30 +410,60 @@ LostLeptonBkg::beginJob()
   	}
   }
 //  for (int i=1; 
+  // acceptance
+  MuonAccSum_ = (TH1F*)dMuon->Get("MuonAccSum");
+  MuonAccPassed_ = (TH1F*)dMuon->Get("MuonAccPassed");
+  MuonAccEff_ = MuonAccPassed_->Integral(MuonAccPassed_->FindBin(MinMuPT_),(MuonAccPassed_->GetNbinsX()+1))/MuonAccSum_->Integral(0,(MuonAccSum_->GetNbinsX()+1));
+  MuonAccEff2_ = (TH1F*)dMuon->Get("MuonAccEff2");
+  std::cout<<"LostLeptonBkg:MuonAxxEff Nbinsx:"<<MuonAccEff2_->GetNbinsX()<<std::endl;
+  muonAccXMax_ = MuonAccEff2_->GetXaxis()->GetXmax();
+  std::cout<<"LostLeptonBkg::muonAccXMax_:"<<muonAccXMax_<<std::endl;
+
+  std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!muonAccEff_"<<MuonAccEff_<<std::endl;
+  std::cout<<"MinMuPT is set to"<<MinMuPT_<<std::endl;
+  std::cout<<"Integral boarders"<<MuonAccPassed_->FindBin(MinMuPT_)<<std::endl;
+  std::cout<<"The Integral for PassedMuons"<<MuonAccPassed_->Integral(MuonAccPassed_->FindBin(MinMuPT_),(MuonAccPassed_->GetNbinsX()+1))<<std::endl;
+  std::cout<<"The Integral for All muons"<<MuonAccSum_->Integral(0,(MuonAccSum_->GetNbinsX()+1))<<std::endl;
+
 
   
 
   // reconstruction
   MuonRecoEff_ = (TH2F*)dMuon->Get("MuonRecoEff");
-
+  muonRecoXMax_ = MuonRecoEff_->GetXaxis()->GetXmax();
+  muonRecoYMax_ = MuonRecoEff_->GetYaxis()->GetXmax();
+  MuonRecoEff2_ = (TH2F*)dMuon->Get("MuonRecoEff2");
+  muonRecoX2Max_ = MuonRecoEff2_->GetXaxis()->GetXmax();
+	std::cout<<"muonRecoX2Max_:"<<muonRecoX2Max_<<std::endl;
+  muonRecoY2Max_ = MuonRecoEff2_->GetYaxis()->GetXmax();
+	std::cout<<"muonRecoY2Max_:"<<muonRecoY2Max_<<std::endl;
   // isolation
 
   MuonIsoEff_ = (TH2F*)dMuon->Get("MuonIsoEff");
-
-
+  muonIsoXMax_ = MuonIsoEff_->GetXaxis()->GetXmax();
+  muonIsoYMax_ = MuonIsoEff_->GetYaxis()->GetXmax();
+  MuonIsoEff2_ = (TH2F*)dMuon->Get("MuonIsoEff2");
+  muonIsoX2Max_ = MuonIsoEff2_->GetXaxis()->GetXmax();
+	std::cout<<"muonIsoX2Max_:"<<muonIsoX2Max_<<std::endl;
+  muonIsoY2Max_ = MuonIsoEff2_->GetYaxis()->GetXmax();
+	std::cout<<"muonIsoY2Max_:"<<muonIsoY2Max_<<std::endl;
   //electrons
   // acceptance
   ElecAccSum_ = (TH1F*)dElec->Get("ElecAccSum");
   ElecAccPassed_ = (TH1F*)dElec->Get("ElecAccPassed");
   ElecAccEff_ = ElecAccPassed_->Integral(ElecAccPassed_->FindBin(MinElecPT_),(ElecAccPassed_->GetNbinsX()+1))/ElecAccSum_->Integral(0,(ElecAccSum_->GetNbinsX()+1));
   std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!elecAccEff_"<<ElecAccEff_<<std::endl;
-  
+  // second Acceptance efficiency
+  ElecAccEff2_ = (TH1F*)dElec->Get("ElecAccEff2");
+  elecAccXMax_ = ElecAccEff2_->GetXaxis()->GetXmax();
+  std::cout<<"LostLeptonBkg::elecAccXMax_:"<<elecAccXMax_<<std::endl;
   // reconstruction
   ElecRecoEff_ = (TH2F*)dElec->Get("ElecRecoEff");
-
+  ElecRecoEff2_ = (TH2F*)dElec->Get("ElecRecoEff2");
   // isolation
 
   ElecIsoEff_ = (TH2F*)dElec->Get("ElecIsoEff");
+  ElecIsoEff2_ = (TH2F*)dElec->Get("ElecIsoEff2");
 
 // output
 
@@ -463,13 +472,16 @@ LostLeptonBkg::beginJob()
 
     tree_->Branch("muPromtMatched",&nMu_,"muPromtMatched/I");
     tree_->Branch("MTW",&mtw_,"MTW/F");
+    tree_->Branch("MTWCut_",&MTWCut_,"MTWCut_/I");
 
     tree_->Branch("RecoLevelMuonDeltaR",&deltaRMuJet_,"RecoLevelMuonDeltaR/F");
     tree_->Branch("RecoLevelMuonRelPTJet",&deltaPtClosestJetMu_,"RecoLevelMuonRelPTJet/F");
 
 
     tree_->Branch("LostLeptonWeight",&resultWeight_,"LostLeptonWeight/F");
-    tree_->Branch("muonAccEff",&MuonAccEff_,"muonAccEff");
+    tree_->Branch("muonAccEff",&MuonAccEff_,"muonAccEff/F");
+    tree_->Branch("muonRecoEff",&MuonRecoEff_,"muonRecoEff/F");
+    tree_->Branch("muonIsoEff",&MuonIsoEff_,"muonIsoEff/F");
     tree_->Branch("muonIsoWeight",&muonIsoWeight_,"muonIsoWeight/F");
     tree_->Branch("muonRecoWeight",&muonRecoWeight_,"muonRecoWeight/F");
     tree_->Branch("muonAccWeight",&muonAccWeight_,"muonAccWeight/F");
@@ -477,6 +489,20 @@ LostLeptonBkg::beginJob()
     tree_->Branch("elecAccWeight",&elecAccWeight_,"elecAccWeight/F");
     tree_->Branch("elecRecoWeight",&elecRecoWeight_,"elecRecoWeight/F");
     tree_->Branch("elecIsoWeight",&elecIsoWeight_,"elecIsoWeight/F");
+
+    tree_->Branch("muonIsoWeight2",&muonIsoWeight2_,"muonIsoWeight2/F");
+    tree_->Branch("muonAllIsoWeight2",&muAllIsoWeight2_,"muonAllIsoWeight2/F");
+    tree_->Branch("muonRecoWeight2",&muonRecoWeight2_,"muonRecoWeight2/F");
+    tree_->Branch("muonAccWeight2",&muonAccWeight2_,"muonAccWeight2/F");
+    tree_->Branch("muonTotalWeight2",&muonTotalWeight2_,"muonTotalWeight2/F");
+
+    tree_->Branch("elecAccWeight2",&elecAccWeight2_,"elecAccWeight2/F");
+    tree_->Branch("elecRecoWeight2",&elecRecoWeight2_,"elecRecoWeight2/F");
+    tree_->Branch("elecIsoWeight2",&elecIsoWeight2_,"elecIsoWeight2/F");
+    tree_->Branch("elecTotalWeight2",&elecTotalWeight2_,"elecTotalWeight2/F");
+
+    tree_->Branch("resultWeight2",&resultWeight2_,"resultWeight2/F");
+    tree_->Branch("resultWeight2MTW_",&resultWeight2MTW_,"resultWeight2MTW/F");
 
     tree_->Branch("mtwCorrection",&mtwCorrection_,"mtwCorrection/F");
     // plotting values
@@ -488,7 +514,11 @@ LostLeptonBkg::beginJob()
     tree_->Branch("MT",&met_,"MT/F");
 //    tree_->Branch("NVtx",&nV_,"NVtx/s");
 
+	// x check values
+	tree_->Branch("muAllIsoWeight",&muAllIsoWeight_,"muAllIsoWeight/F");
 
+	tree_->Branch("Errors",&error_,"Errors/I");
+    	tree_->Branch("MuonGenPt",&MuPt_,"MuonGenPt/F");
 }
 void 
 LostLeptonBkg::ResetValues()
@@ -518,6 +548,12 @@ LostLeptonBkg::ResetValues()
 
 	muonRecoEff_=-1;
 	muonRecoWeight_=-1;
+
+	muonIsoEff2_=-1;
+	muonIsoWeight2_=-1;
+
+	muonRecoEff2_=-1;
+	muonRecoWeight2_=-1;
 	
 	muonAccWeight_=-1;
 
@@ -532,6 +568,11 @@ LostLeptonBkg::ResetValues()
 	elecTotalWeight_=-1;
 	mtwCorrection_=0;
 	resultWeight_=-1;
+
+	// x check weights
+	muAllIsoWeight_=-1;
+	muAllIsoWeight2_=-1;
+	error_=0;
 
 
 }

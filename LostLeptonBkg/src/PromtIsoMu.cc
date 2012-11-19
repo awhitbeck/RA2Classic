@@ -84,7 +84,7 @@ PromtIsoMu::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		// tau decay
 		if (abs(cand->daughter(i)->pdgId() ) == 15)
 		{
-			TauFound(cand,i);
+			TauFound(cand->daughter(i));
 			if(cand->daughter(i)->status()==2)std::cout<<"tau has status 2"<<std::endl;
 		}
 	
@@ -92,8 +92,8 @@ PromtIsoMu::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	
    }
 
-
-if (nGenMu_>0)
+// for now not fully correct
+if (nGenMu_==1 && nGenElec_ == 0)
 {
 	for( edm::View <pat::Muon>::const_iterator MuIDIsoCand = MuIDISO->begin(); MuIDIsoCand!=MuIDISO->end();MuIDIsoCand++)
 	{
@@ -233,29 +233,36 @@ PromtIsoMu::ElecFound(reco::GenParticleCollection::const_iterator cand, unsigned
 }
 
 void
-PromtIsoMu::TauFound(reco::GenParticleCollection::const_iterator cand, unsigned int i)
+PromtIsoMu::TauFound(const reco::Candidate* tau)
 {
-	for (unsigned int itau=0; itau < cand->daughter(i)->numberOfDaughters(); itau++)
-	{	
-		std::cout<<"Tau found!"<<std::endl;
-		if (abs(cand->daughter(i)->daughter(itau)->pdgId() ) ==13) 
+
+
+	for (unsigned int ii=0; ii < tau->numberOfDaughters(); ii++)
+	{
+		// true if the selected tau is not the finally decaying tau but has an intermediate tau or w in the decay
+		if (abs(tau->daughter(ii)->pdgId()) == 15 || abs(tau->daughter(ii)->pdgId()) == 24) TauFound(tau->daughter(ii));
+		if (abs(tau->daughter(ii)->pdgId() ) == 13 )
 		{
+			//muon found
+
 			nGenMu_+=1;
-			muonGenPt_  = cand->daughter(i)->daughter(itau)->pt();
-			muonGenEta_ = cand->daughter(i)->daughter(itau)->eta();
-			muonGenPhi_ = cand->daughter(i)->daughter(itau)->phi();
-		// true if the muon is out of the detector acceptance
+			muonGenPt_  = tau->daughter(ii)->pt();
+			muonGenEta_ = tau->daughter(ii)->eta();
+			muonGenPhi_ = tau->daughter(ii)->phi();
 
 		}
-		if (abs(cand->daughter(i)->daughter(itau)->pdgId() ) ==11)  
+		if (abs(tau->daughter(ii)->pdgId() ) == 11 )
 		{
+			//elec found
+
 			nGenElec_+=1;
-			elecGenPt_  = cand->daughter(i)->daughter(itau)->pt();
-			elecGenEta_ = cand->daughter(i)->daughter(itau)->eta();
-			elecGenPhi_ = cand->daughter(i)->daughter(itau)->phi();
-			// true if the elec is out of the detector acceptance
+			elecGenPt_  = tau->daughter(ii)->pt();
+			elecGenEta_ = tau->daughter(ii)->eta();
+			elecGenPhi_ = tau->daughter(ii)->phi();
 
 		}
+
+
 	}
 
 }
