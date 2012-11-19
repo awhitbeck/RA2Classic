@@ -13,7 +13,7 @@
 //
 // Original Author:  Arne-Rasmus Draeger,,,uni-hamburg
 //         Created:  Fri Nov  2 12:04:49 CET 2012
-// $Id$
+// $Id: PromtIsoMu.h,v 1.1 2012/11/06 11:02:40 adraeger Exp $
 //
 //
 
@@ -73,7 +73,7 @@ class PromtIsoMu : public edm::EDProducer {
 	// special functions
 	void MuonFound(reco::GenParticleCollection::const_iterator cand, unsigned int i);
 	void ElecFound(reco::GenParticleCollection::const_iterator cand, unsigned int i);
-	void TauFound(reco::GenParticleCollection::const_iterator cand, unsigned int i);
+	void TauFound(const reco::Candidate* tau);
 	void resetVariables();
 
 	// input Tags etc.

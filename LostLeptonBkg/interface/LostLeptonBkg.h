@@ -16,6 +16,7 @@
 #include <TH2F.h>
 #include <TFile.h>
 #include "TTree.h"
+
 //
 // class declaration
 //
@@ -59,10 +60,14 @@ class LostLeptonBkg : public edm::EDProducer {
   	// efficiencies created ones per job!
 	TH1F *MuonAccSum_, *MuonAccPassed_;
 	TH1F *ElecAccSum_, *ElecAccPassed_;
+	TH1F *MuonAccEff2_, *ElecAccEff2_;
 	TH2F *MuonRecoEff_, *MuonIsoEff_;
+	TH2F *MuonRecoEff2_, *MuonIsoEff2_;
 	TH2F *ElecRecoEff_, *ElecIsoEff_;
+	TH2F *ElecRecoEff2_, *ElecIsoEff2_;
 	TH1F *MTWEff_;
 	Float_t MuonAccEff_, ElecAccEff_;
+	Float_t muonAccEff2_, elecAccEff2_;
 	
 	// Variables
 	float met_;
@@ -77,11 +82,22 @@ class LostLeptonBkg : public edm::EDProducer {
 
 	
 	Float_t muonIsoEff_, muonRecoEff_, muonTotalWeight_;
+	Float_t totalMuons_;
 	Float_t muonIsoWeight_, muonRecoWeight_, muonAccWeight_;
+	Float_t muonIsoWeight2_, muonRecoWeight2_, muonAccWeight2_, muonTotalWeight2_, muonIsoEff2_, muonRecoEff2_, muAllIsoWeight2_;
+
 	Float_t elecRecoEff_, elecIsoEff_, elecTotalWeight_;
 	Float_t elecIsoWeight_, elecRecoWeight_, elecAccWeight_;
+	Float_t elecIsoWeight2_, elecRecoWeight2_, elecAccWeight2_, elecTotalWeight2_, elecIsoEff2_, elecRecoEff2_;
 	Float_t mtwCorrection_;
 	Float_t resultWeight_;
+	Float_t resultWeight2_;
+	Float_t resultWeight2MTW_;
+	Float_t muonIsoXMax_, muonIsoYMax_;
+	Float_t muonRecoXMax_, muonRecoYMax_;
+	Float_t muonIsoX2Max_, muonIsoY2Max_;
+	Float_t muonRecoX2Max_, muonRecoY2Max_;
+	Float_t elecAccXMax_, muonAccXMax_;
 
 	Float_t deltaRMuJet_;
 	Float_t deltaRMuMHT_;
@@ -91,6 +107,9 @@ class LostLeptonBkg : public edm::EDProducer {
 
 
         TTree* tree_;
+	// weights for x checks
+	Float_t muAllIsoWeight_;
+	int error_;
 
 
       // ----------member data ---------------------------
