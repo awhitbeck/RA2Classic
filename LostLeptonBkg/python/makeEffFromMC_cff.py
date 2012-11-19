@@ -1,4 +1,4 @@
-# $Id: makeEffFromMC_cff.py,v 1.3 2012/11/01 12:17:12 adraeger Exp $
+# $Id: makeEffFromMC_cff.py,v 1.4 2012/11/06 10:45:24 adraeger Exp $
 #
 
 
@@ -152,6 +152,7 @@ def makeTreeFromPAT(process,
 	# filter used to slecte the RA2 baseline important for efficiency caluclaiton
     from RA2Classic.Utils.RA2Selection_cfi import RA2Selection
     process.RA2Selector = RA2Selection.clone(
+    	nJets		= cms.uint32 (2)
 	
 	)
 
@@ -165,8 +166,8 @@ def makeTreeFromPAT(process,
     process.LostLeptonBkgMCEffCalculator = MCEffCalculator.clone(
         MuonIDTag = cms.InputTag("patMuonsPFID"),
 	MuonIDISOTag = cms.InputTag("patMuonsPFIDIso"),
-        ElecIDTag = cms.InputTag("selectedPatElectronsPF"), 
-	ElecIDISOTag = cms.InputTag("selectedPatElectronsPF"),
+        ElecIDTag = cms.InputTag("patElectronsIDIso"), 
+	ElecIDISOTag = cms.InputTag("patElectronsIDIso"),
 	HTTag	   = cms.InputTag(htInputCol),
  	MHTTag	   = cms.InputTag(mhtInputCol),
  #	CaloJetTag = cms.InputTag("ak5CaloJetsL2L3")
@@ -185,7 +186,8 @@ def makeTreeFromPAT(process,
     	HTJets		= cms.InputTag('HTJets'),
 	MetTag		= cms.InputTag('pfMet'),
 	CaloJetTag	= cms.InputTag('cleanPatJetsAK5Calo'),
-	MuonTag		= cms.InputTag('promtLeptons:PromtMuon'),
+#	MuonTag		= cms.InputTag('promtLeptons:PromtMuon'),
+	MuonTag		= cms.InputTag('patMuonsPFIDIso'),
 	MTWCut		= cms.bool(True),
 	EfficiencyFileName = cms.string('MCEff.root'),
 	HTTag	   = cms.InputTag(htInputCol),
