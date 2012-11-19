@@ -107,10 +107,9 @@ TreeMaker::TreeMaker(const edm::ParameterSet& iConfig)
     candidatesEta_.push_back(new Float_t[nMaxCandidates_]);
     candidatesPhi_.push_back(new Float_t[nMaxCandidates_]);
   }
-  varsDoubleVN_ = std::vector<UShort_t>(varsDoubleTagsV_.size(),0);
+  varsDoubleVN_ = std::vector<UShort_t>(varsDoubleTagsV_.size(),0);//JL
   for(unsigned int i = 0; i < varsDoubleTagsV_.size(); ++i) //JL
     varsDoubleV_ .push_back(new Float_t[120]);//JL
-
 }
 
 TreeMaker::~TreeMaker() {

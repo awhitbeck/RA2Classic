@@ -67,7 +67,7 @@ TreeMaker = cms.EDAnalyzer(
     #JL
     VarsDoubleV        = cms.VInputTag(),
     VarsDoubleNamesInTreeV = cms.vstring(),
-
+    
     # list of filter decisions (bool) written from filters in tag mode
     # will be stored as "Filter_..."
     Filters           = cms.VInputTag()
