@@ -4,9 +4,6 @@ trigger = cms.EDAnalyzer('Trigger',
 
    jetCollection = cms.InputTag("patJetsAK5PF"),
   	metCollection = cms.InputTag("patMETsPF"),
- 	electronCollection = cms.InputTag("patElectronsPF"),
- 	muonCollection = cms.InputTag("patMuonsPF"),
- 	photonCollection = cms.InputTag("cleanPatPhotons"),
  	vertexCollection = cms.InputTag("offlinePrimaryVertices"),
    TriggerTag = cms.InputTag("TriggerResults","","HLT"),
    
