@@ -1,4 +1,4 @@
-# $Id: makeEffFromMC_cff.py,v 1.4 2012/11/06 10:45:24 adraeger Exp $
+# $Id: makeEffFromMC_cff.py,v 1.5 2012/11/19 13:08:37 adraeger Exp $
 #
 
 
@@ -51,6 +51,25 @@ def makeTreeFromPAT(process,
     process.CleaningSelection = cms.Sequence(
         process.filterSelection
         )
+
+    # Filter-related selection
+#    process.load('RA2Classic.TreeMaker.filterSelection_cff')
+#    from RecoMET.METFilters.jetIDFailureFilter_cfi import jetIDFailure
+#    process.PBNRFilter = jetIDFailure.clone(
+#        JetSource = cms.InputTag('MHTJets'),
+#        MinJetPt      = cms.double(30.0),
+#        taggingMode   = cms.bool(False)
+#        )
+#    process.filterSelection += process.PBNRFilter
+#    from RecoMET.METFilters.multiEventFilter_cfi import multiEventFilter
+#    process.HCALLaserEvtFilterList2012 = multiEventFilter.clone(
+#        file        = cms.FileInPath('EventFilter/HcalRawToDigi/data/AllBadHCALLaser.txt'),
+#        taggingMode = cms.bool(False)
+#        )
+ #   process.filterSelection += process.HCALLaserEvtFilterList2012
+
+
+
 
     # Produce RA2 jets
     if useCHSJets:
@@ -188,6 +207,7 @@ def makeTreeFromPAT(process,
 	CaloJetTag	= cms.InputTag('cleanPatJetsAK5Calo'),
 #	MuonTag		= cms.InputTag('promtLeptons:PromtMuon'),
 	MuonTag		= cms.InputTag('patMuonsPFIDIso'),
+	ElecTag         = cms.InputTag("patElectronsIDIso"), 
 	MTWCut		= cms.bool(True),
 	EfficiencyFileName = cms.string('MCEff.root'),
 	HTTag	   = cms.InputTag(htInputCol),
@@ -216,12 +236,12 @@ def makeTreeFromPAT(process,
         process.MHTSelection *
         process.AdditionalFiltersInTagMode *
         process.WeightProducer *
-	process.promtLeptons *
+#	process.promtLeptons *
 #	process.patElectronsID *
 	process.RA2Selector *
 #	process.ak5CaloJetsL2L3 *
-	process.LostLeptonBkgMCEffCalculator *
-	process.LostLeptonBkgProducer
+	process.LostLeptonBkgMCEffCalculator 
+#	process.LostLeptonBkgProducer
 #	process.RA2TreeMaker 
 
         )

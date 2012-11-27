@@ -45,6 +45,7 @@ class LostLeptonBkg : public edm::EDProducer {
 	edm::InputTag HtJetsTag_;
 	edm::InputTag MetTag_;
 	edm::InputTag MuonTag_;
+	edm::InputTag ElecTag_;
 	edm::InputTag MhtTag_,HTTag_,MHTTag_, NVTag_;
 	edm::InputTag CaloJetTag_;
 	edm::InputTag evtWeightTag_;
@@ -61,6 +62,7 @@ class LostLeptonBkg : public edm::EDProducer {
 	TH1F *MuonAccSum_, *MuonAccPassed_;
 	TH1F *ElecAccSum_, *ElecAccPassed_;
 	TH1F *MuonAccEff2_, *ElecAccEff2_;
+	TH2F *MuonAccEff3_, *ElecAccEff3_;
 	TH2F *MuonRecoEff_, *MuonIsoEff_;
 	TH2F *MuonRecoEff2_, *MuonIsoEff2_;
 	TH2F *ElecRecoEff_, *ElecIsoEff_;
@@ -83,7 +85,7 @@ class LostLeptonBkg : public edm::EDProducer {
 	
 	Float_t muonIsoEff_, muonRecoEff_, muonTotalWeight_;
 	Float_t totalMuons_;
-	Float_t muonIsoWeight_, muonRecoWeight_, muonAccWeight_;
+	Float_t muonIsoWeight_, muonRecoWeight_, muonAccWeight_, muonAccEff_, elecAccEff_;
 	Float_t muonIsoWeight2_, muonRecoWeight2_, muonAccWeight2_, muonTotalWeight2_, muonIsoEff2_, muonRecoEff2_, muAllIsoWeight2_;
 
 	Float_t elecRecoEff_, elecIsoEff_, elecTotalWeight_;
@@ -92,17 +94,21 @@ class LostLeptonBkg : public edm::EDProducer {
 	Float_t mtwCorrection_;
 	Float_t resultWeight_;
 	Float_t resultWeight2_;
-	Float_t resultWeight2MTW_;
+	Float_t resultWeight2MTW_, resultWeightMTW_;
 	Float_t muonIsoXMax_, muonIsoYMax_;
 	Float_t muonRecoXMax_, muonRecoYMax_;
 	Float_t muonIsoX2Max_, muonIsoY2Max_;
 	Float_t muonRecoX2Max_, muonRecoY2Max_;
 	Float_t elecAccXMax_, muonAccXMax_;
+	Float_t elecAccXMax3_, muonAccXMax3_;
 
 	Float_t deltaRMuJet_;
 	Float_t deltaRMuMHT_;
 	Float_t PtClosestJet_;
 	Float_t deltaPtClosestJetMu_;
+	Float_t genDeltaR_;
+	Float_t genPTJet_;
+	Float_t genPTRelJet_;
 	int muPromtMatched_;
 
 

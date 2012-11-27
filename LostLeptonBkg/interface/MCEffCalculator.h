@@ -45,6 +45,7 @@ class MCEffCalculator : public edm::EDAnalyzer {
 	static double MTWCalculator(const edm::Event& iEvent, edm::InputTag MTTag, double lepPT, double lepPhi);
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+	edm::View <reco::Candidate>::const_iterator LeptonMatch(const edm::View <reco::Candidate>  &MuID, Float_t lepGenEta, Float_t lepGenPhi);
 
 
    private:
@@ -100,8 +101,11 @@ class MCEffCalculator : public edm::EDAnalyzer {
 	TH1F *MuonAccPassed2TH1F_, *MuonAccFailed2TH1F_;
 	TH1F *ElecAccPassedTH1F_, *ElecAccFailedTH1F_;
 	TH1F *ElecAccPassed2TH1F_, *ElecAccFailed2TH1F_;
+	TH2F *MuonAccPassedTH2F_, *MuonAccFailedTH2F_;
+	TH2F *ElecAccPassedTH2F_, *ElecAccFailedTH2F_;
 
 	TH2F *MTWTH2F_;
+	TH1F *lepDeltaR_;
 
 
 	//Tree and stuff to be filed in it
@@ -112,7 +116,7 @@ class MCEffCalculator : public edm::EDAnalyzer {
 	Float_t muonPTAccPassed_, elecPTAccPassed_;
 	double muonIDPassed_, muonIDFailed_, elecIDPassed_, elecIDFailed_, muonRecoPt_, muonRecoEta_, muonRecoPhi_, elecRecoPt_, elecRecoEta_, elecRecoPhi_;
 	Float_t muonGenPt_, muonGenEta_, muonGenPhi_, elecGenPt_, elecGenEta_, elecGenPhi_;
-	Float_t deltaGenR_, closestJetToMuonGenPt_,closestJetToElecGenPt_, mt_, mtw_, mtwElec_;
+	Float_t deltaGenR_, closestJetToMuonGenPt_,closestJetToElecGenPt_, mt_, mtw_, mtwElec_, genPt_, genPhi_, genEta_, genDeltaR_, genPTJet_, genPTRelJet_;
 	// reco iso eff plots
 	TH2F *elecIdEffTH2F_, *elecIsoEffTH2F_, *elecIsoEffUpTH2F_, *elecIsoEffDownTH2F_;
  	TH2F *muonIdEffTH2F_, *muonIsoEffTH2F_, *muonIsoEffUpTH2F_, *muonIsoEffDownTH2F_;	
