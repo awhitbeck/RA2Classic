@@ -6,6 +6,8 @@
 
 void MCEff_Merging()
 {
+  gStyle->SetPaintTextFormat("5.2f"); 
+
   TFile* out = new TFile("MCEff.root","RECREATE");
 
   out->mkdir("Muon");
@@ -84,11 +86,24 @@ void MCEff_Merging()
 
   muonAccEff2 = (TH1F*)dInput->Get("muonAccPassed2");
   muonAccEff2->SetName("MuonAccEff2");
-  muonAccEff2->SetTitle("MuonAccEff;#slash{H}_{T};eff.");
+  muonAccEff2->SetTitle("#mu acc. eff.;#slash{H}_{T};eff.");
   muonAccEff2->Sumw2();
   muonAccEff2->Divide(muonAccSum2);
 
+std::cout<<"jup"<<std::endl;
+ // third version of acceptance eff
+  muonAccSum3 = (TH2F*)dInput->Get("MuonAccFailed3");
+  muonAccSum3->SetName("MuonAccSum3");
+  muonAccSum3->Sumw2();
+  muonAccSum3->Add( (TH2F*)dInput->Get("MuonAccPassed3") );
 
+  muonAccEff3 = (TH2F*)dInput->Get("MuonAccPassed3");
+  muonAccEff3->SetName("MuonAccEff3");
+  muonAccEff3->SetTitle("#mu acc. eff.;#slash{H}_{T};nJets");
+  muonAccEff3->Sumw2();
+  muonAccEff3->Divide(muonAccSum3);
+
+std::cout<<"stts"<<std::endl;
 
   // the reconstruciton
 
@@ -150,6 +165,7 @@ void MCEff_Merging()
 
   dMu->cd();
   muonAccSum->Write();
+  muonAccEff3->Write();
   MTW->Write();
 
   muonAccRatio->Write();
@@ -158,6 +174,8 @@ void MCEff_Merging()
   muonRecoEff2->Write();
   muonIsoEff->Write();
   muonIsoEff2->Write();
+
+
 
   muonAccPassed->Write();
   muonRecoSum->Write();
@@ -188,9 +206,21 @@ void MCEff_Merging()
   elecAccSum2->Add( (TH1F*)dInput->Get("elecAccPassed2") );
   elecAccEff2 = (TH1F*)dInput->Get("elecAccPassed2");
   elecAccEff2->SetName("ElecAccEff2");
-  elecAccEff2->SetTitle("ElecAccEff;#slash{H}_{T};eff.");
+  elecAccEff2->SetTitle("e acc. eff.;#slash{H}_{T};eff.");
   elecAccEff2->Sumw2();
   elecAccEff2->Divide(elecAccSum2);
+
+ // third version of acceptance eff
+  elecAccSum3 = (TH2F*)dInput->Get("ElecAccFailed3");
+  elecAccSum3->SetName("ElecAccSum3");
+  elecAccSum3->Sumw2();
+  elecAccSum3->Add( (TH2F*)dInput->Get("ElecAccPassed3") );
+
+  elecAccEff3 = (TH2F*)dInput->Get("ElecAccPassed3");
+  elecAccEff3->SetName("ElecAccEff3");
+  elecAccEff3->SetTitle("e acc. eff.;#slash{H}_{T};nJets");
+  elecAccEff3->Sumw2();
+  elecAccEff3->Divide(elecAccSum3);
 
 
   // elec reco eff
@@ -201,7 +231,7 @@ void MCEff_Merging()
 
   elecRecoEff = (TH2F*)dInput->Get("elecIdPassed");
   elecRecoEff->SetName("ElecRecoEff");
-  elecRecoEff->SetTitle("E reco. eff.; #Delta R;RelPT;Eff.");
+  elecRecoEff->SetTitle("e reco. eff.; #Delta R;RelPT;Eff.");
   elecRecoEff->Sumw2();
   elecRecoEff->Divide(elecRecoSum);
 
@@ -227,7 +257,7 @@ void MCEff_Merging()
 
   elecIsoEff = (TH2F*)dInput->Get("elecIsoPassed");
   elecIsoEff->SetName("ElecIsoEff");
-  elecIsoEff->SetTitle("E iso. eff.; #Delta R;RelPT;Eff.");
+  elecIsoEff->SetTitle("e iso. eff.; #Delta R;RelPT;Eff.");
   elecIsoEff->Sumw2();
   elecIsoEff->Divide(elecIsoSum);
 
@@ -238,7 +268,7 @@ void MCEff_Merging()
 
   elecIsoEff2 = (TH2F*)dInput->Get("elecIsoPassed2");
   elecIsoEff2->SetName("ElecIsoEff2");
-  elecIsoEff2->SetTitle("E iso. eff.; #Delta R;e p_{T};Eff.");
+  elecIsoEff2->SetTitle("e iso. eff.; #Delta R;e p_{T};Eff.");
   elecIsoEff2->Sumw2();
   elecIsoEff2->Divide(elecIsoSum2);
 
@@ -248,6 +278,7 @@ void MCEff_Merging()
 
   elecAccRatio->Write();
   elecAccEff2->Write();
+  elecAccEff3->Write();
   elecRecoEff->Write();
   elecRecoEff2->Write();
   elecIsoEff->Write();
