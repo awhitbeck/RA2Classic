@@ -83,7 +83,6 @@ MCEffCalculator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 {
    // resets all the values
    ResetValues();
-
    using namespace edm;
    edm::Handle < reco::GenParticleCollection > genParticles;
    iEvent.getByLabel(genTag_, genParticles);
@@ -302,6 +301,7 @@ genPTRelJet_=genPTJet_/genPt_;
 // one elec has been found the three different efficiencies will be determined now. first acc than reco and final iso the results will be stored in th2f histogramms.
    if (nGenElec_==1 && nGenMu_==0)
    {
+
 	deltaGenR_ = DRToClosestJet(iEvent,caloJetTag_, elecGenEta_, elecGenPhi_).first;
 	closestJetToElecGenPt_ = DRToClosestJet(iEvent,caloJetTag_, elecGenEta_,elecGenPhi_).second;
 
@@ -338,7 +338,7 @@ genPTRelJet_=genPTJet_/genPt_;
 
 		edm::View <reco::Candidate>::const_iterator itRecoElec = LeptonMatch(*ElecID, elecGenEta_, elecGenPhi_);
 		//true if reco muon matched
-		if (itRecoElec != MuID->end() )
+		if (itRecoElec != ElecID->end() )
 			{
 			elecRecoPt_= itRecoElec->pt();
 			elecRecoEta_ = itRecoElec->eta();
@@ -423,7 +423,6 @@ genPTRelJet_=genPTJet_/genPt_;
 	}
 	}
   tree_->Fill();
-
 }
 
 
@@ -831,34 +830,32 @@ MCEffCalculator::MTWCalculator(const edm::Event& iEvent, edm::InputTag metTag, d
 edm::View <reco::Candidate>::const_iterator
 MCEffCalculator::LeptonMatch(const edm::View <reco::Candidate>  &MuID, Float_t lepGenEta, Float_t lepGenPhi)
 {
-	edm::View <reco::Candidate>::const_iterator result;
+	edm::View <reco::Candidate>::const_iterator result=MuID.end();
 	double minRecoDeltaR = 1000;
-	double muonRecoPt =0;
-	double muonRecoPhi=0;
-	double muonRecoEta=0;
+	double RecoPhi=0;
+	double RecoEta=0;
 	for( edm::View <reco::Candidate>::const_iterator MuIDCand = MuID.begin(); MuIDCand!=MuID.end();MuIDCand++)
 	{
-		lepDeltaR_->Fill(deltaR(lepGenEta,lepGenPhi,muonRecoEta,muonRecoPhi));
-		muonRecoPt= MuIDCand->pt();
-		muonRecoPhi=MuIDCand->phi();
-		muonRecoEta=MuIDCand->eta();
-		if (deltaR(lepGenEta,lepGenPhi,muonRecoEta,muonRecoPhi) < 0.3 )
+
+		RecoPhi=MuIDCand->phi();
+		RecoEta=MuIDCand->eta();
+
+		if (deltaR(lepGenEta,lepGenPhi,RecoEta,RecoPhi) < 0.3 )
 		{
 			if (minRecoDeltaR < 0.31)
 			{	
 				// true if the new found muon is closer thatn 0.1 but the old one isnt
-				if ( deltaR(lepGenEta,lepGenPhi,muonRecoEta,muonRecoPhi) <0.1 && minRecoDeltaR >0.1) result = MuIDCand;
-				if (deltaR(lepGenEta,lepGenPhi,muonRecoEta,muonRecoPhi) <0.1 && minRecoDeltaR <0.1)result = MuID.end();
+				if ( deltaR(lepGenEta,lepGenPhi,RecoEta,RecoPhi) <0.1 && minRecoDeltaR >0.1) result = MuIDCand;
+				if (deltaR(lepGenEta,lepGenPhi,RecoEta,RecoPhi) <0.1 && minRecoDeltaR <0.1)result = MuID.end();
 			}
 			
-			if (deltaR(muonGenEta_,muonGenPhi_,muonRecoEta_,muonRecoPhi_) < minRecoDeltaR )
+			if (deltaR(lepGenEta,lepGenPhi,RecoEta,RecoPhi) < minRecoDeltaR )
 			{
 				result = MuIDCand;
 			}
 		}
 		
 	}
-
 	return result;
 
 }
