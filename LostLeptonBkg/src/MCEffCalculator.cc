@@ -453,10 +453,10 @@ MCEffCalculator::beginJob()
   	edm::Service<TFileService> fs;
   	tree_ = fs->make<TTree>(treeName_,treeName_);
 	// book all the result plots
-	MuonAccFailedTH2F_ =fs->make<TH2F>("MuonAccFailed", "MuonAccFailed",MhtBins,mhtbins,NJetBins,nJetBins);
-	MuonAccPassedTH2F_ =fs->make<TH2F>("MuonAccPassed", "MuonAccPassed",MhtBins,mhtbins,NJetBins,nJetBins);
-	ElecAccFailedTH2F_ =fs->make<TH2F>("ElecAccFailed", "ElecAccFailed",MhtBins,mhtbins,NJetBins,nJetBins);
-	ElecAccPassedTH2F_ =fs->make<TH2F>("ElecAccPassed", "ElecAccPassed",MhtBins,mhtbins,NJetBins,nJetBins);
+	MuonAccFailedTH2F_ =fs->make<TH2F>("MuonAccFailed3", "MuonAccFailed3",MhtBins,mhtbins,NJetBins,nJetBins);
+	MuonAccPassedTH2F_ =fs->make<TH2F>("MuonAccPassed3", "MuonAccPassed3",MhtBins,mhtbins,NJetBins,nJetBins);
+	ElecAccFailedTH2F_ =fs->make<TH2F>("ElecAccFailed3", "ElecAccFailed3",MhtBins,mhtbins,NJetBins,nJetBins);
+	ElecAccPassedTH2F_ =fs->make<TH2F>("ElecAccPassed3", "ElecAccPassed3",MhtBins,mhtbins,NJetBins,nJetBins);
 
 	muonIDFailedTH2F_ = fs->make<TH2F>("MuonRecoFailed", "MuonRecoFailed",DeltaRbins,deltaRbins,Ptbins,ptbins);
 	muonIDPassedTH2F_ = fs->make<TH2F>("MuonRecoPassed", "MuonRecoPassed",DeltaRbins,deltaRbins,Ptbins,ptbins);
