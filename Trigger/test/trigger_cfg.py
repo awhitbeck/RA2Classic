@@ -58,6 +58,7 @@ process.TFileService = cms.Service("TFileService",fileName = cms.string("Trigger
 process.load("RA2Classic.Trigger.trigger_cfi")
 process.trigger.jet_pt_cut_MHT = 30.
 process.trigger.jet_pt_cut_HT = 50.
+process.trigger.num_of_jets = 2
 process.trigger.jetCollection = 'patJetsPF'
 ###############################################################################
 

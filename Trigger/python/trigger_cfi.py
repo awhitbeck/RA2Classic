@@ -17,8 +17,9 @@ trigger = cms.EDAnalyzer('Trigger',
 	jet_eta_cut_MHT = cms.double( 5.0 ),
    jet_pt_cut_HT = cms.double( 50. ),
 	jet_eta_cut_HT = cms.double( 2.5 ),            
-	jet_useJetID = cms.bool( True )
-
+	jet_useJetID = cms.bool( True ),
+                         
+   num_of_jets = cms.double( 2 )
                       
 )
 
