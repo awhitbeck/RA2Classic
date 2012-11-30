@@ -57,7 +57,7 @@
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id: TreeMaker.cc,v 1.9 2012/09/22 13:59:57 mschrode Exp $
+// $Id: TreeMaker.cc,v 1.11 2012/11/19 17:00:58 lungu Exp $
 //
 //
 
@@ -366,9 +366,9 @@ TreeMaker::setBranchVariablesToDefault() {
   jet1Eta_ = 0.;
   jet2Eta_ = 0.;
   jet3Eta_ = 0.;
-  deltaPhi1_ = 0.;
-  deltaPhi2_ = 0.;
-  deltaPhi3_ = 0.;
+  deltaPhi1_ = 9999.;
+  deltaPhi2_ = 9999.;
+  deltaPhi3_ = 9999.;
   for(unsigned int i = 0; i < varsDouble_.size(); ++i) {
     varsDouble_.at(i) = 1.;
   }
