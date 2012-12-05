@@ -13,12 +13,15 @@ void MCEff_Merging()
   out->mkdir("Muon");
   out->mkdir("Electron");
 
+
 //  out->mkdir("ttbar/Muon");
 //  out->mkdir("ttbar/Electron");
 
 
   TDirectory *dMu = (TDirectory*)out->Get("Muon");
   TDirectory *dElec = (TDirectory*)out->Get("Electron");
+  dMu->mkdir("IsoFitts");
+  TDirectory *MuFit = (TDirectory*)dMu->Get("IsoFitts");
 
 
  // Open the input files
@@ -132,6 +135,10 @@ std::cout<<"stts"<<std::endl;
 
 
   // muon isolation
+
+	//fitting
+
+  
   
   muonIsoSum = (TH2F*)dInput->Get("muonIsoFailed");
   muonIsoSum->SetName("TotalNumberMuonsAfterReco");
@@ -143,6 +150,58 @@ std::cout<<"stts"<<std::endl;
   muonIsoEff->SetTitle("MuonIsoEff;#delta R;RelPT;Eff.");
   muonIsoEff->Sumw2();
   muonIsoEff->Divide(muonIsoSum);
+
+
+  const Int_t LepPtBins = muonIsoSum->GetNbinsY();
+  for (int i=1; i<LepPtBins;i++)
+  {
+   double down = muonIsoSum->GetYaxis()->GetBinLowEdge(i);
+  double up = muonIsoSum->GetYaxis()->GetBinLowEdge(i+1);
+  std::ostringstream sstream;
+  sstream<< down;
+  TString low(sstream.str());
+  sstream.str( std::string() );
+  sstream.clear();
+  sstream<< up;
+  TString high(sstream.str());
+  sstream.str( std::string() );
+  sstream.clear();
+
+  dInput->cd();
+  LostLeptonMCEff->Draw("genDeltaR>>h1","(nGenMu>0.2 && nIsoMu<-0.5 && genDeltaR <0.6 && RecoLevelMuonRelPTJet>"+ low +" && RecoLevelMuonRelPTJet<"+high+")*Weight");
+std::cout<<"down"<<down<<", up"<<up<<std::endl;
+std::cout<<"low"<<low<<", high"<<high<<std::endl;
+  h1->Fit("gaus");
+/*  TF1 *fit1 = h1.GetFunction("gaus");
+  fit1->SetName("FitMuIsoPassedDeltaPTBetween"+low+","+high);
+  h1->SetName("FitMuIsoPassedDeltaPTBetween"+low+","+high);
+TString name = "c";
+	name += i;
+TCanvas* c = new TCanvas(name,name,500,500);
+c->cd();
+h1->Draw();
+fit1->Draw("same");
+  
+  MuFit->cd();
+  dInput->Get("FitMuIsoPassedDeltaPTBetween"+low+","+high)->Write();
+  fit1->Write();
+
+  dInput->cd();
+ LostLeptonMCEff->Draw("genDeltaR>>h1","(nGenMu>0.2 && nIsoMu>0.5 && genDeltaR <0.6 && RecoLevelMuonRelPTJet>"+ low +" && RecoLevelMuonRelPTJet<"+high+")*Weight");
+    h1->Fit("gaus");
+  TF1 *fit1 = h1.GetFunction("gaus");
+  fit1->SetName("FitMuIsoFailedDeltaPTBetween"+low+","+high);
+  h1->SetName("FitMuIsoFailedDeltaPTBetween"+low+","+high);
+  
+  MuFit->cd();
+  dInput->Get("FitMuIsoFailedDeltaPTBetween"+low+","+high)->Write();
+  fit1->Write();
+
+
+*/
+  }
+
+
 
 
   muonIsoSum2 = (TH2F*)dInput->Get("muonIsoFailed2");

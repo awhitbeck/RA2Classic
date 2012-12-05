@@ -4,8 +4,9 @@ import FWCore.ParameterSet.Config as cms
 bkglostlepton = cms.EDProducer(
     'LostLeptonBkg',
     	HTJets          = cms.InputTag('patJetsAK5PFPt50Eta25'),
-	MetTag		= cms.InputTag('pfmet'),
+	MetTag		= cms.InputTag('patMETsPF'),
 	MuonTag		= cms.InputTag('patMuonsPFIDIso'),
+	ElecTag		= cms.InputTag('patElectronsIDIso'),
 	EventWeightTag	= cms.InputTag("WeightProducer:weight"),
 	MhtTag		= cms.InputTag('mhtPF'),
 	CaloJetTag	= cms.InputTag('cleanPatJetsAK5Calo'),

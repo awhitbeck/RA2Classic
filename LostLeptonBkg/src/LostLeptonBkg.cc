@@ -152,10 +152,10 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	// remove muon from nOfJets if muon is clustered as single jet
 
-	for (unsigned int i=0; i<nJets_;i++)
-	{
-		if( abs(htJets->at(i).pt() - MuPt_)/MuPt_ < 0.1 && deltaR(htJets->at(i).eta(),htJets->at(i).phi(), MuEta_,MuPhi_) < 0.2 ) nJets_-=1;
-	}
+//	for (unsigned int i=0; i<nJets_;i++)
+//	{
+//		if( abs(htJets->at(i).pt() - MuPt_)/MuPt_ < 0.1 && deltaR(htJets->at(i).eta(),htJets->at(i).phi(), MuEta_,MuPhi_) < 0.2 ) nJets_-=1;
+//	}
 //	std::cout<<"MuFoundStepOneCompleted!"<<std::endl;
 
   	// calculate relative values for the muon and jets usw.
@@ -195,8 +195,13 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	// check if any of the values is out of the eff bining
 
 
-		int muonAccXaxis= MuonAccEff2_->GetXaxis()->FindBin(mht_);
-		if (muonAccXaxis > MuonAccEff2_->GetNbinsX()) muonAccXaxis-=1;
+//		int muonAccXaxis= MuonAccEff2_->GetXaxis()->FindBin(mht_);
+//		if (muonAccXaxis > MuonAccEff2_->GetNbinsX()) muonAccXaxis-=1;
+		int muonAccXaxis= MuonAccEff3_->GetXaxis()->FindBin(mht_);
+		if (muonAccXaxis > MuonAccEff3_->GetNbinsX()) muonAccXaxis-=1;
+		int muonAccYaxis= MuonAccEff3_->GetYaxis()->FindBin(nJets_+0.1);
+		if (nJets_<3) muonAccYaxis= MuonAccEff3_->GetYaxis()->FindBin(3);
+		if (muonAccYaxis > MuonAccEff3_->GetNbinsY()) muonAccYaxis-=1;
 	
 		int muonIsoXaxis= MuonIsoEff_->GetXaxis()->FindBin(deltaRMuJet_);
 		// check if the deltaRmuJet is greater thatn the maximum in the histogramm
@@ -215,6 +220,8 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //		std::cout<<"3";
 		muonIsoEff_ = MuonIsoEff_->GetBinContent(muonIsoXaxis,muonIsoYaxis );
 		if (muonIsoEff_ <0.01 || muonIsoEff_ > 1) error_+=100;
+		if (muonIsoEff_<0.01) muonIsoEff_=0.01;
+		if (muonIsoEff_>1 ) muonIsoEff_=1;
 		muonIsoWeight_ = eventWeight_ * (1 - muonIsoEff_)/muonIsoEff_;	
 
 		muonRecoEff_ = MuonRecoEff2_->GetBinContent(muonRecoXaxis,muonRecoYaxis);
@@ -223,7 +230,7 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		muAllIsoWeight_ =  eventWeight_ * 1 / muonIsoEff_;
 //		std::cout<<"d"<<std::endl;
 		// the muon out of acceptance fraction
-		muonAccEff_ = MuonAccEff2_->GetBinContent(muonAccXaxis);
+		muonAccEff_ = MuonAccEff3_->GetBinContent(muonAccXaxis,muonAccYaxis);
 		muonAccWeight_ = eventWeight_ * 1/muonIsoEff_ * 1/muonRecoEff_ *(1-muonAccEff_)/muonAccEff_;
 //		std::cout<<"e"<<std::endl;
 		// total muon weight
@@ -232,8 +239,13 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 		// electrons
-		int elecAccXaxis = ElecAccEff2_->GetXaxis()->FindBin(mht_);
-		if (elecAccXaxis > ElecAccEff2_->GetNbinsX()) elecAccXaxis-=1;
+//		int elecAccXaxis = ElecAccEff2_->GetXaxis()->FindBin(mht_);
+//		if (elecAccXaxis > ElecAccEff2_->GetNbinsX()) elecAccXaxis-=1;
+		int elecAccXaxis= ElecAccEff3_->GetXaxis()->FindBin(mht_);
+		if (elecAccXaxis > ElecAccEff3_->GetNbinsX()) elecAccXaxis-=1;
+		int elecAccYaxis= ElecAccEff3_->GetYaxis()->FindBin(nJets_+0.1);
+		if (nJets_<3) elecAccYaxis= ElecAccEff3_->GetYaxis()->FindBin(3);
+		if (elecAccYaxis > MuonAccEff3_->GetNbinsY()) elecAccYaxis-=1;
 	
 		int elecIsoXaxis= ElecIsoEff_->GetXaxis()->FindBin(deltaRMuJet_);
 		// check if the deltaRmuJet is greater thatn the maximum in the histogramm
@@ -252,7 +264,7 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //		std::cout<<"3";
 
 		// totalMuons_ are the total number of muons including all not iso reoc and acc muons! should be by definiton equal to the electron amount
-		elecAccEff_ = ElecAccEff2_->GetBinContent(elecAccXaxis);
+		elecAccEff_ = ElecAccEff3_->GetBinContent(elecAccXaxis,elecAccYaxis);
 		if (elecAccEff_ >1 || elecAccEff_ <0.01) error_+=10000;
 		elecAccWeight_ = totalMuons_ * (1 - elecAccEff_);
 
@@ -285,8 +297,9 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 		int muonAccXaxis3= MuonAccEff3_->GetXaxis()->FindBin(mht_);
 		if (muonAccXaxis3 > MuonAccEff3_->GetNbinsX()) muonAccXaxis3-=1;
-		int muonAccYaxis3= MuonAccEff3_->GetYaxis()->FindBin(nJets_);
-		if (muonAccYaxis3 > MuonAccEff3_->GetNbinsY()) muonAccYaxis3-=1;
+		int muonAccYaxis3= MuonAccEff3_->GetYaxis()->FindBin(nJets_+0.1);
+		if (nJets_<3) muonAccYaxis3= MuonAccEff3_->GetYaxis()->FindBin(3);
+//		if (muonAccYaxis3 > MuonAccEff3_->GetNbinsY()) muonAccYaxis3-=1;
 	
 		int muonIsoXaxis2= MuonIsoEff2_->GetXaxis()->FindBin(deltaRMuJet_);
 		// check if the deltaRmuJet is greater thatn the maximum in the histogramm
@@ -310,6 +323,8 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //		std::cout<<"3";
 		muonIsoEff2_ = MuonIsoEff2_->GetBinContent(muonIsoXaxis2,muonIsoYaxis2 );
 		if (muonIsoEff2_ <0.01 || muonIsoEff2_ > 1) error_+=100;
+		if (muonIsoEff2_<0.01) muonIsoEff2_=0.01;
+		if (muonIsoEff2_>1 ) muonIsoEff2_=1;
 		muonIsoWeight2_ = eventWeight_ * (1 - muonIsoEff2_)/muonIsoEff2_;	
 
 		muonRecoEff2_ = MuonRecoEff2_->GetBinContent(muonRecoXaxis2,muonRecoYaxis2 );
@@ -331,8 +346,9 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		if (elecAccXaxis2 > ElecAccEff2_->GetNbinsX()) elecAccXaxis2-=1;
 		int elecAccXaxis3= ElecAccEff3_->GetXaxis()->FindBin(mht_);
 		if (elecAccXaxis3 > ElecAccEff3_->GetNbinsX()) elecAccXaxis3-=1;
-		int elecAccYaxis3= ElecAccEff3_->GetYaxis()->FindBin(nJets_);
-		if (elecAccYaxis3 > ElecAccEff3_->GetNbinsY()) elecAccYaxis3-=1;
+		int elecAccYaxis3= ElecAccEff3_->GetYaxis()->FindBin(nJets_+0.1);
+		if (nJets_<3)elecAccYaxis3= ElecAccEff3_->GetYaxis()->FindBin(3);
+//		if (elecAccYaxis3 > ElecAccEff3_->GetNbinsY()) elecAccYaxis3-=1;
 	
 		int elecIsoXaxis2= ElecIsoEff2_->GetXaxis()->FindBin(deltaRMuJet_);
 		// check if the deltaRmuJet is greater thatn the maximum in the histogramm
@@ -375,6 +391,49 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		// electron
 
 
+	// binBybin
+		int muonBinByBinXAxis = MuonBinByBinEff_->GetXaxis()->FindBin(ht_);
+		if (muonBinByBinXAxis > MuonBinByBinEff_->GetNbinsX() ) muonBinByBinXAxis-=1;
+		int muonBinByBinYAxis = MuonBinByBinEff_->GetYaxis()->FindBin(mht_);
+		if (muonBinByBinYAxis > MuonBinByBinEff_->GetNbinsY() ) muonBinByBinYAxis-=1;
+		int muonBinByBinZAxis = MuonBinByBinEff_->GetZaxis()->FindBin(nJets_+0.1);
+		if (muonBinByBinZAxis > MuonBinByBinEff_->GetNbinsZ() ) muonBinByBinZAxis-=1;
+		muonBinByBinEff_ = MuonBinByBinEff_->GetBinContent(muonBinByBinXAxis,muonBinByBinYAxis,muonBinByBinZAxis);
+		if (muonBinByBinEff_>1) muonBinByBinEff_=1;
+		if (muonBinByBinEff_<0.001) 
+		{
+			muonBinByBinEff_=0.001;
+			error_+=666;
+		}
+		muonBinByBinWeight_= eventWeight_ * (1 - muonBinByBinEff_)/muonBinByBinEff_;
+
+
+		totalMuonsBinByBin_ = eventWeight_ / (muonBinByBinEff_);
+
+		int elecBinByBinXAxis = ElecBinByBinEff_->GetXaxis()->FindBin(ht_);
+		if (elecBinByBinXAxis > ElecBinByBinEff_->GetNbinsX() ) elecBinByBinXAxis-=1;
+		int elecBinByBinYAxis = ElecBinByBinEff_->GetYaxis()->FindBin(mht_);
+		if (elecBinByBinYAxis > ElecBinByBinEff_->GetNbinsY() ) elecBinByBinYAxis-=1;
+		int elecBinByBinZAxis = ElecBinByBinEff_->GetZaxis()->FindBin(nJets_+0.1);
+		if (elecBinByBinZAxis > ElecBinByBinEff_->GetNbinsZ() ) elecBinByBinZAxis-=1;
+		elecBinByBinEff_ = ElecBinByBinEff_->GetBinContent(elecBinByBinXAxis,elecBinByBinYAxis,elecBinByBinZAxis);
+		if (elecBinByBinEff_>1) elecBinByBinEff_=1;
+		if (elecBinByBinEff_<0.001) 
+		{
+			elecBinByBinEff_=0.001;
+			error_+=6666;
+		}
+
+
+		elecWeightBinByBin_ = totalMuonsBinByBin_ * (1 - elecBinByBinEff_);
+
+		resultWeightBinByBin_ = elecWeightBinByBin_ + muonBinByBinWeight_;
+		if(MTWCut_)
+		{
+			int MTWbin = MTWEff_->GetXaxis()->FindBin(mht_);
+			if ( MTWbin > MTWEff_->GetNbinsX() ) MTWbin -=1;
+			resultWeightBinByBinMTW_ = resultWeightBinByBin_ / MTWEff_->GetBinContent(MTWbin );
+		}
 	std::cout<<"lostleptonweights calculated"<<std::endl;
 
 
@@ -454,6 +513,9 @@ LostLeptonBkg::beginJob()
   std::cout<<"The Integral for All muons"<<MuonAccSum_->Integral(0,(MuonAccSum_->GetNbinsX()+1))<<std::endl;
 
 
+
+
+
   
 
   // reconstruction
@@ -494,6 +556,26 @@ LostLeptonBkg::beginJob()
 
   ElecIsoEff_ = (TH2F*)dElec->Get("ElecIsoEff");
   ElecIsoEff2_ = (TH2F*)dElec->Get("ElecIsoEff2");
+
+// binbybineff
+std::cout<<"LostLeptonBkg::binBybinGetEffstarted"<<std::endl;
+  MuonBinByBinEff_ = (TH3F*)dMuon->Get("MuonBinByBinEff");
+std::cout<<"LostLeptonBkg::getFileDone"<<std::endl;
+  muonBinByBinXMax_ = MuonBinByBinEff_->GetXaxis()->GetXmax();
+std::cout<<"LostLeptonBkg::Xaxis get max done"<<std::endl;
+  muonBinByBinYMax_ = MuonBinByBinEff_->GetYaxis()->GetXmax();
+std::cout<<"LostLeptonBkg::Yaxis get max done"<<std::endl;
+  muonBinByBinZMax_ = MuonBinByBinEff_->GetZaxis()->GetXmax();
+std::cout<<"LostLeptonBkg::muondone"<<std::endl;
+
+  ElecBinByBinEff_ = (TH3F*)dElec->Get("ElecBinByBinEff");
+  elecBinByBinXMax_ = ElecBinByBinEff_->GetXaxis()->GetXmax();
+  elecBinByBinYMax_ = ElecBinByBinEff_->GetYaxis()->GetXmax();
+  elecBinByBinZMax_ = ElecBinByBinEff_->GetZaxis()->GetXmax();
+
+
+std::cout<<"LostLeptonBkg::binBybinGetEff ended"<<std::endl;
+
 
 // output
 
@@ -538,6 +620,15 @@ LostLeptonBkg::beginJob()
 
     tree_->Branch("resultWeight2",&resultWeight2_,"resultWeight2/F");
     tree_->Branch("resultWeight2MTW_",&resultWeight2MTW_,"resultWeight2MTW/F");
+    tree_->Branch("resultWeight",&resultWeight_,"resultWeight/F");
+    tree_->Branch("resultWeightMTW_",&resultWeightMTW_,"resultWeightMTW/F");
+
+
+    tree_->Branch("muonWeightBinByBin",&muonBinByBinWeight_,"muonWeightBinByBin/F");
+    tree_->Branch("elecWeightBinByBin",&elecWeightBinByBin_,"elecWeightBinByBin/F");
+    tree_->Branch("resultWeightBinByBin",&resultWeightBinByBin_,"resultWeightBinByBin/F");
+    tree_->Branch("resultWeightBinByBinMTW",&resultWeightBinByBinMTW_,"resultWeightBinByBinMTW/F");
+
 
     tree_->Branch("mtwCorrection",&mtwCorrection_,"mtwCorrection/F");
     // plotting values
@@ -610,7 +701,10 @@ LostLeptonBkg::ResetValues()
 	muAllIsoWeight2_=-1;
 	error_=0;
 
-
+muonBinByBinWeight_=-1;
+elecWeightBinByBin_=-1;
+resultWeightBinByBin_=-1;
+resultWeightBinByBinMTW_=-1;
 }
 // ------------ method called once each job just after ending the event loop  ------------
 void 

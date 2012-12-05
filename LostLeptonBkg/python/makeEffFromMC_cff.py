@@ -203,7 +203,7 @@ def makeTreeFromPAT(process,
     from RA2Classic.LostLeptonBkg.bkglostlepton_cfi import bkglostlepton
     process.LostLeptonBkgProducer = bkglostlepton.clone(
     	HTJets		= cms.InputTag('HTJets'),
-	MetTag		= cms.InputTag('pfMet'),
+	MetTag		= cms.InputTag('patMETsPF'),
 	CaloJetTag	= cms.InputTag('cleanPatJetsAK5Calo'),
 #	MuonTag		= cms.InputTag('promtLeptons:PromtMuon'),
 	MuonTag		= cms.InputTag('patMuonsPFIDIso'),
@@ -240,8 +240,8 @@ def makeTreeFromPAT(process,
 #	process.patElectronsID *
 	process.RA2Selector *
 #	process.ak5CaloJetsL2L3 *
-	process.LostLeptonBkgMCEffCalculator 
-#	process.LostLeptonBkgProducer
+	process.LostLeptonBkgMCEffCalculator *
+	process.LostLeptonBkgProducer
 #	process.RA2TreeMaker 
 
         )

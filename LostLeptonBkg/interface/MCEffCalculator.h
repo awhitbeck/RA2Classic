@@ -21,6 +21,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "TH2.h"
+#include "TH3.h"
 #include <utility>
 #include <vector>
 #include "TString.h"
@@ -45,7 +46,7 @@ class MCEffCalculator : public edm::EDAnalyzer {
 	static double MTWCalculator(const edm::Event& iEvent, edm::InputTag MTTag, double lepPT, double lepPhi);
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-	edm::View <reco::Candidate>::const_iterator LeptonMatch(const edm::View <reco::Candidate>  &MuID, Float_t lepGenEta, Float_t lepGenPhi);
+	edm::View <reco::Candidate>::const_iterator LeptonMatch(const edm::View <reco::Candidate>  &MuID, Float_t lepGenEta, Float_t lepGenPhi, Float_t lepGenPt);
 
 
    private:
@@ -96,6 +97,8 @@ class MCEffCalculator : public edm::EDAnalyzer {
 	TH2F *elecIDFailed2TH2F_, *elecIsoFailed2TH2F_, *elecIsoFailedUp2TH2F_, *elecIsoFailedDown2TH2F_;
 
 	TH2F *MuonMTPassedTH2F_, *MuonMTFailedTH2F_;
+
+	TH3F *totalEffTH3FPassedMu_, *totalEffTH3FFailedMu_, *totalEffTH3FPassedElec_, *totalEffTH3FFailedElec_;
 
 	TH1F *MuonAccPassedTH1F_, *MuonAccFailedTH1F_;
 	TH1F *MuonAccPassed2TH1F_, *MuonAccFailed2TH1F_;

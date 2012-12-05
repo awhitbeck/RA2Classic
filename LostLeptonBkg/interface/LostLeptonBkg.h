@@ -14,6 +14,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <TH2F.h>
+#include <TH3F.h>
 #include <TFile.h>
 #include "TTree.h"
 
@@ -70,6 +71,12 @@ class LostLeptonBkg : public edm::EDProducer {
 	TH1F *MTWEff_;
 	Float_t MuonAccEff_, ElecAccEff_;
 	Float_t muonAccEff2_, elecAccEff2_;
+
+
+	TH3F *MuonBinByBinEff_, *ElecBinByBinEff_;
+	Float_t muonBinByBinXMax_,muonBinByBinYMax_,muonBinByBinZMax_,elecBinByBinXMax_,elecBinByBinYMax_,elecBinByBinZMax_;
+	Float_t muonBinByBinEff_, muonBinByBinWeight_, totalMuonsBinByBinWeight_, elecBinByBinEff_, elecWeightBinByBin_, resultWeightBinByBin_, resultWeightBinByBinMTW_, totalMuonsBinByBin_;
+	
 	
 	// Variables
 	float met_;
