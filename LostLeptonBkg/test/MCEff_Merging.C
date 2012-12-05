@@ -2,9 +2,16 @@
 #include <TFile.h>
 #include <TGraph.h>
 #include <TGraphAsymmErrors.h>
+#include <iostream>
+#include "TStyle.h"
+#include <ostream>
+#include <TTree.h>
+#include <TH1.h>
+#include <TH3.h>
+#include <TCanvas.h>
 
 
-void MCEff_Merging()
+void MCEff_merging()
 {
   gStyle->SetPaintTextFormat("5.2f"); 
 
@@ -35,6 +42,8 @@ void MCEff_Merging()
   TH1F *muonAccPassed = new TH1F();
   TH1F *muonAccSum2 = new TH1F();
   TH1F *muonAccEff2 = new TH1F();
+  TH2F *muonAccSum3 = new TH2F();
+  TH2F *muonAccEff3 = new TH2F();
 
   TH2F *muonRecoSum = new TH2F();
   TH2F *muonRecoEff = new TH2F();
@@ -53,14 +62,29 @@ void MCEff_Merging()
   TH1F *elecAccPassed = new TH1F();
   TH1F *elecAccSum2 = new TH1F();
   TH1F *elecAccEff2 = new TH1F();
+  TH2F *elecAccSum3 = new TH2F();
+  TH2F *elecAccEff3 = new TH2F();
 
   TH2F *elecRecoSum = new TH2F();
   TH2F *elecRecoEff = new TH2F();
+  TH2F *elecRecoSum2 = new TH2F();
+  TH2F *elecRecoEff2 = new TH2F();
 
   TH2F *elecIsoSum = new TH2F();
   TH2F *elecIsoEff = new TH2F();
+  TH2F *elecIsoSum2 = new TH2F();
+  TH2F *elecIsoEff2 = new TH2F();
 
 
+  TH3F *muonBinByBinSum = new TH3F();
+  TH3F *muonBinByBinEff = new TH3F();
+  TH3F *muonBinByBinSum2 = new TH3F();
+  TH3F *muonBinByBinEff2 = new TH3F();
+
+  TH3F *elecBinByBinSum = new TH3F();
+  TH3F *elecBinByBinEff = new TH3F();
+  TH3F *elecBinByBinSum2 = new TH3F();
+  TH3F *elecBinByBinEff2 = new TH3F();
 
 
  ///////////////////////////// Muon ///////////////////////////////
@@ -152,54 +176,92 @@ std::cout<<"stts"<<std::endl;
   muonIsoEff->Divide(muonIsoSum);
 
 
+  TTree * tree = (TTree*) dInput->Get("LostLeptonMCEff");
+
   const Int_t LepPtBins = muonIsoSum->GetNbinsY();
+
+  TH1 *h1;
+int ii=0;
   for (int i=1; i<LepPtBins;i++)
   {
    double down = muonIsoSum->GetYaxis()->GetBinLowEdge(i);
   double up = muonIsoSum->GetYaxis()->GetBinLowEdge(i+1);
-  std::ostringstream sstream;
-  sstream<< down;
-  TString low(sstream.str());
-  sstream.str( std::string() );
-  sstream.clear();
-  sstream<< up;
-  TString high(sstream.str());
-  sstream.str( std::string() );
-  sstream.clear();
+
+TString low="";
+low+=down;
+TString high="";
+high+=up;
+
 
   dInput->cd();
-  LostLeptonMCEff->Draw("genDeltaR>>h1","(nGenMu>0.2 && nIsoMu<-0.5 && genDeltaR <0.6 && RecoLevelMuonRelPTJet>"+ low +" && RecoLevelMuonRelPTJet<"+high+")*Weight");
+TCanvas *tc1= new TCanvas(low,low,1000,1000);
+tc1->cd();
+TH1 *h1= new TH1F("h1","h1",20,0,1); 
+  tree->Draw("genDeltaR>>h1","(NJets >1 && nGenMu>0.2 && nIsoMu>0.5 && genDeltaR <1 && RecoLevelMuonRelPTJet>"+ low +" && RecoLevelMuonRelPTJet<"+high+")*Weight");
+TH1 *h2= new TH1F("h2","h2",20,0,1);
+  tree->Draw("genDeltaR>>h2","(NJets >1 && nGenMu>0.2 && nIsoMu<-0.5 && genDeltaR <1 && RecoLevelMuonRelPTJet>"+ low +" && RecoLevelMuonRelPTJet<"+high+")*Weight");
+h2->Add(h1);
+TH1 *hRatio= new TH1F("hRatio","hRatio",20,0,1);
+  tree->Draw("genDeltaR>>hRatio","(NJets >1 && nGenMu>0.2 && nIsoMu>0.5 && genDeltaR <1 && RecoLevelMuonRelPTJet>"+ low +" && RecoLevelMuonRelPTJet<"+high+")*Weight");
+hRatio->Divide(h2);
+//h1->Fit("gaus");
+tc1->Update();
 std::cout<<"down"<<down<<", up"<<up<<std::endl;
 std::cout<<"low"<<low<<", high"<<high<<std::endl;
-  h1->Fit("gaus");
-/*  TF1 *fit1 = h1.GetFunction("gaus");
-  fit1->SetName("FitMuIsoPassedDeltaPTBetween"+low+","+high);
-  h1->SetName("FitMuIsoPassedDeltaPTBetween"+low+","+high);
-TString name = "c";
-	name += i;
-TCanvas* c = new TCanvas(name,name,500,500);
-c->cd();
-h1->Draw();
-fit1->Draw("same");
-  
-  MuFit->cd();
-  dInput->Get("FitMuIsoPassedDeltaPTBetween"+low+","+high)->Write();
-  fit1->Write();
+low+="-";
+low+=high;
+low+=".eps";
+
+tc1->SaveAs(low,"eps");
+high="";
+low="";
+
+
+
+
+  }
+/*
+
+  const Int_t DeltaRBins = muonIsoSum->GetNbinsX();
+  TH1 *h12;
+  for (int i=1; i<DeltaRBins;i++)
+  {
+
+// second part
+  double down2 = muonIsoSum->GetXaxis()->GetBinLowEdge(i);
+  double up2 = muonIsoSum->GetXaxis()->GetBinLowEdge(i+1);
+
+TString low2="";
+low2+=down2;
+TString high2="";
+high2+=up2;
+
 
   dInput->cd();
- LostLeptonMCEff->Draw("genDeltaR>>h1","(nGenMu>0.2 && nIsoMu>0.5 && genDeltaR <0.6 && RecoLevelMuonRelPTJet>"+ low +" && RecoLevelMuonRelPTJet<"+high+")*Weight");
-    h1->Fit("gaus");
-  TF1 *fit1 = h1.GetFunction("gaus");
-  fit1->SetName("FitMuIsoFailedDeltaPTBetween"+low+","+high);
-  h1->SetName("FitMuIsoFailedDeltaPTBetween"+low+","+high);
-  
-  MuFit->cd();
-  dInput->Get("FitMuIsoFailedDeltaPTBetween"+low+","+high)->Write();
-  fit1->Write();
+TCanvas *tc12= new TCanvas(low2,low2,1000,1000);
+tc12->cd();
+TH1 *h12= new TH1F("h12","h12",30,0,3); 
+  tree->Draw("RecoLevelMuonRelPTJet>>h12","(nGenMu>0.2 && nIsoMu>0.5 && RecoLevelMuonRelPTJet <3&& genDeltaR>"+ low2 +" && genDeltaR<"+high2+")*Weight");
+TH1 *h22= new TH1F("h22","h22",30,0,3);
+  tree->Draw("RecoLevelMuonRelPTJet>>h22","(nGenMu>0.2 && nIsoMu<-0.5 && RecoLevelMuonRelPTJet <3&& genDeltaR>"+ low2 +" && genDeltaR<"+high2+")*Weight");
+h22->Add(h12);
+TH1 *hRatio2= new TH1F("hRatio2","hRatio2",30,0,3);
+  tree->Draw("RecoLevelMuonRelPTJet>>hRatio","(nGenMu>0.2 && nIsoMu>0.5 && RecoLevelMuonRelPTJet <3&& genDeltaR>"+ low2 +" && genDeltaR<"+high2+")*Weight");
+hRatio2->Divide(h22);
+//h1->Fit("gaus");
+tc12->Update();
+std::cout<<"down2"<<down2<<", up2"<<up2<<std::endl;
+std::cout<<"low2"<<low2<<", high2"<<high2<<std::endl;
+low2+="-";
+low2+=high2;
+low2+=".eps";
 
+tc12->SaveAs(low2,"eps");
+high2="";
+low2="";
 
-*/
   }
+*/
 
 
 
@@ -222,7 +284,24 @@ fit1->Draw("same");
   MTW->Sumw2();
 
 
+   //bin by bin eff
+  muonBinByBinSum = (TH3F*)dInput->Get("BinByBinEffMuFailed");
+  muonBinByBinSum->SetName("BinByBinEffMuFailed");
+  muonBinByBinSum->Sumw2();
+  muonBinByBinSum->Add( ( TH3F*)dInput->Get("BinByBinEffMuPassed") );
+
+  muonBinByBinEff = (TH3F*)dInput->Get("BinByBinEffMuPassed");
+  muonBinByBinEff->SetName("MuonBinByBinEff");
+  muonBinByBinEff->SetTitle("#mu total eff; H_{T};#slash{H}_{T};NJet");
+  muonBinByBinEff->Sumw2();
+  muonBinByBinEff->Divide(muonBinByBinSum);
+
+
+
+
+
   dMu->cd();
+muonBinByBinEff->Write();
   muonAccSum->Write();
   muonAccEff3->Write();
   MTW->Write();
@@ -331,10 +410,23 @@ fit1->Draw("same");
   elecIsoEff2->Sumw2();
   elecIsoEff2->Divide(elecIsoSum2);
 
+   //bin by bin eff
+  elecBinByBinSum = (TH3F*)dInput->Get("BinByBinEffElecFailed");
+  elecBinByBinSum->SetName("BinByBinEffElecFailed");
+  elecBinByBinSum->Sumw2();
+  elecBinByBinSum->Add( ( TH3F*)dInput->Get("BinByBinEffElecPassed") );
+
+  elecBinByBinEff = (TH3F*)dInput->Get("BinByBinEffElecPassed");
+  elecBinByBinEff->SetName("ElecBinByBinEff");
+  elecBinByBinEff->SetTitle("elec total eff; H_{T};#slash{H}_{T};NJet");
+  elecBinByBinEff->Sumw2();
+  elecBinByBinEff->Divide(elecBinByBinSum);
+
+
 
   // write to file
   dElec->cd();
-
+elecBinByBinEff->Write();
   elecAccRatio->Write();
   elecAccEff2->Write();
   elecAccEff3->Write();
