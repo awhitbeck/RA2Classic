@@ -1,4 +1,4 @@
-# $Id: getWeightProducer_cff.py,v 1.6 2012/10/19 12:56:34 adraeger Exp $
+# $Id: getWeightProducer_cff.py,v 1.7 2012/11/05 14:58:14 mschrode Exp $
 #
 # Returns a WeightProducer module that knows at runtime
 # which data sample is produced and thus, what weights
@@ -96,12 +96,39 @@ def getWeightProducer(fileName):
         weightProducer.XS         = cms.double(234)
         weightProducer.NumberEvts = cms.double(6923750)
 
+    if "TT_CT10_TuneZ2star_8TeV-powheg-tauola" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v2" in fileName:
+        mcVersion = "Summer12_5_3_X"
+        weightProducer.Method     = cms.string("Constant")
+        weightProducer.XS         = cms.double(234)
+        weightProducer.NumberEvts = cms.double(21675970)
+
+    if "TTJets_SemiLeptMGDecays_8TeV-madgraph" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-ext_v1" in fileName:
+        mcVersion = "Summer12_5_3_X"
+        weightProducer.Method     = cms.string("Constant")
+        weightProducer.XS         = cms.double(102.50) # BR(lh) = 0.438048
+        weightProducer.NumberEvts = cms.double(25424818)
+
+    if "TTJets_FullLeptMGDecays_8TeV-madgraph" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v2" in fileName:
+        mcVersion = "Summer12_5_3_X"
+        weightProducer.Method     = cms.string("Constant")
+        weightProducer.XS         = cms.double(24.56) # BR(ll) = 0.104976
+        weightProducer.NumberEvts = cms.double(12119013)
+
+        # BR(hh) = 0.456976
+        
+
     # For wpj
     if "WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v2" in fileName:
         mcVersion = "Summer12_5_3_X"
         weightProducer.Method     = cms.string("Constant")
         weightProducer.XS         = cms.double(36257.2)
         weightProducer.NumberEvts = cms.double(57709905)
+
+    if "WJetsToLNu_HT-400ToInf_8TeV-madgraph" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v1" in fileName:
+        mcVersion = "Summer12_5_3_X"
+        weightProducer.Method     = cms.string("Constant")
+        weightProducer.XS         = cms.double(30.08)
+        weightProducer.NumberEvts = cms.double(6619654) # !!!!! This is the sum of events in the WJetsToLNu_HT-400ToInf_8TeV-madgraph and WJetsToLNu_HT-400ToInf_8TeV-madgraph_v2 samples --> weight only valid if both samples are used in sum !!!!!
 
     # For ZJets
     if "ZJetsToNuNu_50_HT_100_TuneZ2Star_8TeV_madgraph" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v1" in fileName:
