@@ -1,4 +1,4 @@
-# $Id: makeTreeFromPAT_cff.py,v 1.11 2012/11/12 13:11:48 mschrode Exp $
+# $Id: makeTreeFromPAT_cff.py,v 1.12 2012/11/16 17:13:50 mschrode Exp $
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -49,13 +49,13 @@ def makeTreeFromPAT(process,
     process.PBNRFilter = jetIDFailure.clone(
         JetSource = cms.InputTag('MHTJets'),
         MinJetPt      = cms.double(30.0),
-        taggingMode   = cms.bool(False)
+        taggingMode   = cms.bool(True)
         )
     process.filterSelection += process.PBNRFilter
     from RecoMET.METFilters.multiEventFilter_cfi import multiEventFilter
     process.HCALLaserEvtFilterList2012 = multiEventFilter.clone(
         file        = cms.FileInPath('EventFilter/HcalRawToDigi/data/AllBadHCALLaser.txt'),
-        taggingMode = cms.bool(False)
+        taggingMode = cms.bool(True)
         )
     process.filterSelection += process.HCALLaserEvtFilterList2012
 
@@ -126,14 +126,14 @@ def makeTreeFromPAT(process,
         MHTJets           = cms.InputTag('MHTJets'),
         VarsDouble        = cms.VInputTag(cms.InputTag('WeightProducer:weight')),
         VarsDoubleNamesInTree = cms.vstring('Weight'),
-        Filters           = cms.VInputTag()#FilterNames
+        Filters           = cms.VInputTag()#FilterNames)
         )
 
 
     ## --- Final paths ----------------------------------------------------
 
 #    process.dump = cms.EDAnalyzer("EventContentAnalyzer")
-    
+
     process.WriteTree = cms.Path(
         process.ProduceRA2Jets *
         process.filterSelection *
