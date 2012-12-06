@@ -13,7 +13,7 @@
 //
 // Original Author:  Arne-Rasmus Draeger,,,uni-hamburg
 //         Created:  Mon Oct 22 11:46:48 CEST 2012
-// $Id: RA2Selection.cc,v 1.1 2012/11/01 12:50:39 adraeger Exp $
+// $Id: RA2Selection.cc,v 1.2 2012/11/19 14:23:04 adraeger Exp $
 //
 //
 
@@ -67,11 +67,10 @@ RA2Selection::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   double deltaPhi1=0;
   double deltaPhi2=0;
-  double deltaPhi3=0;
+  double deltaPhi3=99;
   double ht=0;
   edm::Handle< edm::View<reco::Candidate> > htJets;
   iEvent.getByLabel(HtJetsTag_,htJets);
-
   if(htJets->size() < nJets_) return false;
    for( edm::View <reco::Candidate>::const_iterator HTJetsCan = htJets->begin(); HTJetsCan!=htJets->end();HTJetsCan++)
   	{
@@ -84,6 +83,8 @@ RA2Selection::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if( mht->at(0).pt() < MHTMin_ ) return false;
   edm::Handle< edm::View<reco::Candidate> > mhtJets;
   iEvent.getByLabel(MhtJetTag_,mhtJets);
+
+
   if( mhtJets.isValid() && mht.isValid() ) 
   {
     	if( mhtJets->size() > 0 ) 
