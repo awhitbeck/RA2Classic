@@ -20,9 +20,9 @@ event content :: name: Weight; type: Float_t
 
 
 # Specify the data source and label the type of data
-dataset :: label: Data; type: data; file: RA2Selection.root; tree: RA2TreeMaker/RA2PreSelection
-dataset :: label: t#bar{t}; type: mc; file: RA2Selection.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight
-dataset :: label: QCD; type: mc; file: RA2Selection.root; tree: RA2TreeMaker/RA2PreSelection; weight: 2*Weight
+dataset :: label: Data; type: data; file: input/RA2Selection.root; tree: RA2TreeMaker/RA2PreSelection
+dataset :: label: t#bar{t}; type: mc; file: input/RA2Selection.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight
+dataset :: label: QCD; type: mc; file: input/RA2Selection.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight
 
 
 # Specify the event selection

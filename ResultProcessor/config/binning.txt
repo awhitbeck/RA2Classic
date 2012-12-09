@@ -10,122 +10,126 @@ event content :: name: NJets; type: UShort_t; label: N(Jets)
 event content :: name: DeltaPhi1; type: Float_t; label: #Delta#Phi_{1}
 event content :: name: DeltaPhi2; type: Float_t; label: #Delta#Phi_{2}
 event content :: name: DeltaPhi3; type: Float_t; label: #Delta#Phi_{3}
+event content :: name: Weight; type: Float_t
 
 
 # Specify the data source and label the type of data
-dataset :: label: Data; type: data; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/53X_V2/RA2Ntuple_Run2012AB-ReReco.root; tree: RA2TreeMaker/RA2PreSelection
+dataset :: label: TTbar; type: mc; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/53X_V2/RA2Ntuple_TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola_Summer12_DR53X-PU_S10_START53_V7A-v1.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight; scale: 3.77715
+dataset :: label: WJets; type: mc; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/53X_V2/RA2Ntuple_WJetsToLNu_HT-400ToInf_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight; scale: 3.77715
+dataset :: label: ZJets; type: mc; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/53X_V2/RA2Ntuple_ZJetsToNuNu_400_HT_Inf_TuneZ2Star_8TeV_madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight; scale: 3.77715
 
 
+#dataset :: label: T1-0700-0450; type: mc; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/optimization/RA2Ntuple_T1-0700-0450.root; tree: RA2TreeMaker/RA2PreSelection
+#dataset :: label: T1-1150-0050; type: mc; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/optimization/RA2Ntuple_T1-1150-0050.root; tree: RA2TreeMaker/RA2PreSelection
+#dataset :: label: T1-1150-0200; type: mc; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/optimization/RA2Ntuple_T1-1150-0200.root; tree: RA2TreeMaker/RA2PreSelection
+#dataset :: label: T1tttt-1000-0400; type: mc; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/optimization/RA2Ntuple_T1tttt-1000-0400.root; tree: RA2TreeMaker/RA2PreSelection
+#dataset :: label: T2-0600-0400; type: mc; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/optimization/RA2Ntuple_T2-0600-0400.root; tree: RA2TreeMaker/RA2PreSelection
+#dataset :: label: T2-0900-0050; type: mc; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/optimization/RA2Ntuple_T2-0900-0050.root; tree: RA2TreeMaker/RA2PreSelection
+#dataset :: label: T2-0900-0300; type: mc; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/optimization/RA2Ntuple_T2-0900-0300.root; tree: RA2TreeMaker/RA2PreSelection
 
-selection :: label: baseline__NJet_2;      cuts: DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 1 < NJets < 3
+
+selection :: label: baseline__NJet_2;      cuts: DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + 1 < NJets < 3
 selection :: label: baseline__NJet_3-5;    cuts: DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 2 < NJets < 6
 selection :: label: baseline__NJet_6-7;    cuts: DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 5 < NJets < 8
 selection :: label: baseline__NJet_8-Inf;  cuts: DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + NJets > 7
 
+selection :: label: NJet_2__HT_0500-0750__MHT_100-200;    cuts: baseline__NJet_2   + 500 < HT < 750   + 100 < MHT < 200
 selection :: label: NJet_2__HT_0500-0750__MHT_200-300;    cuts: baseline__NJet_2   + 500 < HT < 750   + 200 < MHT < 300
 selection :: label: NJet_2__HT_0500-0750__MHT_300-450;    cuts: baseline__NJet_2   + 500 < HT < 750   + 300 < MHT < 450
 selection :: label: NJet_2__HT_0500-0750__MHT_450-600;    cuts: baseline__NJet_2   + 500 < HT < 750   + 450 < MHT < 600
-selection :: label: NJet_2__HT_0500-0750__MHT_600-Inf;    cuts: baseline__NJet_2   + 500 < HT < 750   + MHT > 600      
+selection :: label: NJet_2__HT_0500-0750__MHT_600-999;    cuts: baseline__NJet_2   + 500 < HT < 750   + 600 < MHT < 999
 
 selection :: label: NJet_2__HT_0750-1000__MHT_100-200;    cuts: baseline__NJet_2   + 750 < HT < 1000  + 100 < MHT < 200
 selection :: label: NJet_2__HT_0750-1000__MHT_200-300;    cuts: baseline__NJet_2   + 750 < HT < 1000  + 200 < MHT < 300
 selection :: label: NJet_2__HT_0750-1000__MHT_300-450;    cuts: baseline__NJet_2   + 750 < HT < 1000  + 300 < MHT < 450
 selection :: label: NJet_2__HT_0750-1000__MHT_450-600;    cuts: baseline__NJet_2   + 750 < HT < 1000  + 450 < MHT < 600
-selection :: label: NJet_2__HT_0750-1000__MHT_600-Inf;    cuts: baseline__NJet_2   + 750 < HT < 1000  + MHT > 600      
+selection :: label: NJet_2__HT_0750-1000__MHT_600-999;    cuts: baseline__NJet_2   + 750 < HT < 1000  + 600 < MHT < 999
 
 selection :: label: NJet_2__HT_1000-1250__MHT_100-200;    cuts: baseline__NJet_2   + 1000 < HT < 1250 + 100 < MHT < 200
 selection :: label: NJet_2__HT_1000-1250__MHT_200-300;    cuts: baseline__NJet_2   + 1000 < HT < 1250 + 200 < MHT < 300 
 selection :: label: NJet_2__HT_1000-1250__MHT_300-450;    cuts: baseline__NJet_2   + 1000 < HT < 1250 + 300 < MHT < 450 
 selection :: label: NJet_2__HT_1000-1250__MHT_450-600;    cuts: baseline__NJet_2   + 1000 < HT < 1250 + 450 < MHT < 600 
-selection :: label: NJet_2__HT_1000-1250__MHT_600-Inf;    cuts: baseline__NJet_2   + 1000 < HT < 1250 + MHT > 600       
+selection :: label: NJet_2__HT_1000-1250__MHT_600-999;    cuts: baseline__NJet_2   + 1000 < HT < 1250 + 600 < MHT < 999       
 
 selection :: label: NJet_2__HT_1250-1500__MHT_100-200;    cuts: baseline__NJet_2   + 1250 < HT < 1500 + 100 < MHT < 200 
+selection :: label: NJet_2__HT_1250-1500__MHT_200-300;    cuts: baseline__NJet_2   + 1250 < HT < 1500 + 200 < MHT < 300  
 selection :: label: NJet_2__HT_1250-1500__MHT_300-450;    cuts: baseline__NJet_2   + 1250 < HT < 1500 + 300 < MHT < 450  
-selection :: label: NJet_2__HT_1250-1500__MHT_450-Inf;    cuts: baseline__NJet_2   + 1250 < HT < 1500 + MHT > 450      
+selection :: label: NJet_2__HT_1250-1500__MHT_450-999;    cuts: baseline__NJet_2   + 1250 < HT < 1500 + 450 < MHT < 999      
 
-selection :: label: NJet_2__HT_1500-Inf__MHT_100-200;     cuts: baseline__NJet_2   + HT > 1500        + 100 < MHT < 200
-selection :: label: NJet_2__HT_1500-Inf__MHT_200-350;     cuts: baseline__NJet_2   + HT > 1500        + 200 < MHT < 350
-selection :: label: NJet_2__HT_1500-Inf__MHT_350-Inf;     cuts: baseline__NJet_2   + HT > 1500        + MHT > 350      
+selection :: label: NJet_2__HT_1500_8000__MHT_100-200;     cuts: baseline__NJet_2  + 1500 < HT < 8000 + 100 < MHT < 200
+selection :: label: NJet_2__HT_1500-8000__MHT_200-350;     cuts: baseline__NJet_2  + 1500 < HT < 8000 + 200 < MHT < 350
+selection :: label: NJet_2__HT_1500-8000__MHT_350-999;     cuts: baseline__NJet_2  + 1500 < HT < 8000 + 350 < MHT < 999      
 
 
+selection :: label: NJet_3-5__HT_0500-0750__MHT_100-200;    cuts: baseline__NJet_3-5   + 500 < HT < 750   + 100 < MHT < 200
 selection :: label: NJet_3-5__HT_0500-0750__MHT_200-300;    cuts: baseline__NJet_3-5   + 500 < HT < 750   + 200 < MHT < 300
 selection :: label: NJet_3-5__HT_0500-0750__MHT_300-450;    cuts: baseline__NJet_3-5   + 500 < HT < 750   + 300 < MHT < 450
 selection :: label: NJet_3-5__HT_0500-0750__MHT_450-600;    cuts: baseline__NJet_3-5   + 500 < HT < 750   + 450 < MHT < 600
-selection :: label: NJet_3-5__HT_0500-0750__MHT_600-Inf;    cuts: baseline__NJet_3-5   + 500 < HT < 750   + MHT > 600      
+selection :: label: NJet_3-5__HT_0500-0750__MHT_600-999;    cuts: baseline__NJet_3-5   + 500 < HT < 750   + 600 < MHT < 999      
 
 selection :: label: NJet_3-5__HT_0750-1000__MHT_100-200;    cuts: baseline__NJet_3-5   + 750 < HT < 1000  + 100 < MHT < 200
 selection :: label: NJet_3-5__HT_0750-1000__MHT_200-300;    cuts: baseline__NJet_3-5   + 750 < HT < 1000  + 200 < MHT < 300
 selection :: label: NJet_3-5__HT_0750-1000__MHT_300-450;    cuts: baseline__NJet_3-5   + 750 < HT < 1000  + 300 < MHT < 450
 selection :: label: NJet_3-5__HT_0750-1000__MHT_450-600;    cuts: baseline__NJet_3-5   + 750 < HT < 1000  + 450 < MHT < 600
-selection :: label: NJet_3-5__HT_0750-1000__MHT_600-Inf;    cuts: baseline__NJet_3-5   + 750 < HT < 1000  + MHT > 600      
+selection :: label: NJet_3-5__HT_0750-1000__MHT_600-999;    cuts: baseline__NJet_3-5   + 750 < HT < 1000  + 600 < MHT < 999      
 
 selection :: label: NJet_3-5__HT_1000-1250__MHT_100-200;    cuts: baseline__NJet_3-5   + 1000 < HT < 1250 + 100 < MHT < 200
 selection :: label: NJet_3-5__HT_1000-1250__MHT_200-300;    cuts: baseline__NJet_3-5   + 1000 < HT < 1250 + 200 < MHT < 300 
 selection :: label: NJet_3-5__HT_1000-1250__MHT_300-450;    cuts: baseline__NJet_3-5   + 1000 < HT < 1250 + 300 < MHT < 450 
 selection :: label: NJet_3-5__HT_1000-1250__MHT_450-600;    cuts: baseline__NJet_3-5   + 1000 < HT < 1250 + 450 < MHT < 600 
-selection :: label: NJet_3-5__HT_1000-1250__MHT_600-Inf;    cuts: baseline__NJet_3-5   + 1000 < HT < 1250 + MHT > 600       
+selection :: label: NJet_3-5__HT_1000-1250__MHT_600-999;    cuts: baseline__NJet_3-5   + 1000 < HT < 1250 + 600 < MHT < 999 
 
 selection :: label: NJet_3-5__HT_1250-1500__MHT_100-200;    cuts: baseline__NJet_3-5   + 1250 < HT < 1500 + 100 < MHT < 200 
+selection :: label: NJet_3-5__HT_1250-1500__MHT_200-300;    cuts: baseline__NJet_3-5   + 1250 < HT < 1500 + 200 < MHT < 300 
 selection :: label: NJet_3-5__HT_1250-1500__MHT_300-450;    cuts: baseline__NJet_3-5   + 1250 < HT < 1500 + 300 < MHT < 450  
-selection :: label: NJet_3-5__HT_1250-1500__MHT_450-Inf;    cuts: baseline__NJet_3-5   + 1250 < HT < 1500 + MHT > 450      
+selection :: label: NJet_3-5__HT_1250-1500__MHT_450-999;    cuts: baseline__NJet_3-5   + 1250 < HT < 1500 + 450 < MHT < 999
 
-selection :: label: NJet_3-5__HT_1500-Inf__MHT_100-200;     cuts: baseline__NJet_3-5   + HT > 1500        + 100 < MHT < 200
-selection :: label: NJet_3-5__HT_1500-Inf__MHT_200-350;     cuts: baseline__NJet_3-5   + HT > 1500        + 200 < MHT < 350
-selection :: label: NJet_3-5__HT_1500-Inf__MHT_350-Inf;     cuts: baseline__NJet_3-5   + HT > 1500        + MHT > 350      
+selection :: label: NJet_3-5__HT_1500-8000__MHT_100-200;     cuts: baseline__NJet_3-5  + 1500 < HT < 8000 + 100 < MHT < 200
+selection :: label: NJet_3-5__HT_1500-8000__MHT_200-350;     cuts: baseline__NJet_3-5  + 1500 < HT < 8000 + 200 < MHT < 350
+selection :: label: NJet_3-5__HT_1500-8000__MHT_350-999;     cuts: baseline__NJet_3-5  + 1500 < HT < 8000 + 350 < MHT < 999      
 
 
+selection :: label: NJet_6-7__HT_0500-0750__MHT_100-200;    cuts: baseline__NJet_6-7   + 500 < HT < 750   + 100 < MHT < 200
 selection :: label: NJet_6-7__HT_0500-0750__MHT_200-300;    cuts: baseline__NJet_6-7   + 500 < HT < 750   + 200 < MHT < 300
 selection :: label: NJet_6-7__HT_0500-0750__MHT_300-450;    cuts: baseline__NJet_6-7   + 500 < HT < 750   + 300 < MHT < 450
-selection :: label: NJet_6-7__HT_0500-0750__MHT_450-600;    cuts: baseline__NJet_6-7   + 500 < HT < 750   + 450 < MHT < 600
-selection :: label: NJet_6-7__HT_0500-0750__MHT_600-Inf;    cuts: baseline__NJet_6-7   + 500 < HT < 750   + MHT > 600      
+selection :: label: NJet_6-7__HT_0500-0750__MHT_450-900;    cuts: baseline__NJet_6-7   + 500 < HT < 750   + 450 < MHT < 900
 
 selection :: label: NJet_6-7__HT_0750-1000__MHT_100-200;    cuts: baseline__NJet_6-7   + 750 < HT < 1000  + 100 < MHT < 200
 selection :: label: NJet_6-7__HT_0750-1000__MHT_200-300;    cuts: baseline__NJet_6-7   + 750 < HT < 1000  + 200 < MHT < 300
 selection :: label: NJet_6-7__HT_0750-1000__MHT_300-450;    cuts: baseline__NJet_6-7   + 750 < HT < 1000  + 300 < MHT < 450
-selection :: label: NJet_6-7__HT_0750-1000__MHT_450-600;    cuts: baseline__NJet_6-7   + 750 < HT < 1000  + 450 < MHT < 600
-selection :: label: NJet_6-7__HT_0750-1000__MHT_600-Inf;    cuts: baseline__NJet_6-7   + 750 < HT < 1000  + MHT > 600      
+selection :: label: NJet_6-7__HT_0750-1000__MHT_450-900;    cuts: baseline__NJet_6-7   + 750 < HT < 1000  + 450 < MHT < 900
 
 selection :: label: NJet_6-7__HT_1000-1250__MHT_100-200;    cuts: baseline__NJet_6-7   + 1000 < HT < 1250 + 100 < MHT < 200
 selection :: label: NJet_6-7__HT_1000-1250__MHT_200-300;    cuts: baseline__NJet_6-7   + 1000 < HT < 1250 + 200 < MHT < 300 
 selection :: label: NJet_6-7__HT_1000-1250__MHT_300-450;    cuts: baseline__NJet_6-7   + 1000 < HT < 1250 + 300 < MHT < 450 
-selection :: label: NJet_6-7__HT_1000-1250__MHT_450-600;    cuts: baseline__NJet_6-7   + 1000 < HT < 1250 + 450 < MHT < 600 
-selection :: label: NJet_6-7__HT_1000-1250__MHT_600-Inf;    cuts: baseline__NJet_6-7   + 1000 < HT < 1250 + MHT > 600       
+selection :: label: NJet_6-7__HT_1000-1250__MHT_450-900;    cuts: baseline__NJet_6-7   + 1000 < HT < 1250 + 450 < MHT < 900 
 
 selection :: label: NJet_6-7__HT_1250-1500__MHT_100-200;    cuts: baseline__NJet_6-7   + 1250 < HT < 1500 + 100 < MHT < 200 
+selection :: label: NJet_6-7__HT_1250-1500__MHT_200-300;    cuts: baseline__NJet_6-7   + 1250 < HT < 1500 + 200 < MHT < 300 
 selection :: label: NJet_6-7__HT_1250-1500__MHT_300-450;    cuts: baseline__NJet_6-7   + 1250 < HT < 1500 + 300 < MHT < 450  
-selection :: label: NJet_6-7__HT_1250-1500__MHT_450-Inf;    cuts: baseline__NJet_6-7   + 1250 < HT < 1500 + MHT > 450      
+selection :: label: NJet_6-7__HT_1250-1500__MHT_450-900;    cuts: baseline__NJet_6-7   + 1250 < HT < 1500 + 450 < MHT < 900      
 
-selection :: label: NJet_6-7__HT_1500-Inf__MHT_100-200;     cuts: baseline__NJet_6-7   + HT > 1500        + 100 < MHT < 200
-selection :: label: NJet_6-7__HT_1500-Inf__MHT_200-350;     cuts: baseline__NJet_6-7   + HT > 1500        + 200 < MHT < 350
-selection :: label: NJet_6-7__HT_1500-Inf__MHT_350-Inf;     cuts: baseline__NJet_6-7   + HT > 1500        + MHT > 350      
+selection :: label: NJet_6-7__HT_1500-8000__MHT_100-200;    cuts: baseline__NJet_6-7   + 1500 < HT < 8000 + 100 < MHT < 200
+selection :: label: NJet_6-7__HT_1500-8000__MHT_200-350;    cuts: baseline__NJet_6-7   + 1500 < HT < 8000 + 200 < MHT < 350
+selection :: label: NJet_6-7__HT_1500-8000__MHT_350-999;    cuts: baseline__NJet_6-7   + 1500 < HT < 8000 + 350 < MHT < 999
 
 
-selection :: label: NJet_8-Inf__HT_0500-0750__MHT_200-300;    cuts: baseline__NJet_8-Inf   + 500 < HT < 750   + 200 < MHT < 300
-selection :: label: NJet_8-Inf__HT_0500-0750__MHT_300-450;    cuts: baseline__NJet_8-Inf   + 500 < HT < 750   + 300 < MHT < 450
-selection :: label: NJet_8-Inf__HT_0500-0750__MHT_450-600;    cuts: baseline__NJet_8-Inf   + 500 < HT < 750   + 450 < MHT < 600
-selection :: label: NJet_8-Inf__HT_0500-0750__MHT_600-Inf;    cuts: baseline__NJet_8-Inf   + 500 < HT < 750   + MHT > 600      
+selection :: label: NJet_8-Inf__HT_0500-0750__MHT_100-200;    cuts: baseline__NJet_8-Inf   + 500 < HT < 750   + 200 < MHT < 300
+selection :: label: NJet_8-Inf__HT_0500-0750__MHT_200-999;    cuts: baseline__NJet_8-Inf   + 500 < HT < 750   + 200 < MHT < 999
 
 selection :: label: NJet_8-Inf__HT_0750-1000__MHT_100-200;    cuts: baseline__NJet_8-Inf   + 750 < HT < 1000  + 100 < MHT < 200
-selection :: label: NJet_8-Inf__HT_0750-1000__MHT_200-300;    cuts: baseline__NJet_8-Inf   + 750 < HT < 1000  + 200 < MHT < 300
-selection :: label: NJet_8-Inf__HT_0750-1000__MHT_300-450;    cuts: baseline__NJet_8-Inf   + 750 < HT < 1000  + 300 < MHT < 450
-selection :: label: NJet_8-Inf__HT_0750-1000__MHT_450-600;    cuts: baseline__NJet_8-Inf   + 750 < HT < 1000  + 450 < MHT < 600
-selection :: label: NJet_8-Inf__HT_0750-1000__MHT_600-Inf;    cuts: baseline__NJet_8-Inf   + 750 < HT < 1000  + MHT > 600      
+selection :: label: NJet_8-Inf__HT_0750-1000__MHT_200-999;    cuts: baseline__NJet_8-Inf   + 750 < HT < 1000  + 200 < MHT < 999
 
 selection :: label: NJet_8-Inf__HT_1000-1250__MHT_100-200;    cuts: baseline__NJet_8-Inf   + 1000 < HT < 1250 + 100 < MHT < 200
-selection :: label: NJet_8-Inf__HT_1000-1250__MHT_200-300;    cuts: baseline__NJet_8-Inf   + 1000 < HT < 1250 + 200 < MHT < 300 
-selection :: label: NJet_8-Inf__HT_1000-1250__MHT_300-450;    cuts: baseline__NJet_8-Inf   + 1000 < HT < 1250 + 300 < MHT < 450 
-selection :: label: NJet_8-Inf__HT_1000-1250__MHT_450-600;    cuts: baseline__NJet_8-Inf   + 1000 < HT < 1250 + 450 < MHT < 600 
-selection :: label: NJet_8-Inf__HT_1000-1250__MHT_600-Inf;    cuts: baseline__NJet_8-Inf   + 1000 < HT < 1250 + MHT > 600       
+selection :: label: NJet_8-Inf__HT_1000-1250__MHT_200-999;    cuts: baseline__NJet_8-Inf   + 1000 < HT < 1250 + 200 < MHT < 999
 
 selection :: label: NJet_8-Inf__HT_1250-1500__MHT_100-200;    cuts: baseline__NJet_8-Inf   + 1250 < HT < 1500 + 100 < MHT < 200 
-selection :: label: NJet_8-Inf__HT_1250-1500__MHT_300-450;    cuts: baseline__NJet_8-Inf   + 1250 < HT < 1500 + 300 < MHT < 450  
-selection :: label: NJet_8-Inf__HT_1250-1500__MHT_450-Inf;    cuts: baseline__NJet_8-Inf   + 1250 < HT < 1500 + MHT > 450      
+selection :: label: NJet_8-Inf__HT_1250-1500__MHT_200-999;    cuts: baseline__NJet_8-Inf   + 1250 < HT < 1500 + 200 < MHT < 999
 
 selection :: label: NJet_8-Inf__HT_1500-Inf__MHT_100-200;     cuts: baseline__NJet_8-Inf   + HT > 1500        + 100 < MHT < 200
-selection :: label: NJet_8-Inf__HT_1500-Inf__MHT_200-350;     cuts: baseline__NJet_8-Inf   + HT > 1500        + 200 < MHT < 350
-selection :: label: NJet_8-Inf__HT_1500-Inf__MHT_350-Inf;     cuts: baseline__NJet_8-Inf   + HT > 1500        + MHT > 350      
+selection :: label: NJet_8-Inf__HT_1500-Inf__MHT_200-999;     cuts: baseline__NJet_8-Inf   + HT > 1500        + 200 < MHT < 999
 
 
-plot :: variable: HT; dataset: Data; histogram: 25, 500, 3000, log
-plot :: variable: MHT; dataset: Data; histogram:  32, 200, 1800, log
-plot :: variable: NJets; dataset: Data; histogram: 12, -0.5, 11.5
+#plot :: variable: HT; dataset: Data; histogram: 25, 500, 3000, log
+#plot :: variable: MHT; dataset: Data; histogram:  32, 200, 1800, log
+#plot :: variable: NJets; dataset: Data; histogram: 12, -0.5, 11.5
