@@ -2,64 +2,69 @@
 #define DATA_SET_H
 
 #include <map>
-#include <set>
 #include <vector>
 
 #include "TString.h"
 
 #include "Config.h"
 #include "Event.h"
+#include "Selection.h"
 
-
+class DataSet;
+typedef std::vector<const DataSet*> DataSets;
+typedef std::vector<const DataSet*>::const_iterator DataSetIt;
+typedef std::vector<const DataSet*>::const_reverse_iterator DataSetRIt;
+typedef std::map<TString,const DataSet*> DataSetUidMap;
+typedef std::map<TString,const DataSet*>::const_iterator DataSetUidIt;
 
 class DataSet {
 public:
   enum Type { Data, MC, Prediction, Signal };
 
-  static std::vector<DataSet*> createDataSets(const Config &cfg, const TString key);
-  static bool exists(const TString &label);
-  static Type type(const TString &label);
+  static TString uid(const TString &label, const TString &selectionUid);
+  static TString uid(const TString &label, const Selection* selection);
+  static const DataSet* find(const TString &uid);
+  static const DataSet* find(const TString &label, const Selection* selection);
+  static DataSets findAllUnselected() {
+    return findAllWithSelection("unselected");
+  }
+  static DataSets findAllWithSelection(const TString &selectionUid);
+  static DataSets findAllWithLabel(const TString &label);
+  static DataSetUidIt begin() { return dataSetUidMap_.begin(); }
+  static DataSetUidIt end() { return dataSetUidMap_.end(); }
+  static void init(const Config &cfg, const TString key);
+  static void clear();
+  static bool uidExists(const TString &uid);
+  static bool labelExists(const TString &label);
   static Type toType(const TString &type);
+  static TString toString(Type type);
 
   virtual ~DataSet();
 
+  TString uid() const { return uid(label(),selectionUid()); }
   Type type() const { return type_; }
   TString label() const { return label_; }
-  TString selection() const { return selectionLabel_; }
+  TString selectionUid() const { return selectionUid_; }
 
   unsigned int size() const { return evts_.size(); }
-  double yield() const;		// Return weighted number of events
-  EventIt begin() const { return evts_.begin(); }
-  EventIt end() const { return evts_.end(); }
-
-  void selection(const TString &selection) {
-    selectionLabel_ = selection;
-  }
-
-
-protected:
-  DataSet(Type type, const TString &label, const TString &selection, const Events &evts);	// This constructor is meant for use in SelectedDataSet
+  double yield() const { return yield_; }		// Return weighted number of events
+  EventIt evtsBegin() const { return evts_.begin(); }
+  EventIt evtsEnd() const { return evts_.end(); }
 
 
 private:
-  static std::set<TString> labels_;
-  static std::map<TString,DataSet::Type> types_;
+  static DataSetUidMap dataSetUidMap_;
+  static bool isInit_;
 
   const Type type_;
   const TString label_;
   const bool hasMother_;
 
-  TString selectionLabel_;
+  TString selectionUid_;
   Events evts_;
+  double yield_;
 
   DataSet(Type type, const TString &label, const TString &selection, const TString &fileName, const TString &treeName, const TString &weight, const std::vector<TString> &uncDn, const std::vector<TString> &uncUp, const std::vector<TString> &uncLabel, double scale);
-};
-
-
-class SelectedDataSet : public DataSet {
-public:
-  SelectedDataSet(Type type, const TString &label, const TString &selection, const Events &evts)
-    : DataSet(type,label,selection,evts) {};
-  ~SelectedDataSet() {};
+  DataSet(const DataSet *ds, const TString &selectionUid, const Events &evts);
 };
 #endif

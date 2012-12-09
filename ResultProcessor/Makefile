@@ -4,7 +4,8 @@ ROOTCFLAGS = $(shell root-config --cflags)
 CFLAG      = -I $(ROOTCFLAGS)
 LFLAG      = $(ROOTLIBS)
 
-OBJ     = Config.o DataSet.o Event.o EventBuilder.o EventInfoPrinter.o EventYieldPrinter.o GlobalParameters.o MrRA2.o PlotBuilder.o Selection.o Variable.o
+OBJ     = Config.o DataSet.o Event.o EventBuilder.o EventYieldPrinter.o GlobalParameters.o MrRA2.o Output.o PlotBuilder.o Selection.o Variable.o
+
 
 
 run: $(OBJ)		
@@ -14,7 +15,7 @@ run: $(OBJ)
 Config.o: Config.h Config.cc
 	g++ $(CFLAG) -c  Config.cc
 
-DataSet.o: DataSet.h DataSet.cc Config.h Event.h Variable.h
+DataSet.o: DataSet.h DataSet.cc Config.h Event.h Selection.h Variable.h
 	g++ $(CFLAG) -c  DataSet.cc
 
 Event.o: Event.h Event.cc
@@ -26,19 +27,22 @@ EventBuilder.o: EventBuilder.h EventBuilder.cc Event.h Variable.h
 EventInfoPrinter.o: EventInfoPrinter.h EventInfoPrinter.cc Config.h DataSet.h Event.h GlobalParameters.h Variable.h
 	g++ $(CFLAG) -c  EventInfoPrinter.cc
 
-EventYieldPrinter.o: EventYieldPrinter.cc EventYieldPrinter.h
+EventYieldPrinter.o: EventYieldPrinter.cc EventYieldPrinter.h DataSet.h Selection.h
 	g++ $(CFLAG) -c EventYieldPrinter.cc
 
 GlobalParameters.o: GlobalParameters.h GlobalParameters.cc Config.h
 	g++ $(CFLAG) -c  GlobalParameters.cc
 
-MrRA2.o: MrRA2.h MrRA2.cc DataSet.h Config.h GlobalParameters.h PlotBuilder.h Selection.h EventYieldPrinter.h Variable.h
+MrRA2.o: MrRA2.h MrRA2.cc DataSet.h Config.h GlobalParameters.h PlotBuilder.h Selection.h EventYieldPrinter.h Output.h Variable.h
 	g++ $(CFLAG) -c  MrRA2.cc
 
-PlotBuilder.o: PlotBuilder.h PlotBuilder.cc DataSet.h Variable.h Config.h GlobalParameters.h Event.h ../AdditionalInputFiles/RA2PlottingStyle.h
+Output.o: Output.h Output.cc GlobalParameters.h 
+	g++ $(CFLAG) -c Output.cc
+
+PlotBuilder.o: PlotBuilder.h PlotBuilder.cc DataSet.h Variable.h Config.h GlobalParameters.h Event.h Output.h Selection.h ../AdditionalInputFiles/RA2PlottingStyle.h
 	g++ $(CFLAG) -c  PlotBuilder.cc
 
-Selection.o: Selection.h Selection.cc Config.h DataSet.h Event.h
+Selection.o: Selection.h Selection.cc Config.h Event.h Variable.h
 	g++ $(CFLAG) -c  Selection.cc
 
 Variable.o: Variable.h Variable.cc Config.h

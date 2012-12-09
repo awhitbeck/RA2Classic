@@ -1,14 +1,19 @@
-// $Id: $
+// $Id: EventYieldPrinter.cc,v 1.1 2012/11/05 14:52:14 mschrode Exp $
 
 #include <iomanip>
 #include <iostream>
 
+#include "TString.h"
+
+#include "DataSet.h"
 #include "EventYieldPrinter.h"
+#include "Selection.h"
 
 
 void EventYieldPrinter::operator()() const {
+  DataSets inputDataSets = DataSet::findAllUnselected();
   std::cout << "\n\n\n\n\\begin{tabular}{";
-  for(unsigned int i = 0; i < nDataSets()+1; ++i) {
+  for(unsigned int i = 0; i < inputDataSets.size()+1; ++i) {
     std::cout << "r";
   }
   std::cout << "}\n";
@@ -16,17 +21,23 @@ void EventYieldPrinter::operator()() const {
 
   unsigned int width = sizeOfSelectionLabels() + 4;
   std::cout << std::setw(width) << "Selection";
-  std::map< TString, std::map<TString,TString> >::const_iterator itSels = yields_.begin();
-  std::map<TString,TString>::const_iterator itDS = itSels->second.begin();
-  for(; itDS != itSels->second.end(); ++itDS) {
-    std::cout << std::setw(5) << " & " << std::setw(12) << itDS->first;
+  for(DataSetIt itd = inputDataSets.begin(); itd != inputDataSets.end(); ++itd) {
+    std::cout << std::setw(5) << " & " << std::setw(12) << (*itd)->label();
   }
   std::cout << "  \\\\ \n\\midrule\n";
-  for(; itSels != yields_.end(); ++itSels) {
-    std::cout << std::setw(width) << itSels->first;
-    std::map<TString,TString>::const_iterator itDS = itSels->second.begin();
-    for(; itDS != itSels->second.end(); ++itDS) {
-      std::cout << std::setw(5) << " & " << std::setw(12) << itDS->second;
+  for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
+    std::cout << std::setw(width) << (*its)->uid();
+    DataSets selectedDataSets = DataSet::findAllWithSelection((*its)->uid());
+    for(DataSetIt itsd = selectedDataSets.begin(); itsd != selectedDataSets.end(); ++itsd) {
+      std::cout << std::setw(5) << " & ";
+      if( (*itsd)->type() == DataSet::Data ) {
+	std::cout << std::setw(12) << std::setprecision(0) << (*itsd)->size();
+      } else {
+	TString str = "";
+	str += static_cast<int>((*itsd)->yield());
+	if( str == "0" ) str = "";
+	std::cout << std::setprecision(str.Length()+1) << std::setw(12) << (*itsd)->yield() << " (" << (*itsd)->size() << ")";
+      }
     }
     std::cout << "  \\\\ \n";
   }
@@ -34,51 +45,10 @@ void EventYieldPrinter::operator()() const {
 }
 
 
-void EventYieldPrinter::add(const TString &dataSetName, const TString &selection, double nEvents) {
-  TString y = "";
-  y += nEvents;
-  add(dataSetName,selection,y);
-}
-
-
-void EventYieldPrinter::add(const TString &dataSetName, const TString &selection, double nEvents, double yield) {
-  TString y = "";
-  y += static_cast<int>(yield);
-  y += " (";
-  y += nEvents;
-  y += ")";
-  add(dataSetName,selection,y);
-}
-
-
-void EventYieldPrinter::add(const TString &dataSetName, const TString &selection, const TString &yield) {
-  std::map< TString, std::map<TString,TString> >::iterator it = yields_.find(selection);
-  if( it != yields_.end() ) {
-    it->second[dataSetName] = yield;
-  } else {
-    std::map<TString,TString> y;
-    y[dataSetName] = yield;
-    yields_[selection] = y;
-  }
-}
-
-
-unsigned int EventYieldPrinter::nDataSets() const {
-  unsigned int n = 0;
-  if( yields_.size() ) {
-    std::map< TString, std::map<TString,TString> >::const_iterator itSels = yields_.begin();
-    n = itSels->second.size();
-  }
-
-  return n;
-}
-
-
 unsigned int EventYieldPrinter::sizeOfSelectionLabels() const {
   unsigned int s = 0;
-  std::map< TString, std::map<TString,TString> >::const_iterator itSels = yields_.begin();
-  for(; itSels != yields_.end(); ++itSels) {
-    if( itSels->first.Length() > s ) s = itSels->first.Length();
+  for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
+    if( (*its)->uid().Length() > s ) s = (*its)->uid().Length();
   }
   
   return s;

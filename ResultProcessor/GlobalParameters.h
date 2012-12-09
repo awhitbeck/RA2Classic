@@ -12,9 +12,6 @@ public:
 
   static TString lumi() { return lumi_; }
   static TString analysisId() { return id_; }
-  static TString resultDir() { return "results/"+analysisId(); }
-
-  static TString cleanName(const TString &name);
 
 private:
   static TString lumi_;

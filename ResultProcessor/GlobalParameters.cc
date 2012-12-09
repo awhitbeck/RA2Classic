@@ -27,16 +27,4 @@ void GlobalParameters::init(const Config &cfg, const TString &key) {
 }
 
 
-TString GlobalParameters::cleanName(const TString &name) {
-  TString cleanedName = name;
-  cleanedName.ReplaceAll(">","gtr");
-  cleanedName.ReplaceAll(" ","_");
-  cleanedName.ReplaceAll("#","");
-  cleanedName.ReplaceAll("{","");
-  cleanedName.ReplaceAll("}","");
-
-  return cleanedName;
-}
-
-
 

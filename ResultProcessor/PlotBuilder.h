@@ -13,11 +13,12 @@
 
 #include "Config.h"
 #include "DataSet.h"
+#include "Output.h"
 
 
 class PlotBuilder {
 public:
-  PlotBuilder(const std::vector<DataSet*> &dataSets, const Config &cfg, const TString &outDir);
+  PlotBuilder(const Config &cfg, Output &out);
   ~PlotBuilder();
 
 private:
@@ -46,8 +47,7 @@ private:
 
   const Config &cfg_;
   const unsigned int canSize_;
-  const std::vector<DataSet*> dataSets_;
-  const TString outDir_;
+  Output &out_;
 
   std::map<TString,int> markers_;
   std::map<TString,int> colors_;
@@ -55,28 +55,30 @@ private:
 
   void run(const TString &key) const;
   void setStyle(const TString &key);
-  void plotSpectrum(const TString &var, const TString &dataLabel, const HistParams &histParams) const;
-  void plotSpectra(const TString &var, const std::vector<TString> &dataSetLabels, const HistParams &histParams) const;
-  void plotComparisonOfSpectra(const TString &var, const std::vector<TString> &dataSetLabels1, const std::vector<TString> &dataSetLabels2, const HistParams &histParams) const;
-  DataSet::Type createDistribution(const TString &dataSetLabel, const TString &var, TH1* &h, TGraphAsymmErrors* &uncert, const HistParams &histParams) const;
-  DataSet::Type createStack(const std::vector<TString> &dataSetLabels, const TString &var, std::vector<TH1*> &hists, std::vector<TString> &legEntries, TGraphAsymmErrors* &uncert, const HistParams &histParams) const;
-  int color(const TString &dataSetLabel) const;
-  int markerStyle(const TString &dataSetLabel) const;
-  void setMarkerStyle(TH1* h, const TString &dataSetLabel) const;
-  void setGenericStyle(TH1* h, const TString &dataSetLabel) const;
+
+  void plotSpectrum(const TString &var, const DataSet *dataSet, const HistParams &histParams) const;
+  void plotSpectra(const TString &var, const DataSets &dataSets, const HistParams &histParams) const;
+  void plotComparisonOfSpectra(const TString &var, const DataSets &dataSets1, const DataSets &dataSets2, const HistParams &histParams) const;
+  void createDistribution(const DataSet *dataSet, const TString &var, TH1* &h, TGraphAsymmErrors* &uncert, const HistParams &histParams) const;
+  void createStack(const DataSets &dataSets, const TString &var, std::vector<TH1*> &hists, std::vector<TString> &legEntries, TGraphAsymmErrors* &uncert, const HistParams &histParams) const;
+
+  void storeCanvas(TCanvas* can, const TString &var, const DataSet* dataSet) const;
+  void storeCanvas(TCanvas* can, const TString &var, const TString &selection) const;
+  void storeCanvas(TCanvas* can, const TString &var, const DataSets &dataSets1, const DataSets &dataSets2) const;
+
+  int color(const DataSet *dataSet) const;
+  int markerStyle(const DataSet *dataSet) const;
+  void setMarkerStyle(TH1* h, const DataSet *dataSet) const;
+  void setGenericStyle(TH1* h, const DataSet *dataSet) const;
   void setXTitle(TH1* h, const TString &var) const;
   void setYTitle(TH1* h, const TString &var) const;
-  TPaveText* header(bool showLumi, const TString &add = "") const;
+  TPaveText* header(bool showLumi, const TString &info = "") const;
   TLegend* legend(unsigned int nEntries) const;
   TString lumiLabel() const;
-  TString plotName(const TString &var) const;
-  TString plotName(const TString &var, const TString &dataSetLabel) const;
-  TString plotName(const TString &var, const std::vector<TString> &dataSetLabels1, const std::vector<TString> &dataSetLabels2) const;
-  void storeCanvas(TCanvas* can, const TString &name) const;
-  DataSet* dataSet(const TString &label) const;
-  TString dataSetLabelInPlot(const TString &dataSetLabel) const;
+  TString dataSetLabelInPlot(const DataSet* dataSet) const;
   TString dataSetTypeLabel(DataSet::Type type) const;
   void setYRange(TH1* &h, double logMin = -1.) const;
-  bool checkForUnderOverFlow(const TH1* h, const TString &var, const TString &dataSetLabel) const;
+
+  bool checkForUnderOverFlow(const TH1* h, const TString &var, const DataSet *dataSet) const;
 };
 #endif

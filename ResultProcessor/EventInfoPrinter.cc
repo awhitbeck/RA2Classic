@@ -1,4 +1,4 @@
-// $Id: EventInfoPrinter.cc,v 1.2 2012/11/02 16:18:59 mschrode Exp $
+// $Id: EventInfoPrinter.cc,v 1.3 2012/11/13 13:25:32 mschrode Exp $
 
 #include <algorithm>
 #include <fstream>
@@ -90,7 +90,8 @@ void EventInfoPrinter::print() const {
       separator2 += "-";
     }
   }
-  ofstream file(GlobalParameters::cleanName(GlobalParameters::resultDir()+"/EventInfo_"+(*dataSets_.begin())->selection()+".txt"));
+  //ofstream file(GlobalParameters::cleanName(GlobalParameters::resultDir()+"/EventInfo_"+(*dataSets_.begin())->selection()+".txt"));
+  ofstream file("/EventInfo_"+(*dataSets_.begin())->selection()+".txt");
   for(std::map< TString, std::set<const Event*> >::const_iterator it = printedEvts_.begin(); it != printedEvts_.end(); ++it) {
     file << separator1 << std::endl;
     file << "Dataset: '" << it->first << "'" << std::endl;
