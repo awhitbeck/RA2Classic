@@ -11,7 +11,7 @@ Description: Vary jet pt by its uncertainty and produce new jet collection.
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Sep 17 16:52:55 CEST 2012
-// $Id: $
+// $Id: JESUncertaintyVariation.cc,v 1.1 2012/10/06 15:53:23 mschrode Exp $
 //
 //
 
@@ -32,12 +32,13 @@ Description: Vary jet pt by its uncertainty and produce new jet collection.
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/PatCandidates/interface/Jet.h"
-
 #include "CommonTools/Utils/interface/PtComparator.h"
 
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
@@ -67,6 +68,7 @@ private:
   // ----------member data ---------------------------
   const edm::InputTag inputJetsTag_;
   const std::string jetTypeId_;
+  const edm::InputTag inputMetsTag_;
   const std::string variation_;
 
   JetCorrectionUncertainty* jecUnc_;
@@ -78,6 +80,7 @@ private:
 JESUncertaintyVariation::JESUncertaintyVariation(const edm::ParameterSet& iConfig) :
   inputJetsTag_(iConfig.getParameter<edm::InputTag>("Jets")),
   jetTypeId_(iConfig.getParameter<std::string>("JetTypeId")),
+  inputMetsTag_(iConfig.getParameter<edm::InputTag>("METs")),
   variation_( (iConfig.getParameter<std::string>("Variation")=="DN" ||
 	       iConfig.getParameter<std::string>("Variation")=="Dn" ||
 	       iConfig.getParameter<std::string>("Variation")=="dn")  ?
@@ -85,7 +88,8 @@ JESUncertaintyVariation::JESUncertaintyVariation(const edm::ParameterSet& iConfi
 {
   jecUnc_ = 0;			// Initialized in first event loop because needs information from the event
 
-  produces<std::vector<pat::Jet> >();
+  produces< std::vector<pat::Jet> >("Jets");
+  produces< std::vector<pat::MET> >("METs");
 }
 
 
@@ -102,15 +106,22 @@ JESUncertaintyVariation::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   }
   
   // Get the jet collection from the event
-  edm::Handle< edm::View<pat::Jet> > inputJets_;
-  iEvent.getByLabel(inputJetsTag_,inputJets_);
+  edm::Handle< edm::View<pat::Jet> > inputJets;
+  iEvent.getByLabel(inputJetsTag_,inputJets);
+
+  // Get the vector of JEC-corrected (type 1) METs
+  edm::Handle< edm::View<reco::MET> > inputMets;
+  iEvent.getByLabel(inputMetsTag_,inputMets);
 
   // Collection of varied jets
   std::auto_ptr< std::vector<pat::Jet> > varJets(new std::vector<pat::Jet>); 
 
-  // Loop over jets and compute varied jets
-  for(edm::View<pat::Jet>::const_iterator itInJet = inputJets_->begin();
-       itInJet != inputJets_->end(); ++itInJet) {
+  //Vectorial difference between normal jets and modified jets, for MET corr.
+  reco::MET::LorentzVector change(0,0,0,0);
+
+  // Loop over jets and compute varied jets and track difference
+  for(edm::View<pat::Jet>::const_iterator itInJet = inputJets->begin();
+       itInJet != inputJets->end(); ++itInJet) {
 
     // Retrieve uncertainty of the current jet's JEC
     // IMPORTANT: the uncertainty is a function of the CORRECTED pt
@@ -124,6 +135,9 @@ JESUncertaintyVariation::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     varJet.setP4( itInJet->p4() * (1.0 + correction) );
     varJets->push_back(varJet);
 
+    //keep track of the change, in order to correct JEC-corrected MET, too.
+    change += ( varJet.p4() - itInJet->p4() );
+
     //    std::cout << "(" << itInJet->pt() << "," << itInJet->eta() << ") --> (" << varJet.pt() << "," << varJet.eta() << ")" << std::endl;
   }
 
@@ -132,7 +146,23 @@ JESUncertaintyVariation::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   std::sort(varJets->begin(),varJets->end(),pTComparator);
 
   // Put varied jets into event
-  iEvent.put(varJets);
+  iEvent.put(varJets,"Jets");
+
+  //recalculate MET taking intoaccount the new jet-collection for type 1:
+  pat::MET inMet( *(inputMets->begin()));
+  change = reco::MET::LorentzVector(change.x()+inMet.p4().x(),
+				     change.y()+inMet.p4().y(),
+				     0,
+				     sqrt( (change.x()+inMet.p4().x())*(change.x()+inMet.p4().x()) + (change.y()+inMet.p4().y())*(change.y()+inMet.p4().y()) ) );
+  pat::MET varMET( reco::MET( change.pt(), 
+			      inMet.mEtCorr(),
+			      change,
+			      inMet.vertex() ) );
+  
+  // put mod. MET into event
+  std::auto_ptr< std::vector<pat::MET> > varMETs(new std::vector<pat::MET>);
+  varMETs->push_back( varMET );
+  iEvent.put(varMETs,"METs");
 }
 
 // ------------ method called once each job just before starting event loop  ------------
