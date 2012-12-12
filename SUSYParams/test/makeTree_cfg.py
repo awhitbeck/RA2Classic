@@ -1,8 +1,15 @@
-# $Id: $
+# $Id: makeTree_cfg.py,v 1.1 2012/11/27 21:49:54 mschrode Exp $
 
-numProcessedEvt = 10
+
+###############################################################################
+##
+## GLOBAL PARAMETERS
+##
+###############################################################################
+
+numProcessedEvt = 1000
 reportEveryEvt  = 1
-globalTag       = 'START52_V11C::All'
+globalTag       = 'START53_V15::All'
 smsModel        = "T1tttt"
 smsMotherMass   = 1000
 smsLSPMass      = 400
@@ -10,6 +17,13 @@ xs              = 0.000435488
 numEvtsInSample = 49994
 lumi            = 5088
 
+
+
+###############################################################################
+##
+## GENERAL SETUP
+##
+###############################################################################
 
 import FWCore.ParameterSet.Config as cms
 
@@ -21,8 +35,8 @@ process.outpath.remove(process.out)
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
-    name = cms.untracked.string('$Source: /local/reps/CMSSW/UserCode/kheine/RA2Classic/TreeMaker/python/makeTreeFromSignalScan_cff.py,v $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/UserCode/kheine/RA2Classic/SUSYParams/test/makeTree_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
     )
 
@@ -41,9 +55,16 @@ process.maxEvents.input = numProcessedEvt
 process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 process.source = cms.Source(
     "PoolSource",
-    fileNames = cms.untracked.vstring('file:///scratch/hh/dust/naf/cms/user/mschrode/SMS-AOD/store/mc/Summer12/SMS-T1tttt_Mgluino-350to2000_mLSP-0to1650_8TeV-Pythia6Z/AODSIM/START52_V9_FSIM-v3/0000/28988716-97EF-E111-A1A8-18A90570ABE0.root')
+    fileNames = cms.untracked.vstring('/store/mc/Summer12_DR53X/TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V7A-v1/0000/FADE7E47-CDE1-E111-8069-003048D4610C.root')
     )
 
+
+
+###############################################################################
+##
+## SUSY PAT FOR RA2
+##
+###############################################################################
 
 #-- SUSYPAT specifics ---------------------------------------------------------
 from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands
@@ -119,22 +140,23 @@ process.out.outputCommands = getRA2PATOutput(process)
 process.out.dropMetaData = cms.untracked.string('DROPPED')
 
 
-#-- RA2 filtering -------------------------------------------------------------
-process.prefilterCounter        = cms.EDProducer("EventCountProducer")
-process.postStdCleaningCounter  = cms.EDProducer("EventCountProducer")
-process.postPostCleaningCounter = cms.EDProducer("EventCountProducer")
-process.postPFchsJetsCounter    = cms.EDProducer("EventCountProducer")
-process.postPFchsHTCounter      = cms.EDProducer("EventCountProducer")
-process.postPFchsMHTCounter     = cms.EDProducer("EventCountProducer")
 
+
+###############################################################################
+##
+## FILTERS
+##
+###############################################################################
+
+#-- RA2 filtering -------------------------------------------------------------
 process.load('SandBox.Skims.RA2Objects_cff')
 process.load('SandBox.Skims.RA2Selection_cff')
 process.load('SandBox.Skims.RA2Cleaning_cff')
 
-# Adjust object filters for signal-scan values
-process.htPFchsFilter.MinHT               = cms.double(300.0)
-process.mhtPFchsFilter.MinMHT             = cms.double(100.0)
-process.countJetsPFchsPt50Eta25.minNumber = cms.uint32(2)
+## # Adjust object filters for signal-scan values
+## process.htPFchsFilter.MinHT               = cms.double(300.0)
+## process.mhtPFchsFilter.MinMHT             = cms.double(100.0)
+## process.countJetsPFchsPt50Eta25.minNumber = cms.uint32(2)
 
 process.ra2NoiseCleaning.remove(process.HBHENoiseFilter)
 process.ra2NoiseCleaning.remove(process.HBHENoiseFilterRA2)
@@ -158,23 +180,36 @@ process.PBNRFilter = jetIDFailure.clone(
     )
 process.ra2NoiseCleaning += process.PBNRFilter
 
-
-
 process.load("SandBox.Skims.provInfoMuons_cfi")
 process.load("SandBox.Skims.provInfoElectrons_cfi")
 
 process.cleanpatseq = cms.Sequence(
     process.susyPatDefaultSequence *
-    process.prefilterCounter *
     process.ra2StdCleaning *
-    process.postStdCleaningCounter *
     process.ra2Objects *
     process.provInfoMuons *
     process.provInfoElectrons *
-    process.ra2PostCleaning *
-    process.postPostCleaningCounter
+    process.ra2PostCleaning
     )
 
+## --- SMS Model Filter ------------------------------------------------
+# Filter files for specified signal point out of dataset
+# Code from UserCode/seema/SusyAnalysis/AnalysisUtils
+from SusyAnalysis.AnalysisUtils.smsModelFilter_cfi import smsModelFilter
+process.SMSModelFilter = smsModelFilter.clone(
+    SusyScanTopology   = cms.string(smsModel),
+    SusyScanMotherMass = cms.double(smsMotherMass),
+    SusyScanLSPMass    = cms.double(smsLSPMass),
+    SusyScanFracLSP    = cms.double(0.0)
+    )
+
+
+
+###############################################################################
+##
+## WEIGHT PRODUCER
+##
+###############################################################################
 
 ## --- Setup WeightProducer --------------------------------------------
 from RA2Classic.WeightProducer.weightProducer_cfi import weightProducer
@@ -190,34 +225,19 @@ process.WeightProducer = weightProducer.clone(
     )
 
 
+
+###############################################################################
+##
+## EVENT INFO
+##
+###############################################################################
+
 ## --- Pile-Up Info ----------------------------------------------------
 from RA2Classic.SUSYParams.puInfo_cfi import PUInfo
 process.PUInfo = PUInfo.clone()
 
 
-## --- Additional jet-related Info -------------------------------------
-## Store info are
-## - Area for L1 corrections
-## - Neutral energy fractions for PBNR filter
-## Requires in addition the jet 4-vectors
-from RA2Classic.SUSYParams.additionalJetInfo_cfi import AdditionalJetInfo
-process.AdditionalJetInfo = AdditionalJetInfo.clone(
-    JetSource = cms.InputTag('patJetsPFchsPt30')
-    )
-
-
-## --- SMS Model Filter ------------------------------------------------
-# Filter files for specified signal point out of dataset
-# Code from UserCode/seema/SusyAnalysis/AnalysisUtils
-from SusyAnalysis.AnalysisUtils.smsModelFilter_cfi import smsModelFilter
-process.SMSModelFilter = smsModelFilter.clone(
-    SusyScanTopology   = cms.string(smsModel),
-    SusyScanMotherMass = cms.double(smsMotherMass),
-    SusyScanLSPMass    = cms.double(smsLSPMass),
-    SusyScanFracLSP    = cms.double(0.0)
-    )
-
-
+## --- PDF Uncertainties -----------------------------------------------
 #---JL
 #--for PDF sys:
 ##   cvs co -rV00-04-01 ElectroWeakAnalysis/Utilities
@@ -243,6 +263,106 @@ process.susyparams.Model = cms.string(smsModel)
 
 
 
+###############################################################################
+##
+## JET-RELATED INFO
+##
+###############################################################################
+
+
+## --- Jets ------------------------------------------------------------
+
+# Store collection with some lose pt cut to be able to
+# adjust to JEC/JER changes
+from RA2Classic.Utils.patJetCollectionSubsetProducer_cfi import patJetCollectionSubsetProducer
+process.patJetsPFchs = patJetCollectionSubsetProducer.clone(
+    Jets   = cms.InputTag('patJetsPF'),
+    PtMin        = cms.double(10.)
+    )
+process.genJets = patJetCollectionSubsetProducer.clone(
+    Jets   = cms.InputTag('ak5GenJets'),
+    PtMin        = cms.double(10.)
+    )
+
+# For hadronic tau
+process.caloJets = patJetCollectionSubsetProducer.clone(
+    Jets   = cms.InputTag('ak5CaloJets'),
+    PtMin        = cms.double(10.)
+    )
+
+
+## --- Additional jet-related Info -------------------------------------
+## Store info are
+## - Area for L1 corrections
+## - Neutral energy fractions for PBNR filter
+## Requires in addition the jet 4-vectors
+from RA2Classic.SUSYParams.additionalJetInfo_cfi import AdditionalJetInfo
+process.AdditionalJetInfo = AdditionalJetInfo.clone(
+    JetSource = cms.InputTag('patJetsPFchs')
+    )
+
+
+## --- JES / JER Uncertainties -----------------------------------------
+# Create jet collections with JES varied by +/- JEC uncertainty
+from RA2Classic.Utils.jesUncertaintyVariation_cfi import jesUncertaintyVariation
+process.patJetsPFJESUp = jesUncertaintyVariation.clone(
+    Jets       = cms.InputTag('patJetsPF'),
+    METs       = cms.InputTag('patMETsPF'),
+    JetTypeId  = cms.string('AK5PFchs'),
+    Variation  = cms.string('Up')
+    )
+process.patJetsPFJESDn = process.patJetsPFJESUp.clone(
+    Variation  = cms.string('Dn')
+    )
+
+# Create RA2 jets from varied jets and recompute HT, MHT
+process.patJetsPFchsPt30JESUp = process.patJetsPFchsPt30.clone(
+    src = cms.InputTag('patJetsPFJESUp:Jets')
+    )
+process.patJetsPFchsPt50Eta25JESUp = process.patJetsPFchsPt50Eta25.clone(
+    src = cms.InputTag('patJetsPFchsPt30JESUp')
+    )
+process.patJetsPFchsPt30JESDn = process.patJetsPFchsPt30.clone(
+    src = cms.InputTag('patJetsPFJESDn:Jets')
+    )
+process.patJetsPFchsPt50Eta25JESDn = process.patJetsPFchsPt50Eta25.clone(
+    src = cms.InputTag('patJetsPFchsPt30JESDn')
+    )
+
+# Recompute HT, MHT with varied JES
+process.htPFchsJESUp = process.htPFchs.clone(
+    JetCollection = cms.InputTag('patJetsPFchsPt50Eta25JESUp')
+    )
+process.mhtPFchsJESUp = process.mhtPFchs.clone(
+    JetCollection = cms.InputTag('patJetsPFchsPt30JESUp')
+    )
+process.htPFchsJESDn = process.htPFchs.clone(
+    JetCollection = cms.InputTag('patJetsPFchsPt50Eta25JESDn')
+    )
+process.mhtPFchsJESDn = process.mhtPFchs.clone(
+    JetCollection = cms.InputTag('patJetsPFchsPt30JESDn')
+    )
+
+process.varyJES = cms.Sequence(
+    process.patJetsPFJESDn *
+    process.patJetsPFJESUp *
+    process.patJetsPFchsPt30JESUp *
+    process.patJetsPFchsPt50Eta25JESUp *
+    process.patJetsPFchsPt30JESDn *
+    process.patJetsPFchsPt50Eta25JESDn *
+    process.htPFchsJESUp *
+    process.mhtPFchsJESUp *
+    process.htPFchsJESDn *
+    process.mhtPFchsJESDn
+    )
+
+
+
+###############################################################################
+##
+## TREE-MAKER SETUP
+##
+###############################################################################
 
 ## --- Setup of TreeMaker ----------------------------------------------
 process.TFileService = cms.Service(
@@ -250,6 +370,7 @@ process.TFileService = cms.Service(
     fileName = cms.string("RA2Selection.root")
     )
 
+# The nominal tree
 from RA2Classic.TreeMaker.treemaker_cfi import TreeMaker
 process.RA2TreeMaker = TreeMaker.clone(
     TreeName          = cms.string("RA2PreSelection"),
@@ -271,65 +392,122 @@ process.RA2TreeMaker = TreeMaker.clone(
                                       ),
     VarsDouble        = cms.VInputTag(cms.InputTag('WeightProducer:weight'),
                                       cms.InputTag('PUInfo:Num'),
-                                      cms.InputTag('kt6PFJets:rho'),
+                                      cms.InputTag('kt6PFJets:rho')
+  ##                                      cms.InputTag('susyparams:m0'),
+ ##                                       cms.InputTag('susyparams:m12'),
+ ##                                       cms.InputTag('susyparams:evtProcID')
+                                      ),
+    VarsDoubleNamesInTree = cms.vstring('Weight',
+                                        'NumPUInteractions',
+                                        'rho'
+##                                         'massMom',
+##                                         'massDau',
+##                                         'procID'
+                                        ),
+    CandidateCollections  = cms.VInputTag('patJetsPFchs',
+                                          'genJets',
+                                          'caloJets',
+                                          'patMuonsPFIDIso',
+                                          'patElectronsIDIso',
+                                          'patMETsPF'
+                                          ),
+    CandidateNamesInTree  = cms.vstring('Jets',
+                                        'GenJets',
+                                        'CaloJetsRaw'
+                                        'PATMuonsPFIDIso',
+                                        'PATElectronsIDIso',
+                                        'PATMETsPF'
+                                        ),
+    VarsDoubleV = cms.VInputTag('AdditionalJetInfo:Area',
+                                'AdditionalJetInfo:NeutHadF',
+                                'AdditionalJetInfo:NeutEmF'
+##                                 "pdfWeight:cteq66",
+##                                 "pdfWeight:MSTW2008nlo68cl",
+##                                 "pdfWeight:NNPDF20"
+                                ),
+    VarsDoubleNamesInTreeV = cms.vstring('JetArea',
+                                         'JetNeutHadF',
+                                         'JetNeutEmF'
+##                                          "cteq66",
+##                                          "MSTW2008nlo68cl",
+##                                          "NNPDF20"
+                                       )
+    )
+
+# Trees with varied JES (reduced content!)
+process.RA2TreeMakerJESUp = TreeMaker.clone(
+    TreeName          = cms.string("RA2PreSelectionJESUp"),
+    VertexCollection  = cms.InputTag('goodVertices'),
+    HT                = cms.InputTag('htPFchsJESUp'),
+    HTJets            = cms.InputTag('patJetsPFchsPt50Eta25JESUp'),
+    MHT               = cms.InputTag('mhtPFchsJESUp'),
+    MHTJets           = cms.InputTag('patJetsPFchsPt30JESUp'),
+    VarsDouble        = cms.VInputTag(cms.InputTag('WeightProducer:weight'),
+                                      cms.InputTag('PUInfo:Num'),
                                       cms.InputTag('susyparams:m0'),
                                       cms.InputTag('susyparams:m12'),
                                       cms.InputTag('susyparams:evtProcID')
                                       ),
     VarsDoubleNamesInTree = cms.vstring('Weight',
                                         'NumPUInteractions',
-                                        'rho',
                                         'massMom',
                                         'massDau',
                                         'procID'
-                                        ),
-    CandidateCollections  = cms.VInputTag('patJetsPFchsPt30',
-                                          'patMuonsPFIDIso',
-                                          'patElectronsIDIso'
-                                          ),
-    CandidateNamesInTree  = cms.vstring('Jets',
-                                        'PATMuonsPFIDIso',
-                                        'PATElectronsIDIso'
-                                        ),
-    VarsDoubleV = cms.VInputTag('AdditionalJetInfo:Area',
-                                'AdditionalJetInfo:NeutHadF',
-                                'AdditionalJetInfo:NeutEmF',
-                                "pdfWeight:cteq66",
-                                "pdfWeight:MSTW2008nlo68cl",
-                                "pdfWeight:NNPDF20"
-                                ),
-    VarsDoubleNamesInTreeV = cms.vstring('JetArea',
-                                         'JetNeutHadF',
-                                         'JetNeutEmF',
-                                         "cteq66",
-                                         "MSTW2008nlo68cl",
-                                         "NNPDF20"
-                                       )
+                                        )
     )
 
-#process.dump   = cms.EDAnalyzer("EventContentAnalyzer")
+process.RA2TreeMakerJESDn = TreeMaker.clone(
+    TreeName          = cms.string("RA2PreSelectionJESDn"),
+    VertexCollection  = cms.InputTag('goodVertices'),
+    HT                = cms.InputTag('htPFchsJESDn'),
+    HTJets            = cms.InputTag('patJetsPFchsPt50Eta25JESDn'),
+    MHT               = cms.InputTag('mhtPFchsJESDn'),
+    MHTJets           = cms.InputTag('patJetsPFchsPt30JESDn'),
+    VarsDouble        = cms.VInputTag(cms.InputTag('WeightProducer:weight'),
+                                      cms.InputTag('PUInfo:Num'),
+                                      cms.InputTag('susyparams:m0'),
+                                      cms.InputTag('susyparams:m12'),
+                                      cms.InputTag('susyparams:evtProcID')
+                                      ),
+    VarsDoubleNamesInTree = cms.vstring('Weight',
+                                        'NumPUInteractions',
+                                        'massMom',
+                                        'massDau',
+                                        'procID'
+                                        )
+    )
 
-process.ppfchs = cms.Path(
-    process.SMSModelFilter *
+
+
+
+###############################################################################
+##
+## PATH
+##
+###############################################################################
+
+process.dump   = cms.EDAnalyzer("EventContentAnalyzer")
+
+process.writeTree = cms.Path(
+#    process.SMSModelFilter *
     process.cleanpatseq *
-    process.countJetsPFchsPt50Eta25 *
-    process.postPFchsJetsCounter *
-    process.htPFchsFilter *
-    process.postPFchsHTCounter *
-    process.mhtPFchsFilter *
-    process.postPFchsMHTCounter *
+    process.patJetsPFchs *
+    process.genJets *
+    process.varyJES *
+    process.AdditionalJetInfo *
     process.WeightProducer *
     process.PUInfo *
-    process.AdditionalJetInfo *
-    #--JL
-    process.pdfWeight*
-    process.ISRsys*
-    process.susyparams*
-    #--end JL
-    #process.dump *
-    process.RA2TreeMaker
+##     #--JL
+##     process.pdfWeight*
+##     process.ISRsys*
+##     process.susyparams*
+##     #--end JL
+#    process.dump *
+    process.RA2TreeMaker *
+    process.RA2TreeMakerJESUp *
+    process.RA2TreeMakerJESDn
     )
 
-process.schedule = cms.Schedule(process.ppfchs)
+process.schedule = cms.Schedule(process.writeTree)
     
    
