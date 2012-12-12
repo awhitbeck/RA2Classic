@@ -11,7 +11,7 @@ Description: Select a subset of pat::Jets according to a pt and eta cut
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Thu Aug  2 15:11:11 CEST 2012
-// $Id: PATJetCollectionSubsetProducer.cc,v 1.1 2012/08/02 14:37:01 mschrode Exp $
+// $Id: PATJetCollectionSubsetProducer.cc,v 1.1 2012/08/08 10:13:58 mschrode Exp $
 //
 //
 
@@ -27,6 +27,7 @@ Description: Select a subset of pat::Jets according to a pt and eta cut
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
 //
@@ -51,7 +52,7 @@ private:
   virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
   // ----------member data ---------------------------
-  const edm::InputTag input_;
+  const edm::InputTag inputJetsTag_;
   const double ptMin_;
   const double etaMax_;
 };
@@ -60,7 +61,7 @@ private:
 // constructors and destructor
 //
 PATJetCollectionSubsetProducer::PATJetCollectionSubsetProducer(const edm::ParameterSet& iConfig) :
-  input_(iConfig.getParameter<edm::InputTag>("Jets")),
+  inputJetsTag_(iConfig.getParameter<edm::InputTag>("Jets")),
   ptMin_(iConfig.getParameter<double>("PtMin")),
   etaMax_(iConfig.getParameter<double>("EtaMax"))
 {
@@ -70,17 +71,16 @@ PATJetCollectionSubsetProducer::PATJetCollectionSubsetProducer(const edm::Parame
 // ------------ method called to produce the data  ------------
 void
 PATJetCollectionSubsetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  
-  // Get the jet collection from the event
-  edm::Handle< edm::View<pat::Jet> > inputJetsHandle;
-  iEvent.getByLabel(edm::InputTag(input_),inputJetsHandle);
-  edm::View<pat::Jet> inputJets = *inputJetsHandle;
+    // Get the jet collection from the event
+  edm::Handle< edm::View<reco::Jet> > inputJetsHandle;
+  iEvent.getByLabel(edm::InputTag(inputJetsTag_),inputJetsHandle);
+  edm::View<reco::Jet> inputJets = *inputJetsHandle;
   
   // This will store the selected jets
   std::auto_ptr< std::vector<pat::Jet> > selectedJets(new std::vector<pat::Jet>);
 
-  // Loop over original jet collection and select jets
-  for(edm::View<pat::Jet>::const_iterator j = inputJets.begin();
+  // Loop over original collection and select jets
+  for(edm::View<reco::Jet>::const_iterator j = inputJets.begin();
       j != inputJets.end(); ++j) {
     if( j->pt() > ptMin_ && std::abs(j->eta()) < etaMax_ ) {
       selectedJets->push_back(*j);
