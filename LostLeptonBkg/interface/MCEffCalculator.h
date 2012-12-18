@@ -28,6 +28,7 @@
 #include "TTree.h"
 
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
+#include "TLorentzVector.h"
 
 
 
@@ -100,6 +101,11 @@ class MCEffCalculator : public edm::EDAnalyzer {
 
 	TH3F *totalEffTH3FPassedMu_, *totalEffTH3FFailedMu_, *totalEffTH3FPassedElec_, *totalEffTH3FFailedElec_;
 
+	TH3F *accEffTH3FPassedMu_, *accEffTH3FFailedMu_, *accEffTH3FPassedElec_, *accEffTH3FFailedElec_;
+	TH3F *recoEffTH3FPassedMu_, *recoEffTH3FFailedMu_, *recoEffTH3FPassedElec_, *recoEffTH3FFailedElec_;
+	TH3F *isoEffTH3FPassedMu_, *isoEffTH3FFailedMu_, *isoEffTH3FPassedElec_, *isoEffTH3FFailedElec_;
+
+
 	TH1F *MuonAccPassedTH1F_, *MuonAccFailedTH1F_;
 	TH1F *MuonAccPassed2TH1F_, *MuonAccFailed2TH1F_;
 	TH1F *ElecAccPassedTH1F_, *ElecAccFailedTH1F_;
@@ -117,7 +123,8 @@ class MCEffCalculator : public edm::EDAnalyzer {
 
 	int muonNumberRecoID_, elecNumberRecoID_, leptons_;
 	Float_t muonPTAccPassed_, elecPTAccPassed_;
-	double muonIDPassed_, muonIDFailed_, elecIDPassed_, elecIDFailed_, muonRecoPt_, muonRecoEta_, muonRecoPhi_, elecRecoPt_, elecRecoEta_, elecRecoPhi_;
+	// changed to float_t!! from double 12 12 2012
+	Float_t muonIDPassed_, muonIDFailed_, elecIDPassed_, elecIDFailed_, muonRecoPt_, muonRecoEta_, muonRecoPhi_, elecRecoPt_, elecRecoEta_, elecRecoPhi_;
 	Float_t muonGenPt_, muonGenEta_, muonGenPhi_, elecGenPt_, elecGenEta_, elecGenPhi_;
 	Float_t deltaGenR_, closestJetToMuonGenPt_,closestJetToElecGenPt_, mt_, mtw_, mtwElec_, genPt_, genPhi_, genEta_, genDeltaR_, genPTJet_, genPTRelJet_;
 	// reco iso eff plots
@@ -127,7 +134,6 @@ class MCEffCalculator : public edm::EDAnalyzer {
 
 	//Varialbes used for studies
 	Float_t RecoMuonDeltaR_, RecoMuonPTJet_, RecoMuonPTRelJet_, IsoMuonDeltaR_, IsoMuonPTJet_, IsoMuonPTRelJet_, RecoGenMuDeltaR_;
-	// changed for now to Float_t since the plotting tool cant handel any int
 	int nRecoMu_, nRecoElec_, nIsoMu_, nIsoElec_, nAccMu_, nAccElec_;
 	//not plotted
 	Float_t muonIsoPt_, muonIsoEta_, muonIsoPhi_;
@@ -145,4 +151,19 @@ class MCEffCalculator : public edm::EDAnalyzer {
 
 	// testing
 	int ntau_, ntauMu_, ntauElec_;
+
+	// gen values for top b tagging
+	int nTop_, nTopB_, nTopW_, nTopMuNu_, nTopMu_, nTopElec_;
+	Float_t TopPT_, BTopPT_, WTopPT_, MuNuTopPT_, MuTopPT_, ElecTopPT_;
+	Float_t TopEta_, BTopEta_, WTopEta_, MuNuTopEta_, MuTopEta_, ElecTopEta_;
+	Float_t TopPhi_, BTopPhi_, WTopPhi_, MuNuTopPhi_, MuTopPhi_, ElecTopPhi_;
+
+	Float_t promtMuMetCombinedPT_, promtMuMetCombinedEta_, promtMuMetCombinedPhi_;
+	Float_t wTopMassDifRecoGenPt_, wTopMassDifRecoGenEta_, wTopMassDifRecoGenPhi_;
+
+	Float_t BMuTopDeltaR_, mtt_;
+	Float_t recoMtw1_,recoMtw2_,recoMtw3_,recoMtw4_,recoMtw5_;
+	Float_t recoMuDeltaPTClosestJet1_, recoMuDeltaPTClosestJet2_, recoMuDeltaPTClosestJet3_, recoMuDeltaPTClosestJet4_, recoMuDeltaPTClosestJet5_;
+	Float_t recoMuDeltaRClosestJet1_, recoMuDeltaRClosestJet2_, recoMuDeltaRClosestJet3_, recoMuDeltaRClosestJet4_, recoMuDeltaRClosestJet5_;
+	TLorentzVector promtRecoTLVMu_,promtRecoTLVMET_, promtRecoTLVWDecay_, mttRecoMuMet_, mttGen_;
 };

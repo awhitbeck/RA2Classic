@@ -1,5 +1,8 @@
 
 import FWCore.ParameterSet.Config as cms
+# all corrections must be in % entered relative to the mean value of prediction
+# allunceratinties are relative to the underlaying correction factor or the total weight in % to be entered
+
 
 bkglostlepton = cms.EDProducer(
     'LostLeptonBkg',
@@ -18,5 +21,8 @@ bkglostlepton = cms.EDProducer(
         HTTag	   	= cms.InputTag('htInputCol'),
         MHTTag	   	= cms.InputTag('mhtInputCol'),
         VertexCollection= cms.InputTag('goodVertices'),
+	DiLepCorrection = cms.double('-1.5'),
+	DiLepCorrectionUp = cms.double('50'), 
+	DiLepCorrectionDown = cms.double('50'),
 
 )

@@ -59,6 +59,9 @@ class LostLeptonBkg : public edm::EDProducer {
 
 	std::string EfficiencyFileName_;
 
+	// input corrections uncertainties
+	double DiLepCorrection_, DiLepCorrectionUp_, DiLepCorrectionDown_;
+
   	// efficiencies created ones per job!
 	TH1F *MuonAccSum_, *MuonAccPassed_;
 	TH1F *ElecAccSum_, *ElecAccPassed_;
@@ -74,7 +77,15 @@ class LostLeptonBkg : public edm::EDProducer {
 
 
 	TH3F *MuonBinByBinEff_, *ElecBinByBinEff_;
+	TH3F *MuonAccBinByBinEff_, *MuonRecoBinByBinEff_, *MuonIsoBinByBinEff_;
+	TH3F *ElecAccBinByBinEff_, *ElecRecoBinByBinEff_, *ElecIsoBinByBinEff_;
 	Float_t muonBinByBinXMax_,muonBinByBinYMax_,muonBinByBinZMax_,elecBinByBinXMax_,elecBinByBinYMax_,elecBinByBinZMax_;
+	Float_t muonAccBinByBinXMax_,muonAccBinByBinYMax_,muonAccBinByBinZMax_;
+	Float_t muonRecoBinByBinXMax_,muonRecoBinByBinYMax_,muonRecoBinByBinZMax_;
+	Float_t muonIsoBinByBinXMax_,muonIsoBinByBinYMax_,muonIsoBinByBinZMax_;
+	Float_t elecAccBinByBinXMax_,elecAccBinByBinYMax_,elecAccBinByBinZMax_;
+	Float_t elecRecoBinByBinXMax_,elecRecoBinByBinYMax_,elecRecoBinByBinZMax_;
+	Float_t elecIsoBinByBinXMax_,elecIsoBinByBinYMax_,elecIsoBinByBinZMax_;
 	Float_t muonBinByBinEff_, muonBinByBinWeight_, totalMuonsBinByBinWeight_, elecBinByBinEff_, elecWeightBinByBin_, resultWeightBinByBin_, resultWeightBinByBinMTW_, totalMuonsBinByBin_;
 	
 	
@@ -124,6 +135,20 @@ class LostLeptonBkg : public edm::EDProducer {
 	Float_t muAllIsoWeight_;
 	int error_;
 
+	// binbybin sepearte result values
+	Float_t muonBinByBinIsoWeight_, muonBinByBinRecoWeight_, muonBinByBinAccWeight_;
+ 	Float_t muonBinByBinIsoEff_, muonBinByBinRecoEff_, muonBinByBinAccEff_;
+
+	Float_t elecBinByBinIsoWeight_, elecBinByBinRecoWeight_, elecBinByBinAccWeight_;
+ 	Float_t elecBinByBinIsoEff_, elecBinByBinRecoEff_, elecBinByBinAccEff_;
+
+	Float_t totalBinByBinMuons_;
+	Float_t muonBinByBinTotalWeight_, elecBinByBinTotalWeight_;
+	Float_t resultBinByBinWeight_;
+	Float_t resultBinByBinWeightMTW_;
+
+	// uncertainties and corrections for binbybin
+	Float_t resultBinByBinWeightMTWDiLep_, resultBinByBinWeightMTWDiLepUp_, resultBinByBinWeightMTWDiLepDown_;
 
       // ----------member data ---------------------------
 };

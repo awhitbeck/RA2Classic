@@ -29,28 +29,40 @@ event content :: name: resultWeight2MTW_; type: Float_t
 event content :: name: resultWeight; type: Float_t
 event content :: name: resultWeightMTW_; type: Float_t
 
-event content :: name: resultWeightBinByBin; type: Float_t
-event content :: name: resultWeightBinByBinMTW; type: Float_t
+##### binbybin
+event content :: name: resultBinByBinWeight; type: Float_t
+event content :: name: resultBinByBinWeightMTW_; type: Float_t
+
+event content :: name: muonBinByBinIsoWeight; type: Float_t
+event content :: name: muonBinByBinRecoWeight; type: Float_t
+event content :: name: muonBinByBinAccWeight; type: Float_t
+
+event content :: name: elecBinByBinIsoWeight; type: Float_t
+event content :: name: elecBinByBinRecoWeight; type: Float_t
+event content :: name: elecBinByBinAccWeight; type: Float_t
 
 
+
+
+##
 event content :: name: Weight; type: Float_t
 
-event content :: name: muonIsoWeight; type: Float_t
-event content :: name: muonRecoWeight; type: Float_t
-event content :: name: muonAccWeight; type: Float_t
+#event content :: name: muonIsoWeight; type: Float_t
+#event content :: name: muonRecoWeight; type: Float_t
+#event content :: name: muonAccWeight; type: Float_t
 
-event content :: name: muonIsoWeight2; type: Float_t
-event content :: name: muonRecoWeight2; type: Float_t
-event content :: name: muonAccWeight2; type: Float_t
+#event content :: name: muonIsoWeight2; type: Float_t
+#event content :: name: muonRecoWeight2; type: Float_t
+#event content :: name: muonAccWeight2; type: Float_t
 
 
-event content :: name: elecIsoWeight; type: Float_t
-event content :: name: elecRecoWeight; type: Float_t
-event content :: name: elecAccWeight; type: Float_t
+#event content :: name: elecIsoWeight; type: Float_t
+#event content :: name: elecRecoWeight; type: Float_t
+#event content :: name: elecAccWeight; type: Float_t
 
-event content :: name: elecIsoWeight2; type: Float_t
-event content :: name: elecRecoWeight2; type: Float_t
-event content :: name: elecAccWeight2; type: Float_t
+#event content :: name: elecIsoWeight2; type: Float_t
+#event content :: name: elecRecoWeight2; type: Float_t
+#event content :: name: elecAccWeight2; type: Float_t
 
 #efficiencies studies values
 
@@ -86,8 +98,8 @@ dataset :: label: MCPrMTW; type: prediction; file:/afs/desy.de/user/a/adraeger/c
 
 # specify BinByBinEff
 
-dataset :: label: MCPrBinByBin; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_3_5/src/RA2Classic/LostLeptonBkg/results/mc.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: resultWeightBinByBin
-dataset :: label: MCPrBinByBinMTW; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_3_5/src/RA2Classic/LostLeptonBkg/results/mc.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: resultWeightBinByBinMTW
+dataset :: label: MCPrBinByBin; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_3_5/src/RA2Classic/LostLeptonBkg/results/mc.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: resultBinByBinWeight
+dataset :: label: MCPrBinByBinMTW; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_3_5/src/RA2Classic/LostLeptonBkg/results/mc.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: resultBinByBinWeightMTW_
 
 
 ########### seperate closures
@@ -105,24 +117,18 @@ dataset :: label: WJetsExEAcc; type: mc; file:/afs/desy.de/user/a/adraeger/cmssm
 
 # each contribuiton for prediction plotted
 #muons
-dataset :: label: WJetsPrMuIso; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_3_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonIsoWeight
-dataset :: label: WJetsPrMuReco; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_3_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonRecoWeight
-dataset :: label: WJetsPrMuAcc; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_3_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonAccWeight
+dataset :: label: WJetsPrMuIso; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_3_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonBinByBinIsoWeight
+dataset :: label: WJetsPrMuReco; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_3_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonBinByBinRecoWeight
+dataset :: label: WJetsPrMuAcc; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_3_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonBinByBinAccWeight
 
 #electrons
-dataset :: label: WJetsPrEIso; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_3_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: elecIsoWeight
-dataset :: label: WJetsPrEReco; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_3_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: elecRecoWeight
-dataset :: label: WJetsPrEAcc; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_3_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: elecAccWeight
-
-#special closure
-dataset :: label: WJetsPrMuIsoTotal; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_3_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muAllIsoWeight
-
-#muons
-dataset :: label: WJetsPrMuIsoOld; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_3_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonIsoWeight
+dataset :: label: WJetsPrEIso; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_3_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: elecBinByBinIsoWeight
+dataset :: label: WJetsPrEReco; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_3_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: elecBinByBinRecoWeight
+dataset :: label: WJetsPrEAcc; type: prediction; file:/afs/desy.de/user/a/adraeger/cmssm/CMSSW_5_3_5/src/RA2Classic/LostLeptonBkg/results/mc.root; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: elecBinByBinAccWeight
 
 ##################################################################
 # Specify the event selection
-selection :: label: baseline; cuts: IsExpectation > 0.5 (MCEx) + muPromtMatched > 0.5 (MCPr, MCPrMTW, MCPrBinByBin, MCPrBinByBinMTW, WJetsPrMuIso,WJetsPrMuIsoOld, WJetsPrMuAcc, WJetsPrMuReco, WJetsPrEIso, WJetsPrEReco, WJetsPrEAcc, WJetsPrMuIsoTotal)
+selection :: label: baseline; cuts: IsExpectation > 0.5 (MCEx) + muPromtMatched > 0.5 (MCPr, MCPrMTW, MCPrBinByBin, MCPrBinByBinMTW, WJetsPrMuIso, WJetsPrMuAcc, WJetsPrMuReco, WJetsPrEIso, WJetsPrEReco, WJetsPrEAcc)
 #selection :: label: baseline; cuts: HT > 500 + MTW < 100 (MCPr) + nLeptons > 0 (MCEx) + nLeptons < 2 (MCEx) + nIsoMu < 0.5 (MCEx) + nIsoElec < 0.5 (MCEx) + NJets > 2
 
 #selection :: label: CScomparison; cuts: baseline + IsExpectation < 0.5 (MCExCS) + nIsoMu > 0.5 (MCExCS) 
@@ -311,7 +317,6 @@ plot style :: dataset: MCPrMTW; plot label: Prediction; marker: 20; color: 4
 plot style :: dataset: MCPrBinByBinMTW; plot label: Prediction; marker: 20; color: 4
 
 plot style :: dataset: WJetsPrMuIso; plot label: Prediction; marker: 20; color: 2
-plot style :: dataset: WJetsPrMuIsoOld; plot label: Prediction; marker: 20; color: 2
 plot style :: dataset: WJetsExMuIso; plot label: Expectation; marker: 20; color: 4
 
 plot style :: dataset: WJetsPrMuReco; plot label: Prediction; marker: 20; color: 2
@@ -432,14 +437,6 @@ plot :: variable: genPTRelJet; dataset1: WJetsPrEIso; dataset2: WJetsExEIso; his
 plot :: variable: NVtx; dataset1: WJetsPrEAcc; dataset2: WJetsExEAcc;  histogram: 25, -0.5, 49.5, log
 
 
-
-plot :: variable: HT; dataset1: WJetsPrMuIsoOld; dataset2: WJetsExMuIso; histogram: 20, 500, 2500, log
-plot :: variable: MHT; dataset1: WJetsPrMuIsoOld; dataset2: WJetsExMuIso; histogram: 26, 200, 1500, log
-plot :: variable: NJets; dataset1: WJetsPrMuIsoOld; dataset2: WJetsExMuIso; histogram: 14, 0, 14, log
-plot :: variable: genDeltaR; dataset1: WJetsPrMuIsoOld; dataset2: WJetsExMuIso; histogram: 20, 0, 5, log
-plot :: variable: genPTRelJet; dataset1: WJetsPrMuIsoOld; dataset2: WJetsExMuIso; histogram: 60, 0, 60, log
-plot :: variable: genPt; dataset1: WJetsPrMuIsoOld; dataset2: WJetsExMuIso; histogram: 20, 10, 200, log
-plot :: variable: NVtx; dataset1: WJetsPrMuIsoOld; dataset2: WJetsExMuIso;  histogram: 25, -0.5, 49.5, log
 
 
 
