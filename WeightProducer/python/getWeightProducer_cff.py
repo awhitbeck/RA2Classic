@@ -1,4 +1,4 @@
-# $Id: getWeightProducer_cff.py,v 1.7 2012/11/05 14:58:14 mschrode Exp $
+# $Id: getWeightProducer_cff.py,v 1.8 2012/12/06 15:25:00 mschrode Exp $
 #
 # Returns a WeightProducer module that knows at runtime
 # which data sample is produced and thus, what weights
@@ -159,8 +159,27 @@ def getWeightProducer(fileName):
         weightProducer.XS         = cms.double(2.99913994e+10)
         weightProducer.NumberEvts = cms.double(9991674)
         weightProducer.Exponent   = cms.double(-4.5)
-
-
+    if "QCD_HT-100To250_TuneZ2star_8TeV-madgraph-pythia" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v1" in fileName:    
+        mcVersion = "Summer12_5_3_X"
+        weightProducer.Method     = cms.string("Constant")
+        weightProducer.XS         = cms.double(1.036e+7)
+        weightProducer.NumberEvts = cms.double(50129518)
+    if "QCD_HT-250To500_TuneZ2star_8TeV-madgraph-pythia6" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v1" in fileName:    
+        mcVersion = "Summer12_5_3_X"
+        weightProducer.Method     = cms.string("Constant")
+        weightProducer.XS         = cms.double(276000.0)
+        weightProducer.NumberEvts = cms.double(27062078)
+    if "QCD_HT-500To1000_TuneZ2star_8TeV-madgraph-pythia6" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v1" in fileName:    
+        mcVersion = "Summer12_5_3_X"
+        weightProducer.Method     = cms.string("Constant")
+        weightProducer.XS         = cms.double(8426.0)
+        weightProducer.NumberEvts = cms.double(30599292)
+    if "QCD_HT-1000ToInf_TuneZ2star_8TeV-madgraph-pythia6" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v1" in fileName:    
+        mcVersion = "Summer12_5_3_X"
+        weightProducer.Method     = cms.string("Constant")
+        weightProducer.XS         = cms.double(204.0)
+        weightProducer.NumberEvts = cms.double(13843863)
+        
 
     ## --- PU Reweighting and Lumi ------------------------------------------------
          
