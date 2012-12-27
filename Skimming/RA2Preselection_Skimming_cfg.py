@@ -1,46 +1,38 @@
-#  $Id: RA2Preselection_Skimming_cfg.py,v 1.2 2012/10/08 13:27:30 mschrode Exp $
+#  $Id: RA2Preselection_Skimming_cfg.py,v 1.3 2012/10/30 21:12:13 mschrode Exp $
 #
 # --- Configuration file for RA2 skims from AOD ---------------------------------
 #
 # The following command-line arguments need to be given as a
-# comma-separated list (no spaces)
+# comma-separated list
 # - 'is_data=?', where ? = 'True' or 'False'
 # - 'global_tag=?'
 #
 # For example:
-# 'cmsRun RA2Preselection_Skimming_cfg.py is_data=True,global_tag=FT_53_V6_AN2'
+# 'cmsRun RA2Preselection_Skimming_cfg.py is_data=True, global_tag=FT_53_V6_AN2'
 
-import sys,os
-import FWCore.ParameterSet.Config as cms
+# Read parameters
+from RA2Classic.Utils.CommandLineParams import CommandLineParams
+parameters = CommandLineParams()
 
-#-- Parse command line arguments ------------------------------------------------
-is_data=True
-global_tag=""
-if hasattr(sys,"argv") :
-    for args in sys.argv :
-        arg = args.split(',')
-        for val in arg:
-            val = val.split('=')
-            if len(val)==2 :
-                if val[0]=="is_data":
-                    if val[1]=="True":
-                        is_data=True
-                    else:
-                        is_data=False
-                elif val[0]=="global_tag":
-                    global_tag=val[1]
+isData     = parameters.value("is_data","True")
+globalTag  = parameters.value("global_tag","")
 
-print "*** JOB SETUP ****************************************************"
-if is_data :
-    print "     is_data : True"
-else:
-    print "     is_data : False"
-print "  global_tag : "+global_tag+"::All"
-print "******************************************************************"
+globalTag += "::All"
 
+print "***** SETUP ************************************"
+print "      is_data : "+str(isData)
+print "   global_tag : "+str(globalTag)
+print "************************************************"
 
-#-- Run the process -------------------------------------------------------------
+# The process needs to be defined AFTER calling CommandLineParams
+# (more specifically, after reading sys.argv), otherwise edmConfigHash fails
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 from RA2Classic.Skimming.Preselection_cff import runRA2Preselection
 
-runRA2Preselection(process,globalTag=global_tag+"::All",isData=is_data,reportEveryEvt=5000,testFileName="/store/mc/Summer12_DR53X/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S10_START53_V7A-v2/0004/FE9FA8F7-2BF3-E111-A34E-001E672CC1E7.root")
+runRA2Preselection(process,
+                   globalTag,
+                   isData,
+                   reportEveryEvt=5000,
+                   testFileName="/store/data/Run2012A/HT/AOD/13Jul2012-v1/00000/FEEF1E85-BACF-E111-807A-002618943877.root",
+                   numProcessedEvt=100
+                   )

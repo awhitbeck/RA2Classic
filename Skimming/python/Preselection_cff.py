@@ -1,4 +1,4 @@
-# $Id: Preselection_cff.py,v 1.3 2012/10/08 13:25:56 mschrode Exp $
+# $Id: Preselection_cff.py,v 1.4 2012/10/30 21:10:27 mschrode Exp $
 #
 # Process setup for RA2 skims
 
@@ -9,10 +9,10 @@ def runRA2Preselection(process,
                        isData=True,
                        reportEveryEvt=5000,
                        testFileName="",
-                       numProcessedEvt=100):
+                       numProcessedEvt=10):
 
 
-    print "*** SETUP ********************************************************"
+    print "*** SETUP OF 'runRA2Preselection' ********************************"
     if isData :
         print " Run on data"
     else:
@@ -24,7 +24,7 @@ def runRA2Preselection(process,
 
     #-- Meta data to be logged in DBS ---------------------------------------------
     process.configurationMetadata = cms.untracked.PSet(
-        version = cms.untracked.string('$Revision: 1.3 $'),
+        version = cms.untracked.string('$Revision: 1.4 $'),
         name = cms.untracked.string('$Source: /local/reps/CMSSW/UserCode/kheine/RA2Classic/Skimming/python/Preselection_cff.py,v $'),
         annotation = cms.untracked.string('SUSY pattuple definition')
         )
@@ -127,47 +127,46 @@ def runRA2Preselection(process,
     
 
     #-- RA2 filtering -------------------------------------------------------------
-    process.prefilterCounter        = cms.EDProducer("EventCountProducer")
-    process.postStdCleaningCounter  = cms.EDProducer("EventCountProducer")
-    process.postPostCleaningCounter = cms.EDProducer("EventCountProducer")
-    process.postPFchsJetsCounter    = cms.EDProducer("EventCountProducer")
-    process.postPFchsHTCounter      = cms.EDProducer("EventCountProducer")
-
     process.load('SandBox.Skims.RA2Objects_cff')
     process.load('SandBox.Skims.RA2Selection_cff')
     process.load('SandBox.Skims.RA2Cleaning_cff')
 
     ## Modify selection and filters for skims
     process.countJetsPFchsPt50Eta25.minNumber = cms.uint32(2)
+    process.htPFchsFilter.MinHT               = cms.double(350)
 
-    ## please comment this block to remove tagging mode of
-    ##filters and reject events failing any of following filters
+    ## Set filters in tagging mode; stores filter decision as boolean:
+    ## - true  : event passes filter
+    ## - false : event gets rejected by filter
     process.eeNoiseFilter.taggingMode         = True
     process.trackingFailureFilter.taggingMode = True
     process.beamHaloFilter.taggingMode        = True
-    process.ra2NoiseCleaning.remove(process.HBHENoiseFilter)
     process.inconsistentMuons.taggingMode     = True
     process.greedyMuons.taggingMode           = True
     process.ra2EcalTPFilter.taggingMode       = True
     process.ra2EcalBEFilter.taggingMode       = True
     process.hcalLaserEventFilter.taggingMode  = True
     process.eeBadScFilter.taggingMode         = True
-    process.ra2PBNR.taggingMode               = True
     process.ecalLaserCorrFilter.taggingMode   = True
+
+    # Rejects the event, replaced by HBHENoiseFilterRA2 that
+    # stores booleans
+    process.ra2NoiseCleaning.remove(process.HBHENoiseFilter)
+
+    # Tracking-POG Cleaning (booleans have inverted meaning
+    # compared to the other filters!)
+    process.ra2PostCleaning += process.trackingPOGCleaning
     
     process.load("SandBox.Skims.provInfoMuons_cfi")
     process.load("SandBox.Skims.provInfoElectrons_cfi")
 
     process.cleanpatseq = cms.Sequence(
         process.susyPatDefaultSequence *
-        process.prefilterCounter *
         process.ra2StdCleaning *
-        process.postStdCleaningCounter *
         process.ra2Objects *
         process.provInfoMuons *
         process.provInfoElectrons *
-        process.ra2PostCleaning *
-        process.postPostCleaningCounter
+        process.ra2PostCleaning
         )
 
     process.dump   = cms.EDAnalyzer("EventContentAnalyzer")
@@ -175,9 +174,7 @@ def runRA2Preselection(process,
     process.ppfchs = cms.Path(
         process.cleanpatseq *
         process.countJetsPFchsPt50Eta25 *
-        process.postPFchsJetsCounter *
-        process.htPFchsFilter *
-        process.postPFchsHTCounter
+        process.htPFchsFilter
         )
 
 
