@@ -1,4 +1,4 @@
-# $Id: makeTree_cfg.py,v 1.1 2012/11/27 21:49:54 mschrode Exp $
+# $Id: makeTree_cfg.py,v 1.2 2012/12/12 19:13:04 mschrode Exp $
 
 
 ###############################################################################
@@ -7,7 +7,7 @@
 ##
 ###############################################################################
 
-numProcessedEvt = 1000
+numProcessedEvt = 100
 reportEveryEvt  = 1
 globalTag       = 'START53_V15::All'
 smsModel        = "T1tttt"
@@ -35,7 +35,7 @@ process.outpath.remove(process.out)
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     name = cms.untracked.string('$Source: /local/reps/CMSSW/UserCode/kheine/RA2Classic/SUSYParams/test/makeTree_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
     )
@@ -274,6 +274,7 @@ process.susyparams.Model = cms.string(smsModel)
 
 # Store collection with some lose pt cut to be able to
 # adjust to JEC/JER changes
+process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 from RA2Classic.Utils.patJetCollectionSubsetProducer_cfi import patJetCollectionSubsetProducer
 process.patJetsPFchs = patJetCollectionSubsetProducer.clone(
     Jets   = cms.InputTag('patJetsPF'),
@@ -286,7 +287,7 @@ process.genJets = patJetCollectionSubsetProducer.clone(
 
 # For hadronic tau
 process.caloJets = patJetCollectionSubsetProducer.clone(
-    Jets   = cms.InputTag('ak5CaloJets'),
+    Jets   = cms.InputTag('ak5CaloJetsL2L3'),
     PtMin        = cms.double(10.)
     )
 
@@ -493,6 +494,7 @@ process.writeTree = cms.Path(
     process.cleanpatseq *
     process.patJetsPFchs *
     process.genJets *
+    process.ak5CaloJetsL2L3 * process.caloJets *
     process.varyJES *
     process.AdditionalJetInfo *
     process.WeightProducer *
