@@ -1,4 +1,4 @@
-# $Id: makeTree_cfg.py,v 1.2 2012/12/12 19:13:04 mschrode Exp $
+# $Id: makeTree_cfg.py,v 1.3 2012/12/28 18:27:04 mschrode Exp $
 
 
 ###############################################################################
@@ -35,7 +35,7 @@ process.outpath.remove(process.out)
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     name = cms.untracked.string('$Source: /local/reps/CMSSW/UserCode/kheine/RA2Classic/SUSYParams/test/makeTree_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
     )
@@ -393,17 +393,17 @@ process.RA2TreeMaker = TreeMaker.clone(
                                       ),
     VarsDouble        = cms.VInputTag(cms.InputTag('WeightProducer:weight'),
                                       cms.InputTag('PUInfo:Num'),
-                                      cms.InputTag('kt6PFJets:rho')
-  ##                                      cms.InputTag('susyparams:m0'),
- ##                                       cms.InputTag('susyparams:m12'),
- ##                                       cms.InputTag('susyparams:evtProcID')
+                                      cms.InputTag('kt6PFJets:rho'),
+                                      cms.InputTag('susyparams:m0'),
+                                      cms.InputTag('susyparams:m12'),
+                                      cms.InputTag('susyparams:evtProcID')
                                       ),
     VarsDoubleNamesInTree = cms.vstring('Weight',
                                         'NumPUInteractions',
-                                        'rho'
-##                                         'massMom',
-##                                         'massDau',
-##                                         'procID'
+                                        'rho',
+                                        'massMom',
+                                        'massDau',
+                                        'procID'
                                         ),
     CandidateCollections  = cms.VInputTag('patJetsPFchs',
                                           'genJets',
@@ -414,24 +414,24 @@ process.RA2TreeMaker = TreeMaker.clone(
                                           ),
     CandidateNamesInTree  = cms.vstring('Jets',
                                         'GenJets',
-                                        'CaloJetsRaw'
+                                        'CaloJetsRaw',
                                         'PATMuonsPFIDIso',
                                         'PATElectronsIDIso',
                                         'PATMETsPF'
                                         ),
     VarsDoubleV = cms.VInputTag('AdditionalJetInfo:Area',
                                 'AdditionalJetInfo:NeutHadF',
-                                'AdditionalJetInfo:NeutEmF'
-##                                 "pdfWeight:cteq66",
-##                                 "pdfWeight:MSTW2008nlo68cl",
-##                                 "pdfWeight:NNPDF20"
+                                'AdditionalJetInfo:NeutEmF',
+                                "pdfWeight:cteq66",
+                                "pdfWeight:MSTW2008nlo68cl",
+                                "pdfWeight:NNPDF20"
                                 ),
     VarsDoubleNamesInTreeV = cms.vstring('JetArea',
                                          'JetNeutHadF',
-                                         'JetNeutEmF'
-##                                          "cteq66",
-##                                          "MSTW2008nlo68cl",
-##                                          "NNPDF20"
+                                         'JetNeutEmF',
+                                         "cteq66",
+                                         "MSTW2008nlo68cl",
+                                         "NNPDF20"
                                        )
     )
 
@@ -490,7 +490,7 @@ process.RA2TreeMakerJESDn = TreeMaker.clone(
 process.dump   = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.writeTree = cms.Path(
-#    process.SMSModelFilter *
+    process.SMSModelFilter *
     process.cleanpatseq *
     process.patJetsPFchs *
     process.genJets *
@@ -499,12 +499,10 @@ process.writeTree = cms.Path(
     process.AdditionalJetInfo *
     process.WeightProducer *
     process.PUInfo *
-##     #--JL
-##     process.pdfWeight*
-##     process.ISRsys*
-##     process.susyparams*
-##     #--end JL
-#    process.dump *
+    process.pdfWeight*
+    process.ISRsys*
+    process.susyparams*
+#  process.dump *
     process.RA2TreeMaker *
     process.RA2TreeMakerJESUp *
     process.RA2TreeMakerJESDn
