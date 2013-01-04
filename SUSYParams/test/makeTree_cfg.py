@@ -7,15 +7,17 @@
 ##
 ###############################################################################
 
-numProcessedEvt = 100
+numProcessedEvt = -1
 reportEveryEvt  = 1
-globalTag       = 'START53_V15::All'
+globalTag       = 'START52_V11::All'
 smsModel        = "T1tttt"
 smsMotherMass   = 1000
 smsLSPMass      = 400
-xs              = 0.000435488
-numEvtsInSample = 49994
-lumi            = 5088
+#xs              = 0.000435488
+xs              = 1.0
+numEvtsInSample = 1
+#lumi            = 5088
+lumi            = 1.0
 
 
 
@@ -55,7 +57,7 @@ process.maxEvents.input = numProcessedEvt
 process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 process.source = cms.Source(
     "PoolSource",
-    fileNames = cms.untracked.vstring('/store/mc/Summer12_DR53X/TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V7A-v1/0000/FADE7E47-CDE1-E111-8069-003048D4610C.root')
+     fileNames = cms.untracked.vstring('/store/mc/Summer12/SMS-T1tttt_Mgluino-350to2000_mLSP-0to1650_8TeV-Pythia6Z/AODSIM/START52_V9_FSIM-v3/0002/46A8899B-39ED-E111-97C7-00221981B44C.root')
     )
 
 
@@ -238,7 +240,6 @@ process.PUInfo = PUInfo.clone()
 
 
 ## --- PDF Uncertainties -----------------------------------------------
-#---JL
 #--for PDF sys:
 ##   cvs co -rV00-04-01 ElectroWeakAnalysis/Utilities
 ##   scram setup lhapdffull
@@ -249,19 +250,23 @@ process.pdfWeight = cms.EDProducer(
     PdfSetNames = cms.untracked.vstring("cteq66.LHgrid","MSTW2008nlo68cl.LHgrid","NNPDF20_100.LHgrid")
     #PdfSetNames = cms.untracked.vstring("NNPDF20_100.LHgrid")
     )
+#---put the susy params
+process.load("RA2Classic.SUSYParams.susyparams_cfi")
+process.susyparams.Model = cms.string(smsModel)
+
 #---for ISR sys
 ##   cvs co -d UserCode/HistoWeightProducer UserCode/Mrenna/UserCode/HistoWeightProducer
 ##   cvs co -d UserCode/RA2IsrFsr UserCode/Mrenna/UserCode/RA2IsrFsr
 ##   cvs co -d UserCode/MyCompositeProducers UserCode/Mrenna/UserCode/MyCompositeProducers
 process.lastParticles = cms.EDProducer("ISRProducer")
-process.ISRsys = cms.Sequence(process.lastParticles)
-
-#---put the susy params
-process.load("RA2Classic.SUSYParams.susyparams_cfi")
-process.susyparams.Model = cms.string(smsModel)
-#-- end JL
-
-
+process.myProducerLabel = cms.EDProducer('ISRHistoWeightProducer',
+                                         src       = cms.InputTag('lastParticles'),
+                                         inputFile = cms.untracked.FileInPath("SusyAnalysis/AnalysisUtils/data/ISRWeight_PtDistributions_T1.root"),
+                                         SusyScanTopology = cms.string("T1"),
+                                         Debug            = cms.bool(False),
+                                         reweightVariable=cms.untracked.string('pt')
+                                         )
+process.ISRsys = cms.Sequence(process.lastParticles * process.myProducerLabel)
 
 ###############################################################################
 ##
@@ -394,6 +399,11 @@ process.RA2TreeMaker = TreeMaker.clone(
     VarsDouble        = cms.VInputTag(cms.InputTag('WeightProducer:weight'),
                                       cms.InputTag('PUInfo:Num'),
                                       cms.InputTag('kt6PFJets:rho'),
+                                      cms.InputTag('myProducerLabel:ISRWeight'),
+                                      cms.InputTag('myProducerLabel:SusyMoSumE'),
+                                      cms.InputTag('myProducerLabel:SusyMoSumEta'),
+                                      cms.InputTag('myProducerLabel:SusyMoSumPhi'),
+                                      cms.InputTag('myProducerLabel:SusyMoSumPt')
                                       cms.InputTag('susyparams:m0'),
                                       cms.InputTag('susyparams:m12'),
                                       cms.InputTag('susyparams:evtProcID')
@@ -401,6 +411,11 @@ process.RA2TreeMaker = TreeMaker.clone(
     VarsDoubleNamesInTree = cms.vstring('Weight',
                                         'NumPUInteractions',
                                         'rho',
+                                        'ISRWeight',
+                                        'SusyMoSumE',
+                                        'SusyMoSumEta',
+                                        'SusyMoSumPhi',
+                                        'SusyMoSumPt'
                                         'massMom',
                                         'massDau',
                                         'procID'
@@ -414,21 +429,21 @@ process.RA2TreeMaker = TreeMaker.clone(
                                           ),
     CandidateNamesInTree  = cms.vstring('Jets',
                                         'GenJets',
-                                        'CaloJetsRaw',
+                                        'CaloJetsRaw'
                                         'PATMuonsPFIDIso',
                                         'PATElectronsIDIso',
                                         'PATMETsPF'
                                         ),
     VarsDoubleV = cms.VInputTag('AdditionalJetInfo:Area',
                                 'AdditionalJetInfo:NeutHadF',
-                                'AdditionalJetInfo:NeutEmF',
+                                'AdditionalJetInfo:NeutEmF'
                                 "pdfWeight:cteq66",
                                 "pdfWeight:MSTW2008nlo68cl",
                                 "pdfWeight:NNPDF20"
                                 ),
     VarsDoubleNamesInTreeV = cms.vstring('JetArea',
                                          'JetNeutHadF',
-                                         'JetNeutEmF',
+                                         'JetNeutEmF'
                                          "cteq66",
                                          "MSTW2008nlo68cl",
                                          "NNPDF20"
@@ -490,7 +505,7 @@ process.RA2TreeMakerJESDn = TreeMaker.clone(
 process.dump   = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.writeTree = cms.Path(
-    process.SMSModelFilter *
+#    process.SMSModelFilter *
     process.cleanpatseq *
     process.patJetsPFchs *
     process.genJets *
@@ -500,9 +515,9 @@ process.writeTree = cms.Path(
     process.WeightProducer *
     process.PUInfo *
     process.pdfWeight*
-    process.ISRsys*
     process.susyparams*
-#  process.dump *
+#    process.dump *
+    process.ISRsys *
     process.RA2TreeMaker *
     process.RA2TreeMakerJESUp *
     process.RA2TreeMakerJESDn
