@@ -13,7 +13,7 @@
 //
 // Original Author:  Gheorghe Lungu
 //         Created:  Thu Oct  4 10:44:53 CDT 2012
-// $Id$
+// $Id: SUSYParams.cc,v 1.1 2012/11/19 16:47:42 lungu Exp $
 //
 //
 
@@ -305,7 +305,7 @@ void SUSYParams::GetSMSs(const LHEEventProduct& lhep, const GenEventInfoProduct&
 
   evtProcID = 0;//---catches all events with procID not listed below
   evtProcID = (double)GetProcID(genProd.signalProcessID());
-  std::cout<<"(getSMS) "<<Mmom<<" "<<mMom<<" "<<Mdau<<" "<<mDau<<" "<<evtProcID<<std::endl;
+  //std::cout<<"(getSMS) "<<Mmom<<" "<<mMom<<" "<<Mdau<<" "<<mDau<<" "<<evtProcID<<std::endl;
  
   //cout<<"(getsms) "<<genProd.signalProcessID()<<" "<<evtProcID<<endl;
   //---event cross-section
