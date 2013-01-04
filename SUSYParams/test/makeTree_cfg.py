@@ -1,4 +1,4 @@
-# $Id: makeTree_cfg.py,v 1.3 2012/12/28 18:27:04 mschrode Exp $
+# $Id: makeTree_cfg.py,v 1.5 2013/01/04 21:21:49 seema Exp $
 
 
 ###############################################################################
@@ -37,7 +37,7 @@ process.outpath.remove(process.out)
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.5 $'),
     name = cms.untracked.string('$Source: /local/reps/CMSSW/UserCode/kheine/RA2Classic/SUSYParams/test/makeTree_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
     )
@@ -403,7 +403,7 @@ process.RA2TreeMaker = TreeMaker.clone(
                                       cms.InputTag('myProducerLabel:SusyMoSumE'),
                                       cms.InputTag('myProducerLabel:SusyMoSumEta'),
                                       cms.InputTag('myProducerLabel:SusyMoSumPhi'),
-                                      cms.InputTag('myProducerLabel:SusyMoSumPt')
+                                      cms.InputTag('myProducerLabel:SusyMoSumPt'),
                                       cms.InputTag('susyparams:m0'),
                                       cms.InputTag('susyparams:m12'),
                                       cms.InputTag('susyparams:evtProcID')
@@ -415,7 +415,7 @@ process.RA2TreeMaker = TreeMaker.clone(
                                         'SusyMoSumE',
                                         'SusyMoSumEta',
                                         'SusyMoSumPhi',
-                                        'SusyMoSumPt'
+                                        'SusyMoSumPt',
                                         'massMom',
                                         'massDau',
                                         'procID'
