@@ -1,4 +1,4 @@
-# $Id: makeTreeFromPAT_cff.py,v 1.12 2012/11/16 17:13:50 mschrode Exp $
+# $Id: makeTreeFromPAT_cff.py,v 1.13 2012/12/06 15:27:09 mschrode Exp $
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -111,9 +111,13 @@ def makeTreeFromPAT(process,
     FilterNames.append(cms.InputTag("ra2EcalTPFilter"))
     FilterNames.append(cms.InputTag("ra2EcalBEFilter"))
     FilterNames.append(cms.InputTag("hcalLaserEventFilter"))
+    FilterNames.append(cms.InputTag("ecalLaserCorrFilter"))
     FilterNames.append(cms.InputTag("eeBadScFilter"))
     FilterNames.append(cms.InputTag("PBNRFilter"))
     FilterNames.append(cms.InputTag("HCALLaserEvtFilterList2012"))
+    FilterNames.append(cms.InputTag("manystripclus53X"))
+    FilterNames.append(cms.InputTag("toomanystripclus53X"))
+    FilterNames.append(cms.InputTag("logErrorTooManyClusters"))
 
         
     from RA2Classic.TreeMaker.treemaker_cfi import TreeMaker
@@ -126,14 +130,13 @@ def makeTreeFromPAT(process,
         MHTJets           = cms.InputTag('MHTJets'),
         VarsDouble        = cms.VInputTag(cms.InputTag('WeightProducer:weight')),
         VarsDoubleNamesInTree = cms.vstring('Weight'),
-        Filters           = cms.VInputTag()#FilterNames)
+        Filters           = cms.VInputTag()#FilterNames
         )
 
 
     ## --- Final paths ----------------------------------------------------
 
-#    process.dump = cms.EDAnalyzer("EventContentAnalyzer")
-
+    #    process.dump = cms.EDAnalyzer("EventContentAnalyzer")
     process.WriteTree = cms.Path(
         process.ProduceRA2Jets *
         process.filterSelection *
@@ -141,7 +144,7 @@ def makeTreeFromPAT(process,
         process.NumJetSelection *
         process.HTSelection *
         process.MHTSelection *
-#        process.dump *
+        ##        process.dump
         process.WeightProducer *
         process.RA2TreeMaker
         )

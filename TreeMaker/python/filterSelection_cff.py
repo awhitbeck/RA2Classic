@@ -1,4 +1,4 @@
-# $Id: filterSelection_cff.py,v 1.1 2012/08/02 14:37:00 mschrode Exp $
+# $Id: filterSelection_cff.py,v 1.2 2012/10/30 21:13:23 mschrode Exp $
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -37,9 +37,16 @@ ecalLaserFilter = booleanFilter.clone(
 eeBadScFilter = booleanFilter.clone(
     ResultSource = cms.InputTag("eeBadScFilter")
     )
-pbnrFilter = booleanFilter.clone(
-    ResultSource = cms.InputTag("ra2PBNR")
+manyStripClustersFilter = booleanFilter.clone(
+    ResultSource = cms.InputTag("manystripclus53X")
     )
+tooManyStripClustersFilter = booleanFilter.clone(
+    ResultSource = cms.InputTag("toomanystripclus53X")
+    )
+logErrorTooManyClustersFilter = booleanFilter.clone(
+    ResultSource = cms.InputTag("logErrorTooManyClusters")
+    )
+
 
 filterSelection = cms.Sequence(
     HBHENoiseFilter *
@@ -51,6 +58,9 @@ filterSelection = cms.Sequence(
     ecalTPFilter *
     ecalBEFilter *
     hcalLaserFilter *
-    #ecalLaserFilter *
-    eeBadScFilter
+    ecalLaserFilter *
+    eeBadScFilter *
+    ~manyStripClustersFilter *
+    ~tooManyStripClustersFilter *
+    ~logErrorTooManyClustersFilter
     )
