@@ -50,8 +50,7 @@ process.load("RA2Classic.QCDBkgRS.qcdbkgrs_cfi")
 #process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withoutCHS_withoutPUReweighting.root'
 #process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withCHS_withoutPUReweighting_fineLowPtBins.root'
 #process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2Star_Flat_8TeV_pythia6_NoPU_withCHS.root'
-#process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2star_Flat_8TeV_pythia6_withCHS_withoutPUReweighting.root'
-process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2star_Flat_8TeV_pythia6_withCHS_withoutPUReweighting.root'
+process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2star_Flat_8TeV_pythia6_withCHS_withPUReweighting.root'
 
 process.QCDfromSmearing.BProbabilityFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/BJetProbabilityMC.root'
 process.QCDfromSmearing.jetCollection = 'patJetsPF' 
@@ -75,6 +74,7 @@ process.QCDfromSmearing.InputHisto3p_NoHF = 'h_tot_JetAll_ResponsePt'
 #process.QCDfromSmearing.InputHisto1_NoHF = 'h_nob_JetAll_ResponsePt'
 #process.QCDfromSmearing.InputHisto2_NoHF = 'h_nob_JetAll_ResponsePt'
 #process.QCDfromSmearing.InputHisto3p_NoHF = 'h_nob_JetAll_ResponsePt'
+process.QCDfromSmearing.RebalanceCorrectionFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/RebalanceCorrection_withPUReweighting_pt10.root'
 process.QCDfromSmearing.NRebin = 1
 process.QCDfromSmearing.NJets = 2
 process.QCDfromSmearing.SmearCollection = 'Reco'
@@ -84,12 +84,13 @@ process.QCDfromSmearing.AdditionalSmearing = cms.vdouble(1.0)
 process.QCDfromSmearing.LowerTailScaling = cms.vdouble(1.0)
 process.QCDfromSmearing.UpperTailScaling = cms.vdouble(1.0)
 process.QCDfromSmearing.SmearedJetPt = 0.
-process.QCDfromSmearing.RebalanceJetPt = 15.
+process.QCDfromSmearing.RebalanceJetPt = 10.
 process.QCDfromSmearing.RebalanceMode = 'MHThigh'
 process.QCDfromSmearing.weightName = 'weightProducer:weight'
 process.QCDfromSmearing.ControlPlots = True
 process.QCDfromSmearing.Ntries = 100
 process.QCDfromSmearing.cleverPrescaleTreating = False
+process.QCDfromSmearing.useRebalanceCorrectionFactors = True 
 process.QCDfromSmearing.MHTcut_low = cms.double(200.)
 process.QCDfromSmearing.MHTcut_medium = cms.double(350.)
 process.QCDfromSmearing.MHTcut_high = cms.double(500.)
@@ -125,8 +126,8 @@ process.weightProducer.weight          = -1.0
 #process.weightProducer.Method		= 'BinnedPythia'
 #process.weightProducer.Lumi			= 1000
 
-process.weightProducer.FileNamePUDataDistribution = 'NONE'
-#process.weightProducer.FileNamePUDataDistribution = 'RA2Classic/AdditionalInputFiles/data/DataPileupHistogram_RA2Summer12_190456-196531_8TeV_PromptReco_WOLowPU_pixelcorr.root'
+#process.weightProducer.FileNamePUDataDistribution = 'NONE'
+process.weightProducer.FileNamePUDataDistribution = 'RA2Classic/AdditionalInputFiles/data/DataPileupHistogram_RA2Summer12_190456-196531_8TeV_PromptReco_WOLowPU_pixelcorr.root'
 process.weightProducer.PU = 2 # 0==Flat10, 1==Fall11, 2==Summer12                        
 ###############################################################################
 

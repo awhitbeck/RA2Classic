@@ -84,30 +84,12 @@ process.QCDfromSmearing.InputHisto3p_HF = 'h_tot_JetAll_ResponsePt'
 process.QCDfromSmearing.InputHisto1_NoHF = 'h_tot_JetAll_ResponsePt'
 process.QCDfromSmearing.InputHisto2_NoHF = 'h_tot_JetAll_ResponsePt'
 process.QCDfromSmearing.InputHisto3p_NoHF = 'h_tot_JetAll_ResponsePt'
+process.QCDfromSmearing.RebalanceCorrectionFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/RebalanceCorrection_pt15.root'
 process.QCDfromSmearing.NJets = 2
 process.QCDfromSmearing.NRebin = 1
 process.QCDfromSmearing.SmearCollection = 'Reco'
-
-### Binning and Results from 09.Jul.2011 (with residual JEC)
-#process.QCDfromSmearing.PtBinEdges_scaling	= cms.vdouble(0, 220, 270, 300, 350, 500, 2200)
-#process.QCDfromSmearing.EtaBinEdges_scaling	= cms.vdouble(0, 0.5, 1.1,  1.7, 2.3, 5.0)
-#process.QCDfromSmearing.LowerTailScaling		= cms.vdouble(1.02,1.286,1.058,1.065,1.023,1.117,1.153,1.1,1.1,1.095,1.047,1.047,0.913,0.938,0.938,0.938,1.096,1.096,0.962,1.079,1.079,1.079,1.079,1.079,0.794,0.794,0.794,0.794,0.794,0.794)
-#process.QCDfromSmearing.UpperTailScaling		= cms.vdouble(1.02,1.286,1.058,1.065,1.023,1.117,1.153,1.1,1.1,1.095,1.047,1.047,0.913,0.938,0.938,0.938,1.096,1.096,0.962,1.079,1.079,1.079,1.079,1.079,0.794,0.794,0.794,0.794,0.794,0.794)
-#process.QCDfromSmearing.AdditionalSmearing	= cms.vdouble(1.052,1.052,1.052,1.052,1.052,1.052,1.057,1.057,1.057,1.057,1.057,1.057,1.096,1.096,1.096,1.096,1.096,1.096,1.134,1.134,1.134,1.134,1.134,1.134,1.288,1.288,1.288,1.288,1.288,1.288)
-### Binning and Results from 22.Jul.2011 (without residual JEC)
-#process.QCDfromSmearing.PtBinEdges_scaling	= cms.vdouble(0, 220, 270, 300, 350, 500, 2200)
-#process.QCDfromSmearing.EtaBinEdges_scaling	= cms.vdouble(0, 0.5, 1.1,  1.7, 2.3, 5.0)
-#process.QCDfromSmearing.LowerTailScaling		= cms.vdouble(1.02,1.286,1.058,1.065,1.023,1.117,1.153,1.1,1.1,1.095,1.047,1.047,0.913,0.938,0.938,0.938,1.096,1.096,0.962,1.079,1.079,1.079,1.079,1.079,0.794,0.794,0.794,0.794,0.794,0.794)
-#process.QCDfromSmearing.UpperTailScaling		= cms.vdouble(1.02,1.286,1.058,1.065,1.023,1.117,1.153,1.1,1.1,1.095,1.047,1.047,0.913,0.938,0.938,0.938,1.096,1.096,0.962,1.079,1.079,1.079,1.079,1.079,0.794,0.794,0.794,0.794,0.794,0.794)
-#process.QCDfromSmearing.AdditionalSmearing	= cms.vdouble(1.062,1.062,1.062,1.062,1.062,1.062,1.057,1.057,1.057,1.057,1.057,1.057,1.089,1.089,1.089,1.089,1.089,1.089,1.127,1.127,1.127,1.127,1.127,1.127,1.158,1.158,1.158,1.158,1.158,1.158)
-### Binning and Results from 11.Jan.2012 (with residual JEC)
-process.QCDfromSmearing.PtBinEdges_scaling	= cms.vdouble(0, 220, 270, 300, 350, 500, 2200)
-process.QCDfromSmearing.EtaBinEdges_scaling	= cms.vdouble(0, 0.5, 1.1,  1.7, 2.3, 5.0)
-process.QCDfromSmearing.LowerTailScaling		= cms.vdouble(0.953,1.418,1.156,1.305,1.342,1.353,1.096,1.083,1.083,1.195,1.248,1.248,0.965,1.035,1.035,1.035,1.358,1.358,0.938,1.196,1.196,1.196,1.196,1.196,1.069,1.069,1.069,1.069,1.069,1.069)
-process.QCDfromSmearing.UpperTailScaling		= cms.vdouble(0.953,1.418,1.156,1.305,1.342,1.353,1.096,1.083,1.083,1.195,1.248,1.248,0.965,1.035,1.035,1.035,1.358,1.358,0.938,1.196,1.196,1.196,1.196,1.196,1.069,1.069,1.069,1.069,1.069,1.069)
-process.QCDfromSmearing.AdditionalSmearing	= cms.vdouble(1.052,1.052,1.052,1.052,1.052,1.052,1.057,1.057,1.057,1.057,1.057,1.057,1.096,1.096,1.096,1.096,1.096,1.096,1.134,1.134,1.134,1.134,1.134,1.134,1.288,1.288,1.288,1.288,1.288,1.288)
-
 process.QCDfromSmearing.absoluteTailScaling = False
+process.QCDfromSmearing.useRebalanceCorrectionFactors = False
 process.QCDfromSmearing.SmearedJetPt = 0.
 process.QCDfromSmearing.RebalanceJetPt = 15.
 process.QCDfromSmearing.RebalanceMode = 'MHThigh'
@@ -124,6 +106,13 @@ process.QCDfromSmearing.HTcut_high = cms.double(1000.)
 process.QCDfromSmearing.HTcut_veryhigh = cms.double(1200.)
 process.QCDfromSmearing.HTcut_extremehigh = cms.double(1400.)
 #process.QCDfromSmearing.probExtreme = cms.double(3.e-5)
+
+### Binning and Results from 11.Jan.2012 (with residual JEC)
+process.QCDfromSmearing.PtBinEdges_scaling	= cms.vdouble(0, 220, 270, 300, 350, 500, 2200)
+process.QCDfromSmearing.EtaBinEdges_scaling	= cms.vdouble(0, 0.5, 1.1,  1.7, 2.3, 5.0)
+process.QCDfromSmearing.LowerTailScaling		= cms.vdouble(0.953,1.418,1.156,1.305,1.342,1.353,1.096,1.083,1.083,1.195,1.248,1.248,0.965,1.035,1.035,1.035,1.358,1.358,0.938,1.196,1.196,1.196,1.196,1.196,1.069,1.069,1.069,1.069,1.069,1.069)
+process.QCDfromSmearing.UpperTailScaling		= cms.vdouble(0.953,1.418,1.156,1.305,1.342,1.353,1.096,1.083,1.083,1.195,1.248,1.248,0.965,1.035,1.035,1.035,1.358,1.358,0.938,1.196,1.196,1.196,1.196,1.196,1.069,1.069,1.069,1.069,1.069,1.069)
+process.QCDfromSmearing.AdditionalSmearing	= cms.vdouble(1.052,1.052,1.052,1.052,1.052,1.052,1.057,1.057,1.057,1.057,1.057,1.057,1.096,1.096,1.096,1.096,1.096,1.096,1.134,1.134,1.134,1.134,1.134,1.134,1.288,1.288,1.288,1.288,1.288,1.288)
 
 ###############################################################################
 

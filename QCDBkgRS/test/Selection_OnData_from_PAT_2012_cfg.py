@@ -31,9 +31,9 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 1000 ) )
 ###############################################################################
 ## Global tags and geometry
 # default configuration with frontier conditions
-#process.load("Configuration.StandardSequences.Geometry_cff")
+#process.load("Configuration.Geometry.GeometryIdeal_cff")
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = cms.string('GR_R_52_V9D::All')
+#process.GlobalTag.globaltag = cms.string('FT_53_V6_AN2::All')
 ###############################################################################
 
 ###############################################################################
@@ -80,6 +80,8 @@ process.EEBadScFilter.ResultSource = cms.InputTag("eeBadScFilter")
 #process.EcalLaserFilter.ResultSource= cms.InputTag("ecalLaserCorrFilter")
 ###############################################################################
 
+###############################################################################
+# Lepton Veto
 ###############################################################################
 process.load('SandBox.Skims.RA2Leptons_cff')
 ###############################################################################

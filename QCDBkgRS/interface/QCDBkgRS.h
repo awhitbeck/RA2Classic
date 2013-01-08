@@ -134,11 +134,13 @@ private:
    std::string smearingfile_;
    std::string bprobabilityfile_;
    std::string outputfile_;
+   std::string RebalanceCorrectionFile_;
    int NRebin_;
    bool controlPlots_;
    bool isData_;
    bool absoluteTailScaling_;
    bool cleverPrescaleTreating_;
+   bool useRebalanceCorrectionFactors_;
    double A0RMS_;
    double A1RMS_;
    double probExtreme_;
@@ -190,6 +192,8 @@ private:
    void FillDeltaPhiPredictions(const std::vector<pat::Jet>&, math::PtEtaPhiMLorentzVector&); 
    void FillLeadingJetPredictions_gen(const std::vector<reco::GenJet>&); 
    void FillDeltaPhiPredictions_gen(const std::vector<reco::GenJet>&, math::PtEtaPhiMLorentzVector&); 
+   double GetRebalanceCorrection(double jet_pt);
+
    
    bool RebalanceJets_KinFitter(edm::View<pat::Jet>*, std::vector<pat::Jet> &);
    void SmearingJets(const std::vector<pat::Jet>&, std::vector<pat::Jet> &);
@@ -204,6 +208,9 @@ private:
    TH2F* h_SmearedJetRes_Pt;
    TH2F* h_SmearedJetRes_Eta;
 
+   TH2F* h_RebCorrection_vsReco;  
+   TH1F* h_RebCorrectionFactor;
+  
    // TH2F* h_bProb_NJets1;
    TH2F* h_bProb_NJets2;
    TH2F* h_bProb_NJets3;
@@ -240,6 +247,16 @@ private:
    TH1F *h_fitProb;
    TH1F *h_weight;
    TH1F *h_weightedWeight;
+
+   TH1F *h_deltaR_rebCorr;
+
+   TH2F *h_SeedEvents_HT_NJet2;
+   TH2F *h_SeedEvents_HT_NJet3;
+   TH2F *h_SeedEvents_HT_NJet4;
+   TH2F *h_SeedEvents_HT_NJet5;
+   TH2F *h_SeedEvents_HT_NJet6;
+   TH2F *h_SeedEvents_HT_NJet7;
+   TH2F *h_SeedEvents_HT_NJet8;
       
    double weight_;
 

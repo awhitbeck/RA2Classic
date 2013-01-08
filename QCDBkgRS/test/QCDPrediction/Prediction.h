@@ -195,32 +195,24 @@ private:
    TH2F* DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_pred_raw;
    TH2F* DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_pred_raw;
 
-   // raw prediction histograms 2 jets, HT 500-900 
+   // raw prediction histograms 2 jets, HT 500-1000 
    TH2F* MHT_JetBin1_HTlow_pred_raw;
-   // raw prediction histograms 2 jets, HT 900-1300
-   TH2F* MHT_JetBin1_HTmedium_pred_raw;
-   // raw prediction histograms 2 jets, HT >1300
+   // raw prediction histograms 2 jets, HT >1000
    TH2F* MHT_JetBin1_HThigh_pred_raw;
 
-   // raw prediction histograms 3-5 jets, HT 500-900 
+   // raw prediction histograms 3-5 jets, HT 500-1000 
    TH2F* MHT_JetBin2_HTlow_pred_raw;
-   // raw prediction histograms 3-5 jets, HT 900-1300
-   TH2F* MHT_JetBin2_HTmedium_pred_raw;
-   // raw prediction histograms 3-5 jets, HT >1300
+   // raw prediction histograms 3-5 jets, HT >1000
    TH2F* MHT_JetBin2_HThigh_pred_raw;
 
-   // raw prediction histograms 6-7 jets, HT 500-900 
+   // raw prediction histograms 6-7 jets, HT 500-1000 
    TH2F* MHT_JetBin3_HTlow_pred_raw;
-   // raw prediction histograms 6-7 jets, HT 900-1300
-   TH2F* MHT_JetBin3_HTmedium_pred_raw;
-   // raw prediction histograms 6-7 jets, HT >1300
+   // raw prediction histograms 6-7 jets, HT >1000
    TH2F* MHT_JetBin3_HThigh_pred_raw;
 
-   // raw prediction histograms >=8 jets, HT 500-900 
+   // raw prediction histograms >=8 jets, HT 500-1000 
    TH2F* MHT_JetBin4_HTlow_pred_raw;
-   // raw prediction histograms >=8 jets, HT 900-1300
-   TH2F* MHT_JetBin4_HTmedium_pred_raw;
-   // raw prediction histograms >=8 jets, HT >1300
+   // raw prediction histograms >=8 jets, HT >1000
    TH2F* MHT_JetBin4_HThigh_pred_raw;
 
    // raw prediction histograms 2 jets, HT inclusive 
@@ -365,32 +357,24 @@ private:
    TH1F* DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_pred;
    TH1F* DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_pred;
 
-   //  prediction histograms 2-3 jets, HT 500-900 
+   //  prediction histograms 2-3 jets, HT 500-1000 
    TH1F* MHT_JetBin1_HTlow_pred;
-   //  prediction histograms 2-3 jets, HT 900-1300
-   TH1F* MHT_JetBin1_HTmedium_pred;
-   //  prediction histograms 2-3 jets, HT >1300
+   //  prediction histograms 2-3 jets, HT >1000
    TH1F* MHT_JetBin1_HThigh_pred;
 
-   //  prediction histograms 4-5 jets, HT 500-900 
+   //  prediction histograms 4-5 jets, HT 500-1000 
    TH1F* MHT_JetBin2_HTlow_pred;
-   //  prediction histograms 4-5 jets, HT 900-1300
-   TH1F* MHT_JetBin2_HTmedium_pred;
-   //  prediction histograms 4-5 jets, HT >1300
+   //  prediction histograms 4-5 jets, HT >1000
    TH1F* MHT_JetBin2_HThigh_pred;
 
-   //  prediction histograms 6-7 jets, HT 500-900 
+   //  prediction histograms 6-7 jets, HT 500-1000 
    TH1F* MHT_JetBin3_HTlow_pred;
-   //  prediction histograms 6-7 jets, HT 900-1300
-   TH1F* MHT_JetBin3_HTmedium_pred;
-   //  prediction histograms 6-7 jets, HT >1300
+   //  prediction histograms 6-7 jets, HT >1000
    TH1F* MHT_JetBin3_HThigh_pred;
 
-   //  prediction histograms >=8 jets, HT 500-900 
+   //  prediction histograms >=8 jets, HT 500-1000 
    TH1F* MHT_JetBin4_HTlow_pred;
-   //  prediction histograms >=8 jets, HT 900-1300
-   TH1F* MHT_JetBin4_HTmedium_pred;
-   //  prediction histograms >=8 jets, HT >1300
+   //  prediction histograms >=8 jets, HT >1000
    TH1F* MHT_JetBin4_HThigh_pred;
 
    //  prediction histograms 2 jets, HT inclusive 
@@ -536,32 +520,24 @@ private:
    TH1F* DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_sel;
   
 
-   //  selection histograms 2-3 jets, HT 500-900 
+   //  selection histograms 2-3 jets, HT 500-1000 
    TH1F* MHT_JetBin1_HTlow_sel;
-   //  selection histograms 2-3 jets, HT 900-1300
-   TH1F* MHT_JetBin1_HTmedium_sel;
-   //  selection histograms 2-3 jets, HT >1300
+   //  selection histograms 2-3 jets, HT >1000
    TH1F* MHT_JetBin1_HThigh_sel;
 
-   //  selection histograms 4-5 jets, HT 500-900 
+   //  selection histograms 4-5 jets, HT 500-1000 
    TH1F* MHT_JetBin2_HTlow_sel;
-   //  selection histograms 4-5 jets, HT 900-1300
-   TH1F* MHT_JetBin2_HTmedium_sel;
-   //  selection histograms 4-5 jets, HT >1300
+   //  selection histograms 4-5 jets, HT >1000
    TH1F* MHT_JetBin2_HThigh_sel;
 
-   //  selection histograms 6-7 jets, HT 500-900 
+   //  selection histograms 6-7 jets, HT 500-1000 
    TH1F* MHT_JetBin3_HTlow_sel;
-   //  selection histograms 6-7 jets, HT 900-1300
-   TH1F* MHT_JetBin3_HTmedium_sel;
-   //  selection histograms 6-7 jets, HT >1300
+   //  selection histograms 6-7 jets, HT >1000
    TH1F* MHT_JetBin3_HThigh_sel;
 
-   //  selection histograms >=8 jets, HT 500-900 
+   //  selection histograms >=8 jets, HT 500-1000 
    TH1F* MHT_JetBin4_HTlow_sel;
-   //  selection histograms >=8 jets, HT 900-1300
-   TH1F* MHT_JetBin4_HTmedium_sel;
-   //  selection histograms >=8 jets, HT >1300
+   //  selection histograms >=8 jets, HT >1000
    TH1F* MHT_JetBin4_HThigh_sel;
 
    //  selection histograms 2 jets, HT inclusive 

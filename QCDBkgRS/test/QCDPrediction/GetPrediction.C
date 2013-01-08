@@ -23,7 +23,7 @@
 
 using namespace std;
 
-TCanvas* DrawComparison(TH1F* prediction, TH1F* selection, TString Title, TString LumiTitle, TString xTitle, bool isData)
+TCanvas* DrawComparison(TH1F* prediction, TH1F* selection, TString Title, TString LumiTitle, TString xTitle, TString yTitle, bool isData)
 {
    double MinX = selection->GetXaxis()->GetXmin();
    double MaxX = selection->GetXaxis()->GetXmax();
@@ -53,14 +53,14 @@ TCanvas* DrawComparison(TH1F* prediction, TH1F* selection, TString Title, TStrin
    prediction->SetMarkerSize(0.9);
    prediction->SetMarkerColor(kBlack);
    prediction->SetXTitle(xTitle);
-   prediction->SetYTitle("Events");
+   prediction->SetYTitle(yTitle);
    selection->SetAxisRange(MinX, MaxX, "X");
    selection->GetYaxis()->SetRangeUser(0.05, YRangeMax);
    // selection->SetFillColor(c_LightBrown);
    selection->SetFillColor(c_LightGray);
    selection->SetTitle("");
    selection->SetXTitle(xTitle);
-   selection->SetYTitle("Events");
+   selection->SetYTitle(yTitle);
 
    TCanvas *c = new TCanvas("ca", "Comparison and ratio of two histos", 700, 700);
 
@@ -206,7 +206,7 @@ int main()
    TChain* selection = new TChain("RA2TreeMaker/RA2PreSelection");
 
    // open files for MC --- pythia QCD ---- //
-   ifstream myfile ("filelist_pythia_chs_TuneZ2star_pt15_withoutPUReweighting_FitProb01_v1_mc.txt");
+   /* ifstream myfile ("filelist_pythia_chs_TuneZ2star_pt10_withoutPUReweighting_TestRebChangePtAll_v2_mc.txt");
    if (myfile.is_open()) {
       while( myfile.good() ) {
          getline (myfile,root_file);
@@ -218,13 +218,10 @@ int main()
 
       }
       myfile.close();
-   }
-
-   //prediction->Add("/afs/naf.desy.de/user/k/kriheine/scratch/CMSSW_5_2_5/src/RA2Classic/QCDBkgRS/test/QCDSmearing_OnData_reduced_2012.root");
-   //selection->Add("/afs/naf.desy.de/user/k/kriheine/scratch/CMSSW_5_2_5/src/RA2Classic/QCDBkgRS/test/Selection_OnData_2012.root");
+      }*/
 
    // open files for MC --- madgraph QCD ---- //
-   /* ifstream myfile1 ("filelist_madgraph_chs_pt13_withoutPUReweighting_HT250-500_Res250-Inf_v1_mc.txt");
+   /*ifstream myfile1 ("filelist_madgraph_chs_pt10_withoutPUReweighting_HT250-500_Res250-Inf_TestRebChangePtAll_v1_mc.txt");
    if (myfile1.is_open()) {
       while( myfile1.good() ) {
          getline (myfile1,root_file);
@@ -238,7 +235,7 @@ int main()
       myfile1.close();
    }
 
-   ifstream myfile2 ("filelist_madgraph_chs_pt13_withoutPUReweighting_HT500-1000_Res250-Inf_v1_mc.txt");
+   ifstream myfile2 ("filelist_madgraph_chs_pt10_withoutPUReweighting_HT500-1000_Res250-Inf_TestRebChangePtAll_v1_mc.txt");
    if (myfile2.is_open()) {
       while( myfile2.good() ) {
          getline (myfile2,root_file);
@@ -252,7 +249,7 @@ int main()
       myfile2.close();
    }
 
-   ifstream myfile3 ("filelist_madgraph_chs_pt13_withoutPUReweighting_HT1000-inf_Res250-Inf_v1_mc.txt");
+   ifstream myfile3 ("filelist_madgraph_chs_pt10_withoutPUReweighting_HT1000-inf_Res250-Inf_TestRebChangePtAll_v1_mc.txt");
    if (myfile3.is_open()) {
       while( myfile3.good() ) {
          getline (myfile3,root_file);
@@ -267,7 +264,7 @@ int main()
       }*/
 
    // files for data prediction
-   /* ifstream myfile1 ("filelist_prediction_525_Run2012A_HT_PromptReco_v1_data.txt");
+   ifstream myfile1 ("filelist_prediction_535_Resolutions525_Run2012A-13Jul2012-v1_pt15_withUncertainties_data.txt");
    if (myfile1.is_open()) {
       while( myfile1.good() ) {
          getline (myfile1,root_file);
@@ -279,7 +276,7 @@ int main()
       myfile1.close();
    }
 
-   ifstream myfile2 ("filelist_prediction_525_Run2012B_JetHT_PromptReco_v1_data.txt");
+   ifstream myfile2 ("filelist_prediction_535_Resolutions525_Run2012A-recover-06Aug2012-v1_pt15_withUncertainties_data.txt");
    if (myfile2.is_open()) {
       while( myfile2.good() ) {
          getline (myfile2,root_file);
@@ -291,19 +288,19 @@ int main()
       myfile2.close();
    }
 
-   ifstream myfile3 ("filelist_selection_525_Run2012A_HT_PromptReco_v1_data.txt");
+   ifstream myfile3 ("filelist_prediction_535_Resolutions525_Run2012B-13Jul2012-v1_pt15_withUncertainties_data.txt");
    if (myfile3.is_open()) {
       while( myfile3.good() ) {
          getline (myfile3,root_file);
          cout << root_file << endl;
 
          TString path = root_file;
-         selection->Add(path);
+         prediction->Add(path);
       }
       myfile3.close();
    }
 
-   ifstream myfile4 ("filelist_selection_525_Run2012B_HTMHT_PromptReco_v1_data.txt");
+   ifstream myfile4 ("filelist_selection_535_Resolutions525_Run2012A-13Jul2012-v1_data.txt");
    if (myfile4.is_open()) {
       while( myfile4.good() ) {
          getline (myfile4,root_file);
@@ -313,27 +310,51 @@ int main()
          selection->Add(path);
       }
       myfile4.close();
-      }*/
+   }
+
+   ifstream myfile5 ("filelist_selection_535_Resolutions525_Run2012A-recover-06Aug2012-v1_data.txt");
+   if (myfile5.is_open()) {
+      while( myfile5.good() ) {
+         getline (myfile5,root_file);
+         cout << root_file << endl;
+
+         TString path = root_file;
+         selection->Add(path);
+      }
+      myfile5.close();
+   }
+
+   ifstream myfile6 ("filelist_selection_535_Resolutions525_Run2012B-13Jul2012-v1_data.txt");
+   if (myfile6.is_open()) {
+      while( myfile6.good() ) {
+         getline (myfile6,root_file);
+         cout << root_file << endl;
+
+         TString path = root_file;
+         selection->Add(path);
+      }
+      myfile6.close();
+   }
 
    // ------------------------------------------------------------------- //
      
    // initialize new Prediction object
    Prediction *pred_;
+   bool isData = true;
    pred_ = new Prediction(*prediction, *selection);
-   bool isData = false;
   
    TString LumiTitle;
-   if( isData ) LumiTitle = "CMS preliminary, L = 5.1 fb^{  -1}, #sqrt{s} = 8 TeV";
+   if( isData ) LumiTitle = "CMS preliminary, L = 5.295 fb^{  -1}, #sqrt{s} = 8 TeV";
    //else LumiTitle = "CMS Simulation, #sqrt{s} = 8 TeV";
    else LumiTitle = "CMS work in progress, #sqrt{s} = 8 TeV";
 
-   //TString postfix = "_genJets_withChsJets_withPUReweighting";
+   // TString postfix = "_genJets_TuneZ2_withChsJets_withPUReweighting";
    //TString postfix = "_genJets_withChsJets_withPUReweighting_withBProb";
    //TString postfix = "_genJets_withChsJets_withPUReweighting_madgraph_PythiaResolutions";
  
    // TString postfix = "_test";
    // TString postfix = "_chsJets_Z2star_NoPU_pt0";
-   TString postfix = "_chsJets_Z2star_withoutPUReweighting_pt15_FitProb01";
+   //TString postfix = "_chsJets_Z2star_withoutPUReweighting_pt10_TestRebChange_PtAll";
    // TString postfix = "_chsJets_withPUReweighting_pt10";
    //TString postfix = "_chsJets_withPUReweighting_pt10_noCleverPSTreating_cutOnEventWeight";
    // TString postfix = "_chsJets_withPUReweighting_pt15_noCleverPSTreating_cutOnEventWeight";
@@ -342,11 +363,11 @@ int main()
    //TString postfix = "_chsJets_withPUReweighting_pt13_noCleverPSTreating_cutOnEventWeight_Vtx15";
    // TString postfix = "_chsJets_withPUReweighting_WithBProb_pt13";
 
-   //TString postfix = "_chsJets_withoutPUReweighting_madgraph_pt13_Res250-Inf";
+   //TString postfix = "_chsJets_withoutPUReweighting_madgraph_pt10_Res250-Inf_TestRebChange_PtAll";
    //TString postfix = "_chsJets_withPUReweighting_madgraph_PythiaResolutions_withBProb_pt13";
    // TString postfix = "_chsJets_withPUReweighting_madgraph_PythiaResolutions_pt13";
 
-   // TString postfix = "_chsJets_525_Run2012AB_PromptReco_data_v1";
+   TString postfix = "_chsJets_535_Resolutions525_Run2012AB_data_v1";
 
    vector<TString> xTitle_presel;
    xTitle_presel.push_back("H_{T} (GeV)");
@@ -576,12 +597,13 @@ int main()
 
    // plots for preselection (2 jets)
    TString Title;
+   TString yTitle = "Events";
    Title = ">= 2 jets";
 
    if( hist_type_presel.size() != xTitle_presel.size() ) cout << "Error: Missing xTitles preselection!!" << endl;
 
    for(int i = 0; i < hist_type_presel.size(); i++ ) {
-      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_presel.at(i)), pred_->GetSelectionHisto(hist_type_presel.at(i)), Title, LumiTitle, xTitle_presel.at(i), isData); 
+      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_presel.at(i)), pred_->GetSelectionHisto(hist_type_presel.at(i)), Title, LumiTitle, xTitle_presel.at(i), yTitle, isData); 
 
       if      ( i == 0) c->Print("outpout_GetPrediction/QCD_presel" + postfix + ".ps(");
       else if ( i == hist_type_presel.size()-1 ) c->Print("outpout_GetPrediction/QCD_presel" + postfix + ".ps)");
@@ -596,7 +618,7 @@ int main()
    if( hist_type_deltaPhi.size() != xTitle_deltaPhi.size() ) cout << "Error: Missing xTitles preselection!!" << endl;
 
    for(int i = 0; i < hist_type_deltaPhi.size(); i++ ) {
-      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_deltaPhi.at(i)), pred_->GetSelectionHisto(hist_type_deltaPhi.at(i)), Title, LumiTitle, xTitle_deltaPhi.at(i), isData); 
+      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_deltaPhi.at(i)), pred_->GetSelectionHisto(hist_type_deltaPhi.at(i)), Title, LumiTitle, xTitle_deltaPhi.at(i), yTitle, isData); 
 
       if      ( i == 0) c->Print("outpout_GetPrediction/QCD_deltaPhi" + postfix + ".ps(");
       else if ( i == hist_type_deltaPhi.size()-1 ) c->Print("outpout_GetPrediction/QCD_deltaPhi" + postfix + ".ps)");
@@ -611,7 +633,7 @@ int main()
    if( hist_type_baseline_Bin1.size() != xTitle_baseline_Bin1.size() ) cout << "Error: Missing xTitles baseline Bin1!!" << endl;
 
    for(int i = 0; i < hist_type_baseline_Bin1.size(); i++ ) {
-      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_baseline_Bin1.at(i)), pred_->GetSelectionHisto(hist_type_baseline_Bin1.at(i)), Title, LumiTitle, xTitle_baseline_Bin1.at(i), isData); 
+      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_baseline_Bin1.at(i)), pred_->GetSelectionHisto(hist_type_baseline_Bin1.at(i)), Title, LumiTitle, xTitle_baseline_Bin1.at(i), yTitle, isData); 
 
       if      ( i == 0) c->Print("outpout_GetPrediction/QCD_baseline_Bin1" + postfix + ".ps(");
       else if ( i == hist_type_baseline_Bin1.size()-1 ) c->Print("outpout_GetPrediction/QCD_baseline_Bin1" + postfix + ".ps)");
@@ -625,7 +647,7 @@ int main()
    if( hist_type_baseline_Bin2.size() != xTitle_baseline_Bin2.size() ) cout << "Error: Missing xTitles baseline Bin2!!" << endl;
 
    for(int i = 0; i < hist_type_baseline_Bin2.size(); i++ ) {
-      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_baseline_Bin2.at(i)), pred_->GetSelectionHisto(hist_type_baseline_Bin2.at(i)), Title, LumiTitle, xTitle_baseline_Bin2.at(i), isData); 
+      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_baseline_Bin2.at(i)), pred_->GetSelectionHisto(hist_type_baseline_Bin2.at(i)), Title, LumiTitle, xTitle_baseline_Bin2.at(i), yTitle, isData); 
 
       if      ( i == 0) c->Print("outpout_GetPrediction/QCD_baseline_Bin2" + postfix + ".ps(");
       else if ( i == hist_type_baseline_Bin2.size()-1 ) c->Print("outpout_GetPrediction/QCD_baseline_Bin2" + postfix + ".ps)");
@@ -639,7 +661,7 @@ int main()
    if( hist_type_baseline_Bin3.size() != xTitle_baseline_Bin3.size() ) cout << "Error: Missing xTitles baseline Bin3!!" << endl;
 
    for(int i = 0; i < hist_type_baseline_Bin3.size(); i++ ) {
-      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_baseline_Bin3.at(i)), pred_->GetSelectionHisto(hist_type_baseline_Bin3.at(i)), Title, LumiTitle, xTitle_baseline_Bin3.at(i), isData); 
+      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_baseline_Bin3.at(i)), pred_->GetSelectionHisto(hist_type_baseline_Bin3.at(i)), Title, LumiTitle, xTitle_baseline_Bin3.at(i), yTitle, isData); 
 
       if      ( i == 0) c->Print("outpout_GetPrediction/QCD_baseline_Bin3" + postfix + ".ps(");
       else if ( i == hist_type_baseline_Bin3.size()-1 ) c->Print("outpout_GetPrediction/QCD_baseline_Bin3" + postfix + ".ps)");
@@ -653,7 +675,7 @@ int main()
    if( hist_type_baseline_Bin4.size() != xTitle_baseline_Bin4.size() ) cout << "Error: Missing xTitles baseline Bin4!!" << endl;
 
    for(int i = 0; i < hist_type_baseline_Bin4.size(); i++ ) {
-      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_baseline_Bin4.at(i)), pred_->GetSelectionHisto(hist_type_baseline_Bin4.at(i)), Title, LumiTitle, xTitle_baseline_Bin4.at(i), isData); 
+      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_baseline_Bin4.at(i)), pred_->GetSelectionHisto(hist_type_baseline_Bin4.at(i)), Title, LumiTitle, xTitle_baseline_Bin4.at(i), yTitle, isData); 
 
       if      ( i == 0) c->Print("outpout_GetPrediction/QCD_baseline_Bin4" + postfix + ".ps(");
       else if ( i == hist_type_baseline_Bin4.size()-1 ) c->Print("outpout_GetPrediction/QCD_baseline_Bin4" + postfix + ".ps)");
@@ -668,7 +690,7 @@ int main()
    if( hist_type_baseline_withoutDeltaPhi_Bin1.size() != xTitle_baseline_withoutDeltaPhi_Bin1.size() ) cout << "Error: Missing xTitles baseline_withoutDeltaPhi Bin1!!" << endl;
 
    for(int i = 0; i < hist_type_baseline_withoutDeltaPhi_Bin1.size(); i++ ) {
-      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_baseline_withoutDeltaPhi_Bin1.at(i)), pred_->GetSelectionHisto(hist_type_baseline_withoutDeltaPhi_Bin1.at(i)), Title, LumiTitle, xTitle_baseline_withoutDeltaPhi_Bin1.at(i), isData); 
+      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_baseline_withoutDeltaPhi_Bin1.at(i)), pred_->GetSelectionHisto(hist_type_baseline_withoutDeltaPhi_Bin1.at(i)), Title, LumiTitle, xTitle_baseline_withoutDeltaPhi_Bin1.at(i), yTitle, isData); 
 
       if      ( i == 0) c->Print("outpout_GetPrediction/QCD_baseline_withoutDeltaPhi_Bin1" + postfix + ".ps(");
       else if ( i == hist_type_baseline_withoutDeltaPhi_Bin1.size()-1 ) c->Print("outpout_GetPrediction/QCD_baseline_withoutDeltaPhi_Bin1" + postfix + ".ps)");
@@ -682,7 +704,7 @@ int main()
    if( hist_type_baseline_withoutDeltaPhi_Bin2.size() != xTitle_baseline_withoutDeltaPhi_Bin2.size() ) cout << "Error: Missing xTitles baseline_withoutDeltaPhi Bin2!!" << endl;
 
    for(int i = 0; i < hist_type_baseline_withoutDeltaPhi_Bin2.size(); i++ ) {
-      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_baseline_withoutDeltaPhi_Bin2.at(i)), pred_->GetSelectionHisto(hist_type_baseline_withoutDeltaPhi_Bin2.at(i)), Title, LumiTitle, xTitle_baseline_withoutDeltaPhi_Bin2.at(i), isData); 
+      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_baseline_withoutDeltaPhi_Bin2.at(i)), pred_->GetSelectionHisto(hist_type_baseline_withoutDeltaPhi_Bin2.at(i)), Title, LumiTitle, xTitle_baseline_withoutDeltaPhi_Bin2.at(i), yTitle, isData); 
 
       if      ( i == 0) c->Print("outpout_GetPrediction/QCD_baseline_withoutDeltaPhi_Bin2" + postfix + ".ps(");
       else if ( i == hist_type_baseline_withoutDeltaPhi_Bin2.size()-1 ) c->Print("outpout_GetPrediction/QCD_baseline_withoutDeltaPhi_Bin2" + postfix + ".ps)");
@@ -696,7 +718,7 @@ int main()
    if( hist_type_baseline_withoutDeltaPhi_Bin3.size() != xTitle_baseline_withoutDeltaPhi_Bin3.size() ) cout << "Error: Missing xTitles baseline_withoutDeltaPhi Bin3!!" << endl;
 
    for(int i = 0; i < hist_type_baseline_withoutDeltaPhi_Bin3.size(); i++ ) {
-      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_baseline_withoutDeltaPhi_Bin3.at(i)), pred_->GetSelectionHisto(hist_type_baseline_withoutDeltaPhi_Bin3.at(i)), Title, LumiTitle, xTitle_baseline_withoutDeltaPhi_Bin3.at(i), isData); 
+      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_baseline_withoutDeltaPhi_Bin3.at(i)), pred_->GetSelectionHisto(hist_type_baseline_withoutDeltaPhi_Bin3.at(i)), Title, LumiTitle, xTitle_baseline_withoutDeltaPhi_Bin3.at(i), yTitle, isData); 
 
       if      ( i == 0) c->Print("outpout_GetPrediction/QCD_baseline_withoutDeltaPhi_Bin3" + postfix + ".ps(");
       else if ( i == hist_type_baseline_withoutDeltaPhi_Bin3.size()-1 ) c->Print("outpout_GetPrediction/QCD_baseline_withoutDeltaPhi_Bin3" + postfix + ".ps)");
@@ -710,7 +732,7 @@ int main()
    if( hist_type_baseline_withoutDeltaPhi_Bin4.size() != xTitle_baseline_withoutDeltaPhi_Bin4.size() ) cout << "Error: Missing xTitles baseline_withoutDeltaPhi Bin4!!" << endl;
 
    for(int i = 0; i < hist_type_baseline_withoutDeltaPhi_Bin4.size(); i++ ) {
-      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_baseline_withoutDeltaPhi_Bin4.at(i)), pred_->GetSelectionHisto(hist_type_baseline_withoutDeltaPhi_Bin4.at(i)), Title, LumiTitle, xTitle_baseline_withoutDeltaPhi_Bin4.at(i), isData); 
+      TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_baseline_withoutDeltaPhi_Bin4.at(i)), pred_->GetSelectionHisto(hist_type_baseline_withoutDeltaPhi_Bin4.at(i)), Title, LumiTitle, xTitle_baseline_withoutDeltaPhi_Bin4.at(i), yTitle, isData); 
 
       if      ( i == 0) c->Print("outpout_GetPrediction/QCD_baseline_withoutDeltaPhi_Bin4" + postfix + ".ps(");
       else if ( i == hist_type_baseline_withoutDeltaPhi_Bin4.size()-1 ) c->Print("outpout_GetPrediction/QCD_baseline_withoutDeltaPhi_Bin4" + postfix + ".ps)");
@@ -721,670 +743,339 @@ int main()
 
    // plots for search bins 
    //jet Bin 1
-   Title = "2 jets, #Delta#phi cut, HT = 500 - 900 GeV";
-   TCanvas *c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
+   Title = "2 jets, #Delta#phi cut, HT = 500 - 1000 GeV";
+   TCanvas *c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), Title, LumiTitle,"#slash{H}_{T} (GeV)", yTitle, isData); 
    c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps(");
    c->Print("outpout_GetPrediction/MHT_JetBin1_HTlow" + postfix + ".png");
 
-   Title = "2 jets, #Delta#phi cut, HT = 900 - 1300 GeV";
-   c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
-   c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
-   c->Print("outpout_GetPrediction/MHT_JetBin1_HTmedium" + postfix + ".png");
-
-   Title = "2 jets, #Delta#phi cut, HT >= 1300 GeV";
-   c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
+   Title = "2 jets, #Delta#phi cut, HT >= 1000 GeV";
+   c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), Title, LumiTitle,"#slash{H}_{T} (GeV)", yTitle, isData); 
    c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
    c->Print("outpout_GetPrediction/MHT_JetBin1_HThigh" + postfix + ".png");
 
    // jet Bin2
-   Title = "3 - 5 jets, #Delta#phi cut, HT = 500 - 900 GeV";
-   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
+   Title = "3 - 5 jets, #Delta#phi cut, HT = 500 - 1000 GeV";
+   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), Title, LumiTitle,"#slash{H}_{T} (GeV)", yTitle, isData); 
    c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
    c->Print("outpout_GetPrediction/MHT_JetBin2_HTlow" + postfix + ".png");
 
-   Title = "3 - 5 jets, #Delta#phi cut, HT = 900 - 1300 GeV";
-   c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
-   c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
-   c->Print("outpout_GetPrediction/MHT_JetBin2_HTmedium" + postfix + ".png");
-
-   Title = "3 - 5 jets, #Delta#phi cut, HT >= 1300 GeV";
-   c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
+   Title = "3 - 5 jets, #Delta#phi cut, HT >= 1000 GeV";
+   c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), Title, LumiTitle,"#slash{H}_{T} (GeV)", yTitle, isData);
    c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
    c->Print("outpout_GetPrediction/MHT_JetBin2_HThigh" + postfix + ".png");
 
    // jet Bin3
-   Title = "6 - 7 jets, #Delta#phi cut, HT = 500 - 900 GeV";
-   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
+   Title = "6 - 7 jets, #Delta#phi cut, HT = 500 - 1000 GeV";
+   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), Title, LumiTitle,"#slash{H}_{T} (GeV)", yTitle, isData); 
    c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
    c->Print("outpout_GetPrediction/MHT_JetBin3_HTlow" + postfix + ".png");
 
-   Title = "6 - 7 jets, #Delta#phi cut, HT = 900 - 1300 GeV";
-   c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
-   c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
-   c->Print("outpout_GetPrediction/MHT_JetBin3_HTmedium" + postfix + ".png");
-
-   Title = "6 - 7 jets, #Delta#phi cut, HT >= 1300 GeV";
-   c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
+   Title = "6 - 7 jets, #Delta#phi cut, HT >= 1000 GeV";
+   c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), Title, LumiTitle,"#slash{H}_{T} (GeV)", yTitle, isData);
    c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
    c->Print("outpout_GetPrediction/MHT_JetBin3_HThigh" + postfix + ".png");
 
    // jet Bin 4
-   Title = ">= 8 jets, #Delta#phi cut, HT = 500 - 900 GeV";
-   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
+   Title = ">= 8 jets, #Delta#phi cut, HT = 500 - 1000 GeV";
+   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), Title, LumiTitle,"#slash{H}_{T} (GeV)", yTitle, isData); 
    c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
    c->Print("outpout_GetPrediction/MHT_JetBin4_HTlow" + postfix + ".png");
-
-   Title = ">= 8 jets, #Delta#phi cut, HT = 900 - 1300 GeV";
-   c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
-   c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps");
-   c->Print("outpout_GetPrediction/MHT_JetBin4_HTmedium" + postfix + ".png");
   
-   Title = ">= 8 jets, #Delta#phi cut, HT >= 1300 GeV";
-   c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
+   Title = ">= 8 jets, #Delta#phi cut, HT >= 1000 GeV";
+   c =  DrawComparison( pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), Title, LumiTitle,"#slash{H}_{T} (GeV)", yTitle, isData);
    c->Print("outpout_GetPrediction/QCD_searchBins" + postfix + ".ps)");
    c->Print("outpout_GetPrediction/MHT_JetBin4_HThigh" + postfix + ".png");
 
    // plots for inclusive jet bins
    //jet Bin 1
    Title = "2 jets, #Delta#phi cut, HT > 500 GeV";
-   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin1_HTinclusive"), pred_->GetSelectionHisto("MHT_JetBin1_HTinclusive"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
+   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin1_HTinclusive"), pred_->GetSelectionHisto("MHT_JetBin1_HTinclusive"), Title, LumiTitle,"#slash{H}_{T} (GeV)", yTitle, isData); 
    c->Print("outpout_GetPrediction/QCD_HTinclusiveNJetBins" + postfix + ".ps(");
    c->Print("outpout_GetPrediction/MHT_JetBin1_HTinclusive" + postfix + ".png");
 
    // jet Bin2
    Title = "3 - 5 jets, #Delta#phi cut, HT > 500 GeV";
-   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin2_HTinclusive"), pred_->GetSelectionHisto("MHT_JetBin2_HTinclusive"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
+   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin2_HTinclusive"), pred_->GetSelectionHisto("MHT_JetBin2_HTinclusive"), Title, LumiTitle,"#slash{H}_{T} (GeV)", yTitle, isData); 
    c->Print("outpout_GetPrediction/QCD_HTinclusiveNJetBins" + postfix + ".ps");
    c->Print("outpout_GetPrediction/MHT_JetBin2_HTinclusive" + postfix + ".png");
 
    // jet Bin3
    Title = "6 - 7 jets, #Delta#phi cut, HT > 500 GeV";
-   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin3_HTinclusive"), pred_->GetSelectionHisto("MHT_JetBin3_HTinclusive"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
+   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin3_HTinclusive"), pred_->GetSelectionHisto("MHT_JetBin3_HTinclusive"), Title, LumiTitle,"#slash{H}_{T} (GeV)", yTitle, isData); 
    c->Print("outpout_GetPrediction/QCD_HTinclusiveNJetBins" + postfix + ".ps");
    c->Print("outpout_GetPrediction/MHT_JetBin3_HTinclusive" + postfix + ".png");
 
    // jet Bin 4
    Title = ">= 8 jets, #Delta#phi cut, HT > 500 GeV";
-   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin4_HTinclusive"), pred_->GetSelectionHisto("MHT_JetBin4_HTinclusive"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
+   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin4_HTinclusive"), pred_->GetSelectionHisto("MHT_JetBin4_HTinclusive"), Title, LumiTitle,"#slash{H}_{T} (GeV)", yTitle, isData); 
    c->Print("outpout_GetPrediction/QCD_HTinclusiveNJetBins" + postfix + ".ps)");
    c->Print("outpout_GetPrediction/MHT_JetBin4_HTinclusive" + postfix + ".png");
 
    // baseline without deltaPhi HT + MHT
    //jet Bin 1
    Title = "2 jets, HT > 500 GeV";
-   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin1_baseline_withoutDeltaPhi"), pred_->GetSelectionHisto("MHT_JetBin1_baseline_withoutDeltaPhi"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
+   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin1_baseline_withoutDeltaPhi"), pred_->GetSelectionHisto("MHT_JetBin1_baseline_withoutDeltaPhi"), Title, LumiTitle,"#slash{H}_{T} (GeV)", yTitle, isData); 
    c->Print("outpout_GetPrediction/QCD_MHT_baseline_withoutDeltaPhi" + postfix + ".ps(");
    c->Print("outpout_GetPrediction/MHT_JetBin1_baseline_withoutDeltaPhi" + postfix + ".png");
 
    // jet Bin2
    Title = "3 - 5 jets, HT > 500 GeV";
-   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin2_baseline_withoutDeltaPhi"), pred_->GetSelectionHisto("MHT_JetBin2_baseline_withoutDeltaPhi"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
+   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin2_baseline_withoutDeltaPhi"), pred_->GetSelectionHisto("MHT_JetBin2_baseline_withoutDeltaPhi"), Title, LumiTitle,"#slash{H}_{T} (GeV)", yTitle, isData); 
    c->Print("outpout_GetPrediction/QCD_MHT_baseline_withoutDeltaPhi" + postfix + ".ps");
    c->Print("outpout_GetPrediction/MHT_JetBin2_baseline_withoutDeltaPhi" + postfix + ".png");
 
    // jet Bin3
    Title = "6 - 7 jets, HT > 500 GeV";
-   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin3_baseline_withoutDeltaPhi"), pred_->GetSelectionHisto("MHT_JetBin3_baseline_withoutDeltaPhi"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
+   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin3_baseline_withoutDeltaPhi"), pred_->GetSelectionHisto("MHT_JetBin3_baseline_withoutDeltaPhi"), Title, LumiTitle,"#slash{H}_{T} (GeV)", yTitle, isData); 
    c->Print("outpout_GetPrediction/QCD_MHT_baseline_withoutDeltaPhi" + postfix + ".ps");
    c->Print("outpout_GetPrediction/MHT_JetBin3_baseline_withoutDeltaPhi" + postfix + ".png");
 
    // jet Bin 4
    Title = ">= 8 jets, HT > 500 GeV";
-   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin4_baseline_withoutDeltaPhi"), pred_->GetSelectionHisto("MHT_JetBin4_baseline_withoutDeltaPhi"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData); 
+   c = DrawComparison( pred_->GetPredictionHisto("MHT_JetBin4_baseline_withoutDeltaPhi"), pred_->GetSelectionHisto("MHT_JetBin4_baseline_withoutDeltaPhi"), Title, LumiTitle,"#slash{H}_{T} (GeV)", yTitle, isData); 
    c->Print("outpout_GetPrediction/QCD_MHT_baseline_withoutDeltaPhi" + postfix + ".ps)");
    c->Print("outpout_GetPrediction/MHT_JetBin4_baseline_withoutDeltaPhi" + postfix + ".png");
 
    //jet Bin 1
    Title = "2 jets, MHT > 200 GeV";
-   c = DrawComparison( pred_->GetPredictionHisto("HT_JetBin1_baseline_withoutDeltaPhi"), pred_->GetSelectionHisto("HT_JetBin1_baseline_withoutDeltaPhi"), Title, LumiTitle,"H_{T} (GeV)", isData); 
+   c = DrawComparison( pred_->GetPredictionHisto("HT_JetBin1_baseline_withoutDeltaPhi"), pred_->GetSelectionHisto("HT_JetBin1_baseline_withoutDeltaPhi"), Title, LumiTitle,"H_{T} (GeV)", yTitle, isData); 
    c->Print("outpout_GetPrediction/QCD_HT_baseline_withoutDeltaPhi" + postfix + ".ps(");
    c->Print("outpout_GetPrediction/HT_JetBin1_baseline_withoutDeltaPhi" + postfix + ".png");
 
    // jet Bin2
    Title = "3 - 5 jets, MHT > 200 GeV";
-   c = DrawComparison( pred_->GetPredictionHisto("HT_JetBin2_baseline_withoutDeltaPhi"), pred_->GetSelectionHisto("HT_JetBin2_baseline_withoutDeltaPhi"), Title, LumiTitle,"H_{T} (GeV)", isData); 
+   c = DrawComparison( pred_->GetPredictionHisto("HT_JetBin2_baseline_withoutDeltaPhi"), pred_->GetSelectionHisto("HT_JetBin2_baseline_withoutDeltaPhi"), Title, LumiTitle,"H_{T} (GeV)", yTitle, isData); 
    c->Print("outpout_GetPrediction/QCD_HT_baseline_withoutDeltaPhi" + postfix + ".ps");
    c->Print("outpout_GetPrediction/HT_JetBin2_baseline_withoutDeltaPhi" + postfix + ".png");
 
    // jet Bin3
    Title = "6 - 7 jets, MHT > 200 GeV";
-   c = DrawComparison( pred_->GetPredictionHisto("HT_JetBin3_baseline_withoutDeltaPhi"), pred_->GetSelectionHisto("HT_JetBin3_baseline_withoutDeltaPhi"), Title, LumiTitle,"H_{T} (GeV)", isData); 
+   c = DrawComparison( pred_->GetPredictionHisto("HT_JetBin3_baseline_withoutDeltaPhi"), pred_->GetSelectionHisto("HT_JetBin3_baseline_withoutDeltaPhi"), Title, LumiTitle,"H_{T} (GeV)", yTitle, isData); 
    c->Print("outpout_GetPrediction/QCD_HT_baseline_withoutDeltaPhi" + postfix + ".ps");
    c->Print("outpout_GetPrediction/HT_JetBin3_baseline_withoutDeltaPhi" + postfix + ".png");
 
    // jet Bin 4
    Title = ">= 8 jets, MHT > 200 GeV";
-   c = DrawComparison( pred_->GetPredictionHisto("HT_JetBin4_baseline_withoutDeltaPhi"), pred_->GetSelectionHisto("HT_JetBin4_baseline_withoutDeltaPhi"), Title, LumiTitle,"H_{T} (GeV)", isData); 
+   c = DrawComparison( pred_->GetPredictionHisto("HT_JetBin4_baseline_withoutDeltaPhi"), pred_->GetSelectionHisto("HT_JetBin4_baseline_withoutDeltaPhi"), Title, LumiTitle,"H_{T} (GeV)", yTitle, isData); 
    c->Print("outpout_GetPrediction/QCD_HT_baseline_withoutDeltaPhi" + postfix + ".ps)");
    c->Print("outpout_GetPrediction/HT_JetBin4_baseline_withoutDeltaPhi" + postfix + ".png");
 
-
    // baseline plots
    Title = "#Delta#phi cut, HT > 500 GeV";
-   c =  DrawComparison( pred_->GetPredictionHisto("NJets_baseline_withoutMHT"), pred_->GetSelectionHisto("NJets_baseline_withoutMHT"), Title, LumiTitle,"N_{Jets}", isData);
+   c =  DrawComparison( pred_->GetPredictionHisto("NJets_baseline_withoutMHT"), pred_->GetSelectionHisto("NJets_baseline_withoutMHT"), Title, LumiTitle,"N_{Jets}", yTitle, isData);
    c->Print("outpout_GetPrediction/QCD_NJets_withoutMHT" + postfix + ".ps");
    c->Print("outpout_GetPrediction/NJets_baseline_withoutMHT" + postfix + ".png");
 
    Title = "#Delta#phi cut, HT > 500 GeV, MHT > 200 GeV";
-   c =  DrawComparison( pred_->GetPredictionHisto("NJets_baseline"), pred_->GetSelectionHisto("NJets_baseline"), Title, LumiTitle,"N_{Jets}", isData);
+   c =  DrawComparison( pred_->GetPredictionHisto("NJets_baseline"), pred_->GetSelectionHisto("NJets_baseline"), Title, LumiTitle,"N_{Jets}", yTitle, isData);
    c->Print("outpout_GetPrediction/QCD_NJets" + postfix + ".ps");
    c->Print("outpout_GetPrediction/NJets_baseline" + postfix + ".png");
 
    Title = "HT > 500 GeV";
-   c =  DrawComparison( pred_->GetPredictionHisto("NJets_baseline_withoutDeltaPhi_withoutMHT"), pred_->GetSelectionHisto("NJets_baseline_withoutDeltaPhi_withoutMHT"), Title, LumiTitle,"N_{Jets}", isData);
+   c =  DrawComparison( pred_->GetPredictionHisto("NJets_baseline_withoutDeltaPhi_withoutMHT"), pred_->GetSelectionHisto("NJets_baseline_withoutDeltaPhi_withoutMHT"), Title, LumiTitle,"N_{Jets}", yTitle, isData);
    c->Print("outpout_GetPrediction/QCD_NJets_withoutDeltaPhi_withoutMHT" + postfix + ".ps");
    c->Print("outpout_GetPrediction/NJets_baseline_withoutDeltaPhi_withoutMHT" + postfix + ".png");
 
    Title = "HT > 500 GeV, MHT > 200 GeV";
-   c =  DrawComparison( pred_->GetPredictionHisto("NJets_baseline_withoutDeltaPhi"), pred_->GetSelectionHisto("NJets_baseline_withoutDeltaPhi"), Title, LumiTitle,"N_{Jets}", isData);
+   c =  DrawComparison( pred_->GetPredictionHisto("NJets_baseline_withoutDeltaPhi"), pred_->GetSelectionHisto("NJets_baseline_withoutDeltaPhi"), Title, LumiTitle,"N_{Jets}", yTitle, isData);
    c->Print("outpout_GetPrediction/QCD_NJets_withoutDeltaPhi" + postfix + ".ps");
    c->Print("outpout_GetPrediction/NJets_baseline_withoutDeltaPhi" + postfix + ".png");
 
    Title = ">= 2 jets, #Delta#phi cut, HT > 500 GeV";
-   c =  DrawComparison( pred_->GetPredictionHisto("MHT_baseline"), pred_->GetSelectionHisto("MHT_baseline"), Title, LumiTitle,"#slash{H}_{T} (GeV)", isData);
+   c =  DrawComparison( pred_->GetPredictionHisto("MHT_baseline"), pred_->GetSelectionHisto("MHT_baseline"), Title, LumiTitle,"#slash{H}_{T} (GeV)", yTitle, isData);
    c->Print("outpout_GetPrediction/QCD_MHT_baseline" + postfix + ".ps");
    c->Print("outpout_GetPrediction/MHT_baseline" + postfix + ".png");
 
    Title = ">= 2 jets, #Delta#phi cut, MHT > 200 GeV";
-   c =  DrawComparison( pred_->GetPredictionHisto("HT_baseline"), pred_->GetSelectionHisto("HT_baseline"), Title, LumiTitle,"H_{T} (GeV)", isData);
+   c =  DrawComparison( pred_->GetPredictionHisto("HT_baseline"), pred_->GetSelectionHisto("HT_baseline"), Title, LumiTitle,"H_{T} (GeV)", yTitle, isData);
    c->Print("outpout_GetPrediction/QCD_HT_baseline" + postfix + ".ps");
    c->Print("outpout_GetPrediction/HT_baseline" + postfix + ".png");
 
    // deltaPhi plots
    Title = ">= 2 jets";
-   c =  DrawComparison( pred_->GetPredictionHisto("DeltaPhi1_presel"), pred_->GetSelectionHisto("DeltaPhi1_presel"), Title, LumiTitle,"#Delta#phi (jet1, MHT)", isData);
+   c =  DrawComparison( pred_->GetPredictionHisto("DeltaPhi1_presel"), pred_->GetSelectionHisto("DeltaPhi1_presel"), Title, LumiTitle,"#Delta#phi (jet1, MHT)", yTitle, isData);
    c->Print("outpout_GetPrediction/QCD_DeltaPhiPlots_presel" + postfix + ".ps(");
    c->Print("outpout_GetPrediction/DeltaPhi1_presel" + postfix + ".png");
 
    Title = ">= 2 jets";
-   c =  DrawComparison( pred_->GetPredictionHisto("DeltaPhi2_presel"), pred_->GetSelectionHisto("DeltaPhi2_presel"), Title, LumiTitle,"#Delta#phi (jet2, MHT)", isData);
+   c =  DrawComparison( pred_->GetPredictionHisto("DeltaPhi2_presel"), pred_->GetSelectionHisto("DeltaPhi2_presel"), Title, LumiTitle,"#Delta#phi (jet2, MHT)", yTitle, isData);
    c->Print("outpout_GetPrediction/QCD_DeltaPhiPlots_presel" + postfix + ".ps");
    c->Print("outpout_GetPrediction/DeltaPhi2_presel" + postfix + ".png");
 
    Title = "> 2 jets";
-   c =  DrawComparison( pred_->GetPredictionHisto("DeltaPhi3_presel"), pred_->GetSelectionHisto("DeltaPhi3_presel"), Title, LumiTitle,"#Delta#phi (jet3, MHT)", isData);
+   c =  DrawComparison( pred_->GetPredictionHisto("DeltaPhi3_presel"), pred_->GetSelectionHisto("DeltaPhi3_presel"), Title, LumiTitle,"#Delta#phi (jet3, MHT)", yTitle, isData);
    c->Print("outpout_GetPrediction/QCD_DeltaPhiPlots_presel" + postfix + ".ps)");
    c->Print("outpout_GetPrediction/DeltaPhi3_presel" + postfix + ".png");
 
   
-
    // set search bin cut values for HT and MHT (check with Prediction.C)
    double HTlow = 500;
-   double HTmedium = 900;
-   double HThigh = 1300;
+   //  double HTmedium = 900;
+   double HThigh = 1000;
    double MHTlow = 200;
    double MHTmedium = 350;
    double MHThigh = 500;
    int SmearRep = 100;
   
-
-   TString prediction_type = "_data";
-   if( !isData ) prediction_type = "_mc";
+   // determine non-closure bias for MC
+   if( !isData ) {
  
-   ofstream prediction_outfile;
-   prediction_outfile.open("outpout_GetPrediction/Prediction" + prediction_type + ".txt");
+      ofstream prediction_outfile;
+      prediction_outfile.open("outpout_GetPrediction/NonClosureBias" + postfix + ".txt");
     
-   // QCD predictions in search bins
-   // first jet multiplicity bin
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "NJets = 2 " << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"),
-                                                      MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError( pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHTlow, MHTmedium)
-        << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"),
-                                                      MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError( pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHTlow, MHTmedium)
-        << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), 
-                                                      MHTlow, MHTmedium)/ pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHTlow, MHTmedium); 
+      // first jet multiplicity bin
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "CMS preliminary, Non-closure uncertainty, #sqrt{s} = 8 TeV" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "NJets = 2 " << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "HT = " << HTlow << "-" << HThigh << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "MHT >= " << MHTlow << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHTlow, MHTlow) 
+                         << " +- " << pred_->GetResultError( pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHTlow, MHTlow)
+                         << endl;
+      prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHTlow, MHTlow) 
+                         << " +- " << pred_->GetResultError( pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHTlow, MHTlow)
+                         << endl;
+      prediction_outfile << "Ratio 1 - Pred/Selection: " << 1 - (pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHTlow, MHTlow) / pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHTlow, MHTlow) )
+                         << " +- " << TMath::Sqrt( pow(1/pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHTlow, MHTlow), 2) * pow(pred_->GetResultError( pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHTlow, MHTlow), 2) + pow(pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHTlow, MHTlow)/pow(pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHTlow, MHTlow), 2), 2) * pow(pred_->GetResultError( pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHTlow, MHTlow), 2) ) << endl; 
 
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHTmedium, MHThigh); 
-   prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "HT >= " << HThigh << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "MHT >= " << MHTlow << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTlow) 
+                         << " +- " << pred_->GetResultError( pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTlow)
+                         << endl;
+      prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTlow) 
+                         << " +- " << pred_->GetResultError( pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTlow)
+                         << endl;
+      prediction_outfile << "Ratio 1 - Pred/Selection: " << 1 - (pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTlow) / pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTlow) )
+                         << " +- " << TMath::Sqrt( pow(1/pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTlow), 2) * pow(pred_->GetResultError( pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTlow), 2) + pow(pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTlow)/pow(pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTlow), 2), 2) * pow(pred_->GetResultError( pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTlow), 2) ) << endl; 
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
+  
 
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT > " << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHThigh, -1) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHThigh, -1) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTlow"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTlow"), MHThigh, -1); 
-   prediction_outfile << "----------------------" << endl;
+      // second jet multiplicity bin
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "NJets = 3 - 5" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "HT = " << HTlow << "-" << HThigh << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "MHT >= " << MHTlow << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTlow) 
+                         << " +- " << pred_->GetResultError( pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTlow)
+                         << endl;
+      prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTlow) 
+                         << " +- " << pred_->GetResultError( pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTlow)
+                         << endl;
+      prediction_outfile << "Ratio 1 - Pred/Selection: " << 1 - (pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTlow) / pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTlow) ) 
+                         << " +- " << TMath::Sqrt( pow(1/pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTlow), 2) * pow(pred_->GetResultError( pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTlow), 2) + pow(pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTlow)/pow(pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTlow), 2), 2) * pow(pred_->GetResultError( pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTlow), 2) ) << endl; 
 
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHTlow, MHTmedium); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHTmedium, MHThigh); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT > " << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHThigh, -1) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHThigh, -1) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HTmedium"), MHThigh, -1)/pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HTmedium"), MHThigh, -1); 
-   prediction_outfile << "----------------------" << endl;
-
- prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT > " << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTlow, MHTmedium); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT > " << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHTmedium, MHThigh); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT > " << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT > " << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHThigh, -1) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHThigh, -1) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin1_HThigh"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin1_HThigh"), MHThigh, -1); 
-   prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "HT >= " << HThigh << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "MHT >= " << MHTlow << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTlow) 
+                         << " +- " << pred_->GetResultError( pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTlow)
+                         << endl;
+      prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTlow) 
+                         << " +- " << pred_->GetResultError( pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTlow)
+                         << endl;
+      prediction_outfile << "Ratio 1 - Pred/Selection: " << 1 - (pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTlow) /  pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTlow) )
+                         << " +- " << TMath::Sqrt( pow(1/pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTlow), 2) * pow(pred_->GetResultError( pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTlow), 2) + pow(pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTlow)/pow(pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTlow), 2), 2) * pow(pred_->GetResultError( pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTlow), 2) ) << endl; 
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
 
 
-   // second jet multiplicity bin
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "NJets = 3 - 5" << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTlow, MHTmedium); 
-   prediction_outfile << "----------------------" << endl;
+      // third jet multiplicity bin
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "NJets = 6 or 7" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "HT = " << HTlow << "-" << HThigh << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "MHT >= " << MHTlow << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTlow) 
+                         << " +- " << pred_->GetResultError( pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTlow)
+                         << endl;
+      prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTlow) 
+                         << " +- " << pred_->GetResultError( pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTlow)
+                         << endl;
+      prediction_outfile << "Ratio 1 - Pred/Selection: " << 1 - (pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTlow) / pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTlow) )
+                         << " +- " << TMath::Sqrt( pow(1/pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTlow), 2) * pow(pred_->GetResultError( pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTlow), 2) + pow(pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTlow)/pow(pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTlow), 2), 2) * pow(pred_->GetResultError( pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTlow), 2) ) << endl; 
 
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHTmedium, MHThigh); 
-   prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "HT >= " << HThigh << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "MHT >= " << MHTlow << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTlow) 
+                         << " +- " << pred_->GetResultError( pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTlow)
+                         << endl;
+      prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTlow) 
+                         << " +- " << pred_->GetResultError( pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTlow)
+                         << endl;
+      prediction_outfile << "Ratio 1 - Pred/Selection: " << 1 - (pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTlow) / pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTlow) )
+                         << " +- " << TMath::Sqrt( pow(1/pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTlow), 2) * pow(pred_->GetResultError( pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTlow), 2) + pow(pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTlow)/pow(pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTlow), 2), 2) * pow(pred_->GetResultError( pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTlow), 2) ) << endl; 
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
+ 
 
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT > " << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHThigh, -1) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHThigh, -1) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTlow"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTlow"), MHThigh, -1); 
-   prediction_outfile << "----------------------" << endl;
+      // fourth jet multiplicity bin
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "NJets >= 8" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "HT = " << HTlow << "-" << HThigh << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "MHT >= " << MHTlow << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTlow) 
+                         << " +- " << pred_->GetResultError( pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTlow)
+                         << endl;
+      prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTlow) 
+                         << " +- " << pred_->GetResultError( pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTlow)
+                         << endl;
+      prediction_outfile << "Ratio 1 - Pred/Selection: " << 1 - (pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTlow) / pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTlow) )
+                         << " +- " << TMath::Sqrt( pow(1/pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTlow), 2) * pow(pred_->GetResultError( pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTlow), 2) + pow(pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTlow)/pow(pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTlow), 2), 2) * pow(pred_->GetResultError( pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTlow), 2) ) << endl; 
 
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHTlow, MHTmedium); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHTmedium, MHThigh); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT > " << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHThigh, -1) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHThigh, -1) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HTmedium"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HTmedium"), MHThigh, -1); 
-   prediction_outfile << "----------------------" << endl;
-
- prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT > " << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTlow, MHTmedium); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT > " << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHTmedium, MHThigh); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT > " << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT > " << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHThigh, -1) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHThigh, -1) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin2_HThigh"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin2_HThigh"), MHThigh, -1); 
-   prediction_outfile << "----------------------" << endl;
-
-   // third jet multiplicity bin
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "NJets = 6 or 7" << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTlow, MHTmedium); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHTmedium, MHThigh); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT > " << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHThigh, -1) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHThigh, -1) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTlow"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTlow"), MHThigh, -1); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHTlow, MHTmedium); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHTmedium, MHThigh); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT > " << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHThigh, -1) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHThigh, -1) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HTmedium"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HTmedium"), MHThigh, -1); 
-   prediction_outfile << "----------------------" << endl;
-
- prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT > " << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTlow, MHTmedium); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT > " << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHTmedium, MHThigh); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT > " << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT > " << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHThigh, -1) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHThigh, -1) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin3_HThigh"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin3_HThigh"), MHThigh, -1); 
-   prediction_outfile << "----------------------" << endl;
-
-   // fourth jet multiplicity bin
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "NJets >= 8" << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTlow, MHTmedium); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHTmedium, MHThigh); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTlow << "-" << HTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT > " << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHThigh, -1) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHThigh, -1) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTlow"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTlow"), MHThigh, -1); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHTlow, MHTmedium); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHTmedium, MHThigh); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT = " << HTmedium << "-" << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT > " << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHThigh, -1) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHThigh, -1) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HTmedium"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HTmedium"), MHThigh, -1); 
-   prediction_outfile << "----------------------" << endl;
-
- prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT > " << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTlow << "-" << MHTmedium << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTmedium) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTmedium) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTmedium)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTmedium); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT > " << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT = " << MHTmedium << "-" << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTmedium, MHThigh) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTmedium, MHThigh) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTmedium, MHThigh)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTmedium, MHThigh); 
-   prediction_outfile << "----------------------" << endl;
-
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "HT > " << HThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "MHT > " << MHThigh << endl;
-   prediction_outfile << "----------------------" << endl;
-   prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHThigh, -1) << endl;
-   prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHThigh, -1) 
-        << " +- " << pred_->GetResultError(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHThigh, -1) << endl;
-   prediction_outfile << "Ratio Selection/Pred: " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHThigh, -1)/pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHThigh, -1); 
-   prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "HT >= " << HThigh << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "MHT >= " << MHTlow << endl;
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "Integral Selection:  " << pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTlow) 
+                         << " +- " << pred_->GetResultError( pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTlow)
+                         << endl;
+      prediction_outfile << "Integral Prediction: " << pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTlow) 
+                         << " +- " << pred_->GetResultError( pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTlow)
+                         << endl;
+      prediction_outfile << "Ratio 1 - Pred/Selection: " << 1 - (pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTlow) / pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTlow) )
+                         << " +- " << TMath::Sqrt( pow(1/pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTlow), 2) * pow(pred_->GetResultError( pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTlow), 2) + pow(pred_->GetResultValue(pred_->GetPredictionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTlow)/pow(pred_->GetResultValue(pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTlow), 2), 2) * pow(pred_->GetResultError( pred_->GetSelectionHisto("MHT_JetBin4_HThigh"), MHTlow, MHTlow), 2) ) << endl; 
+      prediction_outfile << "----------------------" << endl;
+      prediction_outfile << "----------------------" << endl;
+  
    
-   prediction_outfile.close();
+      prediction_outfile.close();
+   }
 
    return 1;
 }

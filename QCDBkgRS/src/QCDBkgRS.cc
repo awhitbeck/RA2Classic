@@ -13,7 +13,7 @@
 //
 // Original Author:  Kristin Heine,,,DESY
 //         Created:  Tue Aug  7 15:55:02 CEST 2012
-// $Id: QCDBkgRS.cc,v 1.4 2012/10/09 13:18:36 kheine Exp $
+// $Id: QCDBkgRS.cc,v 1.5 2012/11/13 15:19:26 kheine Exp $
 //
 //
 
@@ -56,6 +56,7 @@ QCDBkgRS::QCDBkgRS(const edm::ParameterSet& iConfig)
    inputhist1NoHF_ = iConfig.getParameter<std::string> ("InputHisto1_NoHF");
    inputhist2NoHF_ = iConfig.getParameter<std::string> ("InputHisto2_NoHF");
    inputhist3pNoHF_ = iConfig.getParameter<std::string> ("InputHisto3p_NoHF");
+   RebalanceCorrectionFile_ = iConfig.getParameter<std::string> ("RebalanceCorrectionFile");
    controlPlots_ = iConfig.getParameter<bool> ("ControlPlots");
    isData_ = iConfig.getParameter<bool> ("IsData");
    smearingfile_ = iConfig.getParameter<std::string> ("SmearingFile");
@@ -65,6 +66,7 @@ QCDBkgRS::QCDBkgRS(const edm::ParameterSet& iConfig)
    weightName_ = iConfig.getParameter<edm::InputTag> ("weightName");
    absoluteTailScaling_ = iConfig.getParameter<bool> ("absoluteTailScaling");
    cleverPrescaleTreating_ = iConfig.getParameter<bool> ("cleverPrescaleTreating");
+   useRebalanceCorrectionFactors_ = iConfig.getParameter<bool> ("useRebalanceCorrectionFactors");
    A0RMS_ = iConfig.getParameter<double> ("A0RMS");
    A1RMS_ = iConfig.getParameter<double> ("A1RMS");
    probExtreme_ = iConfig.getParameter<double> ("probExtreme");
@@ -229,10 +231,6 @@ double QCDBkgRS::GetHFProb(const int& NJets, const double& HT, const int& jet_ra
   
    int i_bin;
 
-  //  if( NJets == 1){
-//       i_bin = h_bProb_NJets1->FindBin(HT, jet_rank);
-//       return h_bProb_NJets1->GetBinContent(i_bin);
-//    }
    if( NJets == 2){
       i_bin = h_bProb_NJets2->FindBin(HT, jet_rank);
       return h_bProb_NJets2->GetBinContent(i_bin);
@@ -260,6 +258,25 @@ double QCDBkgRS::GetHFProb(const int& NJets, const double& HT, const int& jet_ra
 //--------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------
+double QCDBkgRS::GetRebalanceCorrection(double jet_pt)
+{
+   if( jet_pt > 1000. ) jet_pt = 999.;
+
+   if ( jet_pt > rebalancedJetPt_ ) {
+      int i_bin = h_RebCorrectionFactor->FindBin(jet_pt);
+
+      //  cout << "Reco jet pt: " << jet_pt << endl;
+      //cout << "Rebalance correction: " << h_RebCorrectionFactor->GetBinContent(i_bin) << endl;
+  
+      return h_RebCorrectionFactor->GetBinContent(i_bin);
+   }
+
+   else return 1;
+  
+}
+//--------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------
 // rebalance the events using a kinematic fit and transverse momentum balance
 bool QCDBkgRS::RebalanceJets_KinFitter(edm::View<pat::Jet>* Jets_rec, std::vector<pat::Jet> &Jets_reb) {
 
@@ -281,9 +298,7 @@ bool QCDBkgRS::RebalanceJets_KinFitter(edm::View<pat::Jet>* Jets_rec, std::vecto
    double HTreb = 0;
    double MHTx_low = 0;
    double MHTy_low = 0;
-   double MHTx_high = 0;
-   double MHTy_high = 0;
-
+  
    //// Fill measured particles to vector
    int i = 0;
    for (edm::View<pat::Jet>::const_iterator it = Jets_rec-> begin(); it != Jets_rec->end(); ++it) {
@@ -298,16 +313,24 @@ bool QCDBkgRS::RebalanceJets_KinFitter(edm::View<pat::Jet>* Jets_rec, std::vecto
             Jets_reb.push_back(rebalancedJet);
          }
       } else {
-         MHTx_high -= it->px();
-         MHTy_high -= it->py();
-         JetMap[i] = &(*it);
+        
+         JetMap[i] = &(*it); 
 
          // The particles before fitting
          double tmppx, tmppy, tmppz, tmpe;
-         tmppx = it->px();
-         tmppy = it->py();
-         tmppz = it->pz();
-         tmpe = it->energy();
+
+         if( useRebalanceCorrectionFactors_ ) {
+            tmppx = it->px()/GetRebalanceCorrection( it->pt() );
+            tmppy = it->py()/GetRebalanceCorrection( it->pt() );
+            tmppz = it->pz()/GetRebalanceCorrection( it->pt() );
+            tmpe = it->energy()/GetRebalanceCorrection( it->pt() );
+         }
+         else {
+            tmppx = it->px();
+            tmppy = it->py();
+            tmppz = it->pz();
+            tmpe = it->energy();
+         }
 
          TLorentzVector* lv = new TLorentzVector(tmppx, tmppy, tmppz, tmpe);
          lvec_m.push_back(lv);
@@ -325,7 +348,7 @@ bool QCDBkgRS::RebalanceJets_KinFitter(edm::View<pat::Jet>* Jets_rec, std::vecto
          myFit->addMeasParticle(fitted.back());
          ++i;
       }
-   }
+   } 
 
    //// Add momentum constraints
    double MET_constraint_x = 0.;
@@ -456,10 +479,10 @@ void QCDBkgRS::SmearingJets(const std::vector<pat::Jet> &Jets_reb, std::vector<p
          }
          GreaterByPt<reco::Candidate> ptComparator_;
          std::sort(Jets_smeared.begin(), Jets_smeared.end(), ptComparator_);
+
          //Fill HT and MHT prediction histos for i-th iteration of smearing
          int NJets = calcNJets(Jets_smeared);
          if (NJets >= NJets_) {
-
             FillPredictions(Jets_smeared, i, w);
 
             // save only events with MHT > 100. GeV for data
@@ -470,6 +493,7 @@ void QCDBkgRS::SmearingJets(const std::vector<pat::Jet> &Jets_reb, std::vector<p
             }
             else PredictionTree->Fill();
 
+            // clean variables in tree
             weight = 0.;
             Ntries_pred = 0.;
             Njets_pred = 0;
@@ -535,12 +559,14 @@ void QCDBkgRS::SmearingGenJets(edm::View<reco::GenJet>* Jets_gen, std::vector<re
       }
       GreaterByPt<reco::Candidate> ptComparator_;
       std::sort(GenJets_smeared.begin(), GenJets_smeared.end(), ptComparator_);
+
       //Fill HT and MHT prediction histos for i-th iteration of smearing
       int NJets = calcNJets_gen(GenJets_smeared);
       if (NJets >= NJets_) {
          FillPredictions_gen(GenJets_smeared, i, weight_);
          PredictionTree->Fill();
 
+         // clean variables in tree
          weight = 0.;
          Ntries_pred = 0.;
          Njets_pred = 0;
@@ -640,8 +666,8 @@ void QCDBkgRS::FillLeadingJetPredictions(const std::vector<pat::Jet>& Jets_smear
       }
    }
    if( NJets == 2 ) {
-      Jet3Pt_pred = 0.;
-      Jet3Eta_pred = 0.;
+      Jet3Pt_pred = -1.;
+      Jet3Eta_pred = 9999.;
    }
 
    return;
@@ -668,7 +694,7 @@ void QCDBkgRS::FillDeltaPhiPredictions(const std::vector<pat::Jet>& Jets_smeared
       }
    }
    if( NJets == 2 ) {
-      DeltaPhi3_pred = 0.;
+      DeltaPhi3_pred = 9999.;
    }
 
    return;
@@ -754,8 +780,8 @@ void QCDBkgRS::FillLeadingJetPredictions_gen(const std::vector<reco::GenJet>& Je
       }
    }
    if( NJets == 2 ) {
-      Jet3Pt_pred = 0.;
-      Jet3Eta_pred = 0.; 
+      Jet3Pt_pred = -1.;
+      Jet3Eta_pred = 9999.; 
    }
 
    return;
@@ -782,7 +808,7 @@ void QCDBkgRS::FillDeltaPhiPredictions_gen(const std::vector<reco::GenJet>& Jets
       }
    }
    if( NJets == 2 ) {
-      DeltaPhi3_pred = 0.;
+      DeltaPhi3_pred = 9999.;
    }
 
 
@@ -878,11 +904,14 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // collection of smeared gen jets
    std::auto_ptr<vector<reco::GenJet> > GenJets_smeared(new vector<reco::GenJet> );
 
+
+   // ------------------------------------------------------------------------ //
+   // plots for reco jets
+   HT_seed = 0;
    double HT_rec = 0;
    double HTall_rec = 0;
    double HTlow_rec = 0;
    double HThigh_rec = 0;
-   HT_seed = 0;
    const reco::Jet* Jet1_rec = 0;
    const reco::Jet* Jet2_rec = 0;
    math::PtEtaPhiMLorentzVector vMHTall_rec(0., 0., 0., 0.);
@@ -893,6 +922,8 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    //// Fill measured particles to vector
    for (edm::View<pat::Jet>::const_iterator it = Jets_rec.begin(); it != Jets_rec.end(); ++it) {
       JetCounter++;
+      h_JetPt_reco->Fill(it->pt(), weight_);
+
       if( JetCounter == 1 ) {
          Jet1_rec = &(*it);
       } 
@@ -900,12 +931,14 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          Jet2_rec = &(*it);
       } 
 
+      // all HT cuts
       if (it->pt() > JetsHTPt_ && std::abs(it->eta()) < JetsHTEta_) {
          HT_seed += it->pt();
          NJets_reco++;
          HT_rec += it->pt();
       }
 
+      // HT cuts without eta
       if (it->pt() < JetsHTPt_) {
          HTall_rec += it->pt();
          HTlow_rec += it->pt();
@@ -914,6 +947,7 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          HThigh_rec += it->pt();
       }
 
+      // MHT cuts without eta
       if (it->pt() < JetsMHTPt_) {
          vMHTall_rec -= it->p4();
          vMHTlow_rec -= it->p4();
@@ -921,11 +955,12 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          vMHTall_rec -= it->p4();
          vMHThigh_rec -= it->p4();
       }
-
-      h_JetPt_reco->Fill(it->pt(), weight_);
    }
 
+   // fill control plots for reasonable event weights
    if (controlPlots_ && weight_ < 30000) {
+
+      // reco HT for different NJet bins
       if( NJets_reco == 2 ){
          h_HT_JetBin1_rec->Fill(HT_rec, weight_);
       }
@@ -939,9 +974,12 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          h_HT_JetBin4_rec->Fill(HT_rec, weight_);
       }
 
+      // delta Phi between first two reco jets
       if( JetCounter >= 2 ){
          h_deltaPhiJet1Jet2_rec->Fill(std::abs(deltaPhi(Jet1_rec->phi(), Jet2_rec->phi())), weight_);
       }
+
+      // control plots for reco jets
       h_nJets_reco->Fill(NJets_reco, weight_);
       h_HT_rec->Fill(HT_rec, weight_);
       h_HTall_rec->Fill(HTall_rec, weight_);
@@ -949,7 +987,23 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       h_MHTall_rec->Fill(vMHTall_rec.pt(), weight_);
       h_MHThigh_rec->Fill(vMHThigh_rec.pt(), weight_);
    }
+   // ------------------------------------------------------------------------ //
 
+   // ------------------------------------------------------------------------ //
+   // count seed events for PU Uncertainty
+   if (controlPlots_ && weight_ < 30000) {
+      if( NJets_reco == 2 ) h_SeedEvents_HT_NJet2->Fill(HT_rec, vtxN, weight_); 
+      if( NJets_reco == 3 ) h_SeedEvents_HT_NJet3->Fill(HT_rec, vtxN, weight_); 
+      if( NJets_reco == 4 ) h_SeedEvents_HT_NJet4->Fill(HT_rec, vtxN, weight_); 
+      if( NJets_reco == 5 ) h_SeedEvents_HT_NJet5->Fill(HT_rec, vtxN, weight_); 
+      if( NJets_reco == 6 ) h_SeedEvents_HT_NJet6->Fill(HT_rec, vtxN, weight_); 
+      if( NJets_reco == 7 ) h_SeedEvents_HT_NJet7->Fill(HT_rec, vtxN, weight_); 
+      if( NJets_reco >= 8 ) h_SeedEvents_HT_NJet8->Fill(HT_rec, vtxN, weight_);  
+   }
+   // ------------------------------------------------------------------------ //
+
+   // ------------------------------------------------------------------------ //
+   // plots for gen jets
    double HT_gen = 0;
    double HTall_gen = 0;
    double HTlow_gen = 0;
@@ -964,6 +1018,8 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    //// Fill measured particles to vector
    for (edm::View<reco::GenJet>::const_iterator it = Jets_gen.begin(); it != Jets_gen.end(); ++it) {
       JetCounter++;
+      h_JetPt_gen->Fill(it->pt(), weight_);
+
       if( JetCounter == 1 ) {
          Jet1_gen = &(*it);
       } 
@@ -971,10 +1027,13 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          Jet2_gen = &(*it);
       } 
 
+      // all HT cuts
       if (it->pt() > JetsHTPt_ && std::abs(it->eta()) < JetsHTEta_) {
          NJets_gen++;
          HT_gen += it->pt();
       }
+
+      // HT cuts without eta
       if (it->pt() < JetsHTPt_) {
          HTall_gen += it->pt();
          HTlow_gen += it->pt();
@@ -983,6 +1042,7 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          HThigh_gen += it->pt();
       }
 
+      // MHT cuts without eta
       if (it->pt() < JetsMHTPt_) {
          vMHTall_gen -= it->p4();
          vMHTlow_gen -= it->p4();
@@ -990,10 +1050,12 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          vMHTall_gen -= it->p4();
          vMHThigh_gen -= it->p4();
       }
-
-      h_JetPt_gen->Fill(it->pt(), weight_);
    }
+
+   // fill control plots for reasonable event weights
    if (controlPlots_ && weight_ < 30000) {
+
+      // gen HT for different NJet bins
       if( NJets_gen == 2 ){
          h_HT_JetBin1_gen->Fill(HT_gen, weight_);
       }
@@ -1007,9 +1069,12 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          h_HT_JetBin4_gen->Fill(HT_gen, weight_);
       }
 
+      // delta Phi between first two gen jets
       if( JetCounter >= 2 ){
          h_deltaPhiJet1Jet2_gen->Fill(std::abs(deltaPhi(Jet1_gen->phi(), Jet2_gen->phi())), weight_);
       }
+
+      // control plots for gen jets
       h_nJets_gen->Fill(NJets_gen, weight_);
       h_HT_gen->Fill(HT_gen, weight_);
       h_HTall_gen->Fill(HTall_gen, weight_);
@@ -1018,61 +1083,68 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       h_MHThigh_gen->Fill(vMHThigh_gen.pt(), weight_);
    }
    //cout << "HT gen  = " << HThigh_gen << endl;
+   // ------------------------------------------------------------------------ //
 
-   //// Pt resolution of reconstructed CaloJets
+   // ------------------------------------------------------------------------ //
+   // plots for matched/not-matched reco - gen jets
    if (gj_present) {
       for (edm::View<reco::GenJet>::const_iterator it = Jets_gen.begin(); it != Jets_gen.end(); ++it) {
          double dRmin = 100;
          const reco::Jet* matchedJet = 0;
          for (edm::View<pat::Jet>::const_iterator jt = Jets_rec.begin(); jt != Jets_rec.end(); ++jt) {
-            double dR = deltaR(*jt, *it);
+            double dR = deltaR(*jt, *it);            
             if (dR < dRmin) {
                dRmin = dR;
                matchedJet = &(*jt);
             }
          }
-         if (controlPlots_) {
+         if (controlPlots_ && weight_ < 30000) {
             if (dRmin < 0.15) {
-               if( weight_ < 30000 ) {
-                  h_RecJetMatched_Pt->Fill(matchedJet->pt(), weight_);
-                  if( NJets_gen == 2 ) {
-                     h_RecJetMatched_JetBin1_Pt->Fill(matchedJet->pt(), weight_);
-                  }
-                  if( NJets_gen == 3 ||  NJets_gen == 4 || NJets_gen == 5){
-                     h_RecJetMatched_JetBin2_Pt->Fill(matchedJet->pt(), weight_);
-                  }
-                  if( NJets_gen == 6 ||  NJets_gen == 7){
-                     h_RecJetMatched_JetBin3_Pt->Fill(matchedJet->pt(), weight_);
-                  }
-                  if( NJets_gen >= 8){
-                     h_RecJetMatched_JetBin4_Pt->Fill(matchedJet->pt(), weight_);
-                  }
+               // pt spectrum of all matched reco jets
+               h_RecJetMatched_Pt->Fill(matchedJet->pt(), weight_);
+
+               // pt spectrum of matched reco jets in NJet bins
+               if( NJets_gen == 2 ) {
+                  h_RecJetMatched_JetBin1_Pt->Fill(matchedJet->pt(), weight_);
                }
+               if( NJets_gen == 3 ||  NJets_gen == 4 || NJets_gen == 5){
+                  h_RecJetMatched_JetBin2_Pt->Fill(matchedJet->pt(), weight_);
+               }
+               if( NJets_gen == 6 ||  NJets_gen == 7){
+                  h_RecJetMatched_JetBin3_Pt->Fill(matchedJet->pt(), weight_);
+               }
+               if( NJets_gen >= 8){
+                  h_RecJetMatched_JetBin4_Pt->Fill(matchedJet->pt(), weight_);
+               }
+
+               // resolution of reco jets compared to gen jets
                if (fabs(it->eta()) < 1.5)
                   h_RecJetRes_Pt->Fill(it->pt(), matchedJet->pt() / it->pt(), weight_);
                if (it->pt() > 100.)
                   h_RecJetRes_Eta->Fill(it->eta(), matchedJet->pt() / it->pt(), weight_);
             }
             else {
-               if( weight_ < 30000 ) {
-                  h_RecJetNotMatched_Pt->Fill(matchedJet->pt(), weight_);
-                  if( NJets_gen == 2 ) {
-                     h_RecJetNotMatched_JetBin1_Pt->Fill(matchedJet->pt(), weight_);
-                  }
-                  if( NJets_gen == 3 ||  NJets_gen == 4 || NJets_gen == 5){
-                     h_RecJetNotMatched_JetBin2_Pt->Fill(matchedJet->pt(), weight_);
-                  }
-                  if( NJets_gen == 6 ||  NJets_gen == 7){
-                     h_RecJetNotMatched_JetBin3_Pt->Fill(matchedJet->pt(), weight_);
-                  }
-                  if( NJets_gen >= 8){
-                     h_RecJetNotMatched_JetBin4_Pt->Fill(matchedJet->pt(), weight_);
-                  }
+               // pt spectrum of not-matched reco jets
+               h_RecJetNotMatched_Pt->Fill(matchedJet->pt(), weight_);
+
+               // pt spectrum of not-matched reco jets in NJet bins
+               if( NJets_gen == 2 ) {
+                  h_RecJetNotMatched_JetBin1_Pt->Fill(matchedJet->pt(), weight_);
+               }
+               if( NJets_gen == 3 ||  NJets_gen == 4 || NJets_gen == 5){
+                  h_RecJetNotMatched_JetBin2_Pt->Fill(matchedJet->pt(), weight_);
+               }
+               if( NJets_gen == 6 ||  NJets_gen == 7){
+                  h_RecJetNotMatched_JetBin3_Pt->Fill(matchedJet->pt(), weight_);
+               }
+               if( NJets_gen >= 8){
+                  h_RecJetNotMatched_JetBin4_Pt->Fill(matchedJet->pt(), weight_);
                }
             }
          }
       }
    }
+   // ------------------------------------------------------------------------ //
 
    Jets_reb->reserve(Jets_rec.size());
    Jets_smeared->reserve(Jets_rec.size());
@@ -1091,6 +1163,7 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       GreaterByPt<pat::Jet> ptComparator_;
       std::sort(Jets_reb->begin(), Jets_reb->end(), ptComparator_);
 
+      // plots for reb jets
       double HT_reb = 0;
       double HThigh_reb = 0;
       math::PtEtaPhiMLorentzVector vMHThigh_reb(0., 0., 0., 0.);
@@ -1104,6 +1177,8 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       JetCounter = 0;
       for (vector<pat::Jet>::const_iterator it = Jets_reb-> begin(); it != Jets_reb->end(); ++it) {
          JetCounter++;
+         h_JetPt_reb->Fill(it->pt(), weight_);
+
          if( JetCounter == 1 ) {
             Jet1_reb = &(*it);
          } 
@@ -1111,11 +1186,13 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             Jet2_reb = &(*it);
          } 
 
+         // all HT cuts
          if (it->pt() > JetsHTPt_ && std::abs(it->eta()) < JetsHTEta_) {
             NJets_reb++;
             HT_reb += it->pt();
          }
 
+         // HT cuts without eta
          if (it->pt() < JetsHTPt_) {
             HTall_reb += it->pt();
             HTlow_reb += it->pt();
@@ -1124,6 +1201,7 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             HThigh_reb += it->pt();
          }
          
+         // MHT cuts without eta
          if (it->pt() < JetsMHTPt_) {
             vMHTall_reb -= it->p4();
             vMHTlow_reb -= it->p4();
@@ -1131,15 +1209,17 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             vMHTall_reb -= it->p4();
             vMHThigh_reb -= it->p4();
          }
-
-         h_JetPt_reb->Fill(it->pt(), weight_);
       }
       if (!isRebalanced) {
          cout << "Bad event: Can't be rebalanced!!!" << endl;
          cout << "Reconstructed: HT, MHT = " << HThigh_rec << ", " << vMHThigh_rec.pt() << endl;
          cout << "Rebalanced: HT, MHT = " << HTall_reb << ", " << vMHTall_reb.pt() << endl;
       }
+
+      // fill control plots for reasonable event weights
       if (controlPlots_ && weight_ < 30000) {
+
+         // reb HT for different NJet bins
          if( NJets_reb == 2 ){
             h_HT_JetBin1_reb->Fill(HT_reb, weight_);
          }
@@ -1153,9 +1233,12 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             h_HT_JetBin4_reb->Fill(HT_reb, weight_);
          }
 
+         // delta Phi between first two reb jets 
          if( JetCounter >= 2 ){
             h_deltaPhiJet1Jet2_reb->Fill(std::abs(deltaPhi(Jet1_reb->phi(), Jet2_reb->phi())), weight_);
          }
+
+         // control plots for reb jets
          h_nJets_reb->Fill(NJets_reb, weight_);
          h_HT_reb->Fill(HT_reb, weight_);
          h_HTall_reb->Fill(HTall_reb, weight_);
@@ -1168,13 +1251,16 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          h_MHTall_reb->Fill(vMHTall_reb.pt(), weight_);
          h_MHThigh_reb->Fill(vMHThigh_reb.pt(), weight_);
       }
+      // ------------------------------------------------------------------------ //
 
-      //// Pt resolution of rebalanced Jets    
+      // ------------------------------------------------------------------------ //
+      //// plots for matched/not-matched reb - gen jets    
       if (smearCollection_ == "Reco") {
          if (gj_present) {
             for (edm::View<reco::GenJet>::const_iterator it = Jets_gen.begin(); it != Jets_gen.end(); ++it) {
                double dRmin = 100;
                const pat::Jet* matchedJet = 0;
+               // match reb jets to gen jets
                for (vector<pat::Jet>::const_iterator jt = Jets_reb-> begin(); jt != Jets_reb->end(); ++jt) {
                   double dR = deltaR(*jt, *it);
                   if (dR < dRmin) {
@@ -1182,19 +1268,36 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                      matchedJet = &(*jt);
                   }
                }
-               if (controlPlots_) {
+               // match reco jets to gen jets
+               double dRmin_reco = 100;
+               const reco::Jet* matchedJet_reco = 0;
+               for (edm::View<pat::Jet>::const_iterator jt = Jets_rec.begin(); jt != Jets_rec.end(); ++jt) {
+                  double dR_reco = deltaR(*jt, *it);
+                  if (dR_reco < dRmin_reco) {
+                     dRmin_reco = dR_reco;
+                     matchedJet_reco = &(*jt);
+                  }
+               }
+
+               if (controlPlots_ && weight_ < 30000) {
                   if (dRmin < 0.15) {
-                     // get Pt resolution of rebalanced CaloJets
+                     // resolution of reb jets compared to gen jets
                      if (fabs(it->eta()) < 1.5)
                         h_RebJetRes_Pt->Fill(it->pt(), matchedJet->pt() / it->pt(), weight_);
                      if (it->pt() > 100.)
                         h_RebJetRes_Eta->Fill(it->eta(), matchedJet->pt() / it->pt(), weight_);
+
+                     // get correction factor for rebalancing vs. reco jet pt
+                     if(dRmin_reco < 0.15) {
+                        h_RebCorrection_vsReco->Fill(matchedJet_reco->pt(), matchedJet->pt() / it->pt(), weight_);
+                     }                    
                   }
                }
             }
          }
       }    
    }
+   // ------------------------------------------------------------------------ //
    
    //
    // Smear rebalanced multi jet system
@@ -1205,6 +1308,7 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       SmearingGenJets(&Jets_gen, *(GenJets_smeared.get()));
    }
   
+   // plots for smeared jets
    double HT_smeared = 0;
    double HThigh_smeared = 0;
    math::PtEtaPhiMLorentzVector vMHThigh_smeared(0., 0., 0., 0.);
@@ -1215,19 +1319,23 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    if (smearCollection_ == "Reco") {
       for (vector<pat::Jet>::const_iterator it = Jets_smeared-> begin(); it != Jets_smeared->end(); ++it) {
          JetCounter++;
+         h_JetPt_smear->Fill(it->pt(), weight_);
+
          if( JetCounter == 1 ) {
             Jet1_smear = &(*it);
          } 
          if( JetCounter == 2 ) {
             Jet2_smear = &(*it);
          } 
+
+         // all HT cuts
          if (it->pt() > JetsHTPt_ && std::abs(it->eta()) < JetsHTEta_) {
             NJets_smeared++;
             HT_smeared += it->pt();
          }
+
          vMHThigh_smeared -= it->p4();
          HThigh_smeared += it->pt();
-         h_JetPt_smear->Fill(it->pt(), weight_);
       }
    } else if (smearCollection_ == "Gen") {
       for (vector<reco::GenJet>::const_iterator it = GenJets_smeared-> begin(); it != GenJets_smeared->end(); ++it) {
@@ -1235,7 +1343,11 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          HThigh_smeared += it->pt();
       }
    }
+
+   // fill control plots for reasonable event weights
    if (controlPlots_ && weight_ < 30000) {
+
+      // smeared HT for different NJet bins
       if( NJets_smeared == 2 ){
          h_HT_JetBin1_smeared->Fill(HT_smeared, weight_);
       }
@@ -1249,18 +1361,23 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          h_HT_JetBin4_smeared->Fill(HT_smeared, weight_);
       }
 
+      // delta Phi between first two smeared jets 
       if( JetCounter >= 2 ){
          h_deltaPhiJet1Jet2_smeared->Fill(std::abs(deltaPhi(Jet1_smear->phi(), Jet2_smear->phi())), weight_);
       }
+
+      // control plots for smeared jets
       h_nJets_smear->Fill(NJets_smeared, weight_);
-      h_HT_smeared->Fill(HTlow_rec + HThigh_smeared, weight_);
+      h_HT_smeared->Fill(HT_smeared, weight_);
       h_HTall_smeared->Fill(HTlow_rec + HThigh_smeared, weight_);
       h_HThigh_smeared->Fill(HThigh_smeared, weight_);
       h_MHTall_smeared->Fill((vMHTlow_rec + vMHThigh_smeared).pt(), weight_);
       h_MHThigh_smeared->Fill(vMHThigh_smeared.pt(), weight_);
    }
+   // ------------------------------------------------------------------------ //
 
-   //// Pt resolution of smeared Jets
+   // ------------------------------------------------------------------------ //
+   //// plots for matched/not-matched smeared gen - gen jets   
    if (smearCollection_ == "Gen") {
       if (gj_present) {
          for (edm::View<reco::GenJet>::const_iterator it = Jets_gen.begin(); it != Jets_gen.end(); ++it) {
@@ -1273,8 +1390,9 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                   matchedJet = &(*jt);
                }
             }
-            if (controlPlots_) {
+            if (controlPlots_ && weight_ < 30000) {
                if (dRmin < 0.15) {
+                  // resolution of smeared gen jets compared to gen jets
                   if (fabs(it->eta()) < 1.5)
                      h_SmearedJetRes_Pt->Fill(it->pt(), matchedJet->pt() / it->pt(), weight_);
                   if (it->pt() > 100.)
@@ -1283,7 +1401,9 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
          }
       }
-   } else if (smearCollection_ == "Reco") {
+   } 
+   //// plots for matched/not-matched smeared - gen jets   
+   else if (smearCollection_ == "Reco") {
       if (gj_present) {
          for (edm::View<reco::GenJet>::const_iterator it = Jets_gen.begin(); it != Jets_gen.end(); ++it) {
             double dRmin = 100;
@@ -1295,7 +1415,8 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                   matchedJet = &(*jt);
                }
             }
-            if (controlPlots_) {
+            if (controlPlots_ && weight_ < 30000) {
+               // resolution of smeared jets compared to gen jets
                if (dRmin < 0.15) {
                   if (fabs(it->eta()) < 1.5)
                      h_SmearedJetRes_Pt->Fill(it->pt(), matchedJet->pt() / it->pt(), weight_);
@@ -1319,6 +1440,21 @@ void QCDBkgRS::beginJob()
    }
  
    if (controlPlots_) {
+      h_SeedEvents_HT_NJet2 = fs->make<TH2F> ("SeedEvents_HT_NJet2", "Seed Events", NbinsHT_, HTmin_, HTmax_, 60, 0, 60 );
+      h_SeedEvents_HT_NJet2->Sumw2();
+      h_SeedEvents_HT_NJet3 = fs->make<TH2F> ("SeedEvents_HT_NJet3", "Seed Events", NbinsHT_, HTmin_, HTmax_, 60, 0, 60 );
+      h_SeedEvents_HT_NJet3->Sumw2();
+      h_SeedEvents_HT_NJet4 = fs->make<TH2F> ("SeedEvents_HT_NJet4", "Seed Events", NbinsHT_, HTmin_, HTmax_, 60, 0, 60 );
+      h_SeedEvents_HT_NJet4->Sumw2();
+      h_SeedEvents_HT_NJet5 = fs->make<TH2F> ("SeedEvents_HT_NJet5", "Seed Events", NbinsHT_, HTmin_, HTmax_, 60, 0, 60 );
+      h_SeedEvents_HT_NJet5->Sumw2();
+      h_SeedEvents_HT_NJet6 = fs->make<TH2F> ("SeedEvents_HT_NJet6", "Seed Events", NbinsHT_, HTmin_, HTmax_, 60, 0, 60 );
+      h_SeedEvents_HT_NJet6->Sumw2();
+      h_SeedEvents_HT_NJet7 = fs->make<TH2F> ("SeedEvents_HT_NJet7", "Seed Events", NbinsHT_, HTmin_, HTmax_, 60, 0, 60 );
+      h_SeedEvents_HT_NJet7->Sumw2();
+      h_SeedEvents_HT_NJet8 = fs->make<TH2F> ("SeedEvents_HT_NJet8", "Seed Events", NbinsHT_, HTmin_, HTmax_, 60, 0, 60 );
+      h_SeedEvents_HT_NJet8->Sumw2();
+
       h_nJets_gen = fs->make<TH1F> ("NJets_gen", "NJets", 15, 0., 15);
       h_nJets_gen->Sumw2();
       h_nJets_reco = fs->make<TH1F> ("NJets_reco", "NJets", 15, 0., 15);
@@ -1335,8 +1471,14 @@ void QCDBkgRS::beginJob()
       h_JetPt_reb = fs->make<TH1F> ("JetPt_reb", "Jet pt", 1000, 0., 1000.);
       h_JetPt_reb->Sumw2();
       h_JetPt_smear = fs->make<TH1F> ("JetPt_smear", "Jet pt", 1000, 0., 1000.);
-      h_JetPt_smear->Sumw2();
+      h_JetPt_smear->Sumw2();   
 
+      h_deltaR_rebCorr = fs->make<TH1F> ("deltaR_rebCorr", "deltaR", 400, 0., 2.);
+      h_deltaR_rebCorr->Sumw2();
+
+      h_RebCorrection_vsReco = fs->make<TH2F> ("RebCorrection_vsReco", "Jet pt", 1000, 0., 1000., 100, 0., 3.);
+      h_RebCorrection_vsReco->Sumw2();
+    
       h_RecJetMatched_Pt = fs->make<TH1F> ("RecJetMatched_Pt", "RecJetMatched_Pt", 1000, 0., 1000.);
       h_RecJetMatched_Pt->Sumw2();
       h_RecJetNotMatched_Pt = fs->make<TH1F> ("RecJetNotMatched_Pt", "RecJetNotMatched_Pt", 1000, 0., 1000.);
@@ -1357,6 +1499,7 @@ void QCDBkgRS::beginJob()
       h_RecJetMatched_JetBin4_Pt->Sumw2();
       h_RecJetNotMatched_JetBin4_Pt = fs->make<TH1F> ("RecJetNotMatched_JetBin4_Pt", "RecJetNotMatched_JetBin4_Pt", 1000, 0., 1000.);
       h_RecJetNotMatched_JetBin4_Pt->Sumw2();
+
       h_RecJetRes_Pt = fs->make<TH2F> ("RecJetRes_Pt", "RecJetRes_Pt", 100, 0., 1000., 100, 0., 3.);
       h_RecJetRes_Pt->Sumw2();
       h_RecJetRes_Eta = fs->make<TH2F> ("RecJetRes_Eta", "RecJetRes_Eta", 100, -5., 5., 100, 0., 3.);
@@ -1369,91 +1512,96 @@ void QCDBkgRS::beginJob()
       h_SmearedJetRes_Pt->Sumw2();
       h_SmearedJetRes_Eta = fs->make<TH2F> ("SmearedJetRes_Eta", "SmearedJetRes_Eta", 100, -5., 5., 100, 0., 3.);
       h_SmearedJetRes_Eta->Sumw2();
+
       h_HT_gen = fs->make<TH1F> ("HT_gen", "HT_gen", NbinsHT_, HTmin_, HTmax_);
       h_HT_gen->Sumw2();
       h_HT_rec = fs->make<TH1F> ("HT_rec", "HT_rec", NbinsHT_, HTmin_, HTmax_);
       h_HT_rec->Sumw2();
-      h_HT_smeared = fs->make<TH1F> ("HT_smeared", "HT_smeared", NbinsHT_, HTmin_, HTmax_);
-      h_HT_smeared->Sumw2();
       h_HT_reb = fs->make<TH1F> ("HT_reb", "HT_reb", NbinsHT_, HTmin_, HTmax_);
       h_HT_reb->Sumw2();
+      h_HT_smeared = fs->make<TH1F> ("HT_smeared", "HT_smeared", NbinsHT_, HTmin_, HTmax_);
+      h_HT_smeared->Sumw2();
+    
       h_HT_JetBin1_gen = fs->make<TH1F> ("HT_JetBin1_gen", "HT_JetBin1_gen", NbinsHT_, HTmin_, HTmax_);
       h_HT_JetBin1_gen->Sumw2();
       h_HT_JetBin1_rec = fs->make<TH1F> ("HT_JetBin1_rec", "HT_JetBin1_rec", NbinsHT_, HTmin_, HTmax_);
       h_HT_JetBin1_rec->Sumw2();
-      h_HT_JetBin1_smeared = fs->make<TH1F> ("HT_JetBin1_smeared", "HT_JetBin1_smeared", NbinsHT_, HTmin_, HTmax_);
-      h_HT_JetBin1_smeared->Sumw2();
       h_HT_JetBin1_reb = fs->make<TH1F> ("HT_JetBin1_reb", "HT_JetBin1_reb", NbinsHT_, HTmin_, HTmax_);
       h_HT_JetBin1_reb->Sumw2();
+      h_HT_JetBin1_smeared = fs->make<TH1F> ("HT_JetBin1_smeared", "HT_JetBin1_smeared", NbinsHT_, HTmin_, HTmax_);
+      h_HT_JetBin1_smeared->Sumw2();
+     
       h_HT_JetBin2_gen = fs->make<TH1F> ("HT_JetBin2_gen", "HT_JetBin2_gen", NbinsHT_, HTmin_, HTmax_);
       h_HT_JetBin2_gen->Sumw2();
       h_HT_JetBin2_rec = fs->make<TH1F> ("HT_JetBin2_rec", "HT_JetBin2_rec", NbinsHT_, HTmin_, HTmax_);
       h_HT_JetBin2_rec->Sumw2();
-      h_HT_JetBin2_smeared = fs->make<TH1F> ("HT_JetBin2_smeared", "HT_JetBin2_smeared", NbinsHT_, HTmin_, HTmax_);
-      h_HT_JetBin2_smeared->Sumw2();
       h_HT_JetBin2_reb = fs->make<TH1F> ("HT_JetBin2_reb", "HT_JetBin2_reb", NbinsHT_, HTmin_, HTmax_);
       h_HT_JetBin2_reb->Sumw2();
+      h_HT_JetBin2_smeared = fs->make<TH1F> ("HT_JetBin2_smeared", "HT_JetBin2_smeared", NbinsHT_, HTmin_, HTmax_);
+      h_HT_JetBin2_smeared->Sumw2();
+    
       h_HT_JetBin3_gen = fs->make<TH1F> ("HT_JetBin3_gen", "HT_JetBin3_gen", NbinsHT_, HTmin_, HTmax_);
       h_HT_JetBin3_gen->Sumw2();
       h_HT_JetBin3_rec = fs->make<TH1F> ("HT_JetBin3_rec", "HT_JetBin3_rec", NbinsHT_, HTmin_, HTmax_);
       h_HT_JetBin3_rec->Sumw2();
-      h_HT_JetBin3_smeared = fs->make<TH1F> ("HT_JetBin3_smeared", "HT_JetBin3_smeared", NbinsHT_, HTmin_, HTmax_);
-      h_HT_JetBin3_smeared->Sumw2();
       h_HT_JetBin3_reb = fs->make<TH1F> ("HT_JetBin3_reb", "HT_JetBin3_reb", NbinsHT_, HTmin_, HTmax_);
       h_HT_JetBin3_reb->Sumw2();
+      h_HT_JetBin3_smeared = fs->make<TH1F> ("HT_JetBin3_smeared", "HT_JetBin3_smeared", NbinsHT_, HTmin_, HTmax_);
+      h_HT_JetBin3_smeared->Sumw2();
+     
       h_HT_JetBin4_gen = fs->make<TH1F> ("HT_JetBin4_gen", "HT_JetBin4_gen", NbinsHT_, HTmin_, HTmax_);
       h_HT_JetBin4_gen->Sumw2();
       h_HT_JetBin4_rec = fs->make<TH1F> ("HT_JetBin4_rec", "HT_JetBin4_rec", NbinsHT_, HTmin_, HTmax_);
       h_HT_JetBin4_rec->Sumw2();
-      h_HT_JetBin4_smeared = fs->make<TH1F> ("HT_JetBin4_smeared", "HT_JetBin4_smeared", NbinsHT_, HTmin_, HTmax_);
-      h_HT_JetBin4_smeared->Sumw2();
       h_HT_JetBin4_reb = fs->make<TH1F> ("HT_JetBin4_reb", "HT_JetBin4_reb", NbinsHT_, HTmin_, HTmax_);
       h_HT_JetBin4_reb->Sumw2();
-
+      h_HT_JetBin4_smeared = fs->make<TH1F> ("HT_JetBin4_smeared", "HT_JetBin4_smeared", NbinsHT_, HTmin_, HTmax_);
+      h_HT_JetBin4_smeared->Sumw2();
+     
       h_HTall_gen = fs->make<TH1F> ("HTall_gen", "HTall_gen", NbinsHT_, HTmin_, HTmax_);
       h_HTall_gen->Sumw2();
       h_HTall_rec = fs->make<TH1F> ("HTall_rec", "HTall_rec", NbinsHT_, HTmin_, HTmax_);
       h_HTall_rec->Sumw2();
-      h_HTall_smeared = fs->make<TH1F> ("HTall_smeared", "HTall_smeared", NbinsHT_, HTmin_, HTmax_);
-      h_HTall_smeared->Sumw2();
       h_HTall_reb = fs->make<TH1F> ("HTall_reb", "HTall_reb", NbinsHT_, HTmin_, HTmax_);
       h_HTall_reb->Sumw2();
-
+      h_HTall_smeared = fs->make<TH1F> ("HTall_smeared", "HTall_smeared", NbinsHT_, HTmin_, HTmax_);
+      h_HTall_smeared->Sumw2();
+     
       h_HThigh_gen = fs->make<TH1F> ("HThigh_gen", "HThigh_gen", NbinsHT_, HTmin_, HTmax_);
       h_HThigh_gen->Sumw2();
       h_HThigh_rec = fs->make<TH1F> ("HThigh_rec", "HThigh_rec", NbinsHT_, HTmin_, HTmax_);
       h_HThigh_rec->Sumw2();
-      h_HThigh_smeared = fs->make<TH1F> ("HThigh_smeared", "HThigh_smeared", NbinsHT_, HTmin_, HTmax_);
-      h_HThigh_smeared->Sumw2();
       h_HThigh_reb = fs->make<TH1F> ("HThigh_reb", "HThigh_reb", NbinsHT_, HTmin_, HTmax_);
       h_HThigh_reb->Sumw2();
+      h_HThigh_smeared = fs->make<TH1F> ("HThigh_smeared", "HThigh_smeared", NbinsHT_, HTmin_, HTmax_);
+      h_HThigh_smeared->Sumw2();
 
       h_MHTall_gen = fs->make<TH1F> ("MHTall_gen", "MHTall_gen", NbinsMHT_, MHTmin_, MHTmax_);
       h_MHTall_gen->Sumw2();
       h_MHTall_rec = fs->make<TH1F> ("MHTall_rec", "MHTall_rec", NbinsMHT_, MHTmin_, MHTmax_);
       h_MHTall_rec->Sumw2();
-      h_MHTall_smeared = fs->make<TH1F> ("MHTall_smeared", "MHTall_smeared", NbinsMHT_, MHTmin_, MHTmax_);
-      h_MHTall_smeared->Sumw2();
       h_MHTall_reb = fs->make<TH1F> ("MHTall_reb", "MHTall_reb", NbinsMHT_, MHTmin_, MHTmax_);
       h_MHTall_reb->Sumw2();
-
+      h_MHTall_smeared = fs->make<TH1F> ("MHTall_smeared", "MHTall_smeared", NbinsMHT_, MHTmin_, MHTmax_);
+      h_MHTall_smeared->Sumw2();
+    
       h_MHThigh_gen = fs->make<TH1F> ("MHThigh_gen", "MHThigh_gen", NbinsMHT_, MHTmin_, MHTmax_);
       h_MHThigh_gen->Sumw2();
       h_MHThigh_rec = fs->make<TH1F> ("MHThigh_rec", "MHThigh_rec", NbinsMHT_, MHTmin_, MHTmax_);
       h_MHThigh_rec->Sumw2();
-      h_MHThigh_smeared = fs->make<TH1F> ("MHThigh_smeared", "MHThigh_smeared", NbinsMHT_, MHTmin_, MHTmax_);
-      h_MHThigh_smeared->Sumw2();
       h_MHThigh_reb = fs->make<TH1F> ("MHThigh_reb", "MHThigh_reb", NbinsMHT_, MHTmin_, MHTmax_);
       h_MHThigh_reb->Sumw2();
-
+      h_MHThigh_smeared = fs->make<TH1F> ("MHThigh_smeared", "MHThigh_smeared", NbinsMHT_, MHTmin_, MHTmax_);
+      h_MHThigh_smeared->Sumw2();
+    
       h_deltaPhiJet1Jet2_gen = fs->make<TH1F> ("deltaPhiJet1Jet2_gen", "deltaPhiJet1Jet2_gen", 50, 0, TMath::Pi());
       h_deltaPhiJet1Jet2_gen->Sumw2();
       h_deltaPhiJet1Jet2_rec = fs->make<TH1F> ("deltaPhiJet1Jet2_rec", "deltaPhiJet1Jet2_rec", 50, 0, TMath::Pi());
       h_deltaPhiJet1Jet2_rec->Sumw2();
-      h_deltaPhiJet1Jet2_smeared = fs->make<TH1F> ("deltaPhiJet1Jet2_smeared", "deltaPhiJet1Jet2_smeared", 50, 0, TMath::Pi());
-      h_deltaPhiJet1Jet2_smeared->Sumw2();
       h_deltaPhiJet1Jet2_reb = fs->make<TH1F> ("deltaPhiJet1Jet2_reb", "deltaPhiJet1Jet2_reb", 50, 0, TMath::Pi());
       h_deltaPhiJet1Jet2_reb->Sumw2();
+      h_deltaPhiJet1Jet2_smeared = fs->make<TH1F> ("deltaPhiJet1Jet2_smeared", "deltaPhiJet1Jet2_smeared", 50, 0, TMath::Pi());
+      h_deltaPhiJet1Jet2_smeared->Sumw2();
 
       h_fitProb = fs->make<TH1F> ("h_fitProb", "h_fitProb", 100, 0., 1.);
       h_fitProb->Sumw2();
@@ -1471,6 +1619,10 @@ void QCDBkgRS::beginJob()
    h_bProb_NJets4 = (TH2F*) f_bProb->FindObjectAny("Data_truth_Prob_NJets4");
    h_bProb_NJets5p6 = (TH2F*) f_bProb->FindObjectAny("Data_truth_Prob_NJets5p6");
    h_bProb_NJets7p = (TH2F*) f_bProb->FindObjectAny("Data_truth_Prob_NJets7p");
+
+   //// get rebalance correction histo
+   TFile *f_rebCorr = new TFile(RebalanceCorrectionFile_.c_str(), "READ", "", 0);
+   h_RebCorrectionFactor = (TH1F*) f_rebCorr->FindObjectAny("RebCorrection_vsReco_px"); 
 
    // define output tree 
    PredictionTree = fs->make<TTree> ("QCDPrediction", "QCDPrediction", 0);
