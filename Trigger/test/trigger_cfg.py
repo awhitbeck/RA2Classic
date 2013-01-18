@@ -34,14 +34,13 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 10000 ) )
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
-     '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V2/528d417548fa47de754292e17c1b0d17/RA2Skim_215_1_7bE.root',
-           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V2/528d417548fa47de754292e17c1b0d17/RA2Skim_28_1_EOW.root',
-           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V2/528d417548fa47de754292e17c1b0d17/RA2Skim_215_1_7bE.root',
-           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V2/528d417548fa47de754292e17c1b0d17/RA2Skim_27_1_LQC.root',
-           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V2/528d417548fa47de754292e17c1b0d17/RA2Skim_32_1_HnL.root',
-           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V2/528d417548fa47de754292e17c1b0d17/RA2Skim_47_1_Q7T.root',
-           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V2/528d417548fa47de754292e17c1b0d17/RA2Skim_72_1_DcZ.root',
-           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V2/528d417548fa47de754292e17c1b0d17/RA2Skim_82_1_zkG.root'               
+            '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V4/21a074f94cdbe7cfbeeb19be46b40a6a/RA2Skim_235_1_PWG.root',
+           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V4/21a074f94cdbe7cfbeeb19be46b40a6a/RA2Skim_136_1_fRg.root',
+           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V4/21a074f94cdbe7cfbeeb19be46b40a6a/RA2Skim_188_1_jHe.root',
+           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V4/21a074f94cdbe7cfbeeb19be46b40a6a/RA2Skim_246_1_T3F.root',
+           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V4/21a074f94cdbe7cfbeeb19be46b40a6a/RA2Skim_47_1_lVz.root',
+           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V4/21a074f94cdbe7cfbeeb19be46b40a6a/RA2Skim_21_1_OtL.root',
+           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V4/21a074f94cdbe7cfbeeb19be46b40a6a/RA2Skim_124_1_5Yj.root',             
     )
 )
 ###############################################################################
@@ -58,7 +57,6 @@ process.TFileService = cms.Service("TFileService",fileName = cms.string("Trigger
 process.load("RA2Classic.Trigger.trigger_cfi")
 process.trigger.jet_pt_cut_MHT = 30.
 process.trigger.jet_pt_cut_HT = 50.
-process.trigger.num_of_jets = 2
 process.trigger.jetCollection = 'patJetsPF'
 ###############################################################################
 
@@ -68,7 +66,7 @@ process.trigger.jetCollection = 'patJetsPF'
 from RecoMET.METFilters.jetIDFailureFilter_cfi import jetIDFailure
 process.PBNRFilter = jetIDFailure.clone(
     JetSource = cms.InputTag('patJetsPF'),
-    MinJetPt      = cms.double(0.0),
+    MinJetPt      = cms.double(30.0),
     taggingMode   = cms.bool(False)
     )
 from RecoMET.METFilters.multiEventFilter_cfi import multiEventFilter
@@ -96,10 +94,16 @@ process.RA2_EcalBEFilter          = process.booleanFilter.clone()
 process.RA2_EcalBEFilter.ResultSource = cms.InputTag("ra2EcalBEFilter")
 #process.HcalLaserEventFilter      = process.booleanFilter.clone()
 #process.HcalLaserEventFilter.ResultSource = cms.InputTag("hcalLaserEventFilter")
+process.EcalLaserFilter           = process.booleanFilter.clone()
+process.EcalLaserFilter.ResultSource= cms.InputTag("ecalLaserCorrFilter")
 process.EEBadScFilter             = process.booleanFilter.clone()
 process.EEBadScFilter.ResultSource = cms.InputTag("eeBadScFilter")
-#process.EcalLaserFilter           = process.booleanFilter.clone()
-#process.EcalLaserFilter.ResultSource= cms.InputTag("ecalLaserCorrFilter")
+process.manyStripClustersFilter   = process.booleanFilter.clone()
+process.manyStripClustersFilter.ResultSource = cms.InputTag("manystripclus53X")
+process.tooManyStripClustersFilter = process.booleanFilter.clone()
+process.tooManyStripClustersFilter.ResultSource = cms.InputTag("toomanystripclus53X")
+process.logErrorTooManyClustersFilter = process.booleanFilter.clone()
+process.logErrorTooManyClustersFilter.ResultSource = cms.InputTag("logErrorTooManyClusters")
 ###############################################################################
 
 ###############################################################################
@@ -110,7 +114,6 @@ process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.turnon = cms.Path(
  #  process.dump*
- #  process.htPFchsFilter *  # to be used for chs jets
     process.RA2_HBHENoiseFilterRA2 *
     process.RA2_beamHaloFilter *
  #  process.RA2_eeNoiseFilter *
@@ -119,8 +122,12 @@ process.turnon = cms.Path(
     process.RA2_greedyMuons *
     process.RA2_EcalTPFilter *
     process.RA2_EcalBEFilter *
-    process.EEBadScFilter *
     process.HCALLaserEvtFilterList2012 *
+    process.EcalLaserFilter *
+    process.EEBadScFilter *
+    ~process.manyStripClustersFilter *
+    ~process.tooManyStripClustersFilter *
+    ~process.logErrorTooManyClustersFilter *
     process.PBNRFilter *
     process.trigger
 )

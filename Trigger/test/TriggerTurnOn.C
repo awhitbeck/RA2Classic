@@ -25,7 +25,7 @@ void TriggerTurnOn()
 {
    gROOT->Reset();
    gROOT->SetStyle("Plain");
-   //gStyle->SetPalette(51, 0);
+   // gStyle->SetPalette(51, 0);
 
    // For the canvas:
    gStyle->SetCanvasColor(0);
@@ -55,8 +55,8 @@ void TriggerTurnOn()
    // Margins:
    gStyle->SetPadBottomMargin(0.15);
    gStyle->SetPadTopMargin(0.15);
-   gStyle->SetPadLeftMargin(0.10);
-   gStyle->SetPadRightMargin(0.05);
+   gStyle->SetPadLeftMargin(0.13);
+   gStyle->SetPadRightMargin(0.13);
    
    // For the Global title:
    gStyle->SetOptTitle(0);
@@ -73,7 +73,7 @@ void TriggerTurnOn()
 
    // For the axis titles:
    gStyle->SetTitleOffset(1.4, "X");
-   gStyle->SetTitleOffset(1.15, "Y");
+   gStyle->SetTitleOffset(1.35, "Y");
    gStyle->SetTitleOffset(0.5, "Z");
    gStyle->SetTitleSize(0.04, "XYZ");
    gStyle->SetTitleFont(42, "XYZ");
@@ -90,13 +90,27 @@ void TriggerTurnOn()
   
    gROOT->ForceStyle();
 
+   // number of jets 
+   TString NJets = "8";    //  <------------------- set NJets here for output file
+   TString NJets_title = ">= 8"; //  <------------------- set NJets here for histo titles
    
    // --- define output file for ps ---//
-   TString psfile = "TriggerTurnOn/TriggerTurnOn_chsJets.ps";
- 
+   TString psfile = "TriggerTurnOn/TriggerTurnOn_chsJets_NJets" + NJets +".ps";
+
+   // rebinning for 2D histos
+   int rebin_x = 5;
+   int rebin_y = 5;
+   
    // --- open input files ---//
    // turn-on file
-   TFile *file_TagEle27WP80 = TFile::Open("/afs/naf.desy.de/user/k/kriheine/kriheine/Data_8TeV_2012_RunA+B+C_CMSSW535_Trigger_v1.root");
+   //TFile *file_TagEle27WP80 = TFile::Open("/afs/naf.desy.de/user/k/kriheine/kriheine/Data_8TeV_2012_DR53X_RunABCD_Trigger_NJets2_v1.root");
+   // TFile *file_TagEle27WP80 = TFile::Open("/afs/naf.desy.de/user/k/kriheine/kriheine/Data_8TeV_2012_DR53X_RunABCD_Trigger_NJets3_5_v1.root");
+   // TFile *file_TagEle27WP80 = TFile::Open("/afs/naf.desy.de/user/k/kriheine/kriheine/Data_8TeV_2012_DR53X_RunABCD_Trigger_NJets6_7_v1.root");
+   TFile *file_TagEle27WP80 = TFile::Open("/afs/naf.desy.de/user/k/kriheine/kriheine/Data_8TeV_2012_DR53X_RunABCD_Trigger_NJets8_v1.root");
+
+   // --- old files ---//
+   //TFile *file_TagEle27WP80 = TFile::Open("/afs/naf.desy.de/user/k/kriheine/kriheine/Data_8TeV_2012_RunA+B+C_CMSSW535_Trigger_NJets2_Add2D_dropJetID_v1.root");
+   // TFile *file_TagEle27WP80 = TFile::Open("Trigger_2012.root");
     
    // get histos from files  
    // MHT/HT turn-on       
@@ -128,6 +142,13 @@ void TriggerTurnOn()
    TH1F* HT_passed_IntEff_PFHT;
    gDirectory->GetObject("HTpassedprobes_intEff_PFHT", HT_passed_IntEff_PFHT); 
 
+   TH2F* allprobes_PFHT;
+   gDirectory->GetObject("allprobes_PFHT", allprobes_PFHT);
+   allprobes_PFHT->Rebin2D(rebin_x, rebin_y);
+   TH2F* passedprobes_PFHT;
+   gDirectory->GetObject("passedprobes_PFHT", passedprobes_PFHT);
+   passedprobes_PFHT->Rebin2D(rebin_x, rebin_y);
+
    // PFNoPUHT histos
    TH1F* MHTallprobes_PFNoPUHT;
    gDirectory->GetObject("MHTallprobes_PFNoPUHT", MHTallprobes_PFNoPUHT);
@@ -154,6 +175,13 @@ void TriggerTurnOn()
    TH1F* HT_passed_IntEff_PFNoPUHT;
    gDirectory->GetObject("HTpassedprobes_intEff_PFNoPUHT", HT_passed_IntEff_PFNoPUHT); 
 
+   TH2F* allprobes_PFNoPUHT;
+   gDirectory->GetObject("allprobes_PFNoPUHT", allprobes_PFNoPUHT);
+   allprobes_PFNoPUHT->Rebin2D(rebin_x, rebin_y);
+   TH2F* passedprobes_PFNoPUHT;
+   gDirectory->GetObject("passedprobes_PFNoPUHT", passedprobes_PFNoPUHT);
+   passedprobes_PFNoPUHT->Rebin2D(rebin_x, rebin_y);
+
    // PFHT650 histos
    TH1F* HTallprobes_PFHT650;
    gDirectory->GetObject("HTallprobes_PFHT650", HTallprobes_PFHT650);
@@ -174,12 +202,20 @@ void TriggerTurnOn()
    TGraphAsymmErrors* IntEff_MHT_PFHT = new TGraphAsymmErrors( MHT_passed_IntEff_PFHT, MHT_all_IntEff_PFHT);
    TGraphAsymmErrors* IntEff_HT_PFHT = new TGraphAsymmErrors( HT_passed_IntEff_PFHT, HT_all_IntEff_PFHT);
 
+   TH2F* PFHT = new TH2F("PFHT", "PFHT", 100, 0., 2000., 100, 0., 500.);
+   PFHT->Rebin2D(rebin_x, rebin_y);
+   PFHT->Divide(passedprobes_PFHT, allprobes_PFHT, 1, 1, "B");
+
    // PFNoPUHT
    TGraphAsymmErrors* MHTturnon_PFNoPUHT = new TGraphAsymmErrors(MHTpassedprobes_PFNoPUHT, MHTallprobes_PFNoPUHT);
    TGraphAsymmErrors* HTturnon_PFNoPUHT = new TGraphAsymmErrors(HTpassedprobes_PFNoPUHT, HTallprobes_PFNoPUHT);
    TGraphAsymmErrors* Eff_total_PFNoPUHT = new TGraphAsymmErrors(MHT_passed_total_PFNoPUHT, MHT_all_total_PFNoPUHT);
    TGraphAsymmErrors* IntEff_MHT_PFNoPUHT = new TGraphAsymmErrors( MHT_passed_IntEff_PFNoPUHT, MHT_all_IntEff_PFNoPUHT);
    TGraphAsymmErrors* IntEff_HT_PFNoPUHT = new TGraphAsymmErrors( HT_passed_IntEff_PFNoPUHT, HT_all_IntEff_PFNoPUHT);
+
+   TH2F* PFNoPUHT = new TH2F("PFNoPUHT", "PFNoPUHT", 100, 0., 2000., 100, 0., 500.);
+   PFNoPUHT->Rebin2D(rebin_x, rebin_y);
+   PFNoPUHT->Divide(passedprobes_PFNoPUHT, allprobes_PFNoPUHT, 1, 1, "B");
 
    // PFHT650
    TGraphAsymmErrors* HTturnon_PFHT650 = new TGraphAsymmErrors(HTpassedprobes_PFHT650, HTallprobes_PFHT650);
@@ -223,26 +259,26 @@ void TriggerTurnOn()
    //----------------------------------------//
 
    // MHT turnon ProbePFHT350PFMET100 TagEle27WP80 
-   trigger = "HLT_PFHT350_PFMET100, HT>500GeV";//, CHS jets";
-   y_title = "efficiency";
+   trigger = "HLT_PFHT350_PFMET100, HT>500GeV, NJets = " + NJets_title;//, CHS jets";
+   y_title = "trigger efficiency";
 
    c = DrawTurnOn_MHT(MHTturnon_PFHT, trigger, y_title); 
 
    c->Print( psfile + "[");
-   c->Print( "TriggerTurnOn/turn_on_MHT_TagEle27WP80_ProbePFHT350PFMET100_HT500_chs.png" );
+   c->Print( "TriggerTurnOn/turn_on_MHT_TagEle27WP80_ProbePFHT350PFMET100_HT500_chs_NJets" + NJets + ".png" );
    c->Print( psfile );
 
    // HT turnon ProbeHT350MET100 TagEle27WP80 
-   trigger = "HLT_PFHT350_PFMET100, MHT>200GeV";//, CHS jets";
-   y_title = "efficiency";
+   trigger = "HLT_PFHT350_PFMET100, MHT>200GeV, NJets = " + NJets_title;//, CHS jets";
+   y_title = "trigger efficiency";
 
    c = DrawTurnOn_HT(HTturnon_PFHT, trigger, y_title); 
   
-   c->Print( "TriggerTurnOn/turn_on_HT_TagEle27WP80_ProbePFHT350PFMET100_MHT200_chs.png" );
+   c->Print( "TriggerTurnOn/turn_on_HT_TagEle27WP80_ProbePFHT350PFMET100_MHT200_chs_NJets" + NJets + ".png" );
    c->Print( psfile );
 
    // Total efficiency for baseline
-   trigger = "Total Efficiency HLT_PFHT350_PFMET100: MHT>200GeV, HT>500GeV";
+   trigger = "Total Efficiency HLT_PFHT350_PFMET100: MHT>200GeV, HT>500GeV, NJets = " + NJets_title;
    y_title = "total efficiency";
    c = DrawTurnOn_MHT(Eff_total_PFHT, trigger, y_title );
    double eff_x;
@@ -250,28 +286,35 @@ void TriggerTurnOn()
    Eff_total_PFHT->GetPoint(0, eff_x, eff_y);
 
    cout <<"###################################################################################" << endl;
-   cout << "Integrated Efficiency HLT_PFHT350_PFMET100 HT>500GeV, MHT>200GeV: " << eff_y 
+   cout << "Integrated Efficiency HLT_PFHT350_PFMET100 HT>500GeV, MHT>200GeV, NJets = " + NJets_title + ": " << eff_y 
         << " + " << Eff_total_PFHT->GetErrorYhigh(0) 
         << " - " << Eff_total_PFHT->GetErrorYlow(0) << endl; 
    cout <<"###################################################################################" << endl;
   
-   c->Print( "TriggerTurnOn/IntEff_baseline_HLT_PFHT350PFMET100.png" );
+   c->Print( "TriggerTurnOn/IntEff_baseline_HLT_PFHT350PFMET100_NJets" + NJets + ".png" );
    c->Print( psfile );
 
    // Integrated efficiency vs. MHT
-   trigger = "HLT_PFHT350_PFMET100, HT>500GeV";
+   trigger = "HLT_PFHT350_PFMET100, HT>500GeV, NJets = " + NJets_title;
    y_title = "integrated efficiency";
    c = DrawTurnOn_MHT(IntEff_MHT_PFHT, trigger, y_title ); 
   
-   c->Print( "TriggerTurnOn/turn_on_MHT_IntegratedEff_HLT_PFHT350PFMET100.png" );
+   c->Print( "TriggerTurnOn/turn_on_MHT_IntegratedEff_HLT_PFHT350PFMET100_NJets" + NJets + ".png" );
    c->Print( psfile );
 
    // Integrated efficiency vs. HT
-   trigger = "HLT_PFHT350_PFMET100, MHT>200GeV";
+   trigger = "HLT_PFHT350_PFMET100, MHT>200GeV, NJets = " + NJets_title;
    y_title = "integrated efficiency";
    c = DrawTurnOn_HT(IntEff_HT_PFHT, trigger, y_title ); 
   
-   c->Print( "TriggerTurnOn/turn_on_HT_IntegratedEff_HLT_PFHT350PFMET100.png" );
+   c->Print( "TriggerTurnOn/turn_on_HT_IntegratedEff_HLT_PFHT350PFMET100_NJets" + NJets + ".png" );
+   c->Print( psfile );
+
+   // 2D turn-on
+   trigger = "HLT_PFHT350_PFMET100, NJets = " + NJets_title;
+   c = Draw2DTurnOn(PFHT, trigger);
+
+   c->Print( "TriggerTurnOn/turn_on_2D_HLT_PFHT350PFMET100_NJets" + NJets + ".png");
    c->Print( psfile );
 
    //--------------------------------------------//
@@ -279,25 +322,25 @@ void TriggerTurnOn()
    //--------------------------------------------//
 
    // MHT turnon ProbeHT350MET100 TagEle27WP80 
-   trigger = "HLT_PFNoPUHT350_PFMET100, HT>500GeV";//, CHS jets";
-   y_title = "efficiency";
+   trigger = "HLT_PFNoPUHT350_PFMET100, HT>500GeV, NJets = " + NJets_title;//, CHS jets";
+   y_title = "trigger efficiency";
 
    c = DrawTurnOn_MHT(MHTturnon_PFNoPUHT, trigger, y_title); 
 
-   c->Print( "TriggerTurnOn/turn_on_MHT_TagEle27WP80_ProbePFNoPUHT350PFMET100_HT500_chs.png" );
+   c->Print( "TriggerTurnOn/turn_on_MHT_TagEle27WP80_ProbePFNoPUHT350PFMET100_HT500_chs_NJets" + NJets + ".png" );
    c->Print( psfile );
 
    // HT turnon ProbeHT350MET100 TagEle27WP80 
-   trigger = "HLT_PFNoPUHT350_PFMET100, MHT>200GeV";//, CHS jets";
-   y_title = "efficiency";
+   trigger = "HLT_PFNoPUHT350_PFMET100, MHT>200GeV, NJets = " + NJets_title;//, CHS jets";
+   y_title = "trigger efficiency";
 
    c = DrawTurnOn_HT(HTturnon_PFNoPUHT, trigger, y_title); 
   
-   c->Print( "TriggerTurnOn/turn_on_HT_TagEle27WP80_ProbePFNoPUHT350PFMET100_MHT200_chs.png" );
+   c->Print( "TriggerTurnOn/turn_on_HT_TagEle27WP80_ProbePFNoPUHT350PFMET100_MHT200_chs_NJets" + NJets + ".png" );
    c->Print( psfile );
 
    // Total efficiency for baseline
-   trigger = "Total Efficiency HLT_PFNoPUHT350_PFMET100: MHT>200GeV, HT>500GeV";
+   trigger = "Total Efficiency HLT_PFNoPUHT350_PFMET100: MHT>200GeV, HT>500GeV, NJets = " + NJets_title;
    y_title = "total efficiency";
    c = DrawTurnOn_MHT(Eff_total_PFNoPUHT, trigger, y_title );
    double eff_x;
@@ -305,28 +348,35 @@ void TriggerTurnOn()
    Eff_total_PFNoPUHT->GetPoint(0, eff_x, eff_y);
 
    cout <<"###################################################################################" << endl;
-   cout << "Integrated Efficiency HLT_PFNoPUHT350_PFMET100 HT>500GeV, MHT>200GeV: " << eff_y 
+   cout << "Integrated Efficiency HLT_PFNoPUHT350_PFMET100 HT>500GeV, MHT>200GeV, NJets = " + NJets_title + ": " << eff_y 
         << " + " << Eff_total_PFNoPUHT->GetErrorYhigh(0) 
         << " - " << Eff_total_PFNoPUHT->GetErrorYlow(0) << endl; 
    cout <<"###################################################################################" << endl;
   
-   c->Print( "TriggerTurnOn/IntEff_baseline_HLT_PFNoPUHT350PFMET100.png" );
+   c->Print( "TriggerTurnOn/IntEff_baseline_HLT_PFNoPUHT350PFMET100_NJets" + NJets + ".png" );
    c->Print( psfile );
 
    // Integrated efficiency vs. MHT
-   trigger = "HLT_PFNoPUHT350_PFMET100, HT>500GeV";
+   trigger = "HLT_PFNoPUHT350_PFMET100, HT>500GeV, NJets = " + NJets_title;
    y_title = "integrated efficiency";
    c = DrawTurnOn_MHT(IntEff_MHT_PFNoPUHT, trigger, y_title ); 
   
-   c->Print( "TriggerTurnOn/turn_on_MHT_IntegratedEff_HLT_PFNoPUHT350PFMET100.png" );
+   c->Print( "TriggerTurnOn/turn_on_MHT_IntegratedEff_HLT_PFNoPUHT350PFMET100_NJets" + NJets + ".png" );
    c->Print( psfile );
 
    // Integrated efficiency vs. HT
-   trigger = "HLT_PFNoPUHT350_PFMET100, MHT>200GeV";
+   trigger = "HLT_PFNoPUHT350_PFMET100, MHT>200GeV, NJets = " + NJets_title;
    y_title = "integrated efficiency";
    c = DrawTurnOn_HT(IntEff_HT_PFNoPUHT, trigger, y_title ); 
   
-   c->Print( "TriggerTurnOn/turn_on_HT_IntegratedEff_HLT_PFNoPUHT350PFMET100.png" );
+   c->Print( "TriggerTurnOn/turn_on_HT_IntegratedEff_HLT_PFNoPUHT350PFMET100_NJets" + NJets + ".png" );
+   c->Print( psfile );
+
+   // 2D turn-on
+   trigger = "HLT_PFNoPUHT350_PFMET100, NJets = " + NJets_title;
+   c = Draw2DTurnOn(PFNoPUHT, trigger);
+
+   c->Print( "TriggerTurnOn/turn_on_2D_HLT_PFNoPUHT350PFMET100_NJets" + NJets + ".png");
    c->Print( psfile );
 
    //----------------------------------------//
@@ -334,12 +384,12 @@ void TriggerTurnOn()
    //----------------------------------------//
 
    // HT turnon Probe PFHT650 TagEle27WP80 
-   trigger = "HLT_PFHT650";//, CHS jets";
-   y_title = "efficiency";
+   trigger = "HLT_PFHT650, NJets = " + NJets_title;//, CHS jets";
+   y_title = "trigger efficiency";
 
    c = DrawTurnOn_HT(HTturnon_PFHT650, trigger, y_title); 
   
-   c->Print( "TriggerTurnOn/turn_on_HT_TagEle27WP80_ProbePFHT650_chs.png" );
+   c->Print( "TriggerTurnOn/turn_on_HT_TagEle27WP80_ProbePFHT650_chs_NJets" + NJets + ".png" );
    c->Print( psfile );
 
    //----------------------------------------//
@@ -347,12 +397,12 @@ void TriggerTurnOn()
    //----------------------------------------//
 
    // HT turnon Probe PFNoPUHT650 TagEle27WP80 
-   trigger = "HLT_PFNoPUHT650";//, CHS jets";
+   trigger = "HLT_PFNoPUHT650, NJets = " + NJets_title;//, CHS jets";
    y_title = "efficiency";
 
    c = DrawTurnOn_HT(HTturnon_PFNoPUHT650, trigger, y_title); 
   
-   c->Print( "TriggerTurnOn/turn_on_HT_TagEle27WP80_ProbePFNoPUHT650_chs.png" );
+   c->Print( "TriggerTurnOn/turn_on_HT_TagEle27WP80_ProbePFNoPUHT650_chs_NJets" + NJets + ".png" );
    c->Print( psfile );
 
    // close output file
@@ -361,7 +411,7 @@ void TriggerTurnOn()
 
 TCanvas* DrawTurnOn_MHT(TGraphAsymmErrors* TurnOn, TString trigger, TString y_title)
 {
-   TCanvas *c = new TCanvas("Turn On", "MHT", 800, 700);
+   TCanvas *c = new TCanvas("Turn On", "MHT", 900, 700);
  
    c->cd();
    TAxis* x = new TAxis();
@@ -375,8 +425,8 @@ TCanvas* DrawTurnOn_MHT(TGraphAsymmErrors* TurnOn, TString trigger, TString y_ti
    // TurnOn->SetTitle(trigger);
    TurnOn->Draw("APsame");
 
-   //  TPaveText* pt = new TPaveText(0.05, 0.98, 0.95, 0.86, "NDC");
-   TPaveText* pt = new TPaveText(0.35, 0.3, 0.95, 0.3, "NDC");
+   TPaveText* pt = new TPaveText(0.09, 0.9, 0.95, 0.86, "NDC");
+   // TPaveText* pt = new TPaveText(0.35, 0.3, 0.95, 0.3, "NDC");
    pt->SetBorderSize(0);
    pt->SetFillStyle(0);
    pt->SetTextAlign(12);
@@ -390,7 +440,7 @@ TCanvas* DrawTurnOn_MHT(TGraphAsymmErrors* TurnOn, TString trigger, TString y_ti
 
 TCanvas* DrawTurnOn_HT(TGraphAsymmErrors* TurnOn, TString trigger, TString y_title)
 {
-   TCanvas *c = new TCanvas("Turn On", "MHT", 800, 700);
+   TCanvas *c = new TCanvas("Turn On", "MHT", 900, 700);
  
    c->cd();
    TAxis* x = new TAxis();
@@ -405,7 +455,8 @@ TCanvas* DrawTurnOn_HT(TGraphAsymmErrors* TurnOn, TString trigger, TString y_tit
    TurnOn->Draw("APsame");
 
    if ( trigger.Contains("650") ) {
-      TPaveText* pt = new TPaveText(0.5, 0.4, 0.65, 0.4, "NDC");
+      TPaveText* pt = new TPaveText(0.09, 0.9, 0.95, 0.86, "NDC");
+      //  TPaveText* pt = new TPaveText(0.5, 0.4, 0.65, 0.4, "NDC");
       pt->SetBorderSize(0);
       pt->SetFillStyle(0);
       pt->SetTextAlign(12);
@@ -415,7 +466,8 @@ TCanvas* DrawTurnOn_HT(TGraphAsymmErrors* TurnOn, TString trigger, TString y_tit
       pt->Draw("same");
    }
    else {
-      TPaveText* pt = new TPaveText(0.097, 0.3, 0.65, 0.3, "NDC");
+      TPaveText* pt = new TPaveText(0.09, 0.9, 0.95, 0.86, "NDC");
+      //  TPaveText* pt = new TPaveText(0.097, 0.3, 0.65, 0.3, "NDC");
       pt->SetBorderSize(0);
       pt->SetFillStyle(0);
       pt->SetTextAlign(12);
@@ -428,9 +480,31 @@ TCanvas* DrawTurnOn_HT(TGraphAsymmErrors* TurnOn, TString trigger, TString y_tit
    return c;
 }
 
+TCanvas* Draw2DTurnOn(TH2F* TurnOn, TString trigger)
+{
+   TCanvas *c = new TCanvas("Turn On 2D", "", 900, 700);
+ 
+   c->cd();
+   TurnOn->SetXTitle("HT [GeV]");
+   TurnOn->SetYTitle("MHT [GeV]");
+   TurnOn->Draw("colz");
+
+   TPaveText* pt = new TPaveText(0.09, 0.9, 0.95, 0.86, "NDC");
+   // TPaveText* pt = new TPaveText(0.5, 0.4, 0.65, 0.4, "NDC");
+   pt->SetBorderSize(0);
+   pt->SetFillStyle(0);
+   pt->SetTextAlign(12);
+   pt->SetTextSize(0.032);
+   pt->SetTextFont(42);
+   pt->AddText(trigger);
+   pt->Draw("same");
+    
+   return c;
+}
+
 TCanvas* DrawOnlineOfflineCorrelation(TH2F* correlation, TString title, TString xtitle, TString ytitle)
 {
-   TCanvas *c = new TCanvas("Online_offline_correlation", "", 800, 700);
+   TCanvas *c = new TCanvas("Online_offline_correlation", "", 900, 700);
    c->cd();
 
    correlation->SetMarkerSize(0.3);

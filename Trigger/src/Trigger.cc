@@ -13,7 +13,7 @@
 //
 // Original Author:  Kristin Heine,,,DESY
 //         Created:  Wed Apr 18 15:00:58 CEST 2012
-// $Id: Trigger.cc,v 1.3 2012/11/26 15:11:23 kheine Exp $
+// $Id: Trigger.cc,v 1.4 2012/11/28 10:48:46 kheine Exp $
 //
 //
 
@@ -110,7 +110,6 @@ double jet_pt_cut_MHT_;
 double jet_eta_cut_MHT_;
 double jet_pt_cut_HT_;
 double jet_eta_cut_HT_;
-double num_of_jets_;
 bool jet_useJetID_;
 
 math::XYZPoint bs;
@@ -160,6 +159,11 @@ TH1F* h_MHTpassedprobes_total_PFNoPUHT;
 TH1F* h_MHTallprobes_intEff_PFNoPUHT;
 TH1F* h_MHTpassedprobes_intEff_PFNoPUHT;
 
+TH2F* h_allprobes_PFHT;
+TH2F* h_allprobes_PFNoPUHT;
+TH2F* h_passedprobes_PFHT;
+TH2F* h_passedprobes_PFNoPUHT;
+
 TH2F* h_Corr_JetPt_MuonPT;
 TH2F* h_Corr_JetPt_ElectronPT;
 TH2F* h_Corr_OnlineHT_OfflineHT;
@@ -188,8 +192,6 @@ Trigger::Trigger(const edm::ParameterSet& pset)
    jet_pt_cut_HT_ = pset.getParameter<double>("jet_pt_cut_HT");
    jet_eta_cut_HT_ = pset.getParameter<double>("jet_eta_cut_HT");
    jet_useJetID_ = pset.getParameter<bool>("jet_useJetID");
-
-   num_of_jets_ = pset.getParameter<double>("num_of_jets");
 
 }
 
@@ -346,7 +348,7 @@ Trigger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    //// Fill the histograms
    // ----------------------------------------------------------------------------- //
    // derive turn-ons for NJet bins
-   if( NJets >= num_of_jets_ ) {
+   if( NJets == 3 || NJets == 4 || NJets == 5  ) {
       
       double HT = 0.;
       math::PtEtaPhiMLorentzVector MHT(0., 0., 0., 0.);
@@ -361,7 +363,7 @@ Trigger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       if( iEvent.id().run() < 198022 ) { // <  198022 for PFHT, >= 198022 for PFNoPUHT
          // fill histos for MHT turn-on
-         if (triggered_tag && HT > 500. && goodJetEvent) {
+         if (triggered_tag && HT > 500. /*&& goodJetEvent*/) {
             h_MHTallprobes_PFHT->Fill(MHT.pt());
             if( MHT.pt() > 200. ) {
                h_MHTallprobes_total_PFHT->Fill(0.);
@@ -375,7 +377,7 @@ Trigger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          }
          
          // fill histos for HT turn-on
-         if (triggered_tag && MHT.pt() > 200. && goodJetEvent) {
+         if (triggered_tag && MHT.pt() > 200. /*&& goodJetEvent*/) {
             h_HTallprobes_PFHT->Fill(HT);
             if( HT > 500. ) {
                h_HTallprobes_total_PFHT->Fill(0.);
@@ -387,9 +389,17 @@ Trigger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                }
             }
          }
-         
+
+         // fill histos for 2D eff
+         if (triggered_tag) {
+            h_allprobes_PFHT->Fill(HT, MHT.pt());
+            if( triggered_probe_PFHT ) {
+               h_passedprobes_PFHT->Fill(HT, MHT.pt());
+            }
+         }
+
          // fill histos for HT trigger turn-on
-         if (triggered_tag && goodJetEvent) {
+         if (triggered_tag /*&& goodJetEvent*/) {
             h_HTallprobes_PFHT650->Fill(HT);
             if(triggered_probe_HT650) {
                h_HTpassedprobes_PFHT650->Fill(HT);
@@ -398,7 +408,7 @@ Trigger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       else {
          // fill histos for MHT turn-on
-         if (triggered_tag && HT > 500. && goodJetEvent) {
+         if (triggered_tag && HT > 500. /*&& goodJetEvent*/) {
             h_MHTallprobes_PFNoPUHT->Fill(MHT.pt());
             if( MHT.pt() > 200. ) {
                h_MHTallprobes_total_PFNoPUHT->Fill(0.);
@@ -412,7 +422,7 @@ Trigger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          }
          
          // fill histos for HT turn-on
-         if (triggered_tag && MHT.pt() > 200. && goodJetEvent) {
+         if (triggered_tag && MHT.pt() > 200. /*&& goodJetEvent*/) {
             h_HTallprobes_PFNoPUHT->Fill(HT);
             if( HT > 500. ) {
                h_HTallprobes_total_PFNoPUHT->Fill(0.);
@@ -424,9 +434,17 @@ Trigger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                }
             }
          }
+
+         // fill histos for 2D eff
+         if (triggered_tag) {
+            h_allprobes_PFNoPUHT->Fill(HT, MHT.pt());
+            if( triggered_probe_PFNoPUHT ) {
+               h_passedprobes_PFNoPUHT->Fill(HT, MHT.pt());
+            }
+         }
          
          // fill histos for HT trigger turn-on
-         if (triggered_tag && goodJetEvent) {
+         if (triggered_tag /*&& goodJetEvent*/) {
             h_HTallprobes_PFNoPUHT650->Fill(HT);
             if(triggered_probe_NoPUHT650) {
                h_HTpassedprobes_PFNoPUHT650->Fill(HT);
@@ -652,6 +670,18 @@ Trigger::beginJob()
                                                100, 0., 2000.);
    h_HTpassedprobes_intEff_PFHT650->Sumw2();
 
+   // ----------------------------------------------------------------------------- //
+
+   h_allprobes_PFHT = fs->make <TH2F> ("allprobes_PFHT", "all probes", 100, 0., 2000., 100, 0., 500.);
+   h_allprobes_PFHT->Sumw2();
+
+   h_allprobes_PFNoPUHT = fs->make <TH2F>("allprobes_PFNoPUHT", "all probes", 100, 0., 2000., 100, 0., 500.);
+   h_allprobes_PFNoPUHT->Sumw2();
+   h_passedprobes_PFHT = fs->make<TH2F>("passedprobes_PFHT", "passed probes", 100, 0., 2000., 100, 0., 500.);
+   h_passedprobes_PFHT->Sumw2();
+   h_passedprobes_PFNoPUHT = fs->make<TH2F>("passedprobes_PFNoPUHT", "passed probes", 100, 0., 2000., 100, 0., 500.);
+   h_passedprobes_PFNoPUHT->Sumw2();
+   
    // ----------------------------------------------------------------------------- //
 
    h_HTallprobes_PFNoPUHT650 = fs->make < TH1F > ("HTallprobes_PFNoPUHT650", "HT all probes", 100, 0., 2000.);
