@@ -1,4 +1,4 @@
-# $Id: getWeightProducer_cff.py,v 1.8 2012/12/06 15:25:00 mschrode Exp $
+# $Id: getWeightProducer_cff.py,v 1.9 2012/12/20 14:33:04 kheine Exp $
 #
 # Returns a WeightProducer module that knows at runtime
 # which data sample is produced and thus, what weights
@@ -156,7 +156,7 @@ def getWeightProducer(fileName):
     if "QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v1" in fileName:
         mcVersion = "Summer12_5_3_X"
         weightProducer.Method     = cms.string("PtHat")
-        weightProducer.XS         = cms.double(2.99913994e+10)
+        weightProducer.XS         = cms.double(2.99815997e+10)
         weightProducer.NumberEvts = cms.double(9991674)
         weightProducer.Exponent   = cms.double(-4.5)
     if "QCD_HT-100To250_TuneZ2star_8TeV-madgraph-pythia" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-v1" in fileName:    
