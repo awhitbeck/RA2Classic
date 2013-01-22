@@ -1,4 +1,4 @@
-# $Id: makeTreeFromPAT_cff.py,v 1.13 2012/12/06 15:27:09 mschrode Exp $
+# $Id: makeTreeFromPAT_cff.py,v 1.14 2013/01/08 09:10:30 mschrode Exp $
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -54,7 +54,7 @@ def makeTreeFromPAT(process,
     process.filterSelection += process.PBNRFilter
     from RecoMET.METFilters.multiEventFilter_cfi import multiEventFilter
     process.HCALLaserEvtFilterList2012 = multiEventFilter.clone(
-        file        = cms.FileInPath('EventFilter/HcalRawToDigi/data/AllBadHCALLaser.txt'),
+        file        = cms.FileInPath('RA2Classic/AdditionalInputFiles/data/HCALLaserEventList_20Nov2012-v2_HT-HTMHT.txt'),
         taggingMode = cms.bool(True)
         )
     process.filterSelection += process.HCALLaserEvtFilterList2012
@@ -98,6 +98,11 @@ def makeTreeFromPAT(process,
     ## --- Setup WeightProducer -------------------------------------------
     from RA2Classic.WeightProducer.getWeightProducer_cff import getWeightProducer
     process.WeightProducer = getWeightProducer(testFileName)
+    process.WeightProducer.Lumi                       = cms.double(19466)
+    process.WeightProducer.PU                         = cms.int32(3) # PU S10
+    process.WeightProducer.FileNamePUDataDistribution = cms.string("RA2Classic/WeightProducer/data/DataPileupHistogram_RA2Summer12_190456-208686_ABCD.root")
+    
+    
 
 
     ## --- Setup of TreeMaker ----------------------------------------------
