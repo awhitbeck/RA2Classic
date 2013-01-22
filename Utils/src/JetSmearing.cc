@@ -11,7 +11,7 @@ Description: Vary jet pt by its uncertainty and produce new jet collection.
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Thu Dec 13 17:23:26 CET 2012
-// $Id: $
+// $Id: JetSmearing.cc,v 1.1 2013/01/22 17:57:42 mschrode Exp $
 //
 //
 
@@ -168,8 +168,8 @@ JetSmearing::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   // Sort varied jets in pt
-//   GreaterByPt<pat::Jet> pTComparator;
-//   std::sort(smearedJets->begin(),smearedJets->end(),pTComparator);
+  GreaterByPt<pat::Jet> pTComparator;
+  std::sort(smearedJets->begin(),smearedJets->end(),pTComparator);
 
   // Put varied jets into event
   iEvent.put(smearedJets);
