@@ -1,4 +1,4 @@
-# $Id: makeTree_cfg.py,v 1.5 2013/01/04 21:21:49 seema Exp $
+# $Id: makeTree_cfg.py,v 1.6 2013/01/04 22:14:03 seema Exp $
 
 
 ###############################################################################
@@ -37,7 +37,7 @@ process.outpath.remove(process.out)
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.5 $'),
+    version = cms.untracked.string('$Revision: 1.6 $'),
     name = cms.untracked.string('$Source: /local/reps/CMSSW/UserCode/kheine/RA2Classic/SUSYParams/test/makeTree_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
     )
@@ -57,6 +57,7 @@ process.maxEvents.input = numProcessedEvt
 process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 process.source = cms.Source(
     "PoolSource",
+    #fileNames = cms.untracked.vstring('/store/mc/Summer12_DR53X/QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6/AODSIM/PU_S10_START53_V7A-v1/0000/544333CC-34D3-E111-8A98-0030487D8661.root')
      fileNames = cms.untracked.vstring('/store/mc/Summer12/SMS-T1tttt_Mgluino-350to2000_mLSP-0to1650_8TeV-Pythia6Z/AODSIM/START52_V9_FSIM-v3/0002/46A8899B-39ED-E111-97C7-00221981B44C.root')
     )
 
@@ -155,7 +156,7 @@ process.load('SandBox.Skims.RA2Objects_cff')
 process.load('SandBox.Skims.RA2Selection_cff')
 process.load('SandBox.Skims.RA2Cleaning_cff')
 
-## # Adjust object filters for signal-scan values
+## # Adjust object filters to signal-scan values
 ## process.htPFchsFilter.MinHT               = cms.double(300.0)
 ## process.mhtPFchsFilter.MinMHT             = cms.double(100.0)
 ## process.countJetsPFchsPt50Eta25.minNumber = cms.uint32(2)
@@ -308,7 +309,7 @@ process.AdditionalJetInfo = AdditionalJetInfo.clone(
     )
 
 
-## --- JES / JER Uncertainties -----------------------------------------
+## --- JES Uncertainties -----------------------------------------------
 # Create jet collections with JES varied by +/- JEC uncertainty
 from RA2Classic.Utils.jesUncertaintyVariation_cfi import jesUncertaintyVariation
 process.patJetsPFJESUp = jesUncertaintyVariation.clone(
@@ -363,6 +364,88 @@ process.varyJES = cms.Sequence(
     )
 
 
+## --- JER Uncertainties -----------------------------------------------
+# Create jet collections with gen-jets smeared by
+# - nominal JER in data
+# - nominal JER in data +/- JER uncertainty
+from RA2Classic.Utils.jetSmearing_cfi import jetSmearing
+process.smearedGenJetsJER = jetSmearing.clone(
+    Jets = cms.InputTag('ak5GenJets'),
+    BinEdgesEtaCoreScaleFactors = cms.vdouble(0.0, 0.5, 1.1, 1.7, 2.3, 5.0),
+    CoreScaleFactors            = cms.vdouble(1.052, 1.057, 1.096, 1.134, 1.288)
+    )
+process.smearedGenJetsJERUp = jetSmearing.clone(
+    Jets                        = cms.InputTag('ak5GenJets'),
+    BinEdgesEtaCoreScaleFactors = cms.vdouble(0.0, 0.5, 1.1, 1.7, 2.3, 5.0),
+    CoreScaleFactors            = cms.vdouble(1.116, 1.115, 1.162, 1.228, 1.489)
+    )
+process.smearedGenJetsJERDn = jetSmearing.clone(
+    Jets                        = cms.InputTag('ak5GenJets'),
+    BinEdgesEtaCoreScaleFactors = cms.vdouble(0.0, 0.5, 1.1, 1.7, 2.3, 5.0),
+    CoreScaleFactors            = cms.vdouble(1.000, 1.001, 1.032, 1.043, 1.090)
+    )
+
+
+
+# Create RA2 jets from smeared jets and recompute HT, MHT
+process.smearedGenJetsPt30JER = process.patJetsPFchsPt30.clone(
+    src = cms.InputTag('smearedGenJetsJER')
+    )
+process.smearedGenJetsPt30JERUp = process.patJetsPFchsPt30.clone(
+    src = cms.InputTag('smearedGenJetsJERUp')
+    )
+process.smearedGenJetsPt30JERDn = process.patJetsPFchsPt30.clone(
+    src = cms.InputTag('smearedGenJetsJERDn')
+    )
+process.smearedGenJetsPt50Eta25JER = process.patJetsPFchsPt50Eta25.clone(
+    src = cms.InputTag('smearedGenJetsPt30JER')
+    )
+process.smearedGenJetsPt50Eta25JERUp = process.patJetsPFchsPt50Eta25.clone(
+    src = cms.InputTag('smearedGenJetsPt30JERUp')
+    )
+process.smearedGenJetsPt50Eta25JERDn = process.patJetsPFchsPt50Eta25.clone(
+    src = cms.InputTag('smearedGenJetsPt30JERDn')
+    )
+
+# Recompute HT, MHT with varied JES
+process.htSmearedGenJetsJER = process.htPFchs.clone(
+    JetCollection = cms.InputTag('smearedGenJetsPt50Eta25JER')
+    )
+process.htSmearedGenJetsJERUp = process.htPFchs.clone(
+    JetCollection = cms.InputTag('smearedGenJetsPt50Eta25JERUp')
+    )
+process.htSmearedGenJetsJERDn = process.htPFchs.clone(
+    JetCollection = cms.InputTag('smearedGenJetsPt50Eta25JERDn')
+    )
+process.mhtSmearedGenJetsJER = process.mhtPFchs.clone(
+    JetCollection = cms.InputTag('smearedGenJetsPt30JER')
+    )
+process.mhtSmearedGenJetsJERUp = process.mhtPFchs.clone(
+    JetCollection = cms.InputTag('smearedGenJetsPt30JERUp')
+    )
+process.mhtSmearedGenJetsJERDn = process.mhtPFchs.clone(
+    JetCollection = cms.InputTag('smearedGenJetsPt30JERDn')
+    )
+
+process.varyJER = cms.Sequence(
+    process.smearedGenJetsJER *
+    process.smearedGenJetsPt30JER *
+    process.smearedGenJetsPt50Eta25JER *
+    process.htSmearedGenJetsJER *
+    process.mhtSmearedGenJetsJER *
+    process.smearedGenJetsJERUp *
+    process.smearedGenJetsPt30JERUp *
+    process.smearedGenJetsPt50Eta25JERUp *
+    process.htSmearedGenJetsJERUp *
+    process.mhtSmearedGenJetsJERUp *
+    process.smearedGenJetsJERDn *
+    process.smearedGenJetsPt30JERDn *
+    process.smearedGenJetsPt50Eta25JERDn *
+    process.htSmearedGenJetsJERDn *
+    process.mhtSmearedGenJetsJERDn
+    )
+
+
 
 ###############################################################################
 ##
@@ -373,7 +456,7 @@ process.varyJES = cms.Sequence(
 ## --- Setup of TreeMaker ----------------------------------------------
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("RA2Selection.root")
+    fileName = cms.string("RA2SignalScan.root")
     )
 
 # The nominal tree
@@ -493,6 +576,70 @@ process.RA2TreeMakerJESDn = TreeMaker.clone(
                                         )
     )
 
+# Trees with gen-jets smeared by JER (reduced content!)
+process.RA2TreeMakerJER = TreeMaker.clone(
+    TreeName          = cms.string("RA2PreSelectionJER"),
+    VertexCollection  = cms.InputTag('goodVertices'),
+    HT                = cms.InputTag('htSmearedGenJetsJER'),
+    HTJets            = cms.InputTag('smearedGenJetsPt50Eta25JER'),
+    MHT               = cms.InputTag('mhtSmearedGenJetsJER'),
+    MHTJets           = cms.InputTag('smearedGenJetsPt30JER'),
+    VarsDouble        = cms.VInputTag(cms.InputTag('WeightProducer:weight'),
+                                      cms.InputTag('PUInfo:Num'),
+                                      cms.InputTag('susyparams:m0'),
+                                      cms.InputTag('susyparams:m12'),
+                                      cms.InputTag('susyparams:evtProcID')
+                                      ),
+    VarsDoubleNamesInTree = cms.vstring('Weight',
+                                        'NumPUInteractions',
+                                        'massMom',
+                                        'massDau',
+                                        'procID'
+                                        )
+    )
+
+process.RA2TreeMakerJERUp = TreeMaker.clone(
+    TreeName          = cms.string("RA2PreSelectionJERUp"),
+    VertexCollection  = cms.InputTag('goodVertices'),
+    HT                = cms.InputTag('htSmearedGenJetsJERUp'),
+    HTJets            = cms.InputTag('smearedGenJetsPt50Eta25JERUp'),
+    MHT               = cms.InputTag('mhtSmearedGenJetsJERUp'),
+    MHTJets           = cms.InputTag('smearedGenJetsPt30JERUp'),
+    VarsDouble        = cms.VInputTag(cms.InputTag('WeightProducer:weight'),
+                                      cms.InputTag('PUInfo:Num'),
+                                      cms.InputTag('susyparams:m0'),
+                                      cms.InputTag('susyparams:m12'),
+                                      cms.InputTag('susyparams:evtProcID')
+                                      ),
+    VarsDoubleNamesInTree = cms.vstring('Weight',
+                                        'NumPUInteractions',
+                                        'massMom',
+                                        'massDau',
+                                        'procID'
+                                        )
+    )
+
+process.RA2TreeMakerJERDn = TreeMaker.clone(
+    TreeName          = cms.string("RA2PreSelectionJERDn"),
+    VertexCollection  = cms.InputTag('goodVertices'),
+    HT                = cms.InputTag('htSmearedGenJetsJERDn'),
+    HTJets            = cms.InputTag('smearedGenJetsPt50Eta25JERDn'),
+    MHT               = cms.InputTag('mhtSmearedGenJetsJERDn'),
+    MHTJets           = cms.InputTag('smearedGenJetsPt30JERDn'),
+    VarsDouble        = cms.VInputTag(cms.InputTag('WeightProducer:weight'),
+                                      cms.InputTag('PUInfo:Num'),
+                                      cms.InputTag('susyparams:m0'),
+                                      cms.InputTag('susyparams:m12'),
+                                      cms.InputTag('susyparams:evtProcID')
+                                      ),
+    VarsDoubleNamesInTree = cms.vstring('Weight',
+                                        'NumPUInteractions',
+                                        'massMom',
+                                        'massDau',
+                                        'procID'
+                                        )
+    )
+
 
 
 
@@ -511,6 +658,7 @@ process.writeTree = cms.Path(
     process.genJets *
     process.ak5CaloJetsL2L3 * process.caloJets *
     process.varyJES *
+    process.varyJER *
     process.AdditionalJetInfo *
     process.WeightProducer *
     process.PUInfo *
@@ -520,7 +668,10 @@ process.writeTree = cms.Path(
     process.ISRsys *
     process.RA2TreeMaker *
     process.RA2TreeMakerJESUp *
-    process.RA2TreeMakerJESDn
+    process.RA2TreeMakerJESDn *
+    process.RA2TreeMakerJER *
+    process.RA2TreeMakerJERUp *
+    process.RA2TreeMakerJERDn
     )
 
 process.schedule = cms.Schedule(process.writeTree)
