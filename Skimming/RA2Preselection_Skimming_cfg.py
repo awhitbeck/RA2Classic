@@ -1,4 +1,4 @@
-#  $Id: RA2Preselection_Skimming_cfg.py,v 1.3 2012/10/30 21:12:13 mschrode Exp $
+#  $Id: RA2Preselection_Skimming_cfg.py,v 1.4 2012/12/27 16:36:42 mschrode Exp $
 #
 # --- Configuration file for RA2 skims from AOD ---------------------------------
 #
@@ -33,6 +33,6 @@ runRA2Preselection(process,
                    globalTag,
                    isData,
                    reportEveryEvt=5000,
-                   testFileName="/store/data/Run2012A/HT/AOD/13Jul2012-v1/00000/FEEF1E85-BACF-E111-807A-002618943877.root",
-                   numProcessedEvt=100
+                   testFileName="/store/data/Run2012D/HTMHT/AOD/PromptReco-v1/000/208/940/D0D3371D-A046-E211-B762-5404A6388697.root",
+                   numProcessedEvt=10
                    )
