@@ -1,4 +1,4 @@
-# $Id: runMakeTreeFromPAT_cfg.py,v 1.6 2012/12/06 15:27:10 mschrode Exp $
+# $Id: runMakeTreeFromPAT_cfg.py,v 1.7 2013/01/22 18:07:17 mschrode Exp $
 #
 # Expects a file name as argument e.g.
 # cmsRun runMakeTreeFromPAT_cfg.py dataset=/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V2//528d417548fa47de754292e17c1b0d17/RA2Skim_105_1_Tzb.root
@@ -32,5 +32,5 @@ makeTreeFromPAT(process,
                 HTMin=htMin,
                 MHTMin=mhtMin,
                 reportEveryEvt=5000,
-                testFileName='/store/user/mschrode/HTMHT/RA2PreSelection_Run2012C-PromptReco-v2_V4/1d5bc287a8c7728f9d7414517d1cc2d8/RA2Skim_1000_1_QDh.root',
+                testFileName=dataSetName,
                 numProcessedEvt=1000)
