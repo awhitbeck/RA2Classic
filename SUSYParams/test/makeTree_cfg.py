@@ -1,4 +1,4 @@
-# $Id: makeTree_cfg.py,v 1.6 2013/01/04 22:14:03 seema Exp $
+# $Id: makeTree_cfg.py,v 1.7 2013/01/22 17:57:43 mschrode Exp $
 
 
 ###############################################################################
@@ -37,7 +37,7 @@ process.outpath.remove(process.out)
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.6 $'),
+    version = cms.untracked.string('$Revision: 1.7 $'),
     name = cms.untracked.string('$Source: /local/reps/CMSSW/UserCode/kheine/RA2Classic/SUSYParams/test/makeTree_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
     )
@@ -512,21 +512,21 @@ process.RA2TreeMaker = TreeMaker.clone(
                                           ),
     CandidateNamesInTree  = cms.vstring('Jets',
                                         'GenJets',
-                                        'CaloJetsRaw'
+                                        'CaloJetsRaw',
                                         'PATMuonsPFIDIso',
                                         'PATElectronsIDIso',
                                         'PATMETsPF'
                                         ),
     VarsDoubleV = cms.VInputTag('AdditionalJetInfo:Area',
                                 'AdditionalJetInfo:NeutHadF',
-                                'AdditionalJetInfo:NeutEmF'
+                                'AdditionalJetInfo:NeutEmF',
                                 "pdfWeight:cteq66",
                                 "pdfWeight:MSTW2008nlo68cl",
                                 "pdfWeight:NNPDF20"
                                 ),
     VarsDoubleNamesInTreeV = cms.vstring('JetArea',
                                          'JetNeutHadF',
-                                         'JetNeutEmF'
+                                         'JetNeutEmF',
                                          "cteq66",
                                          "MSTW2008nlo68cl",
                                          "NNPDF20"
