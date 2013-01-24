@@ -13,7 +13,7 @@
 //
 // Original Author:  Gheorghe Lungu
 //         Created:  Thu Oct  4 10:44:53 CDT 2012
-// $Id: SUSYParams.cc,v 1.1 2012/11/19 16:47:42 lungu Exp $
+// $Id: SUSYParams.cc,v 1.2 2013/01/04 22:32:42 seema Exp $
 //
 //
 
@@ -259,44 +259,63 @@ void SUSYParams::GetSMSs(const LHEEventProduct& lhep, const GenEventInfoProduct&
   comments_const_iterator c_begin = lhep.comments_begin();
   comments_const_iterator c_end = lhep.comments_end();
 
-  double Mmom(0), Mdau(0);
+  //double Mmom(0), Mdau(0);
+  double mGL  = -1.0;
+  double mSQ  = -1.0;
+  double mLSP = -1.0; 
+  double xCHI = -1.0;
   
   for( comments_const_iterator cit=c_begin; cit!=c_end; ++cit) {
-    //std::cout << *cit << std::endl;  
     size_t found = (*cit).find("model");
     
-    if( found != std::string::npos)   {    
-      //         std::cout << *cit << std::endl;  
-      
+    if( found != std::string::npos)   {
+      if(_debug) std::cout << *cit << std::endl;
       size_t foundLength = (*cit).size();
-      //found = (*cit).find("=");
+      //found = (*cit).find("T5zz");
+      found = (*cit).find(_model);
+      
       std::string smaller = (*cit).substr(found+1,foundLength);
-      if (smaller.find("T1") != std::string::npos) {
+      found = smaller.find("_");
+      smaller = smaller.substr(found+1,smaller.size());
+      std::istringstream iss(smaller);
+      
+      if(_model=="T5ZZ" || _model=="T2bW") {
+	iss >> xCHI;
+	iss.clear();
 	found = smaller.find("_");
 	smaller = smaller.substr(found+1,smaller.size());
+	iss.str(smaller);
+	
+	iss >> mGL;
+	iss.clear();
+	
+	found = smaller.find("_");
+	smaller = smaller.substr(found+1,smaller.size());
+	iss.str(smaller);
+	iss >> mLSP;
+	iss.clear();
+
+      } else if (_model=="T2" || _model=="T2tt" || _model=="T1" || _model=="T1tttt") {
+	iss >> mGL;
+	iss.clear();
+	
+	found = smaller.find("_");
+	smaller = smaller.substr(found+1,smaller.size());
+	iss.str(smaller);
+	iss >> mLSP;
+	iss.clear();
       }
-      found = smaller.find("_");
-      smaller = smaller.substr(found+1,smaller.size());
-      //
-      std::istringstream iss(smaller);
-      iss >> Mmom;
-      iss.clear();
-      //
-      found = smaller.find("_");
-      smaller = smaller.substr(found+1,smaller.size());
-      iss.str(smaller);
-      iss >> Mdau;
-      iss.clear();      
+
     }
   }
-  
+
   //char buffer[100];
   //int n = 
   //sprintf(buffer,"SMS model with parameters mMom=%6.2f mDau=%6.2f\n",Mmom,Mdau);
   //std::cout << buffer <<std::endl;;
   
-  mMom = (float)Mmom;
-  mDau = (float)Mdau;
+  mMom = (float)mGL;
+  mDau = (float)mLSP;
   
   //---get procID
   //const HepMC::GenEvent * myGenEvent = hmc.GetEvent();
@@ -305,7 +324,8 @@ void SUSYParams::GetSMSs(const LHEEventProduct& lhep, const GenEventInfoProduct&
 
   evtProcID = 0;//---catches all events with procID not listed below
   evtProcID = (double)GetProcID(genProd.signalProcessID());
-  //std::cout<<"(getSMS) "<<Mmom<<" "<<mMom<<" "<<Mdau<<" "<<mDau<<" "<<evtProcID<<std::endl;
+
+  if (_debug) std::cout<<"(getSMS) : mMom "<<mGL<<" "<<mMom<<" mDau "<<mLSP<<" "<<mDau<<" evtProcID "<<evtProcID<<std::endl;
  
   //cout<<"(getsms) "<<genProd.signalProcessID()<<" "<<evtProcID<<endl;
   //---event cross-section
