@@ -1,4 +1,4 @@
-# $Id: makeTreeFromPAT_cff.py,v 1.14 2013/01/08 09:10:30 mschrode Exp $
+# $Id: makeTreeFromPAT_cff.py,v 1.15 2013/01/22 18:06:23 mschrode Exp $
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -18,10 +18,12 @@ def makeTreeFromPAT(process,
     process.MessageLogger.cerr = cms.untracked.PSet(
         placeholder = cms.untracked.bool(True)
         )
-    process.MessageLogger.statistics.append('cout')
     process.MessageLogger.cout = cms.untracked.PSet(
         INFO = cms.untracked.PSet(reportEvery = cms.untracked.int32(reportEveryEvt))
         )
+    process.options = cms.untracked.PSet(
+        wantSummary = cms.untracked.bool(True)
+        ) 
 
 
     ## --- Files to process ------------------------------------------------
@@ -49,13 +51,13 @@ def makeTreeFromPAT(process,
     process.PBNRFilter = jetIDFailure.clone(
         JetSource = cms.InputTag('MHTJets'),
         MinJetPt      = cms.double(30.0),
-        taggingMode   = cms.bool(True)
+        taggingMode   = cms.bool(False)
         )
     process.filterSelection += process.PBNRFilter
     from RecoMET.METFilters.multiEventFilter_cfi import multiEventFilter
     process.HCALLaserEvtFilterList2012 = multiEventFilter.clone(
         file        = cms.FileInPath('RA2Classic/AdditionalInputFiles/data/HCALLaserEventList_20Nov2012-v2_HT-HTMHT.txt'),
-        taggingMode = cms.bool(True)
+        taggingMode = cms.bool(False)
         )
     process.filterSelection += process.HCALLaserEvtFilterList2012
 

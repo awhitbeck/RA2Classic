@@ -1,7 +1,7 @@
-# $Id: runMakeTreeFromPAT_cfg.py,v 1.7 2013/01/22 18:07:17 mschrode Exp $
+# $Id: runMakeTreeFromPAT_cfg.py,v 1.8 2013/01/22 21:11:00 mschrode Exp $
 #
 # Expects a file name as argument e.g.
-# cmsRun runMakeTreeFromPAT_cfg.py dataset=/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V2//528d417548fa47de754292e17c1b0d17/RA2Skim_105_1_Tzb.root
+# cmsRun runMakeTreeFromPAT_cfg.py dataset=/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V4/21a074f94cdbe7cfbeeb19be46b40a6a/RA2Skim_9_1_h6A.root
 
 
 # Read parameters
