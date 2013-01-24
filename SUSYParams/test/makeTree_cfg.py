@@ -1,4 +1,4 @@
-# $Id: makeTree_cfg.py,v 1.7 2013/01/22 17:57:43 mschrode Exp $
+# $Id: makeTree_cfg.py,v 1.8 2013/01/23 02:29:13 seema Exp $
 
 
 ###############################################################################
@@ -7,7 +7,7 @@
 ##
 ###############################################################################
 
-numProcessedEvt = -1
+numProcessedEvt = 200
 reportEveryEvt  = 1
 globalTag       = 'START52_V11::All'
 smsModel        = "T1tttt"
@@ -37,7 +37,7 @@ process.outpath.remove(process.out)
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.7 $'),
+    version = cms.untracked.string('$Revision: 1.8 $'),
     name = cms.untracked.string('$Source: /local/reps/CMSSW/UserCode/kheine/RA2Classic/SUSYParams/test/makeTree_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
     )
@@ -254,6 +254,7 @@ process.pdfWeight = cms.EDProducer(
 #---put the susy params
 process.load("RA2Classic.SUSYParams.susyparams_cfi")
 process.susyparams.Model = cms.string(smsModel)
+process.susyparams.Debug = cms.bool(False)
 
 #---for ISR sys
 ##   cvs co -d UserCode/HistoWeightProducer UserCode/Mrenna/UserCode/HistoWeightProducer
@@ -281,27 +282,33 @@ process.ISRsys = cms.Sequence(process.lastParticles * process.myProducerLabel)
 # Store collection with some lose pt cut to be able to
 # adjust to JEC/JER changes
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
-from RA2Classic.Utils.patJetCollectionSubsetProducer_cfi import patJetCollectionSubsetProducer
-process.patJetsPFchs = patJetCollectionSubsetProducer.clone(
-    Jets   = cms.InputTag('patJetsPF'),
-    PtMin        = cms.double(10.)
+
+#from RA2Classic.Utils.patJetCollectionSubsetProducer_cfi import patJetCollectionSubsetProducer
+#process.patJetsPFchs = patJetCollectionSubsetProducer.clone(
+#    Jets   = cms.InputTag('patJetsPF'),
+#    PtMin        = cms.double(10.)
+#    )
+from SandBox.Skims.basicJetSelector_cfi import selectedPatJets
+process.patJetsPFchs = selectedPatJets.clone(
+    src   = cms.InputTag('patJetsPF'),
+    cut   = cms.string("pt>10.0")
     )
+from RA2Classic.Utils.patJetCollectionSubsetProducer_cfi import patJetCollectionSubsetProducer
 process.genJets = patJetCollectionSubsetProducer.clone(
     Jets   = cms.InputTag('ak5GenJets'),
     PtMin        = cms.double(10.)
     )
-
-# For hadronic tau
+# For lost lepton
 process.caloJets = patJetCollectionSubsetProducer.clone(
     Jets   = cms.InputTag('ak5CaloJetsL2L3'),
     PtMin        = cms.double(10.)
     )
 
-
 ## --- Additional jet-related Info -------------------------------------
 ## Store info are
 ## - Area for L1 corrections
 ## - Neutral energy fractions for PBNR filter
+## - btag (CSV) discriminator value
 ## Requires in addition the jet 4-vectors
 from RA2Classic.SUSYParams.additionalJetInfo_cfi import AdditionalJetInfo
 process.AdditionalJetInfo = AdditionalJetInfo.clone(
@@ -517,17 +524,21 @@ process.RA2TreeMaker = TreeMaker.clone(
                                         'PATElectronsIDIso',
                                         'PATMETsPF'
                                         ),
-    VarsDoubleV = cms.VInputTag('AdditionalJetInfo:Area',
-                                'AdditionalJetInfo:NeutHadF',
-                                'AdditionalJetInfo:NeutEmF',
-                                "pdfWeight:cteq66",
+    CandidateCollectionsJetInfo  = cms.VInputTag('AdditionalJetInfo:Area',
+                                       'AdditionalJetInfo:NeutHadF',
+                                       'AdditionalJetInfo:NeutEmF',
+                                       'AdditionalJetInfo:BTagCSV'
+                                       ),
+    CandidateNamesInTreeJetInfo  = cms.vstring('JetArea',
+                                         'JetNeutHadF',
+                                         'JetNeutEmF',
+                                         'BTagCSV'
+                                        ),
+    VarsDoubleV = cms.VInputTag("pdfWeight:cteq66",
                                 "pdfWeight:MSTW2008nlo68cl",
                                 "pdfWeight:NNPDF20"
                                 ),
-    VarsDoubleNamesInTreeV = cms.vstring('JetArea',
-                                         'JetNeutHadF',
-                                         'JetNeutEmF',
-                                         "cteq66",
+    VarsDoubleNamesInTreeV = cms.vstring("cteq66",
                                          "MSTW2008nlo68cl",
                                          "NNPDF20"
                                        )
