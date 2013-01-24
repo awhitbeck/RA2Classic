@@ -85,12 +85,16 @@ private:
 
   // Any edm::Candidates
   std::vector<edm::InputTag> candidatesInputTag_;
-  std::vector<std::string> candidatesNameInTree_;
+  std::vector<std::string>   candidatesNameInTree_;
+  std::vector<edm::InputTag> candidatesInputTagJetInfo_;
+  std::vector<std::string>   candidatesNameInTreeJetInfo_;
   std::vector<UShort_t> candidatesN_;
-  std::vector<Float_t*> candidatesE_;
   std::vector<Float_t*> candidatesPt_;
   std::vector<Float_t*> candidatesEta_;
   std::vector<Float_t*> candidatesPhi_;
+  std::vector<Float_t*> candidatesE_;
+  std::vector<UShort_t> candidatesJetInfoN_;
+  std::vector<Float_t*> candidatesJetInfo_;
 
   // Any boolean variables
   std::vector<edm::InputTag> filterDecisionTags_;
