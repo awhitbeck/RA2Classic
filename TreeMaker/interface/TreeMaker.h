@@ -1,7 +1,7 @@
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id: TreeMaker.h,v 1.7 2012/09/22 13:59:57 mschrode Exp $
+// $Id: TreeMaker.h,v 1.9 2012/11/19 17:00:58 lungu Exp $
 //
 //
 
@@ -87,6 +87,7 @@ private:
   std::vector<edm::InputTag> candidatesInputTag_;
   std::vector<std::string> candidatesNameInTree_;
   std::vector<UShort_t> candidatesN_;
+  std::vector<Float_t*> candidatesE_;
   std::vector<Float_t*> candidatesPt_;
   std::vector<Float_t*> candidatesEta_;
   std::vector<Float_t*> candidatesPhi_;

@@ -57,7 +57,7 @@
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id: TreeMaker.cc,v 1.11 2012/11/19 17:00:58 lungu Exp $
+// $Id: TreeMaker.cc,v 1.12 2012/11/30 14:58:18 mschrode Exp $
 //
 //
 
@@ -103,6 +103,7 @@ TreeMaker::TreeMaker(const edm::ParameterSet& iConfig)
   filterDecisions_ = std::vector<UChar_t>(filterDecisionTags_.size(),0);
   candidatesN_ = std::vector<UShort_t>(candidatesInputTag_.size(),0);
   for(unsigned int i = 0; i < candidatesInputTag_.size(); ++i) {
+    candidatesE_.push_back(new Float_t[nMaxCandidates_]);
     candidatesPt_.push_back(new Float_t[nMaxCandidates_]);
     candidatesEta_.push_back(new Float_t[nMaxCandidates_]);
     candidatesPhi_.push_back(new Float_t[nMaxCandidates_]);
@@ -114,6 +115,7 @@ TreeMaker::TreeMaker(const edm::ParameterSet& iConfig)
 
 TreeMaker::~TreeMaker() {
   for(unsigned int i = 0; i < candidatesInputTag_.size(); ++i) {
+    delete [] candidatesE_.at(i);
     delete [] candidatesPt_.at(i);
     delete [] candidatesEta_.at(i);
     delete [] candidatesPhi_.at(i);
@@ -200,6 +202,7 @@ TreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     if( cands.isValid() ) {
       for(unsigned int j = 0; j < cands->size(); ++j) {
 	candidatesN_.at(i) = cands->size();
+	candidatesE_.at(i)[j] = cands->at(j).energy();
 	candidatesPt_.at(i)[j] = cands->at(j).pt();
 	candidatesEta_.at(i)[j] = cands->at(j).eta();
 	candidatesPhi_.at(i)[j] = cands->at(j).phi();
@@ -293,6 +296,7 @@ TreeMaker::beginJob() {
       name = candidatesNameInTree_.at(i);
     }
     tree_->Branch((name+"Num").c_str(),&(candidatesN_.at(i)),(name+"Num/s").c_str());
+    tree_->Branch((name+"E").c_str(),candidatesE_.at(i),(name+"E["+name+"Num]/F").c_str());
     tree_->Branch((name+"Pt").c_str(),candidatesPt_.at(i),(name+"Pt["+name+"Num]/F").c_str());
     tree_->Branch((name+"Eta").c_str(),candidatesEta_.at(i),(name+"Eta["+name+"Num]/F").c_str());
     tree_->Branch((name+"Phi").c_str(),candidatesPhi_.at(i),(name+"Phi["+name+"Num]/F").c_str());
@@ -370,7 +374,7 @@ TreeMaker::setBranchVariablesToDefault() {
   deltaPhi2_ = 9999.;
   deltaPhi3_ = 9999.;
   for(unsigned int i = 0; i < varsDouble_.size(); ++i) {
-    varsDouble_.at(i) = 1.;
+    varsDouble_.at(i) = 9999.;
   }
   for(unsigned int i = 0; i < filterDecisions_.size(); ++i) {
     filterDecisions_.at(i) = 0;
@@ -378,16 +382,17 @@ TreeMaker::setBranchVariablesToDefault() {
   for(unsigned int i = 0; i < candidatesInputTag_.size(); ++i) {
     candidatesN_.at(i) = 0;
     for(unsigned int j = 0; j < nMaxCandidates_; ++j) {
-      candidatesPt_.at(i)[j] = 0.;
-      candidatesEta_.at(i)[j] = 0.;
-      candidatesPhi_.at(i)[j] = 0.;
+      candidatesE_.at(i)[j] = 9999.;
+      candidatesPt_.at(i)[j] = 9999.;
+      candidatesEta_.at(i)[j] = 9999.;
+      candidatesPhi_.at(i)[j] = 9999.;
     }
   }
   //<JL
   for(unsigned int i = 0; i < varsDoubleV_.size(); ++i) {
-    varsDoubleVN_.at(i) = 0.;
+    varsDoubleVN_.at(i) = 9999.;
     for(unsigned int j = 0; j < 120; ++j) {
-      varsDoubleV_.at(i)[j] = 1.;
+      varsDoubleV_.at(i)[j] = 9999.;
     }
   }
   //JL>
