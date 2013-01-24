@@ -64,6 +64,7 @@
 #include "RA2Classic/TreeMaker/interface/TreeMaker.h"
 
 #include <string>
+#include <algorithm>
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -78,7 +79,7 @@
 // constructors and destructor
 //
 TreeMaker::TreeMaker(const edm::ParameterSet& iConfig)
-  : nMaxCandidates_(20), tree_(0) {
+  : nMaxCandidates_(50), tree_(0) {
 
   // Set default values for all branch variables
   setBranchVariablesToDefault();
@@ -90,8 +91,10 @@ TreeMaker::TreeMaker(const edm::ParameterSet& iConfig)
   htTag_ = iConfig.getParameter<edm::InputTag>("HT");
   mhtJetsTag_ = iConfig.getParameter<edm::InputTag>("MHTJets");;
   mhtTag_ = iConfig.getParameter<edm::InputTag>("MHT");
-  candidatesInputTag_ = iConfig.getParameter< std::vector<edm::InputTag> >("CandidateCollections");
-  candidatesNameInTree_ = iConfig.getParameter< std::vector<std::string> >("CandidateNamesInTree");
+  candidatesInputTag_          = iConfig.getParameter< std::vector<edm::InputTag> >("CandidateCollections");
+  candidatesNameInTree_        = iConfig.getParameter< std::vector<std::string> >  ("CandidateNamesInTree");
+  candidatesInputTagJetInfo_   = iConfig.getParameter< std::vector<edm::InputTag> >("CandidateCollectionsJetInfo");
+  candidatesNameInTreeJetInfo_ = iConfig.getParameter< std::vector<std::string> >  ("CandidateNamesInTreeJetInfo");
   varsDoubleTags_ = iConfig.getParameter< std::vector<edm::InputTag> >("VarsDouble");
   varsDoubleNamesInTree_ = iConfig.getParameter< std::vector<std::string> >("VarsDoubleNamesInTree");
   varsDoubleTagsV_ = iConfig.getParameter< std::vector<edm::InputTag> >("VarsDoubleV");//JL
@@ -99,31 +102,41 @@ TreeMaker::TreeMaker(const edm::ParameterSet& iConfig)
   filterDecisionTags_ = iConfig.getParameter< std::vector<edm::InputTag> >("Filters");
 
   // Setup vector of filter decisions with correct size
+
   varsDouble_ = std::vector<Float_t>(varsDoubleTags_.size(),1.);
+
   filterDecisions_ = std::vector<UChar_t>(filterDecisionTags_.size(),0);
   candidatesN_ = std::vector<UShort_t>(candidatesInputTag_.size(),0);
+
   for(unsigned int i = 0; i < candidatesInputTag_.size(); ++i) {
-    candidatesE_.push_back(new Float_t[nMaxCandidates_]);
-    candidatesPt_.push_back(new Float_t[nMaxCandidates_]);
+    candidatesPt_.push_back (new Float_t[nMaxCandidates_]);
     candidatesEta_.push_back(new Float_t[nMaxCandidates_]);
     candidatesPhi_.push_back(new Float_t[nMaxCandidates_]);
+    candidatesE_.push_back  (new Float_t[nMaxCandidates_]);    
   }
+  candidatesJetInfoN_ = std::vector<UShort_t>(candidatesInputTagJetInfo_.size(), 0);
+  for(unsigned int i = 0; i < candidatesInputTagJetInfo_.size(); ++i) {
+     candidatesJetInfo_.push_back(new Float_t[nMaxCandidates_]);
+  }
+
   varsDoubleVN_ = std::vector<UShort_t>(varsDoubleTagsV_.size(),0);//JL
   for(unsigned int i = 0; i < varsDoubleTagsV_.size(); ++i) //JL
-    varsDoubleV_ .push_back(new Float_t[120]);//JL
+    varsDoubleV_.push_back(new Float_t[120]);//JL
 }
 
 TreeMaker::~TreeMaker() {
   for(unsigned int i = 0; i < candidatesInputTag_.size(); ++i) {
-    delete [] candidatesE_.at(i);
     delete [] candidatesPt_.at(i);
     delete [] candidatesEta_.at(i);
     delete [] candidatesPhi_.at(i);
+    delete [] candidatesE_.at(i);
+  }
+  for(unsigned int i = 0; i < candidatesInputTagJetInfo_.size(); ++i) {
+    delete [] candidatesJetInfo_.at(i);
   }
   for(unsigned int i = 0; i < varsDoubleTagsV_.size(); ++i)//JL
     delete [] varsDoubleV_.at(i);//JL
 }
-
 
 
 //
@@ -200,12 +213,27 @@ TreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     edm::Handle< edm::View<reco::Candidate> > cands;
     iEvent.getByLabel(candidatesInputTag_.at(i),cands);
     if( cands.isValid() ) {
-      for(unsigned int j = 0; j < cands->size(); ++j) {
-	candidatesN_.at(i) = cands->size();
-	candidatesE_.at(i)[j] = cands->at(j).energy();
+      unsigned int ncands = int(cands->size());
+      unsigned int jmax= std::min(ncands,nMaxCandidates_);
+      candidatesN_.at(i) = jmax;
+      for(unsigned int j = 0; j < jmax; ++j) {
 	candidatesPt_.at(i)[j] = cands->at(j).pt();
 	candidatesEta_.at(i)[j] = cands->at(j).eta();
 	candidatesPhi_.at(i)[j] = cands->at(j).phi();
+	candidatesE_.at(i)[j] = cands->at(j).energy();
+      }
+    }
+  }
+
+  for(unsigned int i = 0; i < candidatesInputTagJetInfo_.size(); ++i) {
+    edm::Handle< std::vector<double> > varV;
+    iEvent.getByLabel(candidatesInputTagJetInfo_.at(i),varV);
+    if( varV.isValid() ) {
+      unsigned int ncands = int(varV->size());
+      unsigned int jmax= std::min(ncands,nMaxCandidates_);
+      candidatesJetInfoN_.at(i) = jmax;
+      for(unsigned int j = 0; j < jmax; ++j) {
+	candidatesJetInfo_.at(i)[j] = varV->at(j);
       }
     }
   }
@@ -296,11 +324,24 @@ TreeMaker::beginJob() {
       name = candidatesNameInTree_.at(i);
     }
     tree_->Branch((name+"Num").c_str(),&(candidatesN_.at(i)),(name+"Num/s").c_str());
-    tree_->Branch((name+"E").c_str(),candidatesE_.at(i),(name+"E["+name+"Num]/F").c_str());
-    tree_->Branch((name+"Pt").c_str(),candidatesPt_.at(i),(name+"Pt["+name+"Num]/F").c_str());
+    tree_->Branch((name+"Pt").c_str(), candidatesPt_.at(i), (name+"Pt["+name+"Num]/F").c_str());
     tree_->Branch((name+"Eta").c_str(),candidatesEta_.at(i),(name+"Eta["+name+"Num]/F").c_str());
     tree_->Branch((name+"Phi").c_str(),candidatesPhi_.at(i),(name+"Phi["+name+"Num]/F").c_str());
+    tree_->Branch((name+"E").c_str(),  candidatesE_.at(i),  (name+"E["+name+"Num]/F").c_str());
   }
+
+  //std::cout << "Inside beginJob() " << std::endl;
+  //std::cout << "candidatesInputTagJetInfo_.size() " << candidatesInputTagJetInfo_.size() << std::endl;
+  for(unsigned int i = 0; i < candidatesJetInfo_.size(); ++i) {
+    std::string name = candidatesInputTagJetInfo_.at(i).label();
+    if( i < candidatesNameInTreeJetInfo_.size() ) {
+      name = candidatesNameInTreeJetInfo_.at(i);
+    }
+    //std::cout << "name " << name << std::endl;
+    tree_->Branch((name+"Num").c_str(),&(candidatesJetInfoN_.at(i)),(name+"Num/s").c_str());
+    tree_->Branch(name.c_str(),candidatesJetInfo_.at(i),(name+"["+name+"Num]/F").c_str());
+  }
+
   //<JL
   for(unsigned int i = 0; i < varsDoubleV_.size(); ++i) {
     std::string name = varsDoubleTagsV_.at(i).label();
@@ -309,8 +350,10 @@ TreeMaker::beginJob() {
     }
     tree_->Branch((name+"Num").c_str(),&(varsDoubleVN_.at(i)),(name+"Num/s").c_str());
     tree_->Branch(name.c_str(),varsDoubleV_.at(i),(name+"["+name+"Num]/F").c_str());
+
   }
   //JL>
+  //std::cout << "Leaving beginJob() " << std::endl;
 }
 
 
@@ -364,15 +407,15 @@ TreeMaker::setBranchVariablesToDefault() {
   ht_ = 0.;
   mht_ = 0.;
   nJets_ = 0;
-  jet1Pt_ = 0.;
-  jet2Pt_ = 0.;
-  jet3Pt_ = 0.;
-  jet1Eta_ = 0.;
-  jet2Eta_ = 0.;
-  jet3Eta_ = 0.;
-  deltaPhi1_ = 9999.;
-  deltaPhi2_ = 9999.;
-  deltaPhi3_ = 9999.;
+  jet1Pt_ = -9999.;
+  jet2Pt_ = -9999.;
+  jet3Pt_ = -9999.;
+  jet1Eta_ = -9999.;
+  jet2Eta_ = -9999.;
+  jet3Eta_ = -9999.;
+  deltaPhi1_ = -9999.;
+  deltaPhi2_ = -9999.;
+  deltaPhi3_ = -9999.;
   for(unsigned int i = 0; i < varsDouble_.size(); ++i) {
     varsDouble_.at(i) = 9999.;
   }
@@ -382,17 +425,23 @@ TreeMaker::setBranchVariablesToDefault() {
   for(unsigned int i = 0; i < candidatesInputTag_.size(); ++i) {
     candidatesN_.at(i) = 0;
     for(unsigned int j = 0; j < nMaxCandidates_; ++j) {
-      candidatesE_.at(i)[j] = 9999.;
-      candidatesPt_.at(i)[j] = 9999.;
-      candidatesEta_.at(i)[j] = 9999.;
-      candidatesPhi_.at(i)[j] = 9999.;
+      candidatesPt_.at(i)[j]  = -9999.;
+      candidatesEta_.at(i)[j] = -9999.;
+      candidatesPhi_.at(i)[j] = -9999.;
+      candidatesE_.at(i)[j]   = -9999.;
+    }
+  }
+  for(unsigned int i = 0; i < candidatesJetInfo_.size(); ++i) {
+    candidatesJetInfoN_.at(i) = 9999.;
+    for(unsigned int j = 0; j < nMaxCandidates_; ++j) {
+      candidatesJetInfo_.at(i)[j] = -9999.;
     }
   }
   //<JL
   for(unsigned int i = 0; i < varsDoubleV_.size(); ++i) {
-    varsDoubleVN_.at(i) = 9999.;
+    varsDoubleVN_.at(i) = 0.;
     for(unsigned int j = 0; j < 120; ++j) {
-      varsDoubleV_.at(i)[j] = 9999.;
+      varsDoubleV_.at(i)[j] = -9999.;
     }
   }
   //JL>

@@ -1,4 +1,4 @@
-# $Id: treemaker_cfi.py,v 1.7 2012/09/22 13:59:57 mschrode Exp $
+# $Id: treemaker_cfi.py,v 1.9 2012/11/19 17:00:58 lungu Exp $
 
 # Description: Writes ntuples (ROOT tree) for RA2Classic analysis
 #
@@ -55,6 +55,8 @@ TreeMaker = cms.EDAnalyzer(
     # Names given to the edm:Candidates in the tree. If this is not specified, the generic
     # names '<InputTag::label()>' are used.
     CandidateNamesInTree = cms.vstring(),
+    CandidateCollectionsJetInfo = cms.VInputTag(),
+    CandidateNamesInTreeJetInfo = cms.vstring(),
 
     # List of InputTags for double-precision variables (double) stored in
     # the event. (For space reason, they are stored as Float_t in the tree.)
