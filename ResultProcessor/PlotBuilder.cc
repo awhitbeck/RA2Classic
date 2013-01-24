@@ -617,7 +617,7 @@ void PlotBuilder::storeCanvas(TCanvas* can, const TString &var, const DataSets &
 void PlotBuilder::setXTitle(TH1* h, const TString &var) const {
   TString xTitle = Variable::label(var);
   if( Variable::unit(var) != "" ) {
-    xTitle += " ("+Variable::unit(var)+")";
+    xTitle += " ["+Variable::unit(var)+"]";
   }
   h->GetXaxis()->SetTitle(xTitle);
 }
