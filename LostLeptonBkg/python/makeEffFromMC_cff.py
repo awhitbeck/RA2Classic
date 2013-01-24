@@ -11,12 +11,13 @@ def makeTreeFromPAT(process,
                     HTMin=500.,
                     MHTMin=200.,
                     reportEveryEvt=10,
+		    Global_Tag="",
                     testFileName=["/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_99_3_TPC.root"],
                     numProcessedEvt=1000):
     
     
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-    process.GlobalTag.globaltag = "START53_V11::All"
+    process.GlobalTag.globaltag = Global_Tag
     
     ## --- Log output ------------------------------------------------------
     process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -121,13 +122,25 @@ def makeTreeFromPAT(process,
         )
 
 
-    ## --- Additional Filters (tagging mode) ------------------------------
+    ## --- Additional Filters (not tagging mode) ------------------------------
     from RecoMET.METFilters.jetIDFailureFilter_cfi import jetIDFailure
     process.PBNRFilter = jetIDFailure.clone(
         JetSource = cms.InputTag('MHTJets'),
         MinJetPt      = cms.double(30.0),
-        taggingMode   = cms.bool(True)
+        taggingMode   = cms.bool(False)
         )
+	
+	
+    from RecoMET.METFilters.multiEventFilter_cfi import multiEventFilter
+    process.HCALLaserEvtFilterList2012 = multiEventFilter.clone(
+        file        =
+        cms.FileInPath('RA2Classic/AdditionalInputFiles/data/HCALLaserEventList_20Nov2012-v2_HT-HTMHT.txt'),
+        taggingMode = cms.bool(False)
+        )
+	
+	
+	
+	
 
     process.AdditionalFiltersInTagMode = cms.Sequence(
         process.PBNRFilter
@@ -175,7 +188,7 @@ def makeTreeFromPAT(process,
 	# filter used to slecte the RA2 baseline important for efficiency caluclaiton
     from RA2Classic.Utils.RA2Selection_cfi import RA2Selection
     process.RA2Selector = RA2Selection.clone(
-    	nJets		= cms.uint32 (2),
+    	nJets		= cms.uint32 (3),
 	HTMin		= cms.double(500),
 	MHTMin		= cms.double(100),
 	
@@ -198,7 +211,7 @@ def makeTreeFromPAT(process,
 #	ElecIDISOTag = cms.InputTag("patElectronsIDIso"),
 	HTTag	   = cms.InputTag(htInputCol),
  	MHTTag	   = cms.InputTag(mhtInputCol),
- 	CaloJetTag = cms.InputTag("ak5CaloJetsL2L3"),
+	CaloJetTag	= cms.InputTag('ak5CaloJetsL2L3'),
 #	CaloJetTag	= cms.InputTag('cleanPatJetsAK5Calo'),
     )
 
@@ -206,7 +219,7 @@ def makeTreeFromPAT(process,
     from RA2Classic.LostLeptonBkg.promtisomu_cfi import promtIsoMu
     process.promtLeptons = promtIsoMu.clone(
 	MuonIDISOTag = cms.InputTag("patMuonsPFIDIso"),
- 	CaloJetTag = cms.InputTag("ak5CaloJetsL2L3"),
+	CaloJetTag = cms.InputTag("ak5CaloJetsL2L3"),
 #	CaloJetTag	= cms.InputTag('cleanPatJetsAK5Calo'),
     )
 
@@ -225,6 +238,8 @@ def makeTreeFromPAT(process,
 	EfficiencyFileName = cms.string('MCEff.root'),
 	HTTag	   = cms.InputTag(htInputCol),
  	MHTTag	   = cms.InputTag(mhtInputCol),
+	MetJetTagUp = cms.InputTag('jesUp:METs'),
+	MetJetTagDown = cms.InputTag('jesDown:METs'),
     )
 
 
@@ -235,6 +250,19 @@ def makeTreeFromPAT(process,
     process.ra2ElectronsID = patElectronsID.clone()
     process.ra2ElectronsIDIso = patElectronsIDIso.clone()
  
+ 
+ # JES variation for MET 
+    from RA2Classic.Utils.jesUncertaintyVariation_cfi import jesUncertaintyVariation
+    process.jesUp = jesUncertaintyVariation.clone(
+        Jets       = cms.InputTag('MHTJets'), # The input jet collection
+        JetTypeId  = cms.string('AK5PFchs'),  # Type of the input jets (to obtain the uncertainty from the data base). 
+        Variation  = cms.string('Up')         # Either 'Up' or 'Dn' to produce jets with JES +/- 1 sigma, respectively
+    )
+    process.jesDown = jesUncertaintyVariation.clone(
+        Jets       = cms.InputTag('MHTJets'), # The input jet collection
+        JetTypeId  = cms.string('AK5PFchs'),  # Type of the input jets (to obtain the uncertainty from the data base). 
+        Variation  = cms.string('Down')         # Either 'Up' or 'Dn' to produce jets with JES +/- 1 sigma, respectively
+    )
 
 
 
@@ -244,6 +272,7 @@ def makeTreeFromPAT(process,
     
     process.WriteTree = cms.Path(
         process.CleaningSelection *
+	process.HCALLaserEvtFilterList2012 *
 	process.ProduceRA2Jets *
         process.NumJetSelection *
         process.HTSelection *
@@ -252,10 +281,12 @@ def makeTreeFromPAT(process,
         process.WeightProducer *
 	process.ra2ElectronsID *
 	process.ra2ElectronsIDIso *
-#        process.dump *
+#	process.jesUp *
+#	process.jesDown *
 #	process.promtLeptons *
 	process.RA2Selector *
 	process.ak5CaloJetsL2L3 *
+ #       process.dump *
 	process.LostLeptonBkgMCEffCalculator *
 	process.LostLeptonBkgProducer
 #	process.RA2TreeMaker 
