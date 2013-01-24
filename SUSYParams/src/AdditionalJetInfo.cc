@@ -11,7 +11,7 @@
  Requires in addition the jet 4-vectors
 */
 //
-// $Id: $
+// $Id: AdditionalJetInfo.cc,v 1.1 2012/11/27 21:47:53 mschrode Exp $
 //
 //
 
@@ -43,6 +43,7 @@ public:
   
 private:
   const edm::InputTag jetCollTag_;
+  std::string   btagname_;
 
   virtual void beginJob() ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -56,9 +57,11 @@ private:
 
 AdditionalJetInfo::AdditionalJetInfo(const edm::ParameterSet& iConfig)
   : jetCollTag_(iConfig.getParameter<edm::InputTag>("JetSource")) {
+  btagname_         = iConfig.getParameter<std::string>  ("bTagName");
   produces< std::vector<double> >("Area");
   produces< std::vector<double> >("NeutHadF");
   produces< std::vector<double> >("NeutEmF");
+  produces< std::vector<double> >("BTagCSV");
 }
 
 
@@ -84,6 +87,7 @@ AdditionalJetInfo::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::auto_ptr< std::vector<double> > areas(new std::vector<double>(jets->size(),0.));
     std::auto_ptr< std::vector<double> > nhfs(new std::vector<double>(jets->size(),0.));
     std::auto_ptr< std::vector<double> > nefs(new std::vector<double>(jets->size(),0.));
+    std::auto_ptr< std::vector<double> > btag(new std::vector<double>(jets->size(),0.));
     
     unsigned int jidx = 0;
     for(edm::View<pat::Jet>::const_iterator j = jets->begin();
@@ -94,11 +98,14 @@ AdditionalJetInfo::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	nhfs->at(jidx) = j->neutralHadronEnergyFraction();
 	// neutral emf, uncorrected jet energy
 	nefs->at(jidx) = j->photonEnergyFraction()/j->jecFactor(0);
+	// btag discriminator value
+	btag->at(jidx) = j->bDiscriminator(btagname_.c_str());
       }
     }
     iEvent.put(areas,"Area");
     iEvent.put(nhfs,"NeutHadF");
     iEvent.put(nefs,"NeutEmF");
+    iEvent.put(btag,"BTagCSV");
   }
 }
 
