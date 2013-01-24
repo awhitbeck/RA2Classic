@@ -1,4 +1,4 @@
-// $Id: EventYieldPrinter.cc,v 1.1 2012/11/05 14:52:14 mschrode Exp $
+// $Id: EventYieldPrinter.cc,v 1.2 2012/12/09 14:47:25 mschrode Exp $
 
 #include <iomanip>
 #include <iostream>
@@ -38,6 +38,43 @@ void EventYieldPrinter::operator()() const {
 	if( str == "0" ) str = "";
 	std::cout << std::setprecision(str.Length()+1) << std::setw(12) << (*itsd)->yield() << " (" << (*itsd)->size() << ")";
       }
+    }
+    std::cout << "  \\\\ \n";
+  }
+  std::cout << "\\bottomrule \n\\end{tabular}\n\n\n";
+
+
+  // Print yields and total uncertainties
+  std::cout << "\n\n\n\n\\begin{tabular}{";
+  for(unsigned int i = 0; i < inputDataSets.size()+1; ++i) {
+    std::cout << "r";
+  }
+  std::cout << "}\n";
+  std::cout << "\\toprule\n";
+
+  std::cout << std::setw(width) << "Selection";
+  for(DataSetIt itd = inputDataSets.begin(); itd != inputDataSets.end(); ++itd) {
+    std::cout << std::setw(5) << " & " << std::setw(12) << (*itd)->label();
+  }
+  std::cout << "  \\\\ \n\\midrule\n";
+  for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
+    std::cout << std::setw(width) << (*its)->uid();
+    DataSets selectedDataSets = DataSet::findAllWithSelection((*its)->uid());
+    for(DataSetIt itsd = selectedDataSets.begin(); itsd != selectedDataSets.end(); ++itsd) {
+      std::cout << std::setw(5) << " & ";
+      char yield[50];
+      char stat[50];
+      sprintf(yield,"%.1f",(*itsd)->yield());
+      sprintf(stat,"%.1f",(*itsd)->stat());
+      std::cout << "$" << std::setw(12) << yield << " \\pm " << stat;
+      if( (*itsd)->hasSyst() ) {
+	char systDn[50];
+	char systUp[50];
+	sprintf(systDn,"%.1f",(*itsd)->systDn());
+	sprintf(systUp,"%.1f",(*itsd)->systUp());
+	std::cout << "{}^{+" << systUp << "}_{-" << systDn << "}";
+      }
+      std::cout << "$";
     }
     std::cout << "  \\\\ \n";
   }

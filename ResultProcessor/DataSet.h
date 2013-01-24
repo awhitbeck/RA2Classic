@@ -48,6 +48,10 @@ public:
 
   unsigned int size() const { return evts_.size(); }
   double yield() const { return yield_; }		// Return weighted number of events
+  double stat() const { return stat_; }                 // Return statistical uncertainty on yield
+  double systDn() const { return systDn_; }
+  double systUp() const { return systUp_; }
+  bool hasSyst() const { return hasSyst_; }
   EventIt evtsBegin() const { return evts_.begin(); }
   EventIt evtsEnd() const { return evts_.end(); }
 
@@ -63,8 +67,13 @@ private:
   TString selectionUid_;
   Events evts_;
   double yield_;
+  double stat_;
+  double systDn_;
+  double systUp_;
+  bool hasSyst_;
 
   DataSet(Type type, const TString &label, const TString &selection, const TString &fileName, const TString &treeName, const TString &weight, const std::vector<TString> &uncDn, const std::vector<TString> &uncUp, const std::vector<TString> &uncLabel, double scale);
   DataSet(const DataSet *ds, const TString &selectionUid, const Events &evts);
+  void computeYield();
 };
 #endif

@@ -1,3 +1,4 @@
+#include <cmath>
 #include <cstdlib>
 #include <iostream>
 
@@ -239,11 +240,8 @@ DataSet::DataSet(Type type, const TString &label, const TString &selectionUid, c
   EventBuilder ebd;
   evts_ = ebd(fileName,treeName,weight,uncDn,uncUp,uncLabel,scale);
 
-  // Compute yield (weighted number of events)
-  yield_ = 0.;
-  for(EventIt it = evts_.begin(); it != evts_.end(); ++it) {
-    yield_ += (*it)->weight();
-  }
+  // Compute yield and uncertainties
+  computeYield();
 }
 
 
@@ -254,12 +252,13 @@ DataSet::DataSet(const DataSet *ds, const TString &selectionUid, const Events &e
     exit(-1);
   }
   
-  // Store events and compute yield (weighted number of events)
-  yield_ = 0.;
+  // Store events
   for(EventIt it = evts.begin(); it != evts.end(); ++it) {
     evts_.push_back(*it);
-    yield_ += (*it)->weight();
   }
+
+  // Compute yield and uncertainties
+  computeYield();
 }
 
 
@@ -270,4 +269,29 @@ DataSet::~DataSet() {
     }
   }
   evts_.clear();
+}
+
+
+// Compute yield (weighted number of events)
+// and uncertainties
+void DataSet::computeYield() {
+  yield_  = 0.;
+  stat_   = 0.;
+  systDn_ = 0.;
+  systUp_ = 0.;
+  for(EventIt it = evts_.begin(); it != evts_.end(); ++it) {
+    yield_ += (*it)->weight();
+    if( (*it)->hasUnc() ) {
+      systDn_ += (*it)->weightUncDn();
+      systUp_ += (*it)->weightUncUp();
+    }
+  }
+  if( evts_.front()->hasUnc() ) {
+    hasSyst_ = true;
+    systDn_ = std::abs(yield_-systDn_);
+    systUp_ = std::abs(systUp_-yield_);
+  } else {
+    hasSyst_ = false;
+  }
+  stat_ = sqrt(yield_);
 }
