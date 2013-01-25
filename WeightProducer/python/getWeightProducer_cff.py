@@ -1,4 +1,4 @@
-# $Id: getWeightProducer_cff.py,v 1.11 2013/01/22 09:00:46 mschrode Exp $
+# $Id: getWeightProducer_cff.py,v 1.12 2013/01/24 15:42:20 mschrode Exp $
 #
 # Returns a WeightProducer module that knows at runtime
 # which data sample is produced and thus, what weights
@@ -44,7 +44,7 @@ def getWeightProducer(fileName):
         weightProducer.XS         = cms.double(234)
         weightProducer.NumberEvts = cms.double(21675970)
 
-    if "TTJets_SemiLeptMGDecays_8TeV-madgraph" in fileName and "Summer12_DR53X-PU_S10_START53_V7A-ext-v1" in fileName:
+    if "TTJets_SemiLeptMGDecays_8TeV-madgraph" in fileName and "Summer12_DR53X-PU_S10_START53_V7A_ext-v1" in fileName:
         mcVersion = "Summer12_5_3_X"
         weightProducer.Method     = cms.string("Constant")
         weightProducer.XS         = cms.double(102.50) # BR(lh) = 0.438048
