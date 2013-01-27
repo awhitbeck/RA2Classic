@@ -61,7 +61,7 @@ MrRA2::MrRA2(const TString& configFileName) {
     std::cout << "  " << (*itd)->label() << " (" << DataSet::toString((*itd)->type()) << ")" << std::endl;
     DataSets selectedDataSets = DataSet::findAllWithLabel((*itd)->label());
     for(DataSetIt itsd = selectedDataSets.begin(); itsd != selectedDataSets.end(); ++itsd) {
-      std::cout << "    " <<  std::setw(15) << (*itsd)->selectionUid() << " : " << std::setw(15) << (*itsd)->yield() << " (" << (*itsd)->size() << ")" << std::endl;
+      std::cout << "    " <<  std::setw(Selection::maxLabelLength()) << (*itsd)->selectionUid() << " : " << std::setw(15) << (*itsd)->yield() << " (" << (*itsd)->size() << ")" << std::endl;
     }
   }
 
@@ -69,45 +69,10 @@ MrRA2::MrRA2(const TString& configFileName) {
   Output out;
 
   // Control plots without selection
-  std::cout << "\nProcessing the results" << std::endl;
-  std::cout << "  - Creating control plots" << std::endl;
+  std::cout << "\n\n\nProcessing the results" << std::endl;
   PlotBuilder(cfg,out);
-
-  EventYieldPrinter evtYieldPrinter;
-  evtYieldPrinter();
-
   EventInfoPrinter evtInfoPrinter(cfg);
-
-  // // Plots after different selections
-  // // Loop over defined selections
-  // EventYieldPrinter evtYieldPrinter;
-  // for(std::vector<Selection*>::const_iterator itSel = selections_.begin();
-  //     itSel != selections_.end(); ++itSel) {
-  //   std::cout << "  - for the selection '" << (*itSel)->label() << "'" << std::endl;
-  //   // For each dataset, select subsets of events passing this selection
-  //   std::vector<DataSet*> selectedDataSets;
-  //   for(std::vector<DataSet*>::const_iterator itDat = dataSets_.begin();
-  // 	itDat != dataSets_.end(); ++itDat) {
-  //     selectedDataSets.push_back((**itSel)(*itDat));
-  //     std::cout << "    " << "Dataset '" << selectedDataSets.back()->label() << "' (" << (*itDat)->size() << " entries in tree)" << std::endl;
-  //     (*itSel)->print();
-  //     if( (*itDat)->type() == DataSet::Data ) {
-  // 	evtYieldPrinter.add((*itDat)->label(),(*itSel)->label(),selectedDataSets.back()->size());
-  //     } else {
-  // 	evtYieldPrinter.add((*itDat)->label(),(*itSel)->label(),selectedDataSets.back()->size(),selectedDataSets.back()->yield());
-  //     }
-  //   }
-  //   // Create output directory
-    
-  //   // Process the final result for this selection
-  //   PlotBuilder(selectedDataSets,cfg,out); // Make plots
-  //   EventInfoPrinter(selectedDataSets,cfg); // Print event info (for tail scans) 
-  // }
-
-  // // Print selected yields
-  // evtYieldPrinter();
-
-  // out.createLaTeXSlide();
+  EventYieldPrinter evtYieldPrinter;
 }
 
 MrRA2::~MrRA2() {

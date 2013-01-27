@@ -50,6 +50,8 @@ void PlotBuilder::setStyle(const TString &key) {
 }
 
 void PlotBuilder::run(const TString &key) const {
+  std::cout << "  - Creating control plots" << std::endl;
+
   std::vector<Config::Attributes> attrList = cfg_.listOfAttributes(key);
   for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
       it != attrList.end(); ++it) {

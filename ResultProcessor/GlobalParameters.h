@@ -12,6 +12,7 @@ public:
 
   static TString lumi() { return lumi_; }
   static TString analysisId() { return id_; }
+  static TString defaultUncertaintyLabel() { return "syst. uncert."; }
 
 private:
   static TString lumi_;

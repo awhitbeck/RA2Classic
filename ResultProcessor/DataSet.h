@@ -46,31 +46,40 @@ public:
   TString label() const { return label_; }
   TString selectionUid() const { return selectionUid_; }
 
+  EventIt evtsBegin() const { return evts_.begin(); }
+  EventIt evtsEnd() const { return evts_.end(); }
+
   unsigned int size() const { return evts_.size(); }
   double yield() const { return yield_; }		// Return weighted number of events
   double stat() const { return stat_; }                 // Return statistical uncertainty on yield
-  double systDn() const { return systDn_; }
-  double systUp() const { return systUp_; }
   bool hasSyst() const { return hasSyst_; }
-  EventIt evtsBegin() const { return evts_.begin(); }
-  EventIt evtsEnd() const { return evts_.end(); }
+  double totSystDn() const { return totSystDn_; }
+  double totSystUp() const { return totSystUp_; }
+  double systDn(const TString &label) const;
+  double systUp(const TString &label) const;
+  unsigned int nSyst() const { return systLabels_.size(); }
+  std::vector<TString>::const_iterator systLabelsBegin() const { return systLabels_.begin(); }
+  std::vector<TString>::const_iterator systLabelsEnd() const { return systLabels_.end(); }
 
 
 private:
   static DataSetUidMap dataSetUidMap_;
-  static bool isInit_;
+  static bool isInit_;                 // Datasets can only be initialized once
 
   const Type type_;
   const TString label_;   // This is the label specified in the config
   const bool hasMother_;
+  const TString selectionUid_;
 
-  TString selectionUid_;
   Events evts_;
   double yield_;
   double stat_;
-  double systDn_;
-  double systUp_;
   bool hasSyst_;
+  double totSystDn_;
+  double totSystUp_;
+  std::vector<TString> systLabels_;
+  std::map<TString,double> systDn_;
+  std::map<TString,double> systUp_;
 
   DataSet(Type type, const TString &label, const TString &selection, const TString &fileName, const TString &treeName, const TString &weight, const std::vector<TString> &uncDn, const std::vector<TString> &uncUp, const std::vector<TString> &uncLabel, double scale);
   DataSet(const DataSet *ds, const TString &selectionUid, const Events &evts);

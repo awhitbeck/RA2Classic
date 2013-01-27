@@ -4,6 +4,7 @@
 
 #include "DataSet.h"
 #include "EventBuilder.h"
+#include "GlobalParameters.h"
 #include "Variable.h"
 
 
@@ -153,7 +154,7 @@ void DataSet::init(const Config &cfg, const TString key) {
 	      std::cerr << "  when specifying the uncertainties in line with key '" << key << "'" << std::endl;
 	      exit(-1);
 	    }
-	    ul = "syst. uncert.";	// Default uncertainty label
+	    ul = GlobalParameters::defaultUncertaintyLabel();
 	  }
 	  uncLabel.push_back(ul);
 
@@ -236,6 +237,14 @@ DataSet::DataSet(Type type, const TString &label, const TString &selectionUid, c
     exit(-1);
   }
 
+  // Copy uncertainty labels
+  for(std::vector<TString>::const_iterator it = uncLabel.begin();
+      it != uncLabel.end(); ++it) {
+    if( *it != GlobalParameters::defaultUncertaintyLabel() ) {
+      systLabels_.push_back(*it);
+    }
+  }
+  
   // Read events from tree
   EventBuilder ebd;
   evts_ = ebd(fileName,treeName,weight,uncDn,uncUp,uncLabel,scale);
@@ -250,6 +259,14 @@ DataSet::DataSet(const DataSet *ds, const TString &selectionUid, const Events &e
   if( uidExists(uid()) ) {
     std::cerr << "\n\nERROR in DataSet::DataSet(): a dataset with label '" << label_ << "' and selection '" << selectionUid << "' already exists." << std::endl;
     exit(-1);
+  }
+
+  // Copy uncertainty labels
+  for(std::vector<TString>::const_iterator it = ds->systLabelsBegin();
+      it != ds->systLabelsEnd(); ++it) {
+    if( *it != GlobalParameters::defaultUncertaintyLabel() ) {
+      systLabels_.push_back(*it);
+    }
   }
   
   // Store events
@@ -275,28 +292,48 @@ DataSet::~DataSet() {
 // Compute yield (weighted number of events)
 // and uncertainties
 void DataSet::computeYield() {
+  // Set all uncertainty variables to zero
   yield_  = 0.;
   stat_   = 0.;
-  systDn_ = 0.;
-  systUp_ = 0.;
+  totSystDn_ = 0.;
+  totSystUp_ = 0.;
+  systDn_.clear();
+  systUp_.clear();
+  for(std::vector<TString>::const_iterator it = systLabelsBegin();
+      it != systLabelsEnd(); ++it) {
+    systDn_[*it] = 0.;
+    systUp_[*it] = 0.;
+  }
 
   // Loop over events and count yield (sum of events weights)
   // for nominal and varied weights
-  for(EventIt it = evts_.begin(); it != evts_.end(); ++it) {
-    yield_ += (*it)->weight();
-    if( (*it)->hasUnc() ) {
-      systDn_ += (*it)->weightUncDn();
-      systUp_ += (*it)->weightUncUp();
+  for(EventIt evtIt = evts_.begin(); evtIt != evts_.end(); ++evtIt) {
+    yield_ += (*evtIt)->weight();
+    if( (*evtIt)->hasUnc() ) {
+      totSystDn_ += (*evtIt)->weight() * (1.-(*evtIt)->relTotalUncDn());
+      totSystUp_ += (*evtIt)->weight() * (1.+(*evtIt)->relTotalUncUp());
+      for(std::vector<TString>::const_iterator systIt = systLabelsBegin();
+	  systIt != systLabelsEnd(); ++systIt) {
+	systDn_[*systIt] += (*evtIt)->weight() * (1.-(*evtIt)->relUncDn(*systIt));
+	systUp_[*systIt] += (*evtIt)->weight() * (1.+(*evtIt)->relUncUp(*systIt));
+      }
     }
   }
+
   // Set systematic uncertainty
   if( evts_.front()->hasUnc() ) {
     hasSyst_ = true;
-    systDn_ = std::abs(yield_-systDn_);
-    systUp_ = std::abs(systUp_-yield_);
+    totSystDn_ = yield_-totSystDn_;
+    totSystUp_ = totSystUp_-yield_;
+    for(std::vector<TString>::const_iterator systIt = systLabelsBegin();
+	systIt != systLabelsEnd(); ++systIt) {
+      systDn_[*systIt] = yield_ - systDn_[*systIt];
+      systUp_[*systIt] = systUp_[*systIt] - yield_;
+    }    
   } else {
     hasSyst_ = false;
   }
+
   // Set statistical uncertainty, depending on dataset type
   // Several cases are distinguished depending on the type of data
   // - 'Data'       : expect unweighted histogram, leave as it is
@@ -309,4 +346,25 @@ void DataSet::computeYield() {
   } else {
     stat_ = sqrt(yield_);
   }
+}
+
+
+double DataSet::systDn(const TString &label) const {
+  double unc = 0.;
+  std::map<TString,double>::const_iterator it = systDn_.find(label);
+  if( it != systDn_.end() ) {
+    unc = it->second;
+  }
+
+  return unc;
+}
+
+double DataSet::systUp(const TString &label) const {
+  double unc = 0.;
+  std::map<TString,double>::const_iterator it = systUp_.find(label);
+  if( it != systUp_.end() ) {
+    unc = it->second;
+  }
+  
+  return unc;
 }

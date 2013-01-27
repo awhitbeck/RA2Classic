@@ -1,13 +1,14 @@
-// $Id: EventYieldPrinter.h,v 1.1 2012/11/05 14:52:14 mschrode Exp $
+// $Id: EventYieldPrinter.h,v 1.2 2012/12/09 14:47:25 mschrode Exp $
 
 #ifndef EVENT_YIELD_PRINTER_H
 #define EVENT_YIELD_PRINTER_H
 
 class EventYieldPrinter {
 public:
-  void operator()() const;
+  EventYieldPrinter();
 
 private:
-  unsigned int sizeOfSelectionLabels() const;
+  void printToScreen() const;
+  void printToLaTeX() const;
 };
 #endif

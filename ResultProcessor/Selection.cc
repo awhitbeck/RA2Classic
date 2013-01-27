@@ -88,6 +88,18 @@ void Selection::clear() {
 }
 
 
+// ---------------------------------------------------------------
+unsigned int Selection::maxLabelLength() {
+  unsigned int s = 0;
+  for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
+    if( (*its)->uid().Length() > s ) s = (*its)->uid().Length();
+  }
+  
+  return s;
+}
+
+
+
 // Constructor. Each selection needs a unique uid
 // ---------------------------------------------------------------
 SelectionSequence::SelectionSequence(const TString &uid)

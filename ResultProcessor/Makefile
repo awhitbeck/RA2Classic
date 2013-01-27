@@ -15,7 +15,7 @@ run: $(OBJ)
 Config.o: Config.h Config.cc
 	g++ $(CFLAG) -c  Config.cc
 
-DataSet.o: DataSet.h DataSet.cc Config.h Event.h Selection.h Variable.h
+DataSet.o: DataSet.h DataSet.cc Config.h Event.h GlobalParameters.h Selection.h Variable.h
 	g++ $(CFLAG) -c  DataSet.cc
 
 Event.o: Event.h Event.cc
@@ -27,7 +27,7 @@ EventBuilder.o: EventBuilder.h EventBuilder.cc Event.h Variable.h
 EventInfoPrinter.o: EventInfoPrinter.h EventInfoPrinter.cc Config.h DataSet.h Event.h Output.h Selection.h Variable.h
 	g++ $(CFLAG) -c  EventInfoPrinter.cc
 
-EventYieldPrinter.o: EventYieldPrinter.cc EventYieldPrinter.h DataSet.h Selection.h
+EventYieldPrinter.o: EventYieldPrinter.cc EventYieldPrinter.h DataSet.h Output.h Selection.h
 	g++ $(CFLAG) -c EventYieldPrinter.cc
 
 GlobalParameters.o: GlobalParameters.h GlobalParameters.cc Config.h

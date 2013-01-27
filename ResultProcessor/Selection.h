@@ -22,7 +22,7 @@ public:
   static const Selection* find(const TString &uid);
   static SelectionIt begin() { return selections_.begin(); }
   static SelectionIt end() { return selections_.end(); }
-
+  static unsigned int maxLabelLength();
   static void clear();
 
 
