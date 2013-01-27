@@ -1,6 +1,6 @@
 # Specify global parameters
-global :: id: RA2_53X-ABC
-global :: lumi: 12.102
+global :: id: RA2_535-ABCD
+global :: lumi: 19.47
 
 
 # Specify the variables that are read from the ntuple and their type
@@ -28,17 +28,15 @@ event content :: name: DeltaPhi3; type: Float_t; label: #Delta#Phi_{3}
 
 
 # Specify the data source and label the type of data
-dataset :: label: Data; type: data; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/53X_V2/RA2Ntuple_Run2012ABC-ReReco.root; tree: RA2TreeMaker/RA2PreSelection
+dataset :: label: Data; type: data; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4/RA2Ntuple_Run2012-ABCv1ReReco-Cv2DPromptReco_HTMHTCuts.root; tree: RA2TreeMaker/RA2PreSelection;
 
 # Selection
-selection :: label: reduced-baseline; cuts: HT > 500 + MHT > 200 + NJets >1
-selection :: label: baseline; cuts: DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + HT > 500 + MHT > 200 + NJets >1
+selection :: label: reduced baseline; cuts: HT > 500 + MHT > 200 + NJets > 1
 #selection :: label: allFilters; cuts: baseline + Filter_HBHENoiseFilterRA2 > 0 + Filter_beamHaloFilter > 0 + Filter_trackingFailureFilter > 0 + Filter_inconsistentMuons > 0 + Filter_greedyMuons > 0 + Filter_ra2EcalTPFilter > 0 + Filter_ra2EcalBEFilter > 0 + Filter_hcalLaserEventFilter > 0 + Filter_eeBadScFilter > 0 + Filter_PBNRFilter > 0 + Filter_HCALLaserEvtFilterList2012 > 0
-#selection :: label: PBNRFiltered; cuts: baseline + Filter_HBHENoiseFilterRA2 > 0 + Filter_beamHaloFilter > 0 + Filter_trackingFailureFilter > 0 + Filter_inconsistentMuons > 0 + Filter_greedyMuons > 0 + Filter_ra2EcalTPFilter > 0 + Filter_ra2EcalBEFilter > 0 + Filter_hcalLaserEventFilter > 0 + Filter_eeBadScFilter > 0 + Filter_HCALLaserEvtFilterList2012 > 0 + Filter_PBNRFilter < 1
 
-plot :: variable: HT; dataset: Data; histogram: 40, 500, 4500, log
-#plot :: variable: MHT; dataset: Data; histogram:  76, 200, 4000, log
-plot :: variable: MHT; dataset: Data; histogram:  26, 200, 1500, log
+plot :: variable: HT; dataset: Data; histogram: 45, 500, 5000, log
+plot :: variable: MHT; dataset: Data; histogram:  76, 200, 4000, log
+#plot :: variable: MHT; dataset: Data; histogram:  26, 200, 1500, log
 
 #print event info :: variable: HT
 print event info :: variable: HT; number: 25
