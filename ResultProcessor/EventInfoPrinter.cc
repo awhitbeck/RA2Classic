@@ -1,4 +1,4 @@
-// $Id: EventInfoPrinter.cc,v 1.3 2012/11/13 13:25:32 mschrode Exp $
+// $Id: EventInfoPrinter.cc,v 1.4 2012/12/09 14:47:25 mschrode Exp $
 
 #include <algorithm>
 #include <fstream>
@@ -6,13 +6,24 @@
 #include <iostream>
 
 #include "EventInfoPrinter.h"
-#include "GlobalParameters.h"
+#include "Output.h"
+#include "Selection.h"
 #include "Variable.h"
 
 
 
-EventInfoPrinter::EventInfoPrinter(const std::vector<DataSet*> &dataSets, const Config &cfg) :
-  cfg_(cfg), dataSets_(dataSets) {
+EventInfoPrinter::EventInfoPrinter(const Config &cfg)
+  : cfg_(cfg) {
+
+  // Define names of special variables
+  // This should be configurable
+  varNameHT = "HT";
+  varNameMHT = "MHT";
+  varNameRunNum = "RunNum";
+  varNameLumiBlockNum = "LumiBlockNum";
+  varNameEvtNum = "EvtNum";
+
+  // Init and run
   if( init("print event info") ) {
     selectEvents();
     print();
@@ -48,33 +59,42 @@ bool EventInfoPrinter::init(const TString &key) {
 
 
 void EventInfoPrinter::selectEvents() {
-  for(std::vector<DataSet*>::const_iterator itDS = dataSets_.begin();
-      itDS != dataSets_.end(); ++itDS) {
-    DataSet* ds = *itDS;
-
-    std::set<const Event*> selectedEvts;
-    if( printAllEvents() ) {
-      for(EventIt itEvt = ds->begin(); itEvt != ds->end(); ++itEvt) {
-	selectedEvts.insert(*itEvt);
-      }
-    } else {
-      for(std::map<TString,unsigned int>::const_iterator itSV = selectionVariables_.begin(); itSV != selectionVariables_.end(); ++itSV) {
+  // Loop over all global selections
+  // !!!!!!!!!!!!!This should be treated more carefully: one set of selectionVariables_
+  // per global selection
+  for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
+    // Loop over all datasets with this global selection
+    DataSets selectedDataSets = DataSet::findAllWithSelection((*its)->uid());
+    for(DataSetIt itsd = selectedDataSets.begin(); itsd != selectedDataSets.end(); ++itsd) {
+      // Select events accoridng to specification
+      std::set<const Event*> selectedEvts;
+      if( printAllEvents() ) {	// select all events to print info
+	for(EventIt itEvt = (*itsd)->evtsBegin(); itEvt != (*itsd)->evtsEnd(); ++itEvt) {
+	  selectedEvts.insert(*itEvt);
+	}
+      } else {			// select n (as specified) events with highest value of selection variable
+	for(std::map<TString,unsigned int>::const_iterator itSV = selectionVariables_.begin();
+	    itSV != selectionVariables_.end(); ++itSV) {
 	
-	std::vector<EvtValPair*> evtValPairs;
-	for(EventIt itEvt = ds->begin(); itEvt != ds->end(); ++itEvt) {
-	  evtValPairs.push_back(new EvtValPair(*itEvt,(*itEvt)->get(itSV->first)));
-	}
-	std::sort(evtValPairs.begin(),evtValPairs.end(),EvtValPair::valueGreaterThan);
-	for(unsigned int n = 0; n < std::min(itSV->second,static_cast<unsigned int>(evtValPairs.size())); ++n) {
-	  selectedEvts.insert(evtValPairs.at(n)->event());
-	}
-	for(std::vector<EvtValPair*>::iterator it = evtValPairs.begin();
-	    it != evtValPairs.end(); ++it) {
-	  delete *it;
+	  std::vector<EvtValPair*> evtValPairs;
+	  for(EventIt itEvt = (*itsd)->evtsBegin(); itEvt != (*itsd)->evtsEnd(); ++itEvt) {
+	    evtValPairs.push_back(new EvtValPair(*itEvt,(*itEvt)->get(itSV->first)));
+	  }
+	  // sort by size of variable's values
+	  std::sort(evtValPairs.begin(),evtValPairs.end(),EvtValPair::valueGreaterThan);
+	  // store n (as specified) events with largest value
+	  for(unsigned int n = 0; 
+	      n < std::min(itSV->second,static_cast<unsigned int>(evtValPairs.size())); ++n) {
+	    selectedEvts.insert(evtValPairs.at(n)->event());
+	  }
+	  for(std::vector<EvtValPair*>::iterator it = evtValPairs.begin();
+	      it != evtValPairs.end(); ++it) {
+	    delete *it;
+	  }
 	}
       }
+      printedEvts_[(*itsd)->uid()] = selectedEvts;
     }
-    printedEvts_[ds->label()] = selectedEvts;
   }
 }
 
@@ -90,8 +110,9 @@ void EventInfoPrinter::print() const {
       separator2 += "-";
     }
   }
-  //ofstream file(GlobalParameters::cleanName(GlobalParameters::resultDir()+"/EventInfo_"+(*dataSets_.begin())->selection()+".txt"));
-  ofstream file("/EventInfo_"+(*dataSets_.begin())->selection()+".txt");
+
+  // Print file with detailed event info and some formatting
+  ofstream file(Output::resultDir()+"/EventInfo.txt");
   for(std::map< TString, std::set<const Event*> >::const_iterator it = printedEvts_.begin(); it != printedEvts_.end(); ++it) {
     file << separator1 << std::endl;
     file << "Dataset: '" << it->first << "'" << std::endl;
@@ -123,6 +144,21 @@ void EventInfoPrinter::print() const {
     file << "\n\n\n";
   }
   file.close();
+
+  // Print CMSSW-like run lists
+  for(std::map< TString, std::set<const Event*> >::const_iterator it = printedEvts_.begin(); it != printedEvts_.end(); ++it) {
+    ofstream file(Output::resultDir()+"/EventInfo__"+Output::cleanName(it->first)+"__Runlist.txt");
+    for(std::set<const Event*>::const_iterator itEvt = it->second.begin();
+	itEvt != it->second.end(); ++itEvt) {
+      file << std::setw(width) << (*itEvt)->get(varNameRunNum);
+      file << ":";
+      file << std::setw(width) << (*itEvt)->get(varNameLumiBlockNum);
+      file << ":";
+      file << std::setw(width) << std::setprecision(15) << (*itEvt)->get(varNameEvtNum);
+      file << std::endl;
+    }
+    file.close();
+  }
 }
 
 
@@ -137,11 +173,11 @@ std::list<TString> EventInfoPrinter::listOfPrintedVariables() const {
   // Order list such that the following variabels
   // are at front
   std::vector<TString> varsInOrder;
-  varsInOrder.push_back("RunNum");
-  varsInOrder.push_back("LumiBlockNum");
-  varsInOrder.push_back("EvtNum");
-  varsInOrder.push_back("HT");
-  varsInOrder.push_back("MHT");
+  varsInOrder.push_back(varNameRunNum);
+  varsInOrder.push_back(varNameLumiBlockNum);
+  varsInOrder.push_back(varNameEvtNum);
+  varsInOrder.push_back(varNameHT);
+  varsInOrder.push_back(varNameMHT);
 
   // The resulting list
   std::list<TString>::iterator endOfOrderedPart = list.begin();    

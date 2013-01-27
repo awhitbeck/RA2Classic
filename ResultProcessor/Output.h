@@ -12,6 +12,11 @@
 
 class Output {
 public:
+  static TString resultDir() {
+    return "results/"+GlobalParameters::analysisId();
+  }
+  static TString cleanName(const TString &name);
+
   Output();
   ~Output() {};
 
@@ -28,9 +33,7 @@ private:
   std::map< TString, std::vector<TString> > plotsNormedSpectra_;
   std::map< TString, std::map< TString, std::vector<TString> > > plotsStack_;
 
-  TString resultDir() const { return "results/"+GlobalParameters::analysisId(); }
   TString dir(const TString &selection);
-  TString cleanName(const TString &name) const;
   void storeCanvas(TCanvas* can, const TString &selection, const TString &plotName);
 };
 #endif

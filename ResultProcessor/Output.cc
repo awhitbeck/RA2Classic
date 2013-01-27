@@ -140,7 +140,7 @@ TString Output::dir(const TString &selection) {
 }
 
 
-TString Output::cleanName(const TString &name) const {
+TString Output::cleanName(const TString &name) {
   TString cleanedName = name;
   cleanedName.ReplaceAll(">","gtr");
   cleanedName.ReplaceAll(" ","_");

@@ -1,11 +1,12 @@
 #include <cstdlib>
+#include <iomanip>
 #include <iostream>
 
 #include "TError.h"
 
 #include "Config.h"
 #include "DataSet.h"
-//#include "EventInfoPrinter.h"
+#include "EventInfoPrinter.h"
 #include "GlobalParameters.h"
 #include "MrRA2.h"
 #include "EventYieldPrinter.h"
@@ -43,7 +44,7 @@ MrRA2::MrRA2(const TString& configFileName) {
   std::cout << "The following datasets are defined:" << std::endl;
   DataSets inputDataSets = DataSet::findAllUnselected();
   for(DataSetIt itd = inputDataSets.begin(); itd != inputDataSets.end(); ++itd) {
-    std::cout << "  " << (*itd)->label() << " (" << DataSet::toString((*itd)->type()) << ")" << std::endl;
+    std::cout << "  " << (*itd)->label() << " (type '" << DataSet::toString((*itd)->type()) << "')" << std::endl;
   }
 
   std::cout << "\nThe following selections are defined:" << std::endl;
@@ -75,6 +76,7 @@ MrRA2::MrRA2(const TString& configFileName) {
   EventYieldPrinter evtYieldPrinter;
   evtYieldPrinter();
 
+  EventInfoPrinter evtInfoPrinter(cfg);
 
   // // Plots after different selections
   // // Loop over defined selections

@@ -1,8 +1,6 @@
 #ifndef SELECTION_H
 #define SELECTION_H
 
-#include <iomanip>
-#include <iostream>
 #include <map>
 #include <vector>
 
@@ -33,7 +31,7 @@ public:
 
   virtual TString uid() const = 0;
   virtual void print() const = 0;
-  virtual Events apply(EventIt begin, EventIt end) const = 0;
+  virtual Events apply(EventIt begin, EventIt end, const TString &dataSetLabel) const = 0;
 
 protected:
   static std::vector<Selection*> garbageCollection_;
@@ -47,13 +45,12 @@ private:
 
 class Cut : public Selection {
 public:
-  Cut(const TString &cut, bool isDummy = false);
+  Cut();
+  Cut(const TString &cut);
 
   TString uid() const { return "Cut: "+cut_; }
-  void print() const { 
-    std::cout << "    " << cut_ << std::endl;
-  }
-  Events apply(EventIt begin, EventIt end) const;
+  void print() const;
+  Events apply(EventIt begin, EventIt end, const TString &dataSetLabel) const;
 
 
 private:
@@ -64,6 +61,7 @@ private:
   bool varIsAbs_;
   double min_;
   double max_;
+  std::vector<TString> appliedToDataSets_;
 };
 
 
@@ -72,11 +70,10 @@ public:
   SelectionSequence(const TString &uid);
 
   void add(const Selection* sel) { sels_.push_back(sel); }
-  void addDummyCut() { sels_.push_back(new Cut("none",true)); }
 
   TString uid() const { return uid_; }
   void print() const;
-  Events apply(EventIt begin, EventIt end) const;
+  Events apply(EventIt begin, EventIt end, const TString &dataSetLabel) const;
   
 
 private:

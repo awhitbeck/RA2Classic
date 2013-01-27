@@ -90,7 +90,7 @@ DataSet::Type DataSet::toType(const TString &type) {
 TString DataSet::toString(Type type) {
   TString result = "none";
   if( type == Data ) result = "data";
-  else if( type == MC ) result = "mc";
+  else if( type == MC ) result = "MC";
   else if( type == Prediction ) result = "prediction";
   else if( type == Signal ) result = "signal";
 
@@ -200,7 +200,7 @@ void DataSet::init(const Config &cfg, const TString key) {
 	    selIt != Selection::end(); ++selIt) {
 	  if( (*selIt)->uid() != "unselected" ) {
 	    // Select events from basic dataset
-	    Events selectedEvts = (*selIt)->apply(basicDataSet->evtsBegin(),basicDataSet->evtsEnd());
+	    Events selectedEvts = (*selIt)->apply(basicDataSet->evtsBegin(),basicDataSet->evtsEnd(),basicDataSet->label());
 	    // Create selected dataset and store it
 	    // in global map of datasets
 	    DataSet* selectedDataSet = new DataSet(basicDataSet,(*selIt)->uid(),selectedEvts);
@@ -279,6 +279,9 @@ void DataSet::computeYield() {
   stat_   = 0.;
   systDn_ = 0.;
   systUp_ = 0.;
+
+  // Loop over events and count yield (sum of events weights)
+  // for nominal and varied weights
   for(EventIt it = evts_.begin(); it != evts_.end(); ++it) {
     yield_ += (*it)->weight();
     if( (*it)->hasUnc() ) {
@@ -286,6 +289,7 @@ void DataSet::computeYield() {
       systUp_ += (*it)->weightUncUp();
     }
   }
+  // Set systematic uncertainty
   if( evts_.front()->hasUnc() ) {
     hasSyst_ = true;
     systDn_ = std::abs(yield_-systDn_);
@@ -293,5 +297,16 @@ void DataSet::computeYield() {
   } else {
     hasSyst_ = false;
   }
-  stat_ = sqrt(yield_);
+  // Set statistical uncertainty, depending on dataset type
+  // Several cases are distinguished depending on the type of data
+  // - 'Data'       : expect unweighted histogram, leave as it is
+  // - 'MC'         : sqrt(number of entries) = MC statistics
+  // - 'Prediction' : sqrt(number of entries) = control sample statistics
+  // See also PlotBuilder::createDistribution
+  if( type() == MC || type() == Prediction ) {
+    double scale = yield_/size();
+    stat_ = scale * sqrt(1.*size());
+  } else {
+    stat_ = sqrt(yield_);
+  }
 }

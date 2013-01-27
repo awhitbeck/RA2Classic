@@ -1,4 +1,4 @@
-// $Id: EventInfoPrinter.h,v 1.2 2012/11/02 16:18:58 mschrode Exp $
+// $Id: EventInfoPrinter.h,v 1.3 2012/11/13 13:25:32 mschrode Exp $
 
 #ifndef EVENT_INFO_PRINTER_H
 #define EVENT_INFO_PRINTER_H
@@ -14,12 +14,11 @@
 
 class EventInfoPrinter {
 public:
-  EventInfoPrinter(const std::vector<DataSet*> &dataSets, const Config &cfg);
+  EventInfoPrinter(const Config &cfg);
   ~EventInfoPrinter() {};
 
 private:
   const Config &cfg_;
-  const std::vector<DataSet*> dataSets_;
 
   std::map< TString, unsigned int > selectionVariables_;
   std::map< TString, std::set<const Event*> > printedEvts_;
@@ -45,5 +44,11 @@ private:
     const Event* evt_;
     const double val_;
   };
+
+  TString varNameHT;
+  TString varNameMHT;
+  TString varNameRunNum;
+  TString varNameLumiBlockNum;
+  TString varNameEvtNum;
 };
 #endif

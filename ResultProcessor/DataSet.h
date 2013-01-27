@@ -61,7 +61,7 @@ private:
   static bool isInit_;
 
   const Type type_;
-  const TString label_;
+  const TString label_;   // This is the label specified in the config
   const bool hasMother_;
 
   TString selectionUid_;

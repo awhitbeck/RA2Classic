@@ -155,10 +155,10 @@ void PlotBuilder::plotSpectrum(const TString &var, const DataSet *dataSet, const
   TCanvas *can = new TCanvas("can","",canSize_,canSize_);
   //can->SetWindowSize(canSize_+(canSize_-can->GetWw()),canSize_+(canSize_-can->GetWh()));
   if( dataSet->type() == DataSet::Data ) {
-    h->Draw("PE1");
+    h->Draw("PE");
     if( u ) {
       u->Draw("E2same");
-      h->Draw("PE1same");
+      h->Draw("PEsame");
     }
   } else if( dataSet->type() == DataSet::Prediction ) {
     h->SetLineColor(kBlack);
@@ -222,13 +222,13 @@ void PlotBuilder::plotSpectra(const TString &var, const DataSets &dataSets, cons
 
   TCanvas *can = new TCanvas("can","",canSize_,canSize_);
   if( dataSets.back()->type() == DataSet::Data ) {
-    hists.back()->Draw("PE1");
+    hists.back()->Draw("PE");
   } else {
     hists.back()->Draw("HIST");
   }
   for(int i = hists.size()-2; i >= 0; --i) {
     if( dataSets.at(i)->type() == DataSet::Data ) {
-      hists.at(i)->Draw("PE1same");
+      hists.at(i)->Draw("PEsame");
     } else {
       hists.at(i)->Draw("HISTsame");
     }
@@ -421,7 +421,7 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const DataSets &da
     }
     uncRatio->Draw("E2same");
   }
-  hRatio->Draw("PE1same");
+  hRatio->Draw("PEsame");
   title->Draw("same");
   leg->Draw("same");
   gPad->RedrawAxis();
@@ -511,7 +511,8 @@ void PlotBuilder::createDistribution(const DataSet *dataSet, const TString &var,
   // Several cases are distinguished depending on the type of data
   // - 'Data'       : expect unweighted histogram, leave as it is
   // - 'MC'         : sqrt(number of entries) = MC statistics
-  // - 'Prediction' : sqrt(number of entries) = contral sample statistics
+  // - 'Prediction' : sqrt(number of entries) = control sample statistics
+  // See also DataSet::computeYield()
   if( dataSet->type() == DataSet::MC || dataSet->type() == DataSet::Prediction ) {
     for(int bin = 1; bin <= h->GetNbinsX(); ++bin) {
       if( hUw->GetBinContent(bin) > 0. ) {
