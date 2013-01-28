@@ -1,4 +1,4 @@
-// $Id: EventInfoPrinter.cc,v 1.4 2012/12/09 14:47:25 mschrode Exp $
+// $Id: EventInfoPrinter.cc,v 1.5 2013/01/27 18:04:30 mschrode Exp $
 
 #include <algorithm>
 #include <fstream>
@@ -113,6 +113,7 @@ void EventInfoPrinter::print() const {
 
   // Print file with detailed event info and some formatting
   ofstream file(Output::resultDir()+"/EventInfo.txt");
+  // txt-style table
   for(std::map< TString, std::set<const Event*> >::const_iterator it = printedEvts_.begin(); it != printedEvts_.end(); ++it) {
     file << separator1 << std::endl;
     file << "Dataset: '" << it->first << "'" << std::endl;
@@ -143,6 +144,47 @@ void EventInfoPrinter::print() const {
     file << separator1 << std::endl;
     file << "\n\n\n";
   }
+  // LaTeX-style table
+  for(std::map< TString, std::set<const Event*> >::const_iterator it = printedEvts_.begin(); it != printedEvts_.end(); ++it) {
+    file << "\n\n\n%" << separator1 << std::endl;
+    file << "% Dataset: '" << it->first << "'" << std::endl;
+    file << "%" << separator2 << std::endl;
+    file << "\n\\begin{tabular}{";
+    for(unsigned int i = 0; i < vars.size(); ++i) {
+      file << "r";
+    }
+    file << "}\n";
+    file << "\\toprule\n";
+    for(std::list<TString>::const_iterator itVar = vars.begin(); itVar != vars.end(); ++itVar) {
+      file << std::setw(width) << std::fixed << "\\multicolumn{1}{c}{" << *itVar << "}";
+      if( itVar != --vars.end() ) file << " & ";
+      else file << " \\\\ \n";
+    }
+    file << "\\midrule\n";
+    
+    for(std::set<const Event*>::const_iterator itEvt = it->second.begin();
+	itEvt != it->second.end(); ++itEvt) {
+      for(std::list<TString>::const_iterator itVar = vars.begin(); itVar != vars.end(); ++itVar) {
+	if( Variable::type(*itVar) == "UShort_t" ||
+	    Variable::type(*itVar) == "Int_t" ||
+	    Variable::type(*itVar) == "UInt_t" ||
+	    Variable::type(*itVar) == "UChar_t"     ) {
+	  file << std::setprecision(0);
+	} else {
+	  file << std::setprecision(2);
+	}
+	if( (*itEvt)->get(*itVar) == 9999 ) {
+	  file << std::setw(width) << "---";
+	} else {
+	  file << std::setw(width) << (*itEvt)->get(*itVar);
+	}
+	if( itVar != --vars.end() ) file << " & ";
+	else file << " \\\\ \n";
+      }
+    }
+    file << "\\bottomrule \n\\end{tabular}\n\n\n";
+  }
+
   file.close();
 
   // Print CMSSW-like run lists

@@ -1,4 +1,4 @@
-// $Id: EventYieldPrinter.cc,v 1.3 2013/01/24 22:21:28 mschrode Exp $
+// $Id: EventYieldPrinter.cc,v 1.4 2013/01/27 23:18:34 mschrode Exp $
 
 #include <fstream>
 #include <iomanip>
@@ -14,7 +14,7 @@
 
 
 EventYieldPrinter::EventYieldPrinter() {
-  std::cout << " -  Writing event-yield information to '" << Output::resultDir() << "/EventYields.tex'" << std::endl;
+  std::cout << "  - Writing event-yield information to '" << Output::resultDir() << "/EventYields.tex'" << std::endl;
   printToLaTeX();
   printToScreen();
 }

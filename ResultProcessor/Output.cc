@@ -144,6 +144,7 @@ TString Output::cleanName(const TString &name) {
   TString cleanedName = name;
   cleanedName.ReplaceAll(">","gtr");
   cleanedName.ReplaceAll(" ","_");
+  cleanedName.ReplaceAll(":","-");
   cleanedName.ReplaceAll("_{","");
   cleanedName.ReplaceAll("#","");
   cleanedName.ReplaceAll("{","");
