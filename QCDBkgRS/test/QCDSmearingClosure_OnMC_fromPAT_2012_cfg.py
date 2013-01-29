@@ -16,23 +16,21 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.source = cms.Source("PoolSource",
 	fileNames = cms.untracked.vstring(
-       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v7/956a76b9479f1eb39208c1bee6fa7dc2/RA2SkimsOnMC_253_2_ZQN.root',
-       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v7/956a76b9479f1eb39208c1bee6fa7dc2/RA2SkimsOnMC_309_2_dS7.root',
-       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v7/956a76b9479f1eb39208c1bee6fa7dc2/RA2SkimsOnMC_134_2_SGe.root',
-       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v7/956a76b9479f1eb39208c1bee6fa7dc2/RA2SkimsOnMC_116_2_3Ag.root',
-       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v7/956a76b9479f1eb39208c1bee6fa7dc2/RA2SkimsOnMC_38_2_oB6.root',
-       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v7/956a76b9479f1eb39208c1bee6fa7dc2/RA2SkimsOnMC_105_1_lKH.root',
-       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v7/956a76b9479f1eb39208c1bee6fa7dc2/RA2SkimsOnMC_214_1_GQO.root',
-       '/store/user/kheine/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6/RA2PreSelectionOnMC_Summer12-PU_S7_START52_V9-v1_v7/956a76b9479f1eb39208c1bee6fa7dc2/RA2SkimsOnMC_388_1_KBb.root',       
+       '/store/user/mschrode/QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6/RA2PreSelection_Summer12_DR53X-PU_S10_START53_V7A-v1_V4/6c50609e978ba7d5388d5439fc628605/RA2Skim_155_1_d1v.root',
+       '/store/user/mschrode/QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6/RA2PreSelection_Summer12_DR53X-PU_S10_START53_V7A-v1_V4/6c50609e978ba7d5388d5439fc628605/RA2Skim_140_1_ZoT.root',
+       '/store/user/mschrode/QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6/RA2PreSelection_Summer12_DR53X-PU_S10_START53_V7A-v1_V4/6c50609e978ba7d5388d5439fc628605/RA2Skim_822_1_jlr.root',
+       '/store/user/mschrode/QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6/RA2PreSelection_Summer12_DR53X-PU_S10_START53_V7A-v1_V4/6c50609e978ba7d5388d5439fc628605/RA2Skim_263_1_NIV.root',
+       '/store/user/mschrode/QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6/RA2PreSelection_Summer12_DR53X-PU_S10_START53_V7A-v1_V4/6c50609e978ba7d5388d5439fc628605/RA2Skim_644_1_gWo.root',
+       '/store/user/mschrode/QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6/RA2PreSelection_Summer12_DR53X-PU_S10_START53_V7A-v1_V4/6c50609e978ba7d5388d5439fc628605/RA2Skim_560_1_3tN.root', 
  	)
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 1000 ) )
 ###############################################################################
 ## Global tags and geometry
 # default configuration with frontier conditions
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START52_V11C::All')
+process.GlobalTag.globaltag = cms.string('START53_V7G::All')
 ###############################################################################
 
 ###############################################################################
@@ -46,22 +44,13 @@ process.load("RA2Classic.QCDBkgRS.qcdbkgrs_cfi")
 ###############################################################################
 # Rebalancing and Smearing configuration
 ###############################################################################
-#process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withCHS_withPUReweighting_pixelcorr.root'
-#process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withoutCHS_withoutPUReweighting.root'
-#process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2_Flat_8TeV_pythia6_withCHS_withoutPUReweighting_fineLowPtBins.root'
-#process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2Star_Flat_8TeV_pythia6_NoPU_withCHS.root'
-process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2star_Flat_8TeV_pythia6_withCHS_withPUReweighting.root'
+#process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2star_Flat_8TeV_pythia6_withCHS_withPUReweighting.root'
+#process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolutions_Summer12_DR53X_QCD_Pt_15to3000_TuneZ2star_Flat_8TeV_pythia6_withCHS_withPUReweighting_190456-208686_ABCD.root'
+process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolutions_Summer12_DR53X_QCD_Pt_15to3000_TuneZ2star_Flat_8TeV_pythia6_withCHS_withoutPUReweighting.root'
 
 process.QCDfromSmearing.BProbabilityFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/BJetProbabilityMC.root'
 process.QCDfromSmearing.jetCollection = 'patJetsPF' 
-#process.QCDfromSmearing.jetCollection = 'patJetsAK5PF'
 process.QCDfromSmearing.uncertaintyName = '' 
-#process.QCDfromSmearing.InputHisto1_HF = 'h_b_Jet1_ResponsePt'
-#process.QCDfromSmearing.InputHisto2_HF = 'h_b_Jet2_ResponsePt'
-#process.QCDfromSmearing.InputHisto3p_HF = 'h_b_Jet3p_ResponsePt'
-#process.QCDfromSmearing.InputHisto1_NoHF = 'h_nob_Jet1_ResponsePt'
-#process.QCDfromSmearing.InputHisto2_NoHF = 'h_nob_Jet2_ResponsePt'
-#process.QCDfromSmearing.InputHisto3p_NoHF = 'h_nob_Jet3p_ResponsePt'
 process.QCDfromSmearing.InputHisto1_HF = 'h_tot_JetAll_ResponsePt'
 process.QCDfromSmearing.InputHisto2_HF = 'h_tot_JetAll_ResponsePt'
 process.QCDfromSmearing.InputHisto3p_HF = 'h_tot_JetAll_ResponsePt'
@@ -74,7 +63,7 @@ process.QCDfromSmearing.InputHisto3p_NoHF = 'h_tot_JetAll_ResponsePt'
 #process.QCDfromSmearing.InputHisto1_NoHF = 'h_nob_JetAll_ResponsePt'
 #process.QCDfromSmearing.InputHisto2_NoHF = 'h_nob_JetAll_ResponsePt'
 #process.QCDfromSmearing.InputHisto3p_NoHF = 'h_nob_JetAll_ResponsePt'
-process.QCDfromSmearing.RebalanceCorrectionFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/RebalanceCorrection_withPUReweighting_pt10.root'
+process.QCDfromSmearing.RebalanceCorrectionFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/RebalanceCorrection_DR53X_withoutPUReweighting_pt10.root'
 process.QCDfromSmearing.NRebin = 1
 process.QCDfromSmearing.NJets = 2
 process.QCDfromSmearing.SmearCollection = 'Reco'
@@ -107,31 +96,32 @@ process.QCDfromSmearing.HTcut_extremehigh = cms.double(1400.)
 process.load("RA2Classic.WeightProducer.weightProducer_cfi")
 process.weightProducer.weightName	= 'weight'
 
-## QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6
-#process.weightProducer.Method			= 'PtHat'
-#process.weightProducer.Exponent		= -4.5
-#process.weightProducer.XS				= 2.99913994e+10
-#process.weightProducer.NumberEvts	= 9998154
-#process.weightProducer.Lumi			= 1000
-#process.weightProducer.weight			= -1.0
-
-## QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6
+## QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1
 process.weightProducer.Method          = 'PtHat'
 process.weightProducer.Exponent        = -4.5
 process.weightProducer.XS              = 2.99815997e+10
-process.weightProducer.NumberEvts      = 9993618
+process.weightProducer.NumberEvts      = 9991674
 process.weightProducer.Lumi            = 1000
 process.weightProducer.weight          = -1.0
 
-#process.weightProducer.Method		= 'BinnedPythia'
-#process.weightProducer.Lumi			= 1000
-
-#process.weightProducer.FileNamePUDataDistribution = 'NONE'
-process.weightProducer.FileNamePUDataDistribution = 'RA2Classic/AdditionalInputFiles/data/DataPileupHistogram_RA2Summer12_190456-196531_8TeV_PromptReco_WOLowPU_pixelcorr.root'
-process.weightProducer.PU = 2 # 0==Flat10, 1==Fall11, 2==Summer12                        
+process.weightProducer.FileNamePUDataDistribution = 'NONE'
+#process.weightProducer.FileNamePUDataDistribution = 'RA2Classic/AdditionalInputFiles/data/DataPileupHistogram_RA2Summer12_190456-208686_ABCD.root'
+process.weightProducer.PU = 3 # 0==Flat10, 1==Fall11, 2==Summer12S7 3==Summer12S10                        
 ###############################################################################
 
 ###############################################################################
+from RecoMET.METFilters.jetIDFailureFilter_cfi import jetIDFailure
+process.PBNRFilter = jetIDFailure.clone(
+    JetSource = cms.InputTag('patJetsPF'),
+    MinJetPt      = cms.double(0.0),
+    taggingMode   = cms.bool(False)
+    )
+from RecoMET.METFilters.multiEventFilter_cfi import multiEventFilter
+process.HCALLaserEvtFilterList2012 = multiEventFilter.clone(
+    file        = cms.FileInPath('RA2Classic/AdditionalInputFiles/data/HCALLaserEventList_20Nov2012-v2_HT-JetHT.txt'),
+    taggingMode = cms.bool(False)
+    )
+
 process.load("SandBox.Skims.filterBoolean_cfi")
 process.RA2_HBHENoiseFilterRA2    = process.booleanFilter.clone()
 process.RA2_HBHENoiseFilterRA2.ResultSource = cms.InputTag("HBHENoiseFilterRA2","HBHENoiseFilterResult","PAT")
@@ -149,14 +139,21 @@ process.RA2_EcalTPFilter          = process.booleanFilter.clone()
 process.RA2_EcalTPFilter.ResultSource = cms.InputTag("ra2EcalTPFilter")
 process.RA2_EcalBEFilter          = process.booleanFilter.clone()
 process.RA2_EcalBEFilter.ResultSource = cms.InputTag("ra2EcalBEFilter")
-process.HcalLaserEventFilter      = process.booleanFilter.clone()
-process.HcalLaserEventFilter.ResultSource = cms.InputTag("hcalLaserEventFilter")
+#process.HcalLaserEventFilter      = process.booleanFilter.clone()
+#process.HcalLaserEventFilter.ResultSource = cms.InputTag("hcalLaserEventFilter")
+process.EcalLaserFilter           = process.booleanFilter.clone()
+process.EcalLaserFilter.ResultSource= cms.InputTag("ecalLaserCorrFilter")
 process.EEBadScFilter             = process.booleanFilter.clone()
 process.EEBadScFilter.ResultSource = cms.InputTag("eeBadScFilter")
+process.manyStripClustersFilter   = process.booleanFilter.clone()
+process.manyStripClustersFilter.ResultSource = cms.InputTag("manystripclus53X")
+process.tooManyStripClustersFilter = process.booleanFilter.clone()
+process.tooManyStripClustersFilter.ResultSource = cms.InputTag("toomanystripclus53X")
+process.logErrorTooManyClustersFilter = process.booleanFilter.clone()
+process.logErrorTooManyClustersFilter.ResultSource = cms.InputTag("logErrorTooManyClusters")
 ###############################################################################
 
 ###############################################################################
-process.load('SandBox.Skims.RA2HT_cff')
 process.load('SandBox.Skims.RA2Leptons_cff')
 ###############################################################################
 
@@ -185,41 +182,48 @@ process.dump   = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.prediction = cms.Path(
 #	process.dump *
-#   process.htPFFilter *    # to be used for standard jets
-   process.htPFchsFilter *  # to be used for chs jets
    process.RA2_HBHENoiseFilterRA2 *
    process.RA2_beamHaloFilter *
-   process.RA2_eeNoiseFilter *
+   #process.RA2_eeNoiseFilter *
    process.RA2_trackingFailureFilter *
    process.RA2_inconsistentMuons *
    process.RA2_greedyMuons *
    process.RA2_EcalTPFilter *
    process.RA2_EcalBEFilter *
-   process.HcalLaserEventFilter *
+   process.HCALLaserEvtFilterList2012 *
+   #process.HcalLaserEventFilter *
+   process.EcalLaserFilter *
    process.EEBadScFilter *
+   ~process.manyStripClustersFilter *
+   ~process.tooManyStripClustersFilter *
+   ~process.logErrorTooManyClustersFilter *
 	process.weightProducer *
+   process.PBNRFilter *
    process.ra2PFMuonVeto *
    process.ra2ElectronVeto *
 	process.QCDfromSmearing 
 )
 
 process.mc = cms.Path(
- #  process.htPFFilter *    # to be used for standard jets
-   process.htPFchsFilter *     # to be used for chs jets 
    process.RA2_HBHENoiseFilterRA2 *
    process.RA2_beamHaloFilter *
-   process.RA2_eeNoiseFilter *
+   #process.RA2_eeNoiseFilter *
    process.RA2_trackingFailureFilter *
    process.RA2_inconsistentMuons *
    process.RA2_greedyMuons *
    process.RA2_EcalTPFilter *
    process.RA2_EcalBEFilter *
-   process.HcalLaserEventFilter *
+   process.HCALLaserEvtFilterList2012 *
+   #process.HcalLaserEventFilter *
+   process.EcalLaserFilter *
    process.EEBadScFilter *
+   ~process.manyStripClustersFilter *
+   ~process.tooManyStripClustersFilter *
+   ~process.logErrorTooManyClustersFilter *
 	process.weightProducer *
+   process.PBNRFilter *
    process.ra2PFMuonVeto *
    process.ra2ElectronVeto * 
    process.produceRA2JetsPFCHS *
- #  process.produceRA2JetsAK5PF *
    process.RA2TreeMaker   
 )

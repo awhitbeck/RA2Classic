@@ -35,14 +35,13 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.source = cms.Source("PoolSource",
 	fileNames = cms.untracked.vstring(
-           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V2/528d417548fa47de754292e17c1b0d17/RA2Skim_215_1_7bE.root',
-           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V2/528d417548fa47de754292e17c1b0d17/RA2Skim_28_1_EOW.root',
-           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V2/528d417548fa47de754292e17c1b0d17/RA2Skim_215_1_7bE.root',
-           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V2/528d417548fa47de754292e17c1b0d17/RA2Skim_27_1_LQC.root',
-           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V2/528d417548fa47de754292e17c1b0d17/RA2Skim_32_1_HnL.root',
-           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V2/528d417548fa47de754292e17c1b0d17/RA2Skim_47_1_Q7T.root',
-           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V2/528d417548fa47de754292e17c1b0d17/RA2Skim_72_1_DcZ.root',
-           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V2/528d417548fa47de754292e17c1b0d17/RA2Skim_82_1_zkG.root'       
+           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V4/21a074f94cdbe7cfbeeb19be46b40a6a/RA2Skim_235_1_PWG.root',
+           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V4/21a074f94cdbe7cfbeeb19be46b40a6a/RA2Skim_136_1_fRg.root',
+           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V4/21a074f94cdbe7cfbeeb19be46b40a6a/RA2Skim_188_1_jHe.root',
+           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V4/21a074f94cdbe7cfbeeb19be46b40a6a/RA2Skim_246_1_T3F.root',
+           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V4/21a074f94cdbe7cfbeeb19be46b40a6a/RA2Skim_47_1_lVz.root',
+           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V4/21a074f94cdbe7cfbeeb19be46b40a6a/RA2Skim_21_1_OtL.root',
+           '/store/user/mschrode/HT/RA2PreSelection_Run2012A-13Jul2012-v1_V4/21a074f94cdbe7cfbeeb19be46b40a6a/RA2Skim_124_1_5Yj.root',            
 	)
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 1000 ) )
@@ -66,9 +65,9 @@ process.load("RA2Classic.QCDBkgRS.qcdbkgrs_cfi")
 ###############################################################################
 # Rebalancing and Smearing configuration
 ###############################################################################
-#process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer11_QCD_Pt_15to3000_TuneZ2_Flat_7TeV_pythia6_fine_v2.root'
-#process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCResolutions_Fall11_QCD_Pt-15to3000_TuneZ2_7TeV_pythia6_fine.root'
-process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2star_Flat_8TeV_pythia6_withCHS_withPUReweighting.root'
+#process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolution_Summer12_QCD_Pt_15to3000_TuneZ2star_Flat_8TeV_pythia6_withCHS_withPUReweighting.root'
+process.QCDfromSmearing.SmearingFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/MCJetResolutions_Summer12_DR53X_QCD_Pt_15to3000_TuneZ2star_Flat_8TeV_pythia6_withCHS_withPUReweighting_190456-208686_ABCD.root'
+
 process.QCDfromSmearing.BProbabilityFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/BJetProbability.root'
 process.QCDfromSmearing.jetCollection = 'patJetsPF'
 process.QCDfromSmearing.uncertaintyName = ''
@@ -84,7 +83,7 @@ process.QCDfromSmearing.InputHisto3p_HF = 'h_tot_JetAll_ResponsePt'
 process.QCDfromSmearing.InputHisto1_NoHF = 'h_tot_JetAll_ResponsePt'
 process.QCDfromSmearing.InputHisto2_NoHF = 'h_tot_JetAll_ResponsePt'
 process.QCDfromSmearing.InputHisto3p_NoHF = 'h_tot_JetAll_ResponsePt'
-process.QCDfromSmearing.RebalanceCorrectionFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/RebalanceCorrection_withPUReweighting_pt10.root'
+process.QCDfromSmearing.RebalanceCorrectionFile = '/afs/naf.desy.de/user/k/kriheine/Resolution/RebalanceCorrection_DR53X_withPUReweighting_pt10.root'
 process.QCDfromSmearing.NJets = 2
 process.QCDfromSmearing.NRebin = 1
 process.QCDfromSmearing.SmearCollection = 'Reco'
@@ -150,7 +149,7 @@ process.PBNRFilter = jetIDFailure.clone(
     )
 from RecoMET.METFilters.multiEventFilter_cfi import multiEventFilter
 process.HCALLaserEvtFilterList2012 = multiEventFilter.clone(
-    file        = cms.FileInPath('EventFilter/HcalRawToDigi/data/AllBadHCALLaser.txt'),
+    file        = cms.FileInPath('RA2Classic/AdditionalInputFiles/data/HCALLaserEventList_20Nov2012-v2_HT-JetHT.txt'),
     taggingMode = cms.bool(False)
     )
 
@@ -173,16 +172,41 @@ process.RA2_EcalBEFilter          = process.booleanFilter.clone()
 process.RA2_EcalBEFilter.ResultSource = cms.InputTag("ra2EcalBEFilter")
 #process.HcalLaserEventFilter      = process.booleanFilter.clone()
 #process.HcalLaserEventFilter.ResultSource = cms.InputTag("hcalLaserEventFilter")
+process.EcalLaserFilter           = process.booleanFilter.clone()
+process.EcalLaserFilter.ResultSource= cms.InputTag("ecalLaserCorrFilter")
 process.EEBadScFilter             = process.booleanFilter.clone()
 process.EEBadScFilter.ResultSource = cms.InputTag("eeBadScFilter")
-#process.EcalLaserFilter           = process.booleanFilter.clone()
-#process.EcalLaserFilter.ResultSource= cms.InputTag("ecalLaserCorrFilter")
+process.manyStripClustersFilter   = process.booleanFilter.clone()
+process.manyStripClustersFilter.ResultSource = cms.InputTag("manystripclus53X")
+process.tooManyStripClustersFilter = process.booleanFilter.clone()
+process.tooManyStripClustersFilter.ResultSource = cms.InputTag("toomanystripclus53X")
+process.logErrorTooManyClustersFilter = process.booleanFilter.clone()
+process.logErrorTooManyClustersFilter.ResultSource = cms.InputTag("logErrorTooManyClusters")
 ###############################################################################
 
 ###############################################################################
 # Lepton Veto
 ###############################################################################
 process.load('SandBox.Skims.RA2Leptons_cff')
+###############################################################################
+
+###############################################################################
+## --- Setup of TreeMaker ----------------------------------------------
+from RA2Classic.TreeMaker.treemaker_cfi import TreeMaker
+process.RA2TreeMaker = TreeMaker.clone(
+    TreeName         = cms.string("RA2PreSelection"),
+    VarsDouble       = cms.VInputTag(cms.InputTag('weightProducer:weight')),
+    VarsDoubleNamesInTree = cms.vstring('Weight'),
+    VertexCollection = cms.InputTag('goodVertices'),
+ #   HT               = cms.InputTag('htPF'),
+    HT               = cms.InputTag('htPFchs'),
+    HTJets           = cms.InputTag('HTJets'),
+ #   MHT              = cms.InputTag('mhtPF'),
+    MHT              = cms.InputTag('mhtPFchs'),
+    MHTJets          = cms.InputTag('MHTJets')
+    )
+process.load('RA2Classic.Utils.produceRA2JetsPFCHS_cff')
+#process.load('RA2Classic.Utils.produceRA2JetsAK5PF_cff')
 ###############################################################################
 
 ###############################################################################
@@ -203,8 +227,12 @@ process.prediction = cms.Path(
    process.RA2_greedyMuons *
    process.RA2_EcalTPFilter *
    process.RA2_EcalBEFilter *
-   process.EEBadScFilter *
    process.HCALLaserEvtFilterList2012 *
+   process.EcalLaserFilter *
+   process.EEBadScFilter *
+   ~process.manyStripClustersFilter *
+   ~process.tooManyStripClustersFilter *
+   ~process.logErrorTooManyClustersFilter *
    process.PBNRFilter *
    process.ra2PFMuonVeto *
    process.ra2ElectronVeto *
@@ -222,8 +250,12 @@ process.predictionCoreUP = cms.Path(
    process.RA2_greedyMuons *
    process.RA2_EcalTPFilter *
    process.RA2_EcalBEFilter *
-   process.EEBadScFilter *
    process.HCALLaserEvtFilterList2012 *
+   process.EcalLaserFilter *
+   process.EEBadScFilter *
+   ~process.manyStripClustersFilter *
+   ~process.tooManyStripClustersFilter *
+   ~process.logErrorTooManyClustersFilter *
    process.PBNRFilter *
    process.ra2PFMuonVeto *
    process.ra2ElectronVeto *
@@ -241,8 +273,12 @@ process.predictionCoreDN = cms.Path(
    process.RA2_greedyMuons *
    process.RA2_EcalTPFilter *
    process.RA2_EcalBEFilter *
-   process.EEBadScFilter *
    process.HCALLaserEvtFilterList2012 *
+   process.EcalLaserFilter *
+   process.EEBadScFilter *
+   ~process.manyStripClustersFilter *
+   ~process.tooManyStripClustersFilter *
+   ~process.logErrorTooManyClustersFilter *
    process.PBNRFilter *
    process.ra2PFMuonVeto *
    process.ra2ElectronVeto *
@@ -260,8 +296,12 @@ process.predictionTailUP = cms.Path(
    process.RA2_greedyMuons *
    process.RA2_EcalTPFilter *
    process.RA2_EcalBEFilter *
-   process.EEBadScFilter *
    process.HCALLaserEvtFilterList2012 *
+   process.EcalLaserFilter *
+   process.EEBadScFilter *
+   ~process.manyStripClustersFilter *
+   ~process.tooManyStripClustersFilter *
+   ~process.logErrorTooManyClustersFilter *
    process.PBNRFilter *
    process.ra2PFMuonVeto *
    process.ra2ElectronVeto *
@@ -279,12 +319,38 @@ process.predictionTailDN = cms.Path(
    process.RA2_greedyMuons *
    process.RA2_EcalTPFilter *
    process.RA2_EcalBEFilter *
-   process.EEBadScFilter *
    process.HCALLaserEvtFilterList2012 *
+   process.EcalLaserFilter *
+   process.EEBadScFilter *
+   ~process.manyStripClustersFilter *
+   ~process.tooManyStripClustersFilter *
+   ~process.logErrorTooManyClustersFilter * 
    process.PBNRFilter *
    process.ra2PFMuonVeto *
    process.ra2ElectronVeto *
 	process.prescaleweightProducer *
 	process.QCDfromSmearingTailDN 
+)
+
+process.selection = cms.Path(
+   process.RA2_HBHENoiseFilterRA2 *
+   process.RA2_beamHaloFilter *
+   #process.RA2_eeNoiseFilter *
+   process.RA2_trackingFailureFilter *
+   process.RA2_inconsistentMuons *
+   process.RA2_greedyMuons *
+   process.RA2_EcalTPFilter *
+   process.RA2_EcalBEFilter *
+   process.HCALLaserEvtFilterList2012 *
+   process.EcalLaserFilter *
+   process.EEBadScFilter *
+   ~process.manyStripClustersFilter *
+   ~process.tooManyStripClustersFilter *
+   ~process.logErrorTooManyClustersFilter *
+   process.PBNRFilter *
+   process.ra2PFMuonVeto *
+   process.ra2ElectronVeto *
+   process.produceRA2JetsPFCHS *
+   process.RA2TreeMaker   
 )
 
