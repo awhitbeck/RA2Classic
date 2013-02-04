@@ -46,6 +46,7 @@ class LostLeptonBkg : public edm::EDProducer {
 	edm::InputTag HtJetsTag_;
 	edm::InputTag MetTag_;
 	edm::InputTag MuonTag_;
+	edm::InputTag MuonRecoTag_;
 	edm::InputTag ElecTag_;
 	edm::InputTag MhtTag_,HTTag_,MHTTag_, NVTag_;
 	edm::InputTag CaloJetTag_;
@@ -61,6 +62,7 @@ class LostLeptonBkg : public edm::EDProducer {
 
 	// input corrections uncertainties
 	double DiLepCorrection_, DiLepCorrectionUp_, DiLepCorrectionDown_;
+	edm::InputTag MetJetTagUp_, MetJetTagDown_;
 
   	// efficiencies created ones per job!
 	TH1F *MuonAccSum_, *MuonAccPassed_;
@@ -79,6 +81,8 @@ class LostLeptonBkg : public edm::EDProducer {
 	TH3F *MuonBinByBinEff_, *ElecBinByBinEff_;
 	TH3F *MuonAccBinByBinEff_, *MuonRecoBinByBinEff_, *MuonIsoBinByBinEff_;
 	TH3F *ElecAccBinByBinEff_, *ElecRecoBinByBinEff_, *ElecIsoBinByBinEff_;
+	TH2F *MuonIsoBinByBinEff35_, *MuonIsoBinByBinEff67_, *MuonIsoBinByBinEff8Inf_;
+	TH2F *ElecIsoBinByBinEff35_, *ElecIsoBinByBinEff67_, *ElecIsoBinByBinEff8Inf_;
 	Float_t muonBinByBinXMax_,muonBinByBinYMax_,muonBinByBinZMax_,elecBinByBinXMax_,elecBinByBinYMax_,elecBinByBinZMax_;
 	Float_t muonAccBinByBinXMax_,muonAccBinByBinYMax_,muonAccBinByBinZMax_;
 	Float_t muonRecoBinByBinXMax_,muonRecoBinByBinYMax_,muonRecoBinByBinZMax_;
@@ -88,7 +92,15 @@ class LostLeptonBkg : public edm::EDProducer {
 	Float_t elecIsoBinByBinXMax_,elecIsoBinByBinYMax_,elecIsoBinByBinZMax_;
 	Float_t muonBinByBinEff_, muonBinByBinWeight_, totalMuonsBinByBinWeight_, elecBinByBinEff_, elecWeightBinByBin_, resultWeightBinByBin_, resultWeightBinByBinMTW_, totalMuonsBinByBin_;
 	
-	
+	// uncertainty from tag and probe
+
+	TH2F *MuIsoMCTAP_, *MuRecoMCTAP_, *MuIsoDataTAP_, *MuRecoDataTAP_;
+	Float_t MuIsoMCTAPBinXMax_, MuIsoMCTAPBinYMax_, MuRecoMCTAPBinXMax_, MuRecoMCTAPBinYMax_;
+	Float_t MuIsoDataTAPBinXMax_, MuIsoDataTAPBinYMax_, MuRecoDataTAPBinXMax_, MuRecoDataTAPBinYMax_;
+
+	TH2F *ElecIsoMCTAP_, *ElecRecoMCTAP_, *ElecIsoDataTAP_, *ElecRecoDataTAP_;
+	Float_t ElecIsoMCTAPBinXMax_, ElecIsoMCTAPBinYMax_, ElecRecoMCTAPBinXMax_, ElecRecoMCTAPBinYMax_;
+	Float_t ElecIsoDataTAPBinXMax_, ElecIsoDataTAPBinYMax_, ElecRecoDataTAPBinXMax_, ElecRecoDataTAPBinYMax_;
 	// Variables
 	float met_;
 	float mht_, ht_;
@@ -144,11 +156,35 @@ class LostLeptonBkg : public edm::EDProducer {
 
 	Float_t totalBinByBinMuons_;
 	Float_t muonBinByBinTotalWeight_, elecBinByBinTotalWeight_;
-	Float_t resultBinByBinWeight_;
-	Float_t resultBinByBinWeightMTW_;
+	Float_t resultBBBW_;
+	Float_t resultBBBWMTW_, resultBBBWMTWUp_, resultBBBWMTWDown_;
+	Float_t MTWUncertaintyUp_, MTWUncertaintyDown_;
 
 	// uncertainties and corrections for binbybin
-	Float_t resultBinByBinWeightMTWDiLep_, resultBinByBinWeightMTWDiLepUp_, resultBinByBinWeightMTWDiLepDown_;
+	Float_t resultBBBWMTWDiLep_, resultBBBWMTWDiLepUp_, resultBBBWMTWDiLepDown_;
+
+	// tag and probe
+	bool TAPUncertainties_,TAPConstUncertainty_, IsoPlots_;
+
+	Float_t muonIsoTAPRelUncertainty_, muonIsoTAPUp_, muonIsoTAPDown_;
+	Float_t muonRecoTAPRelUncertainty_, muonRecoTAPUp_, muonRecoTAPDown_;
+
+	Float_t elecIsoTAPRelUncertainty_, elecIsoTAPUp_, elecIsoTAPDown_;
+	Float_t elecRecoTAPRelUncertainty_, elecRecoTAPUp_, elecRecoTAPDown_;
+
+	// acceptance
+	Float_t resultWeightBinByBinAccUp_, resultWeightBinByBinAccDown_;
+	Float_t muonAccUncertaintyUp_, muonAccUncertaintyDown_, elecAccUncertaintyUp_, elecAccUncertaintyDown_;
+
+	// diboson contribution
+	Float_t diBosonDown_,resultWeightBinByBinDiBosonDown_;
+	// mtw cut
+
+	Float_t metup_, metdown_;
+
+	// not isoalted cs but reco good MTW match
+	int nRecoMu_;
+	Float_t recoMtw1_, recoMtw2_, recoMtw3_, recoMtw4_, recoMtw5_;
 
       // ----------member data ---------------------------
 };

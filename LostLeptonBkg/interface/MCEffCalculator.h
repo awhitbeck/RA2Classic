@@ -29,7 +29,7 @@
 
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "TLorentzVector.h"
-
+#include <DataFormats/JetReco/interface/CaloJet.h>
 
 
 
@@ -105,6 +105,10 @@ class MCEffCalculator : public edm::EDAnalyzer {
 	TH3F *recoEffTH3FPassedMu_, *recoEffTH3FFailedMu_, *recoEffTH3FPassedElec_, *recoEffTH3FFailedElec_;
 	TH3F *isoEffTH3FPassedMu_, *isoEffTH3FFailedMu_, *isoEffTH3FPassedElec_, *isoEffTH3FFailedElec_;
 
+	// binbybin iso
+
+	TH2F *isoEffTH2PassedMuNJet35_, *isoEffTH2FailedMuNJet35_, *isoEffTH2PassedMuNJet67_, *isoEffTH2FailedMuNJet67_, *isoEffTH2PassedMuNJet8Inf_, *isoEffTH2FailedMuNJet8Inf_;
+	TH2F *isoEffTH2PassedElecNJet35_, *isoEffTH2FailedElecNJet35_, *isoEffTH2PassedElecNJet67_, *isoEffTH2FailedElecNJet67_, *isoEffTH2PassedElecNJet8Inf_, *isoEffTH2FailedElecNJet8Inf_;
 
 	TH1F *MuonAccPassedTH1F_, *MuonAccFailedTH1F_;
 	TH1F *MuonAccPassed2TH1F_, *MuonAccFailed2TH1F_;

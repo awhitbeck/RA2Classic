@@ -134,7 +134,7 @@ def makeTreeFromPAT(process,
     from RecoMET.METFilters.multiEventFilter_cfi import multiEventFilter
     process.HCALLaserEvtFilterList2012 = multiEventFilter.clone(
         file        =
-        cms.FileInPath('RA2Classic/AdditionalInputFiles/data/HCALLaserEventList_20Nov2012-v2_HT-HTMHT.txt'),
+        cms.FileInPath('RA2Classic/LostLeptonBkg/data/HCALLaserEventList_20Nov2012-v2_HT-HTMHT.txt'),
         taggingMode = cms.bool(False)
         )
 	
@@ -240,6 +240,7 @@ def makeTreeFromPAT(process,
  	MHTTag	   = cms.InputTag(mhtInputCol),
 	MetJetTagUp = cms.InputTag('jesUp:METs'),
 	MetJetTagDown = cms.InputTag('jesDown:METs'),
+	IsoPlots = cms.bool(True),
     )
 
 
@@ -287,7 +288,7 @@ def makeTreeFromPAT(process,
 	process.RA2Selector *
 	process.ak5CaloJetsL2L3 *
  #       process.dump *
-	process.LostLeptonBkgMCEffCalculator *
+#	process.LostLeptonBkgMCEffCalculator *
 	process.LostLeptonBkgProducer
 #	process.RA2TreeMaker 
 
