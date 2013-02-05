@@ -138,6 +138,7 @@ private:
    int NRebin_;
    bool controlPlots_;
    bool isData_;
+   bool isMadgraph_;
    bool absoluteTailScaling_;
    bool cleverPrescaleTreating_;
    bool useRebalanceCorrectionFactors_;

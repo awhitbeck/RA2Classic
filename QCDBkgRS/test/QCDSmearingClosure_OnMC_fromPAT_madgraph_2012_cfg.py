@@ -98,14 +98,14 @@ process.weightProducer.weightName	= 'weight'
 process.weightProducer.Method           = 'Constant'
 process.weightProducer.Lumi             = 1000
 
-process.weightProducer.NumberEvts       = 50129518 #100To250
-process.weightProducer.XS               = 1.036e+7
+#process.weightProducer.NumberEvts       = 50129518 #100To250
+#process.weightProducer.XS               = 1.036e+7
 #process.weightProducer.NumberEvts       = 27062078 #250To500
 #process.weightProducer.XS               = 276000.0
 #process.weightProducer.NumberEvts       = 30599292 #500To1000
 #process.weightProducer.XS               = 8426.0
-#process.weightProducer.NumberEvts       = 13843863 #1000ToInf
-#process.weightProducer.XS               = 204.0
+process.weightProducer.NumberEvts       = 13843863 #1000ToInf
+process.weightProducer.XS               = 204.0
 
 process.weightProducer.FileNamePUDataDistribution = 'NONE'
 #process.weightProducer.FileNamePUDataDistribution = 'RA2Classic/AdditionalInputFiles/data/DataPileupHistogram_RA2Summer12_190456-208686_ABCD.root'

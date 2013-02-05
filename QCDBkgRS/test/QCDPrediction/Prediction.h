@@ -64,11 +64,10 @@ private:
    double MHTlow;
    double MHTmedium;
    double MHThigh;
-
-   TH1F* HT_old;
-   TH1F* HT_new;
-     
-   // raw prediction histograms preselection 
+ 
+   // ------------------------------------------------------- //
+   // raw prediction histograms   
+   // preselection 
    TH2F* HT_presel_pred_raw;
    TH2F* MHT_presel_pred_raw;
    TH2F* NJets_presel_pred_raw;
@@ -82,7 +81,7 @@ private:
    TH2F* DeltaPhi2_presel_pred_raw;
    TH2F* DeltaPhi3_presel_pred_raw;
 
-   // raw prediction histograms with delta phi 
+   // preselection + delta phi cut
    TH2F* HT_deltaPhi_pred_raw;
    TH2F* MHT_deltaPhi_pred_raw;
    TH2F* Jet1Pt_deltaPhi_pred_raw;
@@ -92,9 +91,13 @@ private:
    TH2F* Jet2Eta_deltaPhi_pred_raw;
    TH2F* Jet3Eta_deltaPhi_pred_raw;
 
-   // baseline 
+   // NJets 
    TH2F* NJets_baseline_withoutMHT_pred_raw;
    TH2F* NJets_baseline_pred_raw;
+   TH2F* NJets_baseline_withoutDeltaPhi_withoutMHT_pred_raw;
+   TH2F* NJets_baseline_withoutDeltaPhi_pred_raw;
+
+   // baseline
    TH2F* HT_baseline_pred_raw;
    TH2F* MHT_baseline_pred_raw;
 
@@ -139,11 +142,7 @@ private:
    TH2F* DeltaPhi2_JetBin4_baseline_pred_raw;
    TH2F* DeltaPhi3_JetBin4_baseline_pred_raw;
 
-   // baseline without deltaPhi
-   TH2F* NJets_baseline_withoutDeltaPhi_withoutMHT_pred_raw;
-   TH2F* NJets_baseline_withoutDeltaPhi_pred_raw;
-
-   // baseline jet bin 1
+   // baseline without deltaPhi jet bin 1
    TH2F* HT_JetBin1_baseline_withoutDeltaPhi_pred_raw;
    TH2F* MHT_JetBin1_baseline_withoutDeltaPhi_pred_raw;
    TH2F* Jet1Pt_JetBin1_baseline_withoutDeltaPhi_pred_raw;
@@ -156,7 +155,7 @@ private:
    TH2F* DeltaPhi2_JetBin1_baseline_withoutDeltaPhi_pred_raw;
    TH2F* DeltaPhi3_JetBin1_baseline_withoutDeltaPhi_pred_raw;
 
-   // baseline jet bin 2
+   // baseline without deltaPhi jet bin 2
    TH2F* HT_JetBin2_baseline_withoutDeltaPhi_pred_raw;
    TH2F* MHT_JetBin2_baseline_withoutDeltaPhi_pred_raw;
    TH2F* Jet1Pt_JetBin2_baseline_withoutDeltaPhi_pred_raw;
@@ -169,7 +168,7 @@ private:
    TH2F* DeltaPhi2_JetBin2_baseline_withoutDeltaPhi_pred_raw;
    TH2F* DeltaPhi3_JetBin2_baseline_withoutDeltaPhi_pred_raw;
 
-   // baseline jet bin 3
+   // baseline without deltaPhi jet bin 3
    TH2F* HT_JetBin3_baseline_withoutDeltaPhi_pred_raw;
    TH2F* MHT_JetBin3_baseline_withoutDeltaPhi_pred_raw;
    TH2F* Jet1Pt_JetBin3_baseline_withoutDeltaPhi_pred_raw;
@@ -182,7 +181,7 @@ private:
    TH2F* DeltaPhi2_JetBin3_baseline_withoutDeltaPhi_pred_raw;
    TH2F* DeltaPhi3_JetBin3_baseline_withoutDeltaPhi_pred_raw;
 
-   // baseline jet bin 4
+   // baseline without deltaPhi jet bin 4
    TH2F* HT_JetBin4_baseline_withoutDeltaPhi_pred_raw;
    TH2F* MHT_JetBin4_baseline_withoutDeltaPhi_pred_raw;
    TH2F* Jet1Pt_JetBin4_baseline_withoutDeltaPhi_pred_raw;
@@ -195,39 +194,39 @@ private:
    TH2F* DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_pred_raw;
    TH2F* DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_pred_raw;
 
-   // raw prediction histograms 2 jets, HT 500-1000 
+   // HT inclusive 2 jets
+   TH2F* MHT_JetBin1_HTinclusive_pred_raw;
+   // HT inclusive 3-5 jets
+   TH2F* MHT_JetBin2_HTinclusive_pred_raw;
+   // HT inclusive 6-7 jets
+   TH2F* MHT_JetBin3_HTinclusive_pred_raw;
+   // HT inclusive >=8 jets
+   TH2F* MHT_JetBin4_HTinclusive_pred_raw;
+
+   // used for non-closure uncertainty
+   // 2 jets, HT 500-1000 
    TH2F* MHT_JetBin1_HTlow_pred_raw;
-   // raw prediction histograms 2 jets, HT >1000
+   // 2 jets, HT >1000
    TH2F* MHT_JetBin1_HThigh_pred_raw;
 
-   // raw prediction histograms 3-5 jets, HT 500-1000 
+   // 3-5 jets, HT 500-1000 
    TH2F* MHT_JetBin2_HTlow_pred_raw;
-   // raw prediction histograms 3-5 jets, HT >1000
+   // 3-5 jets, HT >1000
    TH2F* MHT_JetBin2_HThigh_pred_raw;
 
-   // raw prediction histograms 6-7 jets, HT 500-1000 
+   // 6-7 jets, HT 500-1000 
    TH2F* MHT_JetBin3_HTlow_pred_raw;
-   // raw prediction histograms 6-7 jets, HT >1000
+   // 6-7 jets, HT >1000
    TH2F* MHT_JetBin3_HThigh_pred_raw;
 
-   // raw prediction histograms >=8 jets, HT 500-1000 
+   // >=8 jets, HT 500-1000 
    TH2F* MHT_JetBin4_HTlow_pred_raw;
-   // raw prediction histograms >=8 jets, HT >1000
+   // >=8 jets, HT >1000
    TH2F* MHT_JetBin4_HThigh_pred_raw;
 
-   // raw prediction histograms 2 jets, HT inclusive 
-   TH2F* MHT_JetBin1_HTinclusive_pred_raw;
-  
-   // raw prediction histograms 3-5 jets, HT inclusive
-   TH2F* MHT_JetBin2_HTinclusive_pred_raw;
-  
-   // raw prediction histograms 6-7 jets, HT inclusive 
-   TH2F* MHT_JetBin3_HTinclusive_pred_raw;
- 
-   // raw prediction histograms >=8 jets, HT inclusive
-   TH2F* MHT_JetBin4_HTinclusive_pred_raw;
-  
-   // prediction histograms preselection
+   // ------------------------------------------------------- //
+   // prediction histograms
+   // preselection
    TH1F* HT_presel_pred;
    TH1F* MHT_presel_pred;
    TH1F* NJets_presel_pred;
@@ -241,7 +240,7 @@ private:
    TH1F* DeltaPhi2_presel_pred;
    TH1F* DeltaPhi3_presel_pred;
 
-   // prediction histograms with delta phi
+   // preselection + delta phi
    TH1F* HT_deltaPhi_pred;
    TH1F* MHT_deltaPhi_pred;
    TH1F* Jet1Pt_deltaPhi_pred;
@@ -251,13 +250,17 @@ private:
    TH1F* Jet2Eta_deltaPhi_pred;
    TH1F* Jet3Eta_deltaPhi_pred;
 
-   // prediction histograms baseline 
+   // NJets
    TH1F* NJets_baseline_withoutMHT_pred;
    TH1F* NJets_baseline_pred;
+   TH1F* NJets_baseline_withoutDeltaPhi_withoutMHT_pred;
+   TH1F* NJets_baseline_withoutDeltaPhi_pred;
+
+   // baseline 
    TH1F* HT_baseline_pred;
    TH1F* MHT_baseline_pred;
 
-   // prediction baseline jet bin 1
+   // baseline jet bin 1
    TH1F* Jet1Pt_JetBin1_baseline_pred;
    TH1F* Jet2Pt_JetBin1_baseline_pred;
    TH1F* Jet3Pt_JetBin1_baseline_pred;
@@ -268,7 +271,7 @@ private:
    TH1F* DeltaPhi2_JetBin1_baseline_pred;
    TH1F* DeltaPhi3_JetBin1_baseline_pred;
 
-   // prediction baseline jet bin 2
+   // baseline jet bin 2
    TH1F* Jet1Pt_JetBin2_baseline_pred;
    TH1F* Jet2Pt_JetBin2_baseline_pred;
    TH1F* Jet3Pt_JetBin2_baseline_pred;
@@ -279,7 +282,7 @@ private:
    TH1F* DeltaPhi2_JetBin2_baseline_pred;
    TH1F* DeltaPhi3_JetBin2_baseline_pred;
 
-   // prediction baseline jet bin 3
+   // baseline jet bin 3
    TH1F* Jet1Pt_JetBin3_baseline_pred;
    TH1F* Jet2Pt_JetBin3_baseline_pred;
    TH1F* Jet3Pt_JetBin3_baseline_pred;
@@ -290,7 +293,7 @@ private:
    TH1F* DeltaPhi2_JetBin3_baseline_pred;
    TH1F* DeltaPhi3_JetBin3_baseline_pred;
 
-   // prediction baseline jet bin 4
+   // baseline jet bin 4
    TH1F* Jet1Pt_JetBin4_baseline_pred;
    TH1F* Jet2Pt_JetBin4_baseline_pred;
    TH1F* Jet3Pt_JetBin4_baseline_pred;
@@ -301,11 +304,7 @@ private:
    TH1F* DeltaPhi2_JetBin4_baseline_pred;
    TH1F* DeltaPhi3_JetBin4_baseline_pred;
 
-   // prediction histograms baseline without deltaPhi
-   TH1F* NJets_baseline_withoutDeltaPhi_withoutMHT_pred;
-   TH1F* NJets_baseline_withoutDeltaPhi_pred;
-
-   // baseline jet bin 1
+   // baseline without delta Phi jet bin 1
    TH1F* HT_JetBin1_baseline_withoutDeltaPhi_pred;
    TH1F* MHT_JetBin1_baseline_withoutDeltaPhi_pred;
    TH1F* Jet1Pt_JetBin1_baseline_withoutDeltaPhi_pred;
@@ -318,7 +317,7 @@ private:
    TH1F* DeltaPhi2_JetBin1_baseline_withoutDeltaPhi_pred;
    TH1F* DeltaPhi3_JetBin1_baseline_withoutDeltaPhi_pred;
 
-   // baseline jet bin 2
+   // baseline without delta Phi jet bin 2
    TH1F* HT_JetBin2_baseline_withoutDeltaPhi_pred;
    TH1F* MHT_JetBin2_baseline_withoutDeltaPhi_pred;
    TH1F* Jet1Pt_JetBin2_baseline_withoutDeltaPhi_pred;
@@ -331,7 +330,7 @@ private:
    TH1F* DeltaPhi2_JetBin2_baseline_withoutDeltaPhi_pred;
    TH1F* DeltaPhi3_JetBin2_baseline_withoutDeltaPhi_pred;
 
-   // baseline jet bin 3
+   // baseline without delta Phi jet bin 3
    TH1F* HT_JetBin3_baseline_withoutDeltaPhi_pred;
    TH1F* MHT_JetBin3_baseline_withoutDeltaPhi_pred;
    TH1F* Jet1Pt_JetBin3_baseline_withoutDeltaPhi_pred;
@@ -344,7 +343,7 @@ private:
    TH1F* DeltaPhi2_JetBin3_baseline_withoutDeltaPhi_pred;
    TH1F* DeltaPhi3_JetBin3_baseline_withoutDeltaPhi_pred;
 
-   // baseline jet bin 4
+   // baseline without delta Phi jet bin 4
    TH1F* HT_JetBin4_baseline_withoutDeltaPhi_pred;
    TH1F* MHT_JetBin4_baseline_withoutDeltaPhi_pred;
    TH1F* Jet1Pt_JetBin4_baseline_withoutDeltaPhi_pred;
@@ -357,39 +356,39 @@ private:
    TH1F* DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_pred;
    TH1F* DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_pred;
 
-   //  prediction histograms 2-3 jets, HT 500-1000 
-   TH1F* MHT_JetBin1_HTlow_pred;
-   //  prediction histograms 2-3 jets, HT >1000
-   TH1F* MHT_JetBin1_HThigh_pred;
-
-   //  prediction histograms 4-5 jets, HT 500-1000 
-   TH1F* MHT_JetBin2_HTlow_pred;
-   //  prediction histograms 4-5 jets, HT >1000
-   TH1F* MHT_JetBin2_HThigh_pred;
-
-   //  prediction histograms 6-7 jets, HT 500-1000 
-   TH1F* MHT_JetBin3_HTlow_pred;
-   //  prediction histograms 6-7 jets, HT >1000
-   TH1F* MHT_JetBin3_HThigh_pred;
-
-   //  prediction histograms >=8 jets, HT 500-1000 
-   TH1F* MHT_JetBin4_HTlow_pred;
-   //  prediction histograms >=8 jets, HT >1000
-   TH1F* MHT_JetBin4_HThigh_pred;
-
-   //  prediction histograms 2 jets, HT inclusive 
+   // HT inclusive 2 jets 
    TH1F* MHT_JetBin1_HTinclusive_pred;
-  
-   //  prediction histograms 3-5 jets, HT inclusive
+   // HT inclusive 3-5 jets
    TH1F* MHT_JetBin2_HTinclusive_pred;
-  
-   //  prediction histograms 6-7 jets, HT inclusive 
+   // HT inclusive 6-7 jets 
    TH1F* MHT_JetBin3_HTinclusive_pred;
- 
-   //  prediction histograms >=8 jets, HT inclusive
+   // HT inclusive >=8 jets
    TH1F* MHT_JetBin4_HTinclusive_pred;
 
-   // selection histograms preselection
+   // used for non-closure uncertainty
+   // 2 jets, HT 500-1000 
+   TH1F* MHT_JetBin1_HTlow_pred;
+   // 2 jets, HT >1000
+   TH1F* MHT_JetBin1_HThigh_pred;
+
+   // 3-5 jets, HT 500-1000 
+   TH1F* MHT_JetBin2_HTlow_pred;
+   // 3-5 jets, HT >1000
+   TH1F* MHT_JetBin2_HThigh_pred;
+
+   // 6-7 jets, HT 500-1000 
+   TH1F* MHT_JetBin3_HTlow_pred;
+   // 6-7 jets, HT >1000
+   TH1F* MHT_JetBin3_HThigh_pred;
+
+   // >=8 jets, HT 500-1000 
+   TH1F* MHT_JetBin4_HTlow_pred;
+   // >=8 jets, HT >1000
+   TH1F* MHT_JetBin4_HThigh_pred;
+   // ------------------------------------------------------- //
+
+   // selection histograms 
+   // preselection
    TH1F* HT_presel_sel;
    TH1F* MHT_presel_sel;
    TH1F* NJets_presel_sel;
@@ -403,7 +402,7 @@ private:
    TH1F* DeltaPhi2_presel_sel;
    TH1F* DeltaPhi3_presel_sel;
 
-   // selection histograms with delta phi
+   // preselection + delta phi
    TH1F* HT_deltaPhi_sel;
    TH1F* MHT_deltaPhi_sel;
    TH1F* Jet1Pt_deltaPhi_sel;
@@ -413,13 +412,17 @@ private:
    TH1F* Jet2Eta_deltaPhi_sel;
    TH1F* Jet3Eta_deltaPhi_sel;
 
-   // selection histogram baseline NJets
+   // NJets
    TH1F* NJets_baseline_withoutMHT_sel;
    TH1F* NJets_baseline_sel;
+   TH1F* NJets_baseline_withoutDeltaPhi_withoutMHT_sel;
+   TH1F* NJets_baseline_withoutDeltaPhi_sel;
+
+   // baseline
    TH1F* HT_baseline_sel;
    TH1F* MHT_baseline_sel;
 
-   // selection baseline jet bin 1
+   // baseline jet bin 1
    TH1F* Jet1Pt_JetBin1_baseline_sel;
    TH1F* Jet2Pt_JetBin1_baseline_sel;
    TH1F* Jet3Pt_JetBin1_baseline_sel;
@@ -430,7 +433,7 @@ private:
    TH1F* DeltaPhi2_JetBin1_baseline_sel;
    TH1F* DeltaPhi3_JetBin1_baseline_sel;
 
-   // selection baseline jet bin 2
+   // baseline jet bin 2
    TH1F* Jet1Pt_JetBin2_baseline_sel;
    TH1F* Jet2Pt_JetBin2_baseline_sel;
    TH1F* Jet3Pt_JetBin2_baseline_sel;
@@ -441,7 +444,7 @@ private:
    TH1F* DeltaPhi2_JetBin2_baseline_sel;
    TH1F* DeltaPhi3_JetBin2_baseline_sel;
 
-   // selection baseline jet bin 3
+   // baseline jet bin 3
    TH1F* Jet1Pt_JetBin3_baseline_sel;
    TH1F* Jet2Pt_JetBin3_baseline_sel;
    TH1F* Jet3Pt_JetBin3_baseline_sel;
@@ -452,7 +455,7 @@ private:
    TH1F* DeltaPhi2_JetBin3_baseline_sel;
    TH1F* DeltaPhi3_JetBin3_baseline_sel;
 
-   // selection baseline jet bin 4
+   // baseline jet bin 4
    TH1F* Jet1Pt_JetBin4_baseline_sel;
    TH1F* Jet2Pt_JetBin4_baseline_sel;
    TH1F* Jet3Pt_JetBin4_baseline_sel;
@@ -463,11 +466,7 @@ private:
    TH1F* DeltaPhi2_JetBin4_baseline_sel;
    TH1F* DeltaPhi3_JetBin4_baseline_sel;
 
-   // selection histograms baseline without deltaPhi
-   TH1F* NJets_baseline_withoutDeltaPhi_withoutMHT_sel;
-   TH1F* NJets_baseline_withoutDeltaPhi_sel;
-
-   // baseline jet bin 1
+   // baseline without delta Phi jet bin 1
    TH1F* HT_JetBin1_baseline_withoutDeltaPhi_sel;
    TH1F* MHT_JetBin1_baseline_withoutDeltaPhi_sel;
    TH1F* Jet1Pt_JetBin1_baseline_withoutDeltaPhi_sel;
@@ -480,7 +479,7 @@ private:
    TH1F* DeltaPhi2_JetBin1_baseline_withoutDeltaPhi_sel;
    TH1F* DeltaPhi3_JetBin1_baseline_withoutDeltaPhi_sel;
 
-   // baseline jet bin 2
+   // baseline without delta Phi jet bin 2
    TH1F* HT_JetBin2_baseline_withoutDeltaPhi_sel;
    TH1F* MHT_JetBin2_baseline_withoutDeltaPhi_sel;
    TH1F* Jet1Pt_JetBin2_baseline_withoutDeltaPhi_sel;
@@ -493,7 +492,7 @@ private:
    TH1F* DeltaPhi2_JetBin2_baseline_withoutDeltaPhi_sel;
    TH1F* DeltaPhi3_JetBin2_baseline_withoutDeltaPhi_sel;
 
-   // baseline jet bin 3
+   // baseline without delta Phi jet bin 3
    TH1F* HT_JetBin3_baseline_withoutDeltaPhi_sel;
    TH1F* MHT_JetBin3_baseline_withoutDeltaPhi_sel;
    TH1F* Jet1Pt_JetBin3_baseline_withoutDeltaPhi_sel;
@@ -506,7 +505,7 @@ private:
    TH1F* DeltaPhi2_JetBin3_baseline_withoutDeltaPhi_sel;
    TH1F* DeltaPhi3_JetBin3_baseline_withoutDeltaPhi_sel;
 
-   // baseline jet bin 4
+   // baseline without delta Phi jet bin 4
    TH1F* HT_JetBin4_baseline_withoutDeltaPhi_sel;
    TH1F* MHT_JetBin4_baseline_withoutDeltaPhi_sel;
    TH1F* Jet1Pt_JetBin4_baseline_withoutDeltaPhi_sel;
@@ -519,38 +518,36 @@ private:
    TH1F* DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_sel;
    TH1F* DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_sel;
   
+   // HT inclusive 2 jets 
+   TH1F* MHT_JetBin1_HTinclusive_sel;
+   // HT inclusive 3-5 jets
+   TH1F* MHT_JetBin2_HTinclusive_sel;
+   // HT inclusive 6-7 jets 
+   TH1F* MHT_JetBin3_HTinclusive_sel;
+   // HT inclusive >=8 jets
+   TH1F* MHT_JetBin4_HTinclusive_sel;
 
-   //  selection histograms 2-3 jets, HT 500-1000 
+   // used for non-closure uncertainty
+   // 2 jets, HT 500-1000 
    TH1F* MHT_JetBin1_HTlow_sel;
-   //  selection histograms 2-3 jets, HT >1000
+   // 2 jets, HT >1000
    TH1F* MHT_JetBin1_HThigh_sel;
 
-   //  selection histograms 4-5 jets, HT 500-1000 
+   // 3-5 jets, HT 500-1000 
    TH1F* MHT_JetBin2_HTlow_sel;
-   //  selection histograms 4-5 jets, HT >1000
+   // 3-5 jets, HT >1000
    TH1F* MHT_JetBin2_HThigh_sel;
 
-   //  selection histograms 6-7 jets, HT 500-1000 
+   // 6-7 jets, HT 500-1000 
    TH1F* MHT_JetBin3_HTlow_sel;
-   //  selection histograms 6-7 jets, HT >1000
+   // 6-7 jets, HT >1000
    TH1F* MHT_JetBin3_HThigh_sel;
 
-   //  selection histograms >=8 jets, HT 500-1000 
+   // >=8 jets, HT 500-1000 
    TH1F* MHT_JetBin4_HTlow_sel;
-   //  selection histograms >=8 jets, HT >1000
+   // >=8 jets, HT >1000
    TH1F* MHT_JetBin4_HThigh_sel;
-
-   //  selection histograms 2 jets, HT inclusive 
-   TH1F* MHT_JetBin1_HTinclusive_sel;
-  
-   //  selection histograms 3-5 jets, HT inclusive
-   TH1F* MHT_JetBin2_HTinclusive_sel;
-  
-   //  selection histograms 6-7 jets, HT inclusive 
-   TH1F* MHT_JetBin3_HTinclusive_sel;
- 
-   //  selection histograms >=8 jets, HT inclusive
-   TH1F* MHT_JetBin4_HTinclusive_sel;
+   // ------------------------------------------------------- //
 
    // dummy histo
    TH1F* dummy;

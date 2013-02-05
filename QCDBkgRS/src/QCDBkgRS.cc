@@ -13,7 +13,7 @@
 //
 // Original Author:  Kristin Heine,,,DESY
 //         Created:  Tue Aug  7 15:55:02 CEST 2012
-// $Id: QCDBkgRS.cc,v 1.5 2012/11/13 15:19:26 kheine Exp $
+// $Id: QCDBkgRS.cc,v 1.6 2013/01/08 11:14:22 kheine Exp $
 //
 //
 
@@ -59,6 +59,7 @@ QCDBkgRS::QCDBkgRS(const edm::ParameterSet& iConfig)
    RebalanceCorrectionFile_ = iConfig.getParameter<std::string> ("RebalanceCorrectionFile");
    controlPlots_ = iConfig.getParameter<bool> ("ControlPlots");
    isData_ = iConfig.getParameter<bool> ("IsData");
+   isMadgraph_ = iConfig.getParameter<bool> ("IsMadgraph");
    smearingfile_ = iConfig.getParameter<std::string> ("SmearingFile");
    bprobabilityfile_ = iConfig.getParameter<std::string> ("BProbabilityFile");
    outputfile_ = iConfig.getParameter<std::string> ("OutputFile");
@@ -1288,9 +1289,9 @@ void QCDBkgRS::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         h_RebJetRes_Eta->Fill(it->eta(), matchedJet->pt() / it->pt(), weight_);
 
                      // get correction factor for rebalancing vs. reco jet pt
-                     if(dRmin_reco < 0.15) {
+                     if(dRmin_reco < 0.15) {       
                         h_RebCorrection_vsReco->Fill(matchedJet_reco->pt(), matchedJet->pt() / it->pt(), weight_);
-                     }                    
+                     } 
                   }
                }
             }
@@ -1622,7 +1623,9 @@ void QCDBkgRS::beginJob()
 
    //// get rebalance correction histo
    TFile *f_rebCorr = new TFile(RebalanceCorrectionFile_.c_str(), "READ", "", 0);
-   h_RebCorrectionFactor = (TH1F*) f_rebCorr->FindObjectAny("RebCorrection_vsReco_px"); 
+   if( !isMadgraph_ )
+      h_RebCorrectionFactor = (TH1F*) f_rebCorr->FindObjectAny("RebCorrection_vsReco_px"); 
+   else h_RebCorrectionFactor = (TH1F*) f_rebCorr->FindObjectAny("RebCorrection_vsReco_madgraph_px"); 
 
    // define output tree 
    PredictionTree = fs->make<TTree> ("QCDPrediction", "QCDPrediction", 0);
