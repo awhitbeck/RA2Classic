@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "TH1D.h"
+#include "TH2D.h"
 #include "TPad.h"
 #include "TStyle.h"
 
@@ -56,24 +57,56 @@ void PlotBuilder::run(const TString &key) const {
   for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
       it != attrList.end(); ++it) {
     if( it->hasName("variable") && it->hasName("histogram") ) {
-      // General features
-      TString variable = it->value("variable");
-      if( !Variable::exists(variable) ) {
-	std::cerr << "\n\nERROR in PlotBuilder::run(): variable '" << variable << "' does not exist" << std::endl;
+      // Parse variables and plot type
+      TString plotType = "1D";
+      std::vector<TString> variables;
+      if( it->value("variable").Contains(" vs ") ) {
+	Config::split(it->value("variable")," vs ",variables);
+	plotType = "2D";
+      } else {
+	variables.push_back(it->value("variable"));
+      }
+      for(std::vector<TString>::const_iterator itv = variables.begin();
+	  itv != variables.end(); ++itv) {
+	if( !Variable::exists(*itv) ) {
+	  std::cerr << "\n\nERROR in PlotBuilder::run(): variable '" << *itv << "' does not exist" << std::endl;
+	  exit(-1);
+	}
+      }
+      if( variables.size() > 2 ) {
+	std::cerr << "\n\nERROR in PlotBuilder::run(): no plot type supports more than two variables" << std::endl;
 	exit(-1);
       }
       HistParams histParams(it->value("histogram"));
       
       // +++ Plot type: Sinlge spectrum for all selections
       if( it->hasName("dataset") ) {
-	TString dataSetLabel = it->value("dataset");
- 	if( !DataSet::labelExists(dataSetLabel) ) {
- 	  std::cerr << "\n\nERROR in PlotBuilder::run(): dataset '" << dataSetLabel << "' does not exist" << std::endl;
- 	  exit(-1);
- 	}
+	std::vector<TString> dataSetLabels;
+	Config::split(it->value("dataset"),"+",dataSetLabels); // Possibly stacked dataset
+	for(std::vector<TString>::const_iterator itd = dataSetLabels.begin();
+	    itd != dataSetLabels.end(); ++itd) {
+ 	  if( !DataSet::labelExists(*itd) ) {
+ 	    std::cerr << "\n\nERROR in PlotBuilder::run(): dataset '" << *itd << "' does not exist" << std::endl;
+ 	    exit(-1);
+ 	  }
+	}
+	// For each selection, find the datasets to be compared
 	for(SelectionIt its = Selection::begin();
 	    its != Selection::end(); ++its) {
-	  plotSpectrum(variable,DataSet::find(dataSetLabel,*its),histParams);
+	  DataSets dataSets;
+	  for(std::vector<TString>::const_iterator itd = dataSetLabels.begin();
+	      itd != dataSetLabels.end(); ++itd) {
+	    dataSets.push_back(DataSet::find(*itd,*its));
+	  }
+	  if( plotType == "1D" ) {
+	    if( dataSets.size() == 1 ) {
+	      plotSpectrum(variables.front(),dataSets.front(),histParams);
+	    } else {
+	      plotSpectra(variables.front(),dataSets,histParams);
+	    }
+	  } else if( plotType == "2D" ) {
+	    plotSpectrum2D(variables.at(1),variables.at(0),dataSets.front(),histParams);
+	  }
 	}
       }
       // +++ Plot type: Comparison of several datasets (normalised histograms) for all selections
@@ -95,7 +128,7 @@ void PlotBuilder::run(const TString &key) const {
 	      itd != dataSetLabels.end(); ++itd) {
 	    dataSets.push_back(DataSet::find(*itd,*its));
 	  }
-	  plotSpectra(variable,dataSets,histParams);
+	  plotComparisonOfNormedSpectra(variables.front(),dataSets,histParams);
 	}
       }
       // +++ Plot type: Comparison of two (stacked) datasets for all selections
@@ -132,7 +165,7 @@ void PlotBuilder::run(const TString &key) const {
 	      itd != dataSetLabels2.end(); ++itd) {
 	    dataSets2.push_back(DataSet::find(*itd,*its));
 	  }
-	  plotComparisonOfSpectra(variable,dataSets1,dataSets2,histParams);
+	  plotComparisonOfSpectra(variables.front(),dataSets1,dataSets2,histParams);
 	}
 
       }
@@ -149,7 +182,7 @@ void PlotBuilder::run(const TString &key) const {
 void PlotBuilder::plotSpectrum(const TString &var, const DataSet *dataSet, const HistParams &histParams) const {
   TH1* h = 0;
   TGraphAsymmErrors* u = 0;
-  createDistribution(dataSet,var,h,u,histParams);
+  createDistribution1D(dataSet,var,h,u,histParams);
 
   // Under-/Overflow warning
   checkForUnderOverFlow(h,var,dataSet);
@@ -179,11 +212,11 @@ void PlotBuilder::plotSpectrum(const TString &var, const DataSet *dataSet, const
       u->Draw("E2same");
     }
   }
-  TString info = dataSet->selectionUid()+",  "+dataSetLabelInPlot(dataSet)+" (";
-  info += static_cast<int>(h->Integral(1,h->GetNbinsX()));
-  info += ")";
+  char info[200];
+  sprintf(info,"%s, %s (%.1f)",dataSet->selectionUid().Data(),dataSetLabelInPlot(dataSet).Data(),h->Integral(1,h->GetNbinsX()));
   TPaveText* title = header(true,info);
   title->Draw("same");
+  if( histParams.logx() ) can->SetLogx();
   if( histParams.logy() ) can->SetLogy();
   gPad->RedrawAxis();
   storeCanvas(can,var,dataSet);
@@ -195,7 +228,85 @@ void PlotBuilder::plotSpectrum(const TString &var, const DataSet *dataSet, const
 }
 
 
-void PlotBuilder::plotSpectra(const TString &var, const DataSets &dataSets, const HistParams &histParams) const {
+void PlotBuilder::plotSpectrum2D(const TString &var1, const TString &var2, const DataSet *dataSet, const HistParams &histParams) const {
+  TH2* h = 0;
+  createDistribution2D(dataSet,var1,var2,h,histParams);
+
+  TCanvas *can = new TCanvas("can","",canSize_,canSize_);
+  can->SetRightMargin(can->GetRightMargin()+0.06);
+  can->SetBottomMargin(can->GetBottomMargin()+0.03);
+  can->SetTopMargin(can->GetTopMargin()+0.03);
+  //can->SetWindowSize(canSize_+(canSize_-can->GetWw()),canSize_+(canSize_-can->GetWh()));
+  h->Draw("COLZ");
+  char info[200];
+  sprintf(info,"%s, %s (%.1f)",dataSet->selectionUid().Data(),dataSetLabelInPlot(dataSet).Data(),h->Integral(1,h->GetNbinsX()));
+  TPaveText* title = header(true,info);
+  title->Draw("same");
+  if( histParams.logx() ) can->SetLogx();
+  if( histParams.logy() ) can->SetLogy();
+  if( histParams.logz() ) can->SetLogz();
+  gPad->RedrawAxis();
+  storeCanvas(can,var1+"vs"+var2,dataSet);
+
+  delete title;
+  delete h;
+  delete can;
+}
+
+
+// void PlotBuilder::plotRatioSpectrum(const TString &var1, const TString &var2, const DataSet *dataSet, const HistParams &histParams) const {
+//   TH1* h = 0;
+//   TGraphAsymmErrors* u = 0;
+//   createDistributionRatio(dataSet,var1,var2,h,u,histParams);
+
+//   // Under-/Overflow warning
+//   checkForUnderOverFlow(h,var,dataSet);
+
+//   TCanvas *can = new TCanvas("can","",canSize_,canSize_);
+//   //can->SetWindowSize(canSize_+(canSize_-can->GetWw()),canSize_+(canSize_-can->GetWh()));
+//   if( dataSet->type() == DataSet::Data ) {
+//     h->Draw("PE");
+//     if( u ) {
+//       u->Draw("E2same");
+//       h->Draw("PEsame");
+//     }
+//   } else if( dataSet->type() == DataSet::Prediction ) {
+//     h->SetLineColor(kBlack);
+//     h->SetLineStyle(1);
+//     h->SetLineWidth(1);
+//     h->Draw("HISTE");
+//     if( u ) {
+//       u->Draw("E2same");
+//     }
+//   } else {
+//     h->SetLineColor(kBlack);
+//     h->SetLineStyle(1);
+//     h->SetLineWidth(1);
+//     h->Draw("HIST");
+//     if( u ) {
+//       u->Draw("E2same");
+//     }
+//   }
+//   char info[200];
+//   sprintf(info,"%s, %s (%.1f)",dataSet->selectionUid().Data(),dataSetLabelInPlot(dataSet).Data(),h->Integral(1,h->GetNbinsX()));
+// //   TString info = dataSet->selectionUid()+",  "+dataSetLabelInPlot(dataSet)+" (";
+// //   info += static_cast<int>(h->Integral(1,h->GetNbinsX()));
+// //   info += ")";
+//   TPaveText* title = header(true,info);
+//   title->Draw("same");
+//   if( histParams.logx() ) can->SetLogx();
+//   if( histParams.logy() ) can->SetLogy();
+//   gPad->RedrawAxis();
+//   storeCanvas(can,var,dataSet);
+
+//   delete title;
+//   delete h;
+//   if( u ) delete u;
+//   delete can;
+// }
+
+
+void PlotBuilder::plotComparisonOfNormedSpectra(const TString &var, const DataSets &dataSets, const HistParams &histParams) const {
   std::vector<TH1*> hists;
   TLegend* leg = legend(dataSets.size());
   // Loop over datasets and create distributions
@@ -203,7 +314,7 @@ void PlotBuilder::plotSpectra(const TString &var, const DataSets &dataSets, cons
       itd != dataSets.end(); ++itd) {
     TH1* h = 0;
     TGraphAsymmErrors* u = 0;
-    createDistribution(*itd,var,h,u,histParams);
+    createDistribution1D(*itd,var,h,u,histParams);
     if( u ) delete u;
     if( histParams.norm() && h->Integral() ) {
       h->Scale(1./h->Integral("width"));
@@ -239,6 +350,7 @@ void PlotBuilder::plotSpectra(const TString &var, const DataSets &dataSets, cons
   title->Draw("same");
   leg->Draw("same");
   gPad->RedrawAxis();
+  if( histParams.logx() ) can->SetLogx();
   if( histParams.logy() ) can->SetLogy();
   storeCanvas(can,var,dataSets.front()->selectionUid());
   
@@ -252,15 +364,60 @@ void PlotBuilder::plotSpectra(const TString &var, const DataSets &dataSets, cons
 }
 
 
+// Plot stacked datasets
+void PlotBuilder::plotSpectra(const TString &var, const DataSets &dataSets, const HistParams &histParams) const {
+  std::vector<TH1*> hists;
+  std::vector<TString> legEntries;
+  TGraphAsymmErrors* unc = 0;
+  createStack1D(dataSets,var,hists,legEntries,unc,histParams);
+
+  TLegend* leg = legend(hists.size());
+  std::vector<TString>::const_iterator itL = legEntries.begin();
+  for(std::vector<TH1*>::iterator itH = hists.begin();
+      itH != hists.end(); ++itH,++itL) {
+    leg->AddEntry(*itH,*itL,"F");
+  }
+  TPaveText* title = header(true,dataSets.front()->selectionUid());
+
+  // Draw
+  TCanvas* can = new TCanvas("can","",canSize_,canSize_);
+  can->cd();
+  setYRange(hists.front(),histParams.logy()?3E-1:-1.);
+  hists.front()->Draw("HISTE");
+  for(std::vector<TH1*>::iterator it = hists.begin()+1;
+      it != hists.end(); ++it) {
+    (*it)->Draw("HISTsame");
+  }
+  // Plot uncertainty band
+  if( unc ) unc->Draw("E2same");
+  title->Draw("same");
+  leg->Draw("same");
+  gPad->RedrawAxis();
+  if( histParams.logx() ) can->SetLogx();
+  if( histParams.logy() ) can->SetLogy();
+  storeCanvas(can,var,dataSets);
+
+  for(std::vector<TH1*>::iterator it = hists.begin();
+      it != hists.end(); ++it) {
+    delete *it;
+  }
+  if( unc ) delete unc;
+  delete leg;
+  delete title;
+  delete can;
+}
+
+
+
 void PlotBuilder::plotComparisonOfSpectra(const TString &var, const DataSets &dataSets1, const DataSets &dataSets2, const HistParams &histParams) const {
   std::vector<TH1*> hists1;
   std::vector<TString> legEntries1;
   TGraphAsymmErrors* unc1 = 0;
-  createStack(dataSets1,var,hists1,legEntries1,unc1,histParams);
+  createStack1D(dataSets1,var,hists1,legEntries1,unc1,histParams);
   std::vector<TH1*> hists2;
   std::vector<TString> legEntries2;
   TGraphAsymmErrors* unc2 = 0;
-  createStack(dataSets2,var,hists2,legEntries2,unc2,histParams);
+  createStack1D(dataSets2,var,hists2,legEntries2,unc2,histParams);
 
   TCanvas* can = new TCanvas("can","",canSize_,canSize_);
   can->SetBottomMargin(0.2 + 0.8*can->GetBottomMargin()-0.2*can->GetTopMargin());
@@ -427,6 +584,7 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const DataSets &da
   title->Draw("same");
   leg->Draw("same");
   gPad->RedrawAxis();
+  if( histParams.logx() ) can->SetLogx();
   if( histParams.logy() ) can->SetLogy();
   storeCanvas(can,var,dataSets1,dataSets2);
 
@@ -452,13 +610,13 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const DataSets &da
 // Fill distribution of variable 'var' for dataSet with label 'dataSetLabel'
 // and an uncertainty band 'uncert'. 
 // ----------------------------------------------------------------------------
-void PlotBuilder::createDistribution(const DataSet *dataSet, const TString &var, TH1* &h, TGraphAsymmErrors* &uncert, const HistParams &histParams) const {
+void PlotBuilder::createDistribution1D(const DataSet *dataSet, const TString &var, TH1* &h, TGraphAsymmErrors* &uncert, const HistParams &histParams) const {
   ++PlotBuilder::count_;
   
   // Create histogram  
   TString name = "plot";
   name += count_;
-  h = new TH1D(name,"",histParams.nBins(),histParams.xMin(),histParams.xMax());
+  h = new TH1D(name,"",histParams.nBinsX(),histParams.xMin(),histParams.xMax());
   h->Sumw2();
   if( histParams.xMax() > 1000. ) {
     h->GetXaxis()->SetNdivisions(505);
@@ -555,13 +713,148 @@ void PlotBuilder::createDistribution(const DataSet *dataSet, const TString &var,
 }
 
 
-void PlotBuilder::createStack(const DataSets &dataSets, const TString &var, std::vector<TH1*> &hists, std::vector<TString> &legEntries, TGraphAsymmErrors* &uncert, const HistParams &histParams) const {
+// Fill distribution of variable 'var2' vs 'var1' for dataSet with label
+// 'dataSetLabel'.
+// ----------------------------------------------------------------------------
+void PlotBuilder::createDistribution2D(const DataSet *dataSet, const TString &var1, const TString &var2, TH2* &h, const HistParams &histParams) const {
+  ++PlotBuilder::count_;
+  
+  // Create histogram  
+  TString name = "plot";
+  name += count_;
+  h = new TH2D(name,"",histParams.nBinsX(),histParams.xMin(),histParams.xMax(),histParams.nBinsY(),histParams.yMin(),histParams.yMax());
+  h->Sumw2();
+  if( histParams.xMax() > 1000. ) {
+    h->GetXaxis()->SetNdivisions(505);
+  }
+  if( histParams.yMax() > 1000. ) {
+    h->GetYaxis()->SetNdivisions(505);
+  }
+  setXTitle(h,var1);
+  setYTitle(h,var2);
+
+  // Fill distribution
+  for(EventIt itd = dataSet->evtsBegin(); itd != dataSet->evtsEnd(); ++itd) {
+    h->Fill((*itd)->get(var1),(*itd)->get(var2),(*itd)->weight());
+  }
+}
+
+
+// Fill distribution of 'var1'/'var2' for dataSet with label 'dataSetLabel'
+// and an uncertainty band 'uncert'. 
+// ----------------------------------------------------------------------------
+void PlotBuilder::createDistributionRatio(const DataSet *dataSet, const TString &var1, const TString &var2, TH1* &h, TGraphAsymmErrors* &uncert, const HistParams &histParams) const {
+  ++PlotBuilder::count_;
+  
+  // Create histogram  
+  TString name = "plot";
+  name += count_;
+  h = new TH1D(name,"",histParams.nBinsX(),histParams.xMin(),histParams.xMax());
+  h->Sumw2();
+  if( histParams.xMax() > 1000. ) {
+    h->GetXaxis()->SetNdivisions(505);
+  }
+  setXTitle(h,var1,var2);
+  setYTitle(h,"");
+  setGenericStyle(h,dataSet);
+
+  // Create temporary histograms to store uncertainties
+  TH1* hUw = static_cast<TH1*>(h->Clone(name+"Er"));
+  TH1* hDn = static_cast<TH1*>(h->Clone(name+"Dn"));
+  TH1* hUp = static_cast<TH1*>(h->Clone(name+"Up"));
+
+  // Fill distributions
+  for(EventIt itd = dataSet->evtsBegin(); itd != dataSet->evtsEnd(); ++itd) {
+    double v1 = (*itd)->get(var1);
+    double v2 = (*itd)->get(var2);
+    if( v2 > 0. ) v1 /= v2;
+    h->Fill(v1,(*itd)->weight());
+    hUw->Fill(v1);
+    if( (*itd)->hasUnc() ) {
+      hDn->Fill(v1,(*itd)->weightUncDn());
+      hUp->Fill(v1,(*itd)->weightUncUp());
+    }
+  }
+
+  // Fill overflow bin
+  if( histParams.hasOverflowBin() ) {
+    double val = h->GetBinContent(h->GetNbinsX()) + h->GetBinContent(h->GetNbinsX()+1);
+    double err = sqrt( h->GetBinError(h->GetNbinsX())*h->GetBinError(h->GetNbinsX()) + h->GetBinError(h->GetNbinsX()+1)*h->GetBinError(h->GetNbinsX()+1) );
+    h->SetBinContent(h->GetNbinsX(),val);
+    h->SetBinError(h->GetNbinsX(),err);
+
+    val = hUw->GetBinContent(hUw->GetNbinsX()) + hUw->GetBinContent(hUw->GetNbinsX()+1);
+    err = sqrt( hUw->GetBinError(hUw->GetNbinsX())*hUw->GetBinError(hUw->GetNbinsX()) + hUw->GetBinError(hUw->GetNbinsX()+1)*hUw->GetBinError(hUw->GetNbinsX()+1) );
+    hUw->SetBinContent(hUw->GetNbinsX(),val);
+    hUw->SetBinError(hUw->GetNbinsX(),err);
+
+    if( hDn->GetEntries() ) {
+      val = hDn->GetBinContent(hDn->GetNbinsX()) + hDn->GetBinContent(hDn->GetNbinsX()+1);
+      err = sqrt( hDn->GetBinError(hDn->GetNbinsX())*hDn->GetBinError(hDn->GetNbinsX()) + hDn->GetBinError(hDn->GetNbinsX()+1)*hDn->GetBinError(hDn->GetNbinsX()+1) );
+      hDn->SetBinContent(hDn->GetNbinsX(),val);
+      hDn->SetBinError(hDn->GetNbinsX(),err);
+    }
+    if( hUp->GetEntries() ) {
+      val = hUp->GetBinContent(hUp->GetNbinsX()) + hUp->GetBinContent(hUp->GetNbinsX()+1);
+      err = sqrt( hUp->GetBinError(hUp->GetNbinsX())*hUp->GetBinError(hUp->GetNbinsX()) + hUp->GetBinError(hUp->GetNbinsX()+1)*hUp->GetBinError(hUp->GetNbinsX()+1) );
+      hUp->SetBinContent(hUp->GetNbinsX(),val);
+      hUp->SetBinError(hUp->GetNbinsX(),err);
+    }
+  }
+
+  // Set error bars (reflect statistical uncertainties)
+  // Several cases are distinguished depending on the type of data
+  // - 'Data'       : expect unweighted histogram, leave as it is
+  // - 'MC'         : sqrt(number of entries) = MC statistics
+  // - 'Prediction' : sqrt(number of entries) = control sample statistics
+  // See also DataSet::computeYield()
+  if( dataSet->type() == DataSet::MC || dataSet->type() == DataSet::Prediction ) {
+    for(int bin = 1; bin <= h->GetNbinsX(); ++bin) {
+      if( hUw->GetBinContent(bin) > 0. ) {
+	double scale = h->GetBinContent(bin)/hUw->GetBinContent(bin);
+	h->SetBinError(bin,scale*hUw->GetBinError(bin));
+      }
+    }
+  }
+
+  // Create uncertainty band
+  if( hDn->GetEntries() && hUp->GetEntries() ) {
+    std::vector<double> x(h->GetNbinsX());
+    std::vector<double> xe(h->GetNbinsX());
+    std::vector<double> y(h->GetNbinsX());
+    std::vector<double> yed(h->GetNbinsX());
+    std::vector<double> yeu(h->GetNbinsX());
+    for(unsigned int i = 0; i < x.size(); ++i) {
+      int bin = i+1;
+      x.at(i) = h->GetBinCenter(bin);
+      xe.at(i) = h->GetBinWidth(bin)/2.;
+      y.at(i) = h->GetBinContent(bin);
+      yed.at(i) = std::abs(h->GetBinContent(bin)-hDn->GetBinContent(bin));
+      yeu.at(i) = std::abs(h->GetBinContent(bin)-hUp->GetBinContent(bin));
+    }
+    uncert = new TGraphAsymmErrors(x.size(),&(x.front()),&(y.front()),&(xe.front()),&(xe.front()),&(yed.front()),&(yeu.front()));
+    uncert->SetMarkerStyle(1);
+    uncert->SetMarkerColor(kBlue+2);
+    uncert->SetFillColor(uncert->GetMarkerColor());
+    uncert->SetLineColor(uncert->GetMarkerColor());
+    uncert->SetFillStyle(3004);
+  }
+
+  // Delete temporary hists
+  delete hUw;
+  delete hDn;
+  delete hUp;
+}
+
+
+
+void PlotBuilder::createStack1D(const DataSets &dataSets, const TString &var, std::vector<TH1*> &hists, std::vector<TString> &legEntries, TGraphAsymmErrors* &uncert, const HistParams &histParams) const {
   uncert = 0;
   for(DataSetRIt itd = dataSets.rbegin();
       itd != dataSets.rend(); ++itd) {
     TH1* h = 0;
     TGraphAsymmErrors* u = 0;
-    createDistribution(*itd,var,h,u,histParams);
+    createDistribution1D(*itd,var,h,u,histParams);
     if( u ) {
       if( uncert ) {		// Add uncertainties in quadrature
 	for(unsigned int i = 0; i < uncert->GetN(); ++i) {
@@ -580,9 +873,11 @@ void PlotBuilder::createStack(const DataSets &dataSets, const TString &var, std:
       }
     }
     setGenericStyle(h,*itd);
-    TString entry = " "+dataSetLabelInPlot(*itd)+" (";
-    entry += static_cast<int>(h->Integral(1,h->GetNbinsX()));
-    entry += +")";
+    char entry[50];
+    sprintf(entry," %s (%.1f)",dataSetLabelInPlot(*itd).Data(),h->Integral(1,h->GetNbinsX()));
+//     TString entry = " "+dataSetLabelInPlot(*itd)+" (";
+//     entry += static_cast<int>(h->Integral(1,h->GetNbinsX()));
+//     entry += +")";
     legEntries.push_back(entry);
     
     // Add histogram to all previous histograms
@@ -602,6 +897,14 @@ void PlotBuilder::storeCanvas(TCanvas* can, const TString &var, const DataSet* d
 
 void PlotBuilder::storeCanvas(TCanvas* can, const TString &var, const TString &selection) const {
     out_.addPlot(can,var,selection);
+  }
+
+void PlotBuilder::storeCanvas(TCanvas* can, const TString &var, const DataSets &dataSets) const {
+    std::vector<TString> dataSetLabels;
+    for(DataSetIt itd = dataSets.begin(); itd != dataSets.end(); ++itd) {
+      dataSetLabels.push_back((*itd)->label());
+    }
+    out_.addPlot(can,var,dataSetLabels,dataSets.front()->selectionUid());
   }
 
 void PlotBuilder::storeCanvas(TCanvas* can, const TString &var, const DataSets &dataSets1, const DataSets &dataSets2) const {
@@ -625,19 +928,41 @@ void PlotBuilder::setXTitle(TH1* h, const TString &var) const {
   h->GetXaxis()->SetTitle(xTitle);
 }
 
+void PlotBuilder::setXTitle(TH1* h, const TString &var1, const TString &var2) const {
+  TString xTitle = Variable::label(var1) + " / " + Variable::label(var2);
+  if( Variable::unit(var1) != "" || Variable::unit(var2) != "" ) {
+    if( Variable::unit(var1) != "" ) {
+      xTitle += " ["+Variable::unit(var1)+"]";
+    } else {
+      xTitle += " 1";
+    }
+    if( Variable::unit(var2) != "" ) {
+      xTitle += " / ["+Variable::unit(var2)+"]";
+    }
+  }
+  h->GetXaxis()->SetTitle(xTitle);
+}
 
 void PlotBuilder::setYTitle(TH1* h, const TString &var) const {
-  TString yTitle = Variable::label("Events");
-  if( h->GetBinWidth(1) != 1. || Variable::unit(var) != "" ) {
-    yTitle += " / ";
-    if( h->GetBinWidth(1) != 1. ) {
-      TString bw = "";
-      bw += h->GetBinWidth(1);
-      if( bw.Contains(".") && bw.Length() > 5 ) bw = bw(0,5);
-      yTitle += bw;
-    }
+  TString yTitle = "Events";
+  TString className = h->ClassName();
+  if( className.Contains("TH2") ) {
+    yTitle = Variable::label(var);
     if( Variable::unit(var) != "" ) {
-      yTitle += " "+Variable::unit(var);
+      yTitle += " ["+Variable::unit(var)+"]";
+    }
+  } else {
+    if( h->GetBinWidth(1) != 1. || Variable::unit(var) != "" ) {
+      yTitle += " / ";
+      if( h->GetBinWidth(1) != 1. ) {
+	TString bw = "";
+	bw += h->GetBinWidth(1);
+	if( bw.Contains(".") && bw.Length() > 5 ) bw = bw(0,5);
+	yTitle += bw;
+      }
+      if( Variable::unit(var) != "" ) {
+	yTitle += " "+Variable::unit(var);
+      }
     }
   }
   h->GetYaxis()->SetTitle(yTitle);
@@ -793,22 +1118,51 @@ bool PlotBuilder::checkForUnderOverFlow(const TH1* h, const TString &var, const 
 
 
 PlotBuilder::HistParams::HistParams(const TString &cfg)
-  : nBins_(1), xMin_(0), xMax_(1), logy_(false), norm_(false), hasOverflowBin_(true) {
+  : nBinsX_(1), xMin_(0), xMax_(1), nBinsY_(0), yMin_(0), yMax_(1), logx_(false), logy_(false), logz_(false), norm_(false), hasOverflowBin_(true) {
 
   // Parse to overwrite defaults
   std::vector<TString> cfgs;
   if( Config::split(cfg,",",cfgs) ) {
-    for(unsigned int i = 0; i < cfgs.size(); ++i) {
-      if( i == 0 ) nBins_ = cfgs.at(i).Atoi();
+    // First, find number of binning commands
+    unsigned int nBinCfgs = 0;
+    for(; nBinCfgs < cfgs.size(); ++nBinCfgs) { 
+      if( !cfgs.at(nBinCfgs).IsFloat() ) {
+	nBinCfgs - 1;
+	break;
+      }
+    }
+    std::cout << "nBinCfgs = " << nBinCfgs << std::endl;
+    // Then, parse binning
+    for(unsigned int i = 0; i < nBinCfgs; ++i) {
+      if( i == 0 ) nBinsX_ = cfgs.at(i).Atoi();
       else if( i == 1 ) xMin_ = cfgs.at(i).Atof();
       else if( i == 2 ) xMax_ = cfgs.at(i).Atof();
-      else if( i > 2 && cfgs.at(i) == "log" ) logy_ = true;
-      else if( i > 2 && cfgs.at(i) == "norm" ) norm_ = true;
+      if( nBinCfgs == 5 ) {
+	if( i == 3 ) yMin_ = cfgs.at(i).Atoi();
+	else if( i == 4 ) yMax_ = cfgs.at(i).Atof();
+      } else if( nBinCfgs > 5 ) {
+	if( i == 3 ) nBinsY_ = cfgs.at(i).Atoi();
+	else if( i == 4 ) yMin_ = cfgs.at(i).Atof();
+	else if( i == 5 ) yMax_ = cfgs.at(i).Atof();
+      }
+    }
+    // Then, parse style commands
+    for(unsigned int i = nBinCfgs; i < cfgs.size(); ++i) {
+      if( cfgs.at(i) == "logx" ) logx_ = true;
+      else if( cfgs.at(i) == "logy" ) logy_ = true;
+      else if( cfgs.at(i) == "logz" ) logz_ = true;
+      else if( cfgs.at(i) == "norm" ) norm_ = true;
+      else if( cfgs.at(i) == "log" ) {
+	if( nBinCfgs > 5 ) logz_ = true;
+	else logy_ = true;
+      }
     }
   }
 
+  std::cout << "nBinsX_ = " << nBinsX_ << std::endl;
+  std::cout << "nBinsY_ = " << nBinsY_ << std::endl;
   // Overflow bin
-  double binWidth = (xMax_-xMin_)/nBins_;
+  double binWidth = (xMax_-xMin_)/nBinsX_;
   xMax_ += binWidth;
-  nBins_ += 1;
+  nBinsX_ += 1;
 }
