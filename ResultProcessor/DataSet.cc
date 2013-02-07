@@ -232,6 +232,11 @@ void DataSet::clear() {
 
 DataSet::DataSet(Type type, const TString &label, const TString &selectionUid, const TString &fileName, const TString &treeName, const TString &weight, const std::vector<TString> &uncDn, const std::vector<TString> &uncUp, const std::vector<TString> &uncLabel, double scale)
   : hasMother_(false), type_(type), label_(label), selectionUid_(selectionUid) {
+  if( GlobalParameters::debug() ) {
+    std::cout << "DEBUG: Entering DataSet::DataSet()" << std::endl;
+    std::cout << "       Creating DataSet '" << label << "' for selection '" << selectionUid << "'" << std::endl;
+  }
+
   if( uidExists(uid()) ) {
     std::cerr << "\n\nERROR in DataSet::DataSet(): a dataset with label '" << label << "' and selection '" << selectionUid << "' already exists." << std::endl;
     exit(-1);
@@ -251,6 +256,10 @@ DataSet::DataSet(Type type, const TString &label, const TString &selectionUid, c
 
   // Compute yield and uncertainties
   computeYield();
+
+  if( GlobalParameters::debug() ) {
+    std::cout << "DEBUG: Leaving DataSet::DataSet()" << std::endl;
+  }
 }
 
 
@@ -292,6 +301,11 @@ DataSet::~DataSet() {
 // Compute yield (weighted number of events)
 // and uncertainties
 void DataSet::computeYield() {
+  if( GlobalParameters::debug() ) {
+    std::cout << "DEBUG: Entering DataSet::computeYield()" << std::endl;
+    std::cout << "       Computing yields and uncertainties for '" << uid() << "'" << std::endl;
+  }
+
   // Set all uncertainty variables to zero
   yield_  = 0.;
   stat_   = 0.;
@@ -321,7 +335,7 @@ void DataSet::computeYield() {
   }
 
   // Set systematic uncertainty
-  if( evts_.front()->hasUnc() ) {
+  if( evts_.size() > 0 && evts_.front()->hasUnc() ) {
     hasSyst_ = true;
     totSystDn_ = yield_-totSystDn_;
     totSystUp_ = totSystUp_-yield_;
@@ -341,10 +355,15 @@ void DataSet::computeYield() {
   // - 'Prediction' : sqrt(number of entries) = control sample statistics
   // See also PlotBuilder::createDistribution
   if( type() == MC || type() == Prediction ) {
-    double scale = yield_/size();
+    double scale = yield_;
+    if( size() > 0 ) scale /= size();
     stat_ = scale * sqrt(1.*size());
   } else {
     stat_ = sqrt(yield_);
+  }
+
+  if( GlobalParameters::debug() ) {
+    std::cout << "DEBUG: Leaving DataSet::computeYield()" << std::endl;
   }
 }
 

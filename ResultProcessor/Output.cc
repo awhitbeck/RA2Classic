@@ -50,6 +50,37 @@ void Output::addPlot(TCanvas* can, const TString &var, const TString &dataSetLab
   storeCanvas(can,selection,plotName);
 }
 
+void Output::addPlot(TCanvas* can, const TString &var, const std::vector<TString> &dataSetLabels, const TString &selection) {
+  TString label = dataSetLabels.front();
+  for(std::vector<TString>::const_iterator it = dataSetLabels.begin()+1;
+      it != dataSetLabels.end(); ++it) {
+    label += "+"+*it;
+  }
+  TString dsLabel  = cleanName(label);
+  TString plotName = cleanName(GlobalParameters::analysisId()+"__"+var+"__"+dsLabel+"__"+selection);
+
+  std::map< TString, std::map< TString, std::vector<TString> > >::iterator itVar = plotsStack_.find(var);
+  if( itVar != plotsStack_.end() ) {
+    std::map< TString, std::vector<TString> >::iterator itDS = itVar->second.find(dsLabel);
+    if( itDS != itVar->second.end() ) {
+      itDS->second.push_back(plotName);
+    } else {
+      std::vector<TString> v;
+      v.push_back(plotName);
+      itVar->second[dsLabel] = v;
+    }
+  } else {
+    std::vector<TString> v;
+    v.push_back(plotName);
+    std::map< TString, std::vector<TString> > m;
+    m[dsLabel] = v;
+    plotsStack_[var] = m;
+  }
+
+  storeCanvas(can,selection,plotName);
+}
+
+
 void Output::addPlot(TCanvas* can, const TString &var, const std::vector<TString> &dataSetLabels1, const std::vector<TString> &dataSetLabels2, const TString &selection) {
   TString label1 = dataSetLabels1.front();
   for(std::vector<TString>::const_iterator it = dataSetLabels1.begin()+1;
@@ -143,6 +174,7 @@ TString Output::dir(const TString &selection) {
 TString Output::cleanName(const TString &name) {
   TString cleanedName = name;
   cleanedName.ReplaceAll(">","gtr");
+  cleanedName.ReplaceAll("<","lss");
   cleanedName.ReplaceAll(" ","_");
   cleanedName.ReplaceAll(":","-");
   cleanedName.ReplaceAll("_{","");

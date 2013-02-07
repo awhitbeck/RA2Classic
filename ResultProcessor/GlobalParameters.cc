@@ -5,6 +5,7 @@
 #include "GlobalParameters.h"
 
 
+bool GlobalParameters::debug_ = false;
 TString GlobalParameters::lumi_ = "";
 TString GlobalParameters::id_ = "";
 
@@ -14,6 +15,7 @@ void GlobalParameters::init(const Config &cfg, const TString &key) {
   std::vector<Config::Attributes> attrList = cfg.listOfAttributes(key);
   for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
       it != attrList.end(); ++it) {
+    if( it->hasName("debug") ) it->value("debug") == "true" ? debug_ = true : debug_ = false;
     if( it->hasName("id") ) id_ = it->value("id");
     if( it->hasName("lumi") ) lumi_ = it->value("lumi");
   }

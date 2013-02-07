@@ -1,4 +1,4 @@
-// $Id: EventYieldPrinter.cc,v 1.4 2013/01/27 23:18:34 mschrode Exp $
+// $Id: EventYieldPrinter.cc,v 1.5 2013/01/28 17:56:54 mschrode Exp $
 
 #include <fstream>
 #include <iomanip>
@@ -43,15 +43,20 @@ void EventYieldPrinter::printToScreen() const {
       std::cout << std::setw(5) << " | ";
       char yield[50];
       char stat[50];
-      sprintf(yield,"%.1f",(*itsd)->yield());
-      sprintf(stat,"%.1f",(*itsd)->stat());
-      if( (*itsd)->hasSyst() ) {
+      if( (*itsd)->type() == DataSet::Data ) {
+	sprintf(yield,"%.0f",(*itsd)->yield());
+	std::cout << std::setw(12) << yield;
+      } else if( (*itsd)->hasSyst() ) {
 	char systDn[50];
 	char systUp[50];
+	sprintf(yield,"%.1f",(*itsd)->yield());
+	sprintf(stat,"%.1f",(*itsd)->stat());
 	sprintf(systDn,"%.1f",(*itsd)->totSystDn());
 	sprintf(systUp,"%.1f",(*itsd)->totSystUp());
 	std::cout << std::setw(12) << yield << " +/- " << stat << " +" << systUp << " -" << systDn;
       } else {
+	sprintf(yield,"%.1f",(*itsd)->yield());
+	sprintf(stat,"%.1f",(*itsd)->stat());
 	std::cout << std::setw(12) << yield << " +/- " << stat;
       }
     }
@@ -61,7 +66,7 @@ void EventYieldPrinter::printToScreen() const {
 
 
 void EventYieldPrinter::printToLaTeX() const {
-  ofstream file(Output::resultDir()+"/EventYields.tex");
+  ofstream file(Output::resultDir()+"/"+Output::id()+"_EventYields.tex");
 
   DataSets inputDataSets = DataSet::findAllUnselected();
   unsigned int width = Selection::maxLabelLength() + 4;
@@ -91,9 +96,14 @@ void EventYieldPrinter::printToLaTeX() const {
       file << std::setw(5) << " & ";
       char yield[50];
       char stat[50];
-      sprintf(yield,"%.1f",(*itsd)->yield());
-      sprintf(stat,"%.1f",(*itsd)->stat());
-      file << "$" << std::setw(12) << yield << " \\pm " << stat;
+      if( (*itsd)->type() == DataSet::Data ) {
+	sprintf(yield,"%.0f",(*itsd)->yield());
+	file << "$" << std::setw(12) << yield;
+      } else {	
+	sprintf(yield,"%.1f",(*itsd)->yield());
+	sprintf(stat,"%.1f",(*itsd)->stat());
+	file << "$" << std::setw(12) << yield << " \\pm " << stat;
+      }
       if( (*itsd)->hasSyst() ) {
 	char systDn[50];
 	char systUp[50];

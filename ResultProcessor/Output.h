@@ -13,7 +13,10 @@
 class Output {
 public:
   static TString resultDir() {
-    return "results/"+GlobalParameters::analysisId();
+    return cleanName("results/"+GlobalParameters::analysisId());
+  }
+  static TString id() {
+    return cleanName(GlobalParameters::analysisId());
   }
   static TString cleanName(const TString &name);
 
@@ -22,6 +25,7 @@ public:
 
   void addPlot(TCanvas* can, const TString &var, const TString &selection);
   void addPlot(TCanvas* can, const TString &var, const TString &dataSetLabel, const TString &selection);
+  void addPlot(TCanvas* can, const TString &var, const std::vector<TString> &dataSetLabels, const TString &selection);
   void addPlot(TCanvas* can, const TString &var, const std::vector<TString> &dataSetLabels1, const std::vector<TString> &dataSetLabels2, const TString &selection);
 
   void createLaTeXSlide() const;

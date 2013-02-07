@@ -1,11 +1,10 @@
-// $Id: EventInfoPrinter.h,v 1.3 2012/11/13 13:25:32 mschrode Exp $
+// $Id: EventInfoPrinter.h,v 1.4 2013/01/27 18:04:30 mschrode Exp $
 
 #ifndef EVENT_INFO_PRINTER_H
 #define EVENT_INFO_PRINTER_H
 
 #include <list>
 #include <map>
-#include <set>
 #include <vector>
 
 #include "Config.h"
@@ -18,10 +17,14 @@ public:
   ~EventInfoPrinter() {};
 
 private:
+  static bool greaterByRunNum(const Event* evt1, const Event* evt2) {
+    return evt1->get("RunNum") < evt2->get("RunNum");	
+  }
+
   const Config &cfg_;
 
   std::map< TString, unsigned int > selectionVariables_;
-  std::map< TString, std::set<const Event*> > printedEvts_;
+  std::map< TString, std::vector<const Event*> > printedEvts_;
 
   bool init(const TString &key);
   void selectEvents();

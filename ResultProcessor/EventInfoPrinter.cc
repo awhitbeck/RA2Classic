@@ -1,4 +1,4 @@
-// $Id: EventInfoPrinter.cc,v 1.5 2013/01/27 18:04:30 mschrode Exp $
+// $Id: EventInfoPrinter.cc,v 1.6 2013/01/28 17:56:54 mschrode Exp $
 
 #include <algorithm>
 #include <fstream>
@@ -67,10 +67,10 @@ void EventInfoPrinter::selectEvents() {
     DataSets selectedDataSets = DataSet::findAllWithSelection((*its)->uid());
     for(DataSetIt itsd = selectedDataSets.begin(); itsd != selectedDataSets.end(); ++itsd) {
       // Select events accoridng to specification
-      std::set<const Event*> selectedEvts;
+      std::vector<const Event*> selectedEvts;
       if( printAllEvents() ) {	// select all events to print info
 	for(EventIt itEvt = (*itsd)->evtsBegin(); itEvt != (*itsd)->evtsEnd(); ++itEvt) {
-	  selectedEvts.insert(*itEvt);
+	  selectedEvts.push_back(*itEvt);
 	}
       } else {			// select n (as specified) events with highest value of selection variable
 	for(std::map<TString,unsigned int>::const_iterator itSV = selectionVariables_.begin();
@@ -85,7 +85,15 @@ void EventInfoPrinter::selectEvents() {
 	  // store n (as specified) events with largest value
 	  for(unsigned int n = 0; 
 	      n < std::min(itSV->second,static_cast<unsigned int>(evtValPairs.size())); ++n) {
-	    selectedEvts.insert(evtValPairs.at(n)->event());
+	    bool isNewEvt = true;
+	    for(std::vector<const Event*>::const_iterator it = selectedEvts.begin();
+		it != selectedEvts.end(); ++it) {
+	      if( (*it) == evtValPairs.at(n)->event() ) {
+		isNewEvt = false;
+		break;
+	      }
+	    }
+	    if( isNewEvt ) selectedEvts.push_back(evtValPairs.at(n)->event());
 	  }
 	  for(std::vector<EvtValPair*>::iterator it = evtValPairs.begin();
 	      it != evtValPairs.end(); ++it) {
@@ -93,6 +101,11 @@ void EventInfoPrinter::selectEvents() {
 	  }
 	}
       }
+      // If event contains run-number, sort by it
+      if( Variable::exists("RunNum") ) {
+	std::sort(selectedEvts.begin(),selectedEvts.end(),EventInfoPrinter::greaterByRunNum);
+      }
+      // Store list of events
       printedEvts_[(*itsd)->uid()] = selectedEvts;
     }
   }
@@ -112,9 +125,9 @@ void EventInfoPrinter::print() const {
   }
 
   // Print file with detailed event info and some formatting
-  ofstream file(Output::resultDir()+"/EventInfo.txt");
+  ofstream file(Output::resultDir()+"/"+Output::id()+"_EventInfo.txt");
   // txt-style table
-  for(std::map< TString, std::set<const Event*> >::const_iterator it = printedEvts_.begin(); it != printedEvts_.end(); ++it) {
+  for(std::map< TString, std::vector<const Event*> >::const_iterator it = printedEvts_.begin(); it != printedEvts_.end(); ++it) {
     file << separator1 << std::endl;
     file << "Dataset: '" << it->first << "'" << std::endl;
     file << separator2 << std::endl;
@@ -125,7 +138,7 @@ void EventInfoPrinter::print() const {
     }
     file << separator2 << std::endl;
     
-    for(std::set<const Event*>::const_iterator itEvt = it->second.begin();
+    for(std::vector<const Event*>::const_iterator itEvt = it->second.begin();
 	itEvt != it->second.end(); ++itEvt) {
       for(std::list<TString>::const_iterator itVar = vars.begin(); itVar != vars.end(); ++itVar) {
 	if( Variable::type(*itVar) == "UShort_t" ||
@@ -145,7 +158,7 @@ void EventInfoPrinter::print() const {
     file << "\n\n\n";
   }
   // LaTeX-style table
-  for(std::map< TString, std::set<const Event*> >::const_iterator it = printedEvts_.begin(); it != printedEvts_.end(); ++it) {
+  for(std::map< TString, std::vector<const Event*> >::const_iterator it = printedEvts_.begin(); it != printedEvts_.end(); ++it) {
     file << "\n\n\n%" << separator1 << std::endl;
     file << "% Dataset: '" << it->first << "'" << std::endl;
     file << "%" << separator2 << std::endl;
@@ -162,7 +175,7 @@ void EventInfoPrinter::print() const {
     }
     file << "\\midrule\n";
     
-    for(std::set<const Event*>::const_iterator itEvt = it->second.begin();
+    for(std::vector<const Event*>::const_iterator itEvt = it->second.begin();
 	itEvt != it->second.end(); ++itEvt) {
       for(std::list<TString>::const_iterator itVar = vars.begin(); itVar != vars.end(); ++itVar) {
 	if( Variable::type(*itVar) == "UShort_t" ||
@@ -188,9 +201,9 @@ void EventInfoPrinter::print() const {
   file.close();
 
   // Print CMSSW-like run lists
-  for(std::map< TString, std::set<const Event*> >::const_iterator it = printedEvts_.begin(); it != printedEvts_.end(); ++it) {
-    ofstream file(Output::resultDir()+"/EventInfo__"+Output::cleanName(it->first)+"__Runlist.txt");
-    for(std::set<const Event*>::const_iterator itEvt = it->second.begin();
+  for(std::map< TString, std::vector<const Event*> >::const_iterator it = printedEvts_.begin(); it != printedEvts_.end(); ++it) {
+    ofstream file(Output::resultDir()+"/"+Output::id()+"_EventInfo__"+Output::cleanName(it->first)+"__Runlist.txt");
+    for(std::vector<const Event*>::const_iterator itEvt = it->second.begin();
 	itEvt != it->second.end(); ++itEvt) {
       file << std::setw(width) << (*itEvt)->get(varNameRunNum);
       file << ":";
@@ -263,3 +276,6 @@ bool EventInfoPrinter::EvtValPair::valueGreaterThan(const EvtValPair *idx1, cons
     return idx1->value() > idx2->value();
   }
 }
+
+
+
