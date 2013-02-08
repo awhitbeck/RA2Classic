@@ -1,7 +1,7 @@
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id: TreeMaker.h,v 1.9 2012/11/19 17:00:58 lungu Exp $
+// $Id: TreeMaker.h,v 1.11 2013/01/24 20:01:57 seema Exp $
 //
 //
 
@@ -50,6 +50,7 @@ private:
   void setBranchVariablesToDefault();
 
   const unsigned int nMaxCandidates_;
+  const unsigned int nMaxJets_;
 
   TString treeName_;
   TTree* tree_;
@@ -73,15 +74,47 @@ private:
   edm::InputTag mhtJetsTag_;
   Float_t deltaPhi1_, deltaPhi2_, deltaPhi3_;
 
+  // Jet info
+  edm::InputTag patJetCollInputTag_;
+  double patJetsMinPt_;
+  std::string patJetsNameInTree_;
+  UShort_t patJetsNum_;
+  Float_t* patJetsEnergy_;
+  Float_t* patJetsPt_;
+  Float_t* patJetsEta_;
+  Float_t* patJetsPhi_;
+  Float_t* patJetsArea_;
+  Float_t* patJetsChargedHadronFraction_;
+  Float_t* patJetsChargedHadronMultiplicity_;
+  Float_t* patJetsNeutralHadronFraction_;
+  Float_t* patJetsNeutralHadronMultiplicity_;
+  Float_t* patJetsChargedEmFraction_;
+  Float_t* patJetsNeutralEmFraction_;
+  Float_t* patJetsNeutralEmFractionPBNR_;
+  Float_t* patJetsElectronEnergyFraction_;
+  Float_t* patJetsElectronMultiplicity_;
+  Float_t* patJetsPhotonEenergyFraction_;
+  Float_t* patJetsPhotonMultiplicity_;
+  Float_t* patJetsMuonEnergyFraction_;
+  Float_t* patJetsMuonMultiplicity_;
+  Float_t* patJetsBTagCSV_;
+
   // Any double-precision variables
   std::vector<edm::InputTag> varsDoubleTags_;
   std::vector<std::string> varsDoubleNamesInTree_;
   std::vector<Float_t> varsDouble_;
 
+  // Any vectors of double-precision variables
   std::vector<edm::InputTag> varsDoubleTagsV_;//JL
   std::vector<std::string> varsDoubleNamesInTreeV_;//JL
   std::vector<UShort_t> varsDoubleVN_;//JL
   std::vector<Float_t*> varsDoubleV_;//JL
+
+  // MET variables (want easy-to-use floats)
+  std::vector<edm::InputTag> metTags_;
+  std::vector<std::string> metNamesInTree_;
+  std::vector<Float_t> metsMag_;
+  std::vector<Float_t> metsPhi_;
 
   // Any edm::Candidates
   std::vector<edm::InputTag> candidatesInputTag_;

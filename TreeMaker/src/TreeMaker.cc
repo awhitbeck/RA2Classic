@@ -57,7 +57,7 @@
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id: TreeMaker.cc,v 1.12 2012/11/30 14:58:18 mschrode Exp $
+// $Id: TreeMaker.cc,v 1.14 2013/01/24 19:36:53 seema Exp $
 //
 //
 
@@ -74,23 +74,26 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+
 
 //
 // constructors and destructor
 //
 TreeMaker::TreeMaker(const edm::ParameterSet& iConfig)
-  : nMaxCandidates_(50), tree_(0) {
-
-  // Set default values for all branch variables
-  setBranchVariablesToDefault();
+  : nMaxCandidates_(50), nMaxJets_(25), tree_(0) {
 
   // Read parameter values
   treeName_ = iConfig.getParameter<std::string>("TreeName");
   vertexCollectionTag_ = iConfig.getParameter<edm::InputTag>("VertexCollection");
   htJetsTag_ = iConfig.getParameter<edm::InputTag>("HTJets");
   htTag_ = iConfig.getParameter<edm::InputTag>("HT");
-  mhtJetsTag_ = iConfig.getParameter<edm::InputTag>("MHTJets");;
+  mhtJetsTag_ = iConfig.getParameter<edm::InputTag>("MHTJets");
   mhtTag_ = iConfig.getParameter<edm::InputTag>("MHT");
+  patJetCollInputTag_ = iConfig.getParameter<edm::InputTag>("PatJetCollInputTag");
+  patJetsMinPt_ = iConfig.getParameter<double>("PatJetsMinPt");
+  patJetsNameInTree_ = iConfig.getParameter<std::string>("PatJetsNameInTree");
   candidatesInputTag_          = iConfig.getParameter< std::vector<edm::InputTag> >("CandidateCollections");
   candidatesNameInTree_        = iConfig.getParameter< std::vector<std::string> >  ("CandidateNamesInTree");
   candidatesInputTagJetInfo_   = iConfig.getParameter< std::vector<edm::InputTag> >("CandidateCollectionsJetInfo");
@@ -100,14 +103,40 @@ TreeMaker::TreeMaker(const edm::ParameterSet& iConfig)
   varsDoubleTagsV_ = iConfig.getParameter< std::vector<edm::InputTag> >("VarsDoubleV");//JL
   varsDoubleNamesInTreeV_ = iConfig.getParameter< std::vector<std::string> >("VarsDoubleNamesInTreeV");//JL
   filterDecisionTags_ = iConfig.getParameter< std::vector<edm::InputTag> >("Filters");
+  metTags_ = iConfig.getParameter< std::vector<edm::InputTag> >("METs");
+  metNamesInTree_ = iConfig.getParameter< std::vector<std::string> >("METNamesInTree");
+
 
   // Setup vector of filter decisions with correct size
 
-  varsDouble_ = std::vector<Float_t>(varsDoubleTags_.size(),1.);
+  varsDouble_ = std::vector<Float_t>(varsDoubleTags_.size(),-9999.);
+  metsMag_ = std::vector<Float_t>(metTags_.size(),-9999.);
+  metsPhi_ = std::vector<Float_t>(metTags_.size(),-9999.);
+
+  // Jet info
+  patJetsEnergy_ = new Float_t[nMaxJets_];
+  patJetsPt_ = new Float_t[nMaxJets_];
+  patJetsEta_ = new Float_t[nMaxJets_];
+  patJetsPhi_ = new Float_t[nMaxJets_];
+  patJetsArea_ = new Float_t[nMaxJets_];
+  patJetsChargedHadronFraction_ = new Float_t[nMaxJets_];
+  patJetsChargedHadronMultiplicity_ = new Float_t[nMaxJets_];
+  patJetsNeutralHadronFraction_ = new Float_t[nMaxJets_];
+  patJetsNeutralHadronMultiplicity_ = new Float_t[nMaxJets_];
+  patJetsChargedEmFraction_ = new Float_t[nMaxJets_];
+  patJetsNeutralEmFraction_ = new Float_t[nMaxJets_];
+  patJetsNeutralEmFractionPBNR_ = new Float_t[nMaxJets_];
+  patJetsElectronEnergyFraction_ = new Float_t[nMaxJets_];
+  patJetsElectronMultiplicity_ = new Float_t[nMaxJets_];
+  patJetsPhotonEenergyFraction_ = new Float_t[nMaxJets_];
+  patJetsPhotonMultiplicity_ = new Float_t[nMaxJets_];
+  patJetsMuonEnergyFraction_ = new Float_t[nMaxJets_];
+  patJetsMuonMultiplicity_ = new Float_t[nMaxJets_];
+  patJetsBTagCSV_ = new Float_t[nMaxJets_];
 
   filterDecisions_ = std::vector<UChar_t>(filterDecisionTags_.size(),0);
-  candidatesN_ = std::vector<UShort_t>(candidatesInputTag_.size(),0);
 
+  candidatesN_ = std::vector<UShort_t>(candidatesInputTag_.size(),0);
   for(unsigned int i = 0; i < candidatesInputTag_.size(); ++i) {
     candidatesPt_.push_back (new Float_t[nMaxCandidates_]);
     candidatesEta_.push_back(new Float_t[nMaxCandidates_]);
@@ -120,11 +149,34 @@ TreeMaker::TreeMaker(const edm::ParameterSet& iConfig)
   }
 
   varsDoubleVN_ = std::vector<UShort_t>(varsDoubleTagsV_.size(),0);//JL
-  for(unsigned int i = 0; i < varsDoubleTagsV_.size(); ++i) //JL
+  for(unsigned int i = 0; i < varsDoubleTagsV_.size(); ++i) {//JL
     varsDoubleV_.push_back(new Float_t[120]);//JL
+  }
+
+  // Set default values for all branch variables
+  setBranchVariablesToDefault();
 }
 
 TreeMaker::~TreeMaker() {
+  delete [] patJetsEnergy_;
+  delete [] patJetsPt_;
+  delete [] patJetsEta_;
+  delete [] patJetsPhi_;
+  delete [] patJetsArea_;
+  delete [] patJetsChargedHadronFraction_;
+  delete [] patJetsChargedHadronMultiplicity_;
+  delete [] patJetsNeutralHadronFraction_;
+  delete [] patJetsNeutralHadronMultiplicity_;
+  delete [] patJetsChargedEmFraction_;
+  delete [] patJetsNeutralEmFraction_;
+  delete [] patJetsNeutralEmFractionPBNR_;
+  delete [] patJetsElectronEnergyFraction_;
+  delete [] patJetsElectronMultiplicity_;
+  delete [] patJetsPhotonEenergyFraction_;
+  delete [] patJetsPhotonMultiplicity_;
+  delete [] patJetsMuonEnergyFraction_;
+  delete [] patJetsMuonMultiplicity_;
+  delete [] patJetsBTagCSV_;
   for(unsigned int i = 0; i < candidatesInputTag_.size(); ++i) {
     delete [] candidatesPt_.at(i);
     delete [] candidatesEta_.at(i);
@@ -208,6 +260,39 @@ TreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
   }
 
+  // Jet Info
+  edm::Handle< edm::View<pat::Jet> > patJets;
+  iEvent.getByLabel(patJetCollInputTag_,patJets);
+  if( patJets.isValid() ) {
+    patJetsNum_ = 0;
+    for(edm::View<pat::Jet>::const_iterator j = patJets->begin();
+	j != patJets->end(); ++j, ++patJetsNum_) {
+      if( patJetsNum_ == nMaxJets_ ) break;
+      if( j->pt() < patJetsMinPt_ ) break;
+      if( j->isPFJet() ) {
+	patJetsEnergy_[patJetsNum_]			    = j->energy();
+ 	patJetsPt_[patJetsNum_]			            = j->pt();
+ 	patJetsEta_[patJetsNum_]			    = j->eta();
+ 	patJetsPhi_[patJetsNum_]			    = j->phi();
+ 	patJetsArea_[patJetsNum_]			    = j->jetArea();
+ 	patJetsChargedHadronFraction_[patJetsNum_]	    = j->chargedHadronEnergyFraction();
+ 	patJetsChargedHadronMultiplicity_[patJetsNum_]      = j->chargedHadronMultiplicity();
+ 	patJetsNeutralHadronFraction_[patJetsNum_]	    = j->neutralHadronEnergyFraction();
+ 	patJetsNeutralHadronMultiplicity_[patJetsNum_]      = j->neutralHadronMultiplicity();
+ 	patJetsChargedEmFraction_[patJetsNum_]	            = j->chargedEmEnergyFraction();
+ 	patJetsNeutralEmFraction_[patJetsNum_]	            = j->neutralEmEnergyFraction();
+ 	patJetsNeutralEmFractionPBNR_[patJetsNum_]	    = j->photonEnergyFraction()/j->jecFactor(0);
+ 	patJetsElectronEnergyFraction_[patJetsNum_]	    = j->electronEnergyFraction();
+ 	patJetsElectronMultiplicity_[patJetsNum_]	    = j->electronMultiplicity();
+	patJetsPhotonEenergyFraction_[patJetsNum_]	    = j->photonEnergyFraction();
+ 	patJetsPhotonMultiplicity_[patJetsNum_]	            = j->photonMultiplicity();
+ 	patJetsMuonEnergyFraction_[patJetsNum_]	            = j->muonEnergyFraction();
+ 	patJetsMuonMultiplicity_[patJetsNum_]   	    = j->muonMultiplicity();
+ 	patJetsBTagCSV_[patJetsNum_]                        = j->bDiscriminator("combinedSecondaryVertexBJetTags");
+      }
+    }
+  }
+
   // Candidate collections
   for(unsigned int i = 0; i < candidatesInputTag_.size(); ++i) {
     edm::Handle< edm::View<reco::Candidate> > cands;
@@ -244,6 +329,16 @@ TreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.getByLabel(varsDoubleTags_.at(i),var);
     if( var.isValid() ) {
       varsDouble_.at(i) = *var;
+    }
+  }
+
+  // METs
+  for(unsigned int i = 0; i < metTags_.size(); ++i) {
+    edm::Handle< edm::View<reco::Candidate> > met;
+    iEvent.getByLabel(metTags_.at(i),met);
+    if( met.isValid() ) {
+      metsMag_.at(i) = met->at(0).pt();
+      metsPhi_.at(i) = met->at(0).phi();
     }
   }
 
@@ -306,17 +401,49 @@ TreeMaker::beginJob() {
   tree_->Branch("DeltaPhi1",&deltaPhi1_,"DeltaPhi1/F");
   tree_->Branch("DeltaPhi2",&deltaPhi2_,"DeltaPhi2/F");
   tree_->Branch("DeltaPhi3",&deltaPhi3_,"DeltaPhi3/F");
+
+  if( patJetCollInputTag_.label() != "" ) {
+    tree_->Branch((patJetsNameInTree_+"Num").c_str(),&patJetsNum_,(patJetsNameInTree_+"Num/s").c_str());
+    tree_->Branch((patJetsNameInTree_+"Energy").c_str(),patJetsEnergy_,(patJetsNameInTree_+"Energy["+patJetsNameInTree_+"Num]/F").c_str());
+    tree_->Branch((patJetsNameInTree_+"Pt").c_str(),patJetsPt_,(patJetsNameInTree_+"Pt["+patJetsNameInTree_+"Num]/F").c_str());
+    tree_->Branch((patJetsNameInTree_+"Eta").c_str(),patJetsEta_,(patJetsNameInTree_+"Eta["+patJetsNameInTree_+"Num]/F").c_str());
+    tree_->Branch((patJetsNameInTree_+"Phi").c_str(),patJetsPhi_,(patJetsNameInTree_+"Phi["+patJetsNameInTree_+"Num]/F").c_str());
+    tree_->Branch((patJetsNameInTree_+"Area").c_str(),patJetsArea_,(patJetsNameInTree_+"Area["+patJetsNameInTree_+"Num]/F").c_str());
+    tree_->Branch((patJetsNameInTree_+"ChargedHadronFraction").c_str(),patJetsChargedHadronFraction_,(patJetsNameInTree_+"ChargedHadronFraction["+patJetsNameInTree_+"Num]/F").c_str());
+    tree_->Branch((patJetsNameInTree_+"ChargedHadronMultiplicity").c_str(),patJetsChargedHadronMultiplicity_,(patJetsNameInTree_+"ChargedHadronMultiplicity["+patJetsNameInTree_+"Num]/F").c_str());
+    tree_->Branch((patJetsNameInTree_+"NeutralHadronFraction").c_str(),patJetsNeutralHadronFraction_,(patJetsNameInTree_+"NeutralHadronFraction["+patJetsNameInTree_+"Num]/F").c_str());
+    tree_->Branch((patJetsNameInTree_+"NeutralHadronMultiplicity").c_str(),patJetsNeutralHadronMultiplicity_,(patJetsNameInTree_+"NeutralHadronMultiplicity["+patJetsNameInTree_+"Num]/F").c_str());
+    tree_->Branch((patJetsNameInTree_+"ChargedEmFraction").c_str(),patJetsChargedEmFraction_,(patJetsNameInTree_+"ChargedEmFraction["+patJetsNameInTree_+"Num]/F").c_str());
+    tree_->Branch((patJetsNameInTree_+"NeutralEmFraction").c_str(),patJetsNeutralEmFraction_,(patJetsNameInTree_+"NeutralEmFraction["+patJetsNameInTree_+"Num]/F").c_str());
+    tree_->Branch((patJetsNameInTree_+"NeutralEmFractionPBNR").c_str(),patJetsNeutralEmFractionPBNR_,(patJetsNameInTree_+"NeutralEmFractionPBNR["+patJetsNameInTree_+"Num]/F").c_str());
+    tree_->Branch((patJetsNameInTree_+"ElectronEnergyFraction").c_str(),patJetsElectronEnergyFraction_,(patJetsNameInTree_+"ElectronEnergyFraction["+patJetsNameInTree_+"Num]/F").c_str());
+    tree_->Branch((patJetsNameInTree_+"ElectronMultiplicity").c_str(),patJetsElectronMultiplicity_,(patJetsNameInTree_+"ElectronMultiplicity["+patJetsNameInTree_+"Num]/F").c_str());
+    tree_->Branch((patJetsNameInTree_+"PhotonEnergyFraction").c_str(),patJetsPhotonEenergyFraction_,(patJetsNameInTree_+"PhotonEnergyFraction["+patJetsNameInTree_+"Num]/F").c_str());
+    tree_->Branch((patJetsNameInTree_+"PhotonMultiplicity").c_str(),patJetsPhotonMultiplicity_,(patJetsNameInTree_+"PhotonMultiplicity["+patJetsNameInTree_+"Num]/F").c_str());
+    tree_->Branch((patJetsNameInTree_+"MuonEnergyFraction").c_str(),patJetsMuonEnergyFraction_,(patJetsNameInTree_+"MuonEnergyFraction["+patJetsNameInTree_+"Num]/F").c_str());
+    tree_->Branch((patJetsNameInTree_+"MuonMultiplicity").c_str(),patJetsMuonMultiplicity_,(patJetsNameInTree_+"MuonMultiplicity["+patJetsNameInTree_+"Num]/F").c_str());
+    tree_->Branch((patJetsNameInTree_+"BTagCSV").c_str(),patJetsBTagCSV_,(patJetsNameInTree_+"BTagCSV["+patJetsNameInTree_+"Num]/F").c_str());
+  }
+
   for(unsigned int i = 0; i < varsDouble_.size(); ++i) {
-    TString name = varsDoubleTags_.at(i).label();
+    std::string name = varsDoubleTags_.at(i).label();
     if( varsDoubleNamesInTree_.size() == varsDoubleTags_.size() ) {
       name = varsDoubleNamesInTree_.at(i);
     }
-    tree_->Branch(name,&(varsDouble_.at(i)),name+"/F");
+    tree_->Branch(name.c_str(),&(varsDouble_.at(i)),(name+"/F").c_str());
+  }
+  for(unsigned int i = 0; i < metsMag_.size(); ++i) {
+    std::string name = metTags_.at(i).label();
+    if( metNamesInTree_.size() == metTags_.size() ) {
+      name = metNamesInTree_.at(i);
+    }
+    tree_->Branch(name.c_str(),&(metsMag_.at(i)),(name+"/F").c_str());
+    tree_->Branch((name+"Phi").c_str(),&(metsPhi_.at(i)),(name+"Phi/F").c_str());
   }
   for(unsigned int i = 0; i < filterDecisionTags_.size(); ++i) {
-    TString name = "Filter_";
+    std::string name = "Filter_";
     name += filterDecisionTags_.at(i).label();
-    tree_->Branch(name,&(filterDecisions_.at(i)),name+"/b");
+    tree_->Branch(name.c_str(),&(filterDecisions_.at(i)),(name+"/b").c_str());
   }
   for(unsigned int i = 0; i < candidatesInputTag_.size(); ++i) {
     std::string name = candidatesInputTag_.at(i).label();
@@ -330,14 +457,11 @@ TreeMaker::beginJob() {
     tree_->Branch((name+"E").c_str(),  candidatesE_.at(i),  (name+"E["+name+"Num]/F").c_str());
   }
 
-  //std::cout << "Inside beginJob() " << std::endl;
-  //std::cout << "candidatesInputTagJetInfo_.size() " << candidatesInputTagJetInfo_.size() << std::endl;
   for(unsigned int i = 0; i < candidatesJetInfo_.size(); ++i) {
     std::string name = candidatesInputTagJetInfo_.at(i).label();
     if( i < candidatesNameInTreeJetInfo_.size() ) {
       name = candidatesNameInTreeJetInfo_.at(i);
     }
-    //std::cout << "name " << name << std::endl;
     tree_->Branch((name+"Num").c_str(),&(candidatesJetInfoN_.at(i)),(name+"Num/s").c_str());
     tree_->Branch(name.c_str(),candidatesJetInfo_.at(i),(name+"["+name+"Num]/F").c_str());
   }
@@ -416,8 +540,34 @@ TreeMaker::setBranchVariablesToDefault() {
   deltaPhi1_ = -9999.;
   deltaPhi2_ = -9999.;
   deltaPhi3_ = -9999.;
+  for(unsigned int i = 0; i < nMaxJets_; ++i) {
+    patJetsEnergy_[i] = -9999.;
+    patJetsPt_[i] = -9999.;
+    patJetsEta_[i] = -9999.;
+    patJetsPhi_[i] = -9999.;
+    patJetsArea_[i] = -9999.;
+    patJetsChargedHadronFraction_[i] = -9999.;
+    patJetsChargedHadronMultiplicity_[i] = -9999.;
+    patJetsNeutralHadronFraction_[i] = -9999.;
+    patJetsNeutralHadronMultiplicity_[i] = -9999.;
+    patJetsChargedEmFraction_[i] = -9999.;
+    patJetsNeutralEmFraction_[i] = -9999.;
+    patJetsNeutralEmFractionPBNR_[i] = -9999.;
+    patJetsElectronEnergyFraction_[i] = -9999.;
+    patJetsElectronMultiplicity_[i] = -9999.;
+    patJetsPhotonEenergyFraction_[i] = -9999.;
+    patJetsPhotonMultiplicity_[i] = -9999.;
+    patJetsMuonEnergyFraction_[i] = -9999.;
+    patJetsMuonMultiplicity_[i] = -9999.;
+    patJetsBTagCSV_[i] = -9999.;
+  }
+
   for(unsigned int i = 0; i < varsDouble_.size(); ++i) {
-    varsDouble_.at(i) = 9999.;
+    varsDouble_.at(i) = -9999.;
+  }
+  for(unsigned int i = 0; i < metsMag_.size(); ++i) {
+    metsMag_.at(i) = -9999.;
+    metsPhi_.at(i) = -9999.;
   }
   for(unsigned int i = 0; i < filterDecisions_.size(); ++i) {
     filterDecisions_.at(i) = 0;

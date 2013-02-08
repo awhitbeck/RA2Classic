@@ -1,4 +1,4 @@
-# $Id: treemaker_cfi.py,v 1.9 2012/11/19 17:00:58 lungu Exp $
+# $Id: treemaker_cfi.py,v 1.10 2013/01/24 19:37:42 seema Exp $
 
 # Description: Writes ntuples (ROOT tree) for RA2Classic analysis
 #
@@ -49,6 +49,10 @@ TreeMaker = cms.EDAnalyzer(
     # jet collection that has been used to compute MHT. The tree variables "DeltaPhi?" are computed from this collection and from "MHT".
     MHTJets           = cms.InputTag('patJetsAK5PFPt30'),
 
+    PatJetCollInputTag = cms.InputTag(''),
+    PatJetsMinPt       = cms.double(0),
+    PatJetsNameInTree  = cms.string(''),
+
     # List of InputTags for edm::Candidate collections stored in the event. The kinematic
     # information of each candidate are stored in an array of Float_t variables in the tree.
     CandidateCollections = cms.VInputTag(),
@@ -65,6 +69,10 @@ TreeMaker = cms.EDAnalyzer(
     # this vector is not specified, the generic names "<InputTag::label()>"
     # are used.
     VarsDoubleNamesInTree = cms.vstring(),
+
+    METs           = cms.VInputTag(),
+    METNamesInTree = cms.vstring(),
+
 
     #JL
     VarsDoubleV        = cms.VInputTag(),
