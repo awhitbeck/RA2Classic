@@ -1,4 +1,4 @@
-# $Id: makeTreeFromPAT_cff.py,v 1.15 2013/01/22 18:06:23 mschrode Exp $
+# $Id: makeTreeFromPAT_cff.py,v 1.16 2013/01/24 15:42:53 mschrode Exp $
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -8,9 +8,10 @@ def makeTreeFromPAT(process,
                     NJetsMin=2,
                     HTMin=350.,
                     MHTMin=0.,
+                    globalTag="none",
                     reportEveryEvt=10,
                     testFileName="",
-                    numProcessedEvt=1000):
+                    numProcessedEvt=100):
 
 
     ## --- Log output ------------------------------------------------------
@@ -54,6 +55,7 @@ def makeTreeFromPAT(process,
         taggingMode   = cms.bool(False)
         )
     process.filterSelection += process.PBNRFilter
+
     from RecoMET.METFilters.multiEventFilter_cfi import multiEventFilter
     process.HCALLaserEvtFilterList2012 = multiEventFilter.clone(
         file        = cms.FileInPath('RA2Classic/AdditionalInputFiles/data/HCALLaserEventList_20Nov2012-v2_HT-HTMHT.txt'),
@@ -61,6 +63,12 @@ def makeTreeFromPAT(process,
         )
     process.filterSelection += process.HCALLaserEvtFilterList2012
 
+    process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
+    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+    process.GlobalTag.globaltag = globalTag
+    process.load('SandBox.Skims.RA2CaloVsPFMHTFilterSequence_cff')
+    process.filterSelection += process.RA2CaloVsPFMHTFilterSequence
+    
     process.load('SandBox.Skims.RA2Leptons_cff')
     process.LeptonVeto = cms.Sequence(
         process.ra2PFMuonVeto *
@@ -125,6 +133,7 @@ def makeTreeFromPAT(process,
     FilterNames.append(cms.InputTag("manystripclus53X"))
     FilterNames.append(cms.InputTag("toomanystripclus53X"))
     FilterNames.append(cms.InputTag("logErrorTooManyClusters"))
+    FilterNames.append(cms.InputTag("RA2CaloVsPFMHTFilter"))
 
         
     from RA2Classic.TreeMaker.treemaker_cfi import TreeMaker
@@ -137,8 +146,28 @@ def makeTreeFromPAT(process,
         MHTJets           = cms.InputTag('MHTJets'),
         VarsDouble        = cms.VInputTag(cms.InputTag('WeightProducer:weight')),
         VarsDoubleNamesInTree = cms.vstring('Weight'),
-        Filters           = cms.VInputTag()#FilterNames
+#        METs              = cms.VInputTag(mhtInputCol,'mhtCalo'),
+#        METNamesInTree    = cms.vstring('PFMHT','CaloMHT'),
+##         METs              = cms.VInputTag(mhtInputCol,
+##                                           'mhtCalo',
+##                                           'mhtCaloL2L3',
+##                                           'met',
+##                                           'pfMet',
+##                                           'patMETsAK5Calo',
+##                                           'patMETsPF'),
+##         METNamesInTree    = cms.vstring('PFMHT',
+##                                         'CaloMHT',
+##                                         'CaloMHTL2L3',
+##                                         'CaloMET',
+##                                         'PFMET',
+##                                         'patMETAK5Calo',
+##                                         'patMETPF'),
+##         PatJetCollInputTag = cms.InputTag('patJetsPF'),
+##         PatJetsMinPt       = cms.double(30.),
+##         PatJetsNameInTree  = cms.string('Jets'),
+##        Filters           = FilterNames
         )
+
 
 
     ## --- Final paths ----------------------------------------------------
@@ -147,6 +176,7 @@ def makeTreeFromPAT(process,
     process.WriteTree = cms.Path(
         process.ProduceRA2Jets *
         process.filterSelection *
+        #process.PBNRFilter * process.HCALLaserEvtFilterList2012 *
         process.LeptonVeto *
         process.NumJetSelection *
         process.HTSelection *
