@@ -164,6 +164,14 @@ void DataSet::init(const Config &cfg, const TString key) {
 	  Config::split(it->value(*uit),",",uCfgs);
 	  // Case 1: one uncertainty, used as symmetric uncertainty
 	  if( uCfgs.size() == 1 ) {
+	    if( uCfgs.front().Contains("+") || uCfgs.front().Contains("-") ) {
+	      std::cerr << "\n\nERROR in DataSet::createDataSets(): wrong config syntax" << std::endl;
+	      std::cerr << "  when specifying the uncertainty" << std::flush;
+	      if( uncNames.size() > 1 ) std::cerr << " with label '" << ul << "'";
+	      std::cerr << std::endl;
+	      std::cerr << "  Upper and lower uncertainty have to be ',' separated" << std::endl;
+	      exit(-1);	      
+	    }
 	    uncDn.push_back(uCfgs.front());
 	    uncUp.push_back(uCfgs.front());
 	  }
@@ -237,25 +245,32 @@ DataSet::DataSet(Type type, const TString &label, const TString &selectionUid, c
     std::cout << "       Creating DataSet '" << label << "' for selection '" << selectionUid << "'" << std::endl;
   }
 
+  // Sanity checks
   if( uidExists(uid()) ) {
-    std::cerr << "\n\nERROR in DataSet::DataSet(): a dataset with label '" << label << "' and selection '" << selectionUid << "' already exists." << std::endl;
+    std::cerr << "\n\nERROR in DataSet::DataSet(): a dataset with label '" << label << "' and selection '" << selectionUid << "' already exists.\n\n\n" << std::endl;
     exit(-1);
   }
 
-  // Copy uncertainty labels
-  for(std::vector<TString>::const_iterator it = uncLabel.begin();
-      it != uncLabel.end(); ++it) {
-    if( *it != GlobalParameters::defaultUncertaintyLabel() ) {
-      systLabels_.push_back(*it);
+  if( uncLabel.size() > 1 ) {
+    for(std::vector<TString>::const_iterator it = uncLabel.begin();
+	it != uncLabel.end(); ++it) {
+      if( *it == GlobalParameters::defaultUncertaintyLabel() ) {
+	std::cerr << "\n\nERROR in DataSet::DataSet(): the dataset with label '" << label << "'" << std::endl;
+	std::cerr << "  has more than one sub-uncertainties and a total uncertainty defined!" << std::endl;
+	std::cerr << "  \nPer dataset, you may specify *either*" << std::endl;
+	std::cerr << "  - a total uncertainty via 'uncertainty: <size>'" << std::endl;
+	std::cerr << "  - several sub-uncertainties via 'uncertainty <id1>: <size>; uncertainty <id2>: <size>; ...'\n\n\n" << std::endl;
+	exit(-1);
+      }
     }
   }
-  
+
   // Read events from tree
   EventBuilder ebd;
   evts_ = ebd(fileName,treeName,weight,uncDn,uncUp,uncLabel,scale);
 
   // Compute yield and uncertainties
-  computeYield();
+  computeYield(uncLabel);
 
   if( GlobalParameters::debug() ) {
     std::cout << "DEBUG: Leaving DataSet::DataSet()" << std::endl;
@@ -271,11 +286,10 @@ DataSet::DataSet(const DataSet *ds, const TString &selectionUid, const Events &e
   }
 
   // Copy uncertainty labels
+  std::vector<TString> uncLabels;
   for(std::vector<TString>::const_iterator it = ds->systLabelsBegin();
       it != ds->systLabelsEnd(); ++it) {
-    if( *it != GlobalParameters::defaultUncertaintyLabel() ) {
-      systLabels_.push_back(*it);
-    }
+    uncLabels.push_back(*it);
   }
   
   // Store events
@@ -284,7 +298,7 @@ DataSet::DataSet(const DataSet *ds, const TString &selectionUid, const Events &e
   }
 
   // Compute yield and uncertainties
-  computeYield();
+  computeYield(uncLabels);
 }
 
 
@@ -300,7 +314,7 @@ DataSet::~DataSet() {
 
 // Compute yield (weighted number of events)
 // and uncertainties
-void DataSet::computeYield() {
+void DataSet::computeYield(const std::vector<TString> &uncLabel) {
   if( GlobalParameters::debug() ) {
     std::cout << "DEBUG: Entering DataSet::computeYield()" << std::endl;
     std::cout << "       Computing yields and uncertainties for '" << uid() << "'" << std::endl;
@@ -318,7 +332,14 @@ void DataSet::computeYield() {
     systDn_[*it] = 0.;
     systUp_[*it] = 0.;
   }
+  systLabels_.clear();
 
+  // Copy uncertainty labels
+  for(std::vector<TString>::const_iterator it = uncLabel.begin();
+      it != uncLabel.end(); ++it) {
+    systLabels_.push_back(*it);
+  }
+  
   // Loop over events and count yield (sum of events weights)
   // for nominal and varied weights
   for(EventIt evtIt = evts_.begin(); evtIt != evts_.end(); ++evtIt) {
