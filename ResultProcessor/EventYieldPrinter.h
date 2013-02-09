@@ -1,7 +1,9 @@
-// $Id: EventYieldPrinter.h,v 1.2 2012/12/09 14:47:25 mschrode Exp $
+// $Id: EventYieldPrinter.h,v 1.3 2013/01/27 23:18:34 mschrode Exp $
 
 #ifndef EVENT_YIELD_PRINTER_H
 #define EVENT_YIELD_PRINTER_H
+
+#include "TString.h"
 
 class EventYieldPrinter {
 public:
@@ -9,6 +11,7 @@ public:
 
 private:
   void printToScreen() const;
-  void printToLaTeX() const;
+  void printToLaTeX(const TString &outFileName) const;
+  void printDataCard(const TString &outFileName) const;
 };
 #endif
