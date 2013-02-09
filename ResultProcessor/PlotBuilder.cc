@@ -1131,7 +1131,6 @@ PlotBuilder::HistParams::HistParams(const TString &cfg)
 	break;
       }
     }
-    std::cout << "nBinCfgs = " << nBinCfgs << std::endl;
     // Then, parse binning
     for(unsigned int i = 0; i < nBinCfgs; ++i) {
       if( i == 0 ) nBinsX_ = cfgs.at(i).Atoi();
@@ -1159,8 +1158,6 @@ PlotBuilder::HistParams::HistParams(const TString &cfg)
     }
   }
 
-  std::cout << "nBinsX_ = " << nBinsX_ << std::endl;
-  std::cout << "nBinsY_ = " << nBinsY_ << std::endl;
   // Overflow bin
   double binWidth = (xMax_-xMin_)/nBinsX_;
   xMax_ += binWidth;
