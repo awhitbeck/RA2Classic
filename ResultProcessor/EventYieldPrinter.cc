@@ -1,4 +1,4 @@
-// $Id: EventYieldPrinter.cc,v 1.6 2013/02/07 18:45:45 mschrode Exp $
+// $Id: EventYieldPrinter.cc,v 1.7 2013/02/09 18:44:41 mschrode Exp $
 
 #include <fstream>
 #include <iomanip>
@@ -227,7 +227,7 @@ void EventYieldPrinter::printDataCard(const TString &outFileName) const {
     }
     file << std::endl;
 
-    if( (*itd)->type() == DataSet::MC ) {
+    if( (*itd)->type() != DataSet::Data ) {
       // define number of uncertainties
       file << "# Uncertainties --> at least stat. and syst." << std::endl;
       file << "# In absolute numbers" << std::endl;
