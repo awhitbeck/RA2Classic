@@ -13,7 +13,7 @@
 //
 // Original Author:  Kristin Heine,,,DESY
 //         Created:  Wed Apr 18 15:00:58 CEST 2012
-// $Id: Trigger.cc,v 1.4 2012/11/28 10:48:46 kheine Exp $
+// $Id: Trigger.cc,v 1.5 2013/01/18 09:40:27 kheine Exp $
 //
 //
 
@@ -158,6 +158,16 @@ TH1F* h_MHTallprobes_total_PFNoPUHT;
 TH1F* h_MHTpassedprobes_total_PFNoPUHT;
 TH1F* h_MHTallprobes_intEff_PFNoPUHT;
 TH1F* h_MHTpassedprobes_intEff_PFNoPUHT;
+
+TH1F* h_MHTallprobes_PFHT_HT800;
+TH1F* h_MHTpassedprobes_PFHT_HT800;
+TH1F* h_MHTallprobes_PFHT_HT1000;
+TH1F* h_MHTpassedprobes_PFHT_HT1000;
+
+TH1F* h_MHTallprobes_PFNoPUHT_HT800;
+TH1F* h_MHTpassedprobes_PFNoPUHT_HT800;
+TH1F* h_MHTallprobes_PFNoPUHT_HT1000;
+TH1F* h_MHTpassedprobes_PFNoPUHT_HT1000;
 
 TH2F* h_allprobes_PFHT;
 TH2F* h_allprobes_PFNoPUHT;
@@ -348,7 +358,7 @@ Trigger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    //// Fill the histograms
    // ----------------------------------------------------------------------------- //
    // derive turn-ons for NJet bins
-   if( NJets == 3 || NJets == 4 || NJets == 5  ) {
+   if( NJets >= 3 ) {
       
       double HT = 0.;
       math::PtEtaPhiMLorentzVector MHT(0., 0., 0., 0.);
@@ -373,6 +383,16 @@ Trigger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                if( MHT.pt() > 200. ) {
                   h_MHTpassedprobes_total_PFHT->Fill(0.);
                }
+            }
+         }
+
+         // MHT turn-on for high HT values
+         if( triggered_probe_HT650 && HT > 800. ) {
+            h_MHTallprobes_PFHT_HT800->Fill(MHT.pt());
+            if( HT > 1000. ) h_MHTallprobes_PFHT_HT1000->Fill(MHT.pt());
+            if( triggered_probe_PFHT ) {
+               h_MHTpassedprobes_PFHT_HT800->Fill(MHT.pt());
+               if( HT > 1000. ) h_MHTpassedprobes_PFHT_HT1000->Fill(MHT.pt());
             }
          }
          
@@ -418,6 +438,16 @@ Trigger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                if( MHT.pt() > 200. ) {
                   h_MHTpassedprobes_total_PFNoPUHT->Fill(0.);
                }
+            }
+         }
+
+         // MHT turn-on for high HT values
+         if( triggered_probe_NoPUHT650 && HT > 800. ) {
+            h_MHTallprobes_PFNoPUHT_HT800->Fill(MHT.pt());
+            if( HT > 1000. ) h_MHTallprobes_PFNoPUHT_HT1000->Fill(MHT.pt());
+            if( triggered_probe_PFNoPUHT ) {
+               h_MHTpassedprobes_PFNoPUHT_HT800->Fill(MHT.pt());
+               if( HT > 1000. ) h_MHTpassedprobes_PFNoPUHT_HT1000->Fill(MHT.pt());
             }
          }
          
@@ -651,6 +681,32 @@ Trigger::beginJob()
    h_HTpassedprobes_intEff_PFNoPUHT=fs->make<TH1F>("HTpassedprobes_intEff_PFNoPUHT", "HT passed probes",
                                                    100, 0., 2000.);
    h_HTpassedprobes_intEff_PFNoPUHT->Sumw2();
+
+   // ----------------------------------------------------------------------------- //
+
+   h_MHTallprobes_PFHT_HT800 = fs->make <TH1F> ("MHTallprobes_PFHT_HT800", "MHT all probes", 100, 0., 500.);
+   h_MHTallprobes_PFHT_HT800->Sumw2();
+   h_MHTpassedprobes_PFHT_HT800 = fs->make <TH1F> ("MHTpassedprobes_PFHT_HT800", "MHT passed probes",
+                                                   100, 0., 500.);
+   h_MHTpassedprobes_PFHT_HT800->Sumw2();
+   h_MHTallprobes_PFHT_HT1000 = fs->make <TH1F> ("MHTallprobes_PFHT_HT1000", "MHT all probes",
+                                                 100, 0., 500.);
+   h_MHTallprobes_PFHT_HT1000->Sumw2();
+   h_MHTpassedprobes_PFHT_HT1000 = fs->make <TH1F> ("MHTpassedprobes_PFHT_HT1000", "MHT passed probes", 
+                                                    100, 0., 500.);
+   h_MHTpassedprobes_PFHT_HT1000->Sumw2();
+   h_MHTallprobes_PFNoPUHT_HT800 = fs->make <TH1F> ("MHTallprobes_PFNoPUHT_HT800", "MHT all probes",
+                                                    100, 0., 500.);
+   h_MHTallprobes_PFNoPUHT_HT800->Sumw2();
+   h_MHTpassedprobes_PFNoPUHT_HT800 = fs->make <TH1F> ("MHTpassedprobes_PFNoPUHT_HT800", "MHT passed probes",
+                                                        100, 0., 500.);
+   h_MHTpassedprobes_PFNoPUHT_HT800->Sumw2();
+   h_MHTallprobes_PFNoPUHT_HT1000 = fs->make <TH1F> ("MHTallprobes_PFNoPUHT_HT1000", "MHT all probes",
+                                                    100, 0., 500.);
+   h_MHTallprobes_PFNoPUHT_HT1000->Sumw2();
+   h_MHTpassedprobes_PFNoPUHT_HT1000 = fs->make <TH1F> ("MHTpassedprobes_PFNoPUHT_HT1000", 
+                                                        "MHT passed probes", 100, 0., 500.);
+   h_MHTpassedprobes_PFNoPUHT_HT1000->Sumw2();
 
    // ----------------------------------------------------------------------------- //
 

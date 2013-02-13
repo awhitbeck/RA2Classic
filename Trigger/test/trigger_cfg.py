@@ -63,6 +63,8 @@ process.trigger.jetCollection = 'patJetsPF'
 ###############################################################################
 # Filters
 ###############################################################################
+process.load('SandBox.Skims.RA2CaloVsPFMHTFilterSequence_cff')
+
 from RecoMET.METFilters.jetIDFailureFilter_cfi import jetIDFailure
 process.PBNRFilter = jetIDFailure.clone(
     JetSource = cms.InputTag('patJetsPF'),
@@ -71,7 +73,7 @@ process.PBNRFilter = jetIDFailure.clone(
     )
 from RecoMET.METFilters.multiEventFilter_cfi import multiEventFilter
 process.HCALLaserEvtFilterList2012 = multiEventFilter.clone(
-    file        = cms.FileInPath('EventFilter/HcalRawToDigi/data/AllBadHCALLaser.txt'),
+    file        = cms.FileInPath('RA2Classic/AdditionalInputFiles/data/HCALLaserEventList_20Nov2012-v2_HT-HTMHT.txt'),
     taggingMode = cms.bool(False)
     )
 
@@ -107,6 +109,22 @@ process.logErrorTooManyClustersFilter.ResultSource = cms.InputTag("logErrorTooMa
 ###############################################################################
 
 ###############################################################################
+# Lepton Veto
+###############################################################################
+process.load('SandBox.Skims.RA2Leptons_cff')
+###############################################################################
+
+###############################################################################
+# DeltaPhi cut
+###############################################################################
+from SandBox.Skims.jetMHTDPhiFilter_cfi import jetMHTDPhiFilter
+process.RA2JetMHTDPhiFilter = jetMHTDPhiFilter.clone(
+  MHTSource = cms.InputTag("mhtPFchs"),
+  JetSource = cms.InputTag("patJetsPF")
+)
+###############################################################################
+
+###############################################################################
 process.load('SandBox.Skims.RA2HT_cff')
 ###############################################################################
 
@@ -129,6 +147,10 @@ process.turnon = cms.Path(
     ~process.tooManyStripClustersFilter *
     ~process.logErrorTooManyClustersFilter *
     process.PBNRFilter *
+    process.RA2CaloVsPFMHTFilterSequence *
+ #   process.ra2PFMuonVeto *
+ #   process.ra2ElectronVeto *
+ #  process.RA2JetMHTDPhiFilter *
     process.trigger
 )
 
