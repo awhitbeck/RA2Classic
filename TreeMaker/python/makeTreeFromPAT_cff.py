@@ -1,4 +1,4 @@
-# $Id: makeTreeFromPAT_cff.py,v 1.16 2013/01/24 15:42:53 mschrode Exp $
+# $Id: makeTreeFromPAT_cff.py,v 1.17 2013/02/08 10:10:05 mschrode Exp $
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -9,6 +9,8 @@ def makeTreeFromPAT(process,
                     HTMin=350.,
                     MHTMin=0.,
                     globalTag="none",
+                    isData=True,
+                    hltPath=[],
                     reportEveryEvt=10,
                     testFileName="",
                     numProcessedEvt=100):
@@ -24,7 +26,7 @@ def makeTreeFromPAT(process,
         )
     process.options = cms.untracked.PSet(
         wantSummary = cms.untracked.bool(True)
-        ) 
+        )
 
 
     ## --- Files to process ------------------------------------------------
@@ -46,6 +48,23 @@ def makeTreeFromPAT(process,
 
     ## --- Selection sequences ---------------------------------------------
 
+    # HLT
+    process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
+    process.hltHighLevel.HLTPaths = cms.vstring(hltPath)
+    process.hltHighLevel.andOr = cms.bool(True)
+    process.hltHighLevel.throw = cms.bool(False)
+
+    process.HLTSelection = cms.Sequence(
+        process.hltHighLevel
+        )
+    if not isData:
+        print "Running over MC: removing HLT selection"
+        process.HLTSelection.remove(process.hltHighLevel)
+    elif not hltPath:
+        print "Empty list of HLT paths: removing HLT selection"
+        process.HLTSelection.remove(process.hltHighLevel)
+
+        
     # Filter-related selection
     process.load('RA2Classic.TreeMaker.filterSelection_cff')
     from RecoMET.METFilters.jetIDFailureFilter_cfi import jetIDFailure
@@ -67,6 +86,7 @@ def makeTreeFromPAT(process,
     process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
     process.GlobalTag.globaltag = globalTag
     process.load('SandBox.Skims.RA2CaloVsPFMHTFilterSequence_cff')
+    process.RA2CaloVsPFMHTFilter.TaggingMode = cms.bool(False)
     process.filterSelection += process.RA2CaloVsPFMHTFilterSequence
     
     process.load('SandBox.Skims.RA2Leptons_cff')
@@ -174,6 +194,7 @@ def makeTreeFromPAT(process,
 
     #    process.dump = cms.EDAnalyzer("EventContentAnalyzer")
     process.WriteTree = cms.Path(
+        process.HLTSelection *
         process.ProduceRA2Jets *
         process.filterSelection *
         #process.PBNRFilter * process.HCALLaserEvtFilterList2012 *
