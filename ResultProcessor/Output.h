@@ -19,6 +19,7 @@ public:
     return cleanName(GlobalParameters::analysisId());
   }
   static TString cleanName(const TString &name);
+  static TString cleanLatexName(const TString &name);
 
   Output();
   ~Output() {};

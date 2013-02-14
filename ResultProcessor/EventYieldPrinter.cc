@@ -1,4 +1,4 @@
-// $Id: EventYieldPrinter.cc,v 1.7 2013/02/09 18:44:41 mschrode Exp $
+// $Id: EventYieldPrinter.cc,v 1.8 2013/02/11 10:19:40 mschrode Exp $
 
 #include <fstream>
 #include <iomanip>
@@ -82,8 +82,8 @@ void EventYieldPrinter::printToLaTeX(const TString &outFileName) const {
   file << "%===========================================================================" << std::endl;
   file << "% Datasets vs Selections: yields and total uncertainties" << std::endl;
   file << "%===========================================================================" << std::endl;
-  file << "\n\\begin{tabular}{";
-  for(unsigned int i = 0; i < inputDataSets.size()+1; ++i) {
+  file << "\n\\begin{tabular}{l";
+  for(unsigned int i = 1; i < inputDataSets.size()+1; ++i) {
     file << "r";
   }
   file << "}\n";
@@ -91,11 +91,11 @@ void EventYieldPrinter::printToLaTeX(const TString &outFileName) const {
 
   file << std::setw(width) << "Selection";
   for(DataSetIt itd = inputDataSets.begin(); itd != inputDataSets.end(); ++itd) {
-    file << std::setw(5) << " & " << std::setw(12) << (*itd)->label();
+    file << std::setw(5) << " & " << std::setw(12) << Output::cleanLatexName((*itd)->label());
   }
   file << "  \\\\ \n\\midrule\n";
   for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
-    file << std::setw(width) << (*its)->uid();
+    file << std::setw(width) << Output::cleanLatexName((*its)->uid());
     DataSets selectedDataSets = DataSet::findAllWithSelection((*its)->uid());
     for(DataSetIt itsd = selectedDataSets.begin(); itsd != selectedDataSets.end(); ++itsd) {
       file << std::setw(5) << " & ";
@@ -132,7 +132,7 @@ void EventYieldPrinter::printToLaTeX(const TString &outFileName) const {
 
   for(DataSetIt itd = inputDataSets.begin(); itd != inputDataSets.end(); ++itd) {
     file << "\n\n%---------------------------------------------------------------------------" << std::endl;
-    file << "% Dataset: " << (*itd)->label() << std::endl;
+    file << "% Dataset: " << Output::cleanLatexName((*itd)->label()) << std::endl;
     file << "%---------------------------------------------------------------------------" << std::endl;
     file << "\n\\begin{tabular}{l|rrr";
     for(unsigned int i = 0; i < (*itd)->nSyst(); ++i) {
@@ -152,7 +152,7 @@ void EventYieldPrinter::printToLaTeX(const TString &outFileName) const {
     file << "  \\\\ \n\\midrule\n";
 
     for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
-      file << std::setw(width) << (*its)->uid();      
+      file << std::setw(width) << Output::cleanLatexName((*its)->uid());      
       const DataSet* selectedDataSet = DataSet::find((*itd)->label(),*its);
       char yield[50];
       char stat[50];

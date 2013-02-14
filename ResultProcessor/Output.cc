@@ -184,3 +184,11 @@ TString Output::cleanName(const TString &name) {
 
   return cleanedName;
 }
+
+
+TString Output::cleanLatexName(const TString &name) {
+  TString cleanedName = name;
+  cleanedName.ReplaceAll("_","\\_");
+
+  return cleanedName;
+}
