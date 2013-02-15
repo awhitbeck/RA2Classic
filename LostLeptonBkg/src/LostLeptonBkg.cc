@@ -63,6 +63,7 @@ LostLeptonBkg::LostLeptonBkg(const edm::ParameterSet& iConfig)
    DiLepCorrectionDown_ = iConfig.getParameter <double> ("DiLepCorrectionDown");
    TAPUncertainties_ = iConfig.getParameter <bool> ("TagAndProbeUncertainty");
    TAPConstUncertainty_ = iConfig.getParameter <bool> ("TagAndProbeConstUncertainty");
+   TAPUncertaintiesHTNJET_ = iConfig.getParameter <bool> ("TAPUncertaintiesHTNJET");
    MetJetTagUp_= iConfig.getParameter<edm::InputTag>("MetJetTagUp");
    MetJetTagDown_= iConfig.getParameter<edm::InputTag>("MetJetTagDown");
    MTWUncertaintyUp_ = iConfig.getParameter <double> ("MTWUncertaintyUp");
@@ -72,6 +73,7 @@ LostLeptonBkg::LostLeptonBkg(const edm::ParameterSet& iConfig)
    elecAccUncertaintyUp_= iConfig.getParameter <double> ("elecAccUncertaintyUp");
    elecAccUncertaintyDown_= iConfig.getParameter <double> ("elecAccUncertaintyDown");
    diBosonDown_ = iConfig.getParameter <double> ("diBosonDown");
+   statErrorEffmaps_ = iConfig.getParameter <bool> ("statErrorEffmaps");
 
 	// Iso plots for AN
 	   IsoPlots_ = iConfig.getParameter <bool> ("IsoPlots");
@@ -436,6 +438,7 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	muAllIsoWeight2_ =  eventWeight_ * 1 / muonIsoEff2_;
 	// the muon out of acceptance fraction
 	muonAccEff2_ = MuonAccEff3_->GetBinContent(muonAccXaxis3,muonAccYaxis3);
+	if (statErrorEffmaps_) muonBinByBinAccEffError_= MuonAccEff3_->GetBinError(muonAccXaxis3,muonAccYaxis3);
 	muonAccWeight2_ = eventWeight_ * 1/muonIsoEff2_ * 1/muonRecoEff2_ *(1-muonAccEff2_)/muonAccEff2_;
 	// total muon weight
 	totalMuons_ = eventWeight_ / (muonAccEff2_ * muonRecoEff2_ * muonIsoEff2_);
@@ -470,12 +473,15 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	elecAccEff2_ = ElecAccEff3_->GetBinContent(elecAccXaxis3,elecAccYaxis3);
 	if (elecAccEff2_ >1 || elecAccEff2_ <0.001) error_+=10000;
 	elecAccWeight2_ = totalMuons_ * (1 - elecAccEff2_);
+	if (statErrorEffmaps_) elecBinByBinAccEffError_= ElecAccEff3_->GetBinError(elecAccXaxis3,elecAccYaxis3);
 
 	elecRecoEff2_ = ElecRecoEff2_->GetBinContent(elecRecoXaxis2,elecRecoYaxis2 );
 	if (elecRecoEff2_ <0.001 || elecRecoEff2_ > 1) error_+=100000;
 	elecRecoWeight2_ = totalMuons_ * (elecAccEff2_) * (1 - elecRecoEff2_);
+	if (statErrorEffmaps_) elecBinByBinRecoEffError_= ElecRecoEff2_->GetBinError(elecRecoXaxis2,elecRecoYaxis2);
 	
 	elecIsoEff2_ = ElecIsoEff2_->GetBinContent(elecIsoXaxis2,elecIsoYaxis2 );
+
 	if (elecIsoEff2_ <0.001 || elecIsoEff2_ > 1) error_+=1000000;
 	//elecIsoWeight2_ = totalMuons_ * elecAccEff2_ * elecRecoEff2_ * (1 - elecIsoEff2_);
 	elecIsoWeight2_ =elecBinByBinIsoWeight_;
@@ -521,18 +527,21 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		muonBinByBinIsoXaxis = MuonIsoBinByBinEff35_->GetXaxis()->FindBin(ht_);
 		muonBinByBinIsoYaxis = MuonIsoBinByBinEff35_->GetYaxis()->FindBin(mht_);
 		muonBinByBinIsoEff_ = MuonIsoBinByBinEff35_->GetBinContent(muonBinByBinIsoXaxis,muonBinByBinIsoYaxis);
+		if (statErrorEffmaps_) muonBinByBinIsoEffError_= MuonIsoBinByBinEff35_->GetBinError(muonBinByBinIsoXaxis,muonBinByBinIsoYaxis);
 	}
 	if (nJets_ > 5.5 && 7.5 > nJets_)
 	{
 		muonBinByBinIsoXaxis = MuonIsoBinByBinEff67_->GetXaxis()->FindBin(ht_);
 		muonBinByBinIsoYaxis = MuonIsoBinByBinEff67_->GetYaxis()->FindBin(mht_);
 		muonBinByBinIsoEff_ = MuonIsoBinByBinEff67_->GetBinContent(muonBinByBinIsoXaxis,muonBinByBinIsoYaxis);
+		if (statErrorEffmaps_) muonBinByBinIsoEffError_= MuonIsoBinByBinEff67_->GetBinError(muonBinByBinIsoXaxis,muonBinByBinIsoYaxis);
 	}
 	if (nJets_ > 7.5)
 	{
 		muonBinByBinIsoXaxis = MuonIsoBinByBinEff8Inf_->GetXaxis()->FindBin(ht_);
 		muonBinByBinIsoYaxis = MuonIsoBinByBinEff8Inf_->GetYaxis()->FindBin(mht_);
 		muonBinByBinIsoEff_ = MuonIsoBinByBinEff8Inf_->GetBinContent(muonBinByBinIsoXaxis,muonBinByBinIsoYaxis);
+		if (statErrorEffmaps_) muonBinByBinIsoEffError_= MuonIsoBinByBinEff67_->GetBinError(muonBinByBinIsoXaxis,muonBinByBinIsoYaxis);
 	}
 
 
@@ -552,6 +561,7 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	muonBinByBinIsoWeight_ = eventWeight_ * (1 - muonBinByBinIsoEff_)/muonBinByBinIsoEff_;	
 	std::cout<<"LostLeptonBkg::muonBinByBinIsoWeight_:"<<muonBinByBinIsoWeight_<<std::endl;
 	muonBinByBinRecoEff_ = MuonRecoBinByBinEff_->GetBinContent(muonBinByBinRecoXaxis,muonBinByBinRecoYaxis,muonBinByBinRecoZaxis );
+//	if (statErrorEffmaps_) muonBinByBinRecoEffError_= MuonRecoBinByBinEff_->GetBinError(muonBinByBinRecoXaxis,muonBinByBinRecoYaxis,muonBinByBinRecoZaxis );
 	muonBinByBinRecoEff_ = muonRecoEff2_;
 	if (muonBinByBinRecoEff_ <0.01 || muonBinByBinRecoEff_ > 1) error_+=103;
 	if (muonBinByBinRecoEff_<0.01) muonBinByBinRecoEff_=0.01;
@@ -560,6 +570,7 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	std::cout<<"LostLeptonBkg::muonBinByBinRecoWeight_:"<<muonBinByBinRecoWeight_<<std::endl;
 
 	muonBinByBinAccEff_ = MuonAccBinByBinEff_->GetBinContent(muonBinByBinAccXaxis,muonBinByBinAccYaxis,muonBinByBinAccZaxis );
+//	if (statErrorEffmaps_) muonBinByBinAccEffError_= MuonAccBinByBinEff_->GetBinError(muonBinByBinAccXaxis,muonBinByBinAccYaxis,muonBinByBinAccZaxis );
 	muonBinByBinAccEff_ = muonAccEff2_;
 	if (muonBinByBinAccEff_ <0.01 || muonBinByBinAccEff_ > 1) error_+=103;
 	if (muonBinByBinAccEff_<0.01) muonBinByBinAccEff_=0.01;
@@ -591,21 +602,24 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	int elecBinByBinIsoYaxis=0;
 	if (nJets_ > 2.5 && 5.5 > nJets_)
 	{
-		elecBinByBinAccXaxis = ElecIsoBinByBinEff35_->GetXaxis()->FindBin(ht_);
-		elecBinByBinAccYaxis = ElecIsoBinByBinEff35_->GetYaxis()->FindBin(mht_);
+		elecBinByBinIsoXaxis = ElecIsoBinByBinEff35_->GetXaxis()->FindBin(ht_);
+		elecBinByBinIsoYaxis = ElecIsoBinByBinEff35_->GetYaxis()->FindBin(mht_);
 		elecBinByBinIsoEff_ = ElecIsoBinByBinEff35_->GetBinContent(elecBinByBinIsoXaxis,elecBinByBinIsoYaxis);
+		if (statErrorEffmaps_) elecBinByBinIsoEffError_= ElecIsoBinByBinEff35_->GetBinError(elecBinByBinIsoXaxis,elecBinByBinIsoYaxis );
 	}
 	if (nJets_ > 5.5 && 7.5 > nJets_)
 	{
-		elecBinByBinAccXaxis = ElecIsoBinByBinEff67_->GetXaxis()->FindBin(ht_);
-		elecBinByBinAccYaxis = ElecIsoBinByBinEff67_->GetYaxis()->FindBin(mht_);
+		elecBinByBinIsoXaxis = ElecIsoBinByBinEff67_->GetXaxis()->FindBin(ht_);
+		elecBinByBinIsoYaxis = ElecIsoBinByBinEff67_->GetYaxis()->FindBin(mht_);
 		elecBinByBinIsoEff_ = ElecIsoBinByBinEff67_->GetBinContent(elecBinByBinIsoXaxis,elecBinByBinIsoYaxis);
+		if (statErrorEffmaps_) elecBinByBinIsoEffError_= ElecIsoBinByBinEff67_->GetBinError(elecBinByBinIsoXaxis,elecBinByBinIsoYaxis );
 	}
 	if (nJets_ > 7.5)
 	{
-		elecBinByBinAccXaxis = ElecIsoBinByBinEff8Inf_->GetXaxis()->FindBin(ht_);
-		elecBinByBinAccYaxis = ElecIsoBinByBinEff8Inf_->GetYaxis()->FindBin(mht_);
+		elecBinByBinIsoXaxis = ElecIsoBinByBinEff8Inf_->GetXaxis()->FindBin(ht_);
+		elecBinByBinIsoYaxis = ElecIsoBinByBinEff8Inf_->GetYaxis()->FindBin(mht_);
 		elecBinByBinIsoEff_ = ElecIsoBinByBinEff8Inf_->GetBinContent(elecBinByBinIsoXaxis,elecBinByBinIsoYaxis);
+		if (statErrorEffmaps_) elecBinByBinIsoEffError_= ElecIsoBinByBinEff8Inf_->GetBinError(elecBinByBinIsoXaxis,elecBinByBinIsoYaxis );
 	}
 
 
@@ -618,6 +632,7 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	// calc eff and weights
 	elecBinByBinAccEff_ = ElecAccBinByBinEff_->GetBinContent(elecBinByBinAccXaxis,elecBinByBinAccYaxis,elecBinByBinAccZaxis );
+//	if (statErrorEffmaps_) elecBinByBinAccEffError_= ElecAccBinByBinEff_->GetBinError(elecBinByBinAccXaxis,elecBinByBinAccYaxis,elecBinByBinAccZaxis );
 	elecBinByBinAccEff_ = elecAccEff2_;
 	if (elecBinByBinAccEff_ <0.01 || elecBinByBinAccEff_ > 1) error_+=103;
 	if (elecBinByBinAccEff_<0.01) elecBinByBinAccEff_=0.01;
@@ -627,6 +642,7 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 	elecBinByBinRecoEff_ = ElecRecoBinByBinEff_->GetBinContent(elecBinByBinRecoXaxis,elecBinByBinRecoYaxis,elecBinByBinRecoZaxis );
+//	if (statErrorEffmaps_) elecBinByBinRecoEffError_= ElecRecoBinByBinEff_->GetBinError(elecBinByBinRecoXaxis,elecBinByBinRecoYaxis,elecBinByBinRecoZaxis );
 	elecBinByBinRecoEff_ = elecRecoEff2_;
 	if (elecBinByBinRecoEff_ <0.01 || elecBinByBinRecoEff_ > 1) error_+=103;
 	if (elecBinByBinRecoEff_<0.01) elecBinByBinRecoEff_=0.01;
@@ -683,7 +699,11 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		if (muonIsoXaxisMC > MuIsoMCTAP_->GetNbinsX()) muonIsoXaxisMC-=1;
 		int muonIsoYaxisMC= MuIsoMCTAP_->GetYaxis()->FindBin(genPTRelJet_);
 		if (muonIsoYaxisMC > MuIsoMCTAP_->GetNbinsY()) muonIsoYaxisMC-=1;
+		
+
+
 		double muonIsoEffMC = MuIsoMCTAP_->GetBinContent(muonIsoXaxisMC,muonIsoYaxisMC );
+
 
 		int muonIsoXaxisData= MuIsoDataTAP_->GetXaxis()->FindBin(deltaRMuJet_);
 		if (muonIsoXaxisData > MuIsoDataTAP_->GetNbinsX()) muonIsoXaxisData-=1;
@@ -691,14 +711,46 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		if (muonIsoYaxisData > MuIsoDataTAP_->GetNbinsY()) muonIsoYaxisData-=1;
 		double muonIsoEffData = MuIsoDataTAP_->GetBinContent(muonIsoXaxisData,muonIsoYaxisData );
 
-		double muonIsoWeightMC = eventWeight_ * (1 - muonIsoEffMC)/muonIsoEffMC;
-		double muonIsoWeightData = eventWeight_ * (1 - muonIsoEffData)/muonIsoEffData;
-		
-		muonIsoTAPRelUncertainty_ = (muonIsoWeightMC-muonIsoWeightData)/muonIsoWeightData;
+		if(TAPUncertaintiesHTNJET_) 
+		{
+		int muonIsoXaxisMCHTNJet = MuIsoMCTAPHTNJET_->GetXaxis()->FindBin(ht_);
+		if (muonIsoXaxisMCHTNJet > MuIsoMCTAPHTNJET_->GetNbinsX()+1) muonIsoXaxisMCHTNJet-=1;
+		int muonIsoYaxisMCHTNJet = MuIsoMCTAPHTNJET_->GetYaxis()->FindBin(nJets_);
+		if (muonIsoYaxisMCHTNJet > MuIsoMCTAPHTNJET_->GetNbinsY()+1) muonIsoYaxisMCHTNJet-=1;
+		muonIsoEffMC = MuIsoMCTAPHTNJET_->GetBinContent(muonIsoXaxisMCHTNJet, muonIsoYaxisMCHTNJet);
+		std::cout<<"TAPUncertaintiesHTNJet::muonIsoEffMC="<<MuIsoMCTAPHTNJET_->GetBinContent(muonIsoXaxisMCHTNJet, muonIsoYaxisMCHTNJet)<<std::endl;
+
+		int muonIsoXaxisDataHTNJet = MuIsoDataTAPHTNJET_->GetXaxis()->FindBin(ht_);
+		if (muonIsoXaxisDataHTNJet > MuIsoDataTAPHTNJET_->GetNbinsX()+1) muonIsoXaxisDataHTNJet-=1;
+		int muonIsoYaxisDataHTNJet = MuIsoDataTAPHTNJET_->GetYaxis()->FindBin(nJets_);
+		if (muonIsoYaxisDataHTNJet > MuIsoDataTAPHTNJET_->GetNbinsY()+1) muonIsoYaxisDataHTNJet-=1;
+		muonIsoEffData = MuIsoDataTAPHTNJET_->GetBinContent(muonIsoXaxisDataHTNJet, muonIsoYaxisDataHTNJet);
+		std::cout<<"TAPUncertaintiesHTNJet::muonIsoEffData="<<MuIsoDataTAPHTNJET_->GetBinContent(muonIsoXaxisDataHTNJet, muonIsoYaxisDataHTNJet)<<std::endl;
+		}
+		if (muonIsoEffMC <0.001) error_+=999;
+		if (muonIsoEffMC >1) error_+=-999;
+		if (muonIsoEffData <0.001) error_+=9999;
+		if (muonIsoEffData >1) error_+=-9999;
+
+		if (muonIsoEffMC <0.01) muonIsoEffMC=0.01;
+		if (muonIsoEffMC >0.99) muonIsoEffMC=0.99;
+		if (muonIsoEffData <0.01) muonIsoEffData=0.01;
+		if (muonIsoEffData >0.99) muonIsoEffData=0.99;
+		double muonTAPIsoWeightMC = eventWeight_ * (1 - muonIsoEffMC)/muonIsoEffMC;
+		double muonTAPIsoWeightData = eventWeight_ * (1 - muonIsoEffData)/muonIsoEffData;
+		muonIsoTAPRelUncertainty_ = (muonTAPIsoWeightMC-muonTAPIsoWeightData)/muonTAPIsoWeightData;
 		if (muonIsoTAPRelUncertainty_<-0.00) muonIsoTAPRelUncertainty_=muonIsoTAPRelUncertainty_ * (-1);
 		double MuIsoFraction = muonBinByBinIsoWeight_/resultBBBWMTWDiLep_;
-		muonIsoTAPUp_ = resultBBBWMTWDiLep_ + (muonIsoTAPRelUncertainty_ * MuIsoFraction);
-		muonIsoTAPDown_ = resultBBBWMTWDiLep_ - (muonIsoTAPRelUncertainty_ * MuIsoFraction);
+		muonTAPIsoWeightMC_= resultBBBWMTWDiLep_ - muonBinByBinIsoWeight_ + muonTAPIsoWeightMC;
+		muonTAPIsoWeightData_= resultBBBWMTWDiLep_ - muonBinByBinIsoWeight_ + muonTAPIsoWeightData;
+	
+		muonIsoTAPUp_ = resultBBBWMTWDiLep_ + resultBBBWMTWDiLep_ *(muonIsoTAPRelUncertainty_ * MuIsoFraction);
+		std::cout<<"muonIsoTAPUp_::"<<muonIsoTAPUp_<<std::endl;
+		muonIsoTAPDown_ = resultBBBWMTWDiLep_ - resultBBBWMTWDiLep_ *(muonIsoTAPRelUncertainty_ * MuIsoFraction);
+		std::cout<<"muonIsoTAPDown_::"<<muonIsoTAPDown_<<std::endl;
+
+		if (muonIsoTAPUp_ >10) muonIsoTAPUp_=10;
+		if (muonIsoTAPDown_<0.01) muonIsoTAPDown_=0.01;
 
 		int muonRecoXaxisMC= MuRecoMCTAP_->GetXaxis()->FindBin(deltaRMuJet_);
 		if (muonRecoXaxisMC > MuRecoMCTAP_->GetNbinsX()) muonRecoXaxisMC-=1;
@@ -714,36 +766,76 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 		double muonRecoWeightMC = eventWeight_ * 1 / muonBinByBinIsoEff_ * (1-muonRecoEffMC)/muonRecoEffMC;
 		double muonRecoWeightData = eventWeight_ * 1 / muonBinByBinIsoEff_ * (1-muonRecoEffData)/muonRecoEffData;
+		muonTAPRecoWeightMC_= resultBBBWMTWDiLep_ - muonBinByBinRecoWeight_ + muonRecoWeightMC;
+		muonTAPRecoWeightData_= resultBBBWMTWDiLep_ - muonBinByBinRecoWeight_ + muonRecoWeightData;
+
 		muonRecoTAPRelUncertainty_ = (muonRecoWeightMC-muonRecoWeightData)/muonRecoWeightData;
 		if (muonRecoTAPRelUncertainty_<0.00) muonRecoTAPRelUncertainty_=muonRecoTAPRelUncertainty_*(-1);
 		double MuRecoFraction = muonBinByBinRecoWeight_/resultBBBWMTWDiLep_;
-		muonRecoTAPUp_ = resultBBBWMTWDiLep_ + (muonRecoTAPRelUncertainty_ * MuRecoFraction);
-		muonRecoTAPDown_ = resultBBBWMTWDiLep_ - (muonRecoTAPRelUncertainty_ * MuRecoFraction);
+		muonRecoTAPUp_ = resultBBBWMTWDiLep_ + resultBBBWMTWDiLep_ * (muonRecoTAPRelUncertainty_ * MuRecoFraction);
+		muonRecoTAPDown_ = resultBBBWMTWDiLep_ - resultBBBWMTWDiLep_ *(muonRecoTAPRelUncertainty_ * MuRecoFraction);
+
+
+
+////
+
+		// elec tag and probev uncertainties
+
+		
+
+		int elecRecoXaxisMC= ElecRecoMCTAP_->GetXaxis()->FindBin(MuEta_);
+		if (elecRecoXaxisMC > ElecRecoMCTAP_->GetNbinsX()) elecRecoXaxisMC-=1;
+		int elecRecoYaxisMC= ElecRecoMCTAP_->GetYaxis()->FindBin(MuPt_);
+		if (elecRecoYaxisMC > ElecRecoMCTAP_->GetNbinsY()) elecRecoYaxisMC-=1;
+		double elecRecoEffMC = ElecRecoMCTAP_->GetBinContent(elecRecoXaxisMC,elecRecoYaxisMC );
+
+		int elecRecoXaxisData= ElecRecoDataTAP_->GetXaxis()->FindBin(MuEta_);
+		if (elecRecoXaxisData > ElecRecoDataTAP_->GetNbinsX()) elecRecoXaxisData-=1;
+		int elecRecoYaxisData= ElecRecoDataTAP_->GetYaxis()->FindBin(MuPt_);
+		if (elecRecoYaxisData > ElecRecoDataTAP_->GetNbinsY()) elecRecoYaxisData-=1;
+		double elecRecoEffData = ElecRecoDataTAP_->GetBinContent(elecRecoXaxisData,elecRecoYaxisData );
+
+		double elecTAPRecoWeightMC = totalBinByBinMuons_ * (elecBinByBinAccEff_) * (1 - elecRecoEffMC);
+		double elecTAPRecoWeightData = totalBinByBinMuons_ * (elecBinByBinAccEff_) * (1 - elecRecoEffData);
+		elecRecoTAPRelUncertainty_ = (elecTAPRecoWeightMC-elecTAPRecoWeightData)/elecTAPRecoWeightData;
+		if (elecRecoTAPRelUncertainty_<0.00) elecRecoTAPRelUncertainty_=elecRecoTAPRelUncertainty_*(-1);
+		double ElecRecoFraction = elecBinByBinRecoWeight_/resultBBBWMTWDiLep_;
+		elecRecoTAPUp_ = resultBBBWMTWDiLep_ + resultBBBWMTWDiLep_ * (elecRecoTAPRelUncertainty_ * ElecRecoFraction);
+		elecRecoTAPDown_ = resultBBBWMTWDiLep_ - resultBBBWMTWDiLep_ * (elecRecoTAPRelUncertainty_ * ElecRecoFraction);
+		elecTAPRecoWeightMC_=resultBBBWMTWDiLep_ - elecBinByBinRecoWeight_ + elecTAPRecoWeightMC;
+		elecTAPRecoWeightData_=resultBBBWMTWDiLep_ - elecBinByBinRecoWeight_ + elecTAPRecoWeightData;
+
+
+
+		int elecIsoXaxisMC= ElecIsoMCTAP_->GetXaxis()->FindBin(MuEta_);
+		if (elecIsoXaxisMC > ElecIsoMCTAP_->GetNbinsX()) elecIsoXaxisMC-=1;
+		int elecIsoYaxisMC= ElecIsoMCTAP_->GetYaxis()->FindBin(MuPt_);
+		if (elecIsoYaxisMC > ElecIsoMCTAP_->GetNbinsY()) elecIsoYaxisMC-=1;
+		double elecIsoEffMC = ElecIsoMCTAP_->GetBinContent(elecIsoXaxisMC,elecIsoYaxisMC );
+
+		int elecIsoXaxisData= ElecIsoDataTAP_->GetXaxis()->FindBin(MuEta_);
+		if (elecIsoXaxisData > ElecIsoDataTAP_->GetNbinsX()) elecIsoXaxisData-=1;
+		int elecIsoYaxisData= ElecIsoDataTAP_->GetYaxis()->FindBin(MuPt_);
+		if (elecIsoYaxisData > ElecIsoDataTAP_->GetNbinsY()) elecIsoYaxisData-=1;
+		double elecIsoEffData = ElecIsoDataTAP_->GetBinContent(elecIsoXaxisData,elecIsoYaxisData );
+
+		double elecTAPIsoWeightMC = totalBinByBinMuons_ * (elecBinByBinAccEff_) * (elecBinByBinRecoEff_) * (1 - elecIsoEffMC);
+		double elecTAPIsoWeightData = totalBinByBinMuons_ * (elecBinByBinAccEff_) * (elecBinByBinRecoEff_) * (1 - elecIsoEffData);
+		elecIsoTAPRelUncertainty_ = (elecTAPIsoWeightMC-elecTAPIsoWeightData)/elecTAPIsoWeightData;
+		if (elecIsoTAPRelUncertainty_<0.00) elecIsoTAPRelUncertainty_=elecIsoTAPRelUncertainty_*(-1);
+		double ElecIsoFraction = elecBinByBinIsoWeight_/resultBBBWMTWDiLep_;
+		elecIsoTAPUp_ = resultBBBWMTWDiLep_ + resultBBBWMTWDiLep_ * (elecIsoTAPRelUncertainty_ * ElecIsoFraction);
+		elecIsoTAPDown_ = resultBBBWMTWDiLep_ - resultBBBWMTWDiLep_ * (elecIsoTAPRelUncertainty_ * ElecIsoFraction);
+		elecTAPIsoWeightMC_=resultBBBWMTWDiLep_ - elecBinByBinIsoWeight_ + elecTAPIsoWeightMC;
+		elecTAPIsoWeightData_=resultBBBWMTWDiLep_ - elecBinByBinIsoWeight_ + elecTAPIsoWeightData;
+
+
+
+
 
 		// electron uncertainty tag and probe
 		if (false)
 		{
-		// elec tag and probe uncertainty
-		int elecIsoXaxisMC= ElecIsoMCTAP_->GetXaxis()->FindBin(deltaRMuJet_);
-		if (elecIsoXaxisMC > ElecIsoMCTAP_->GetNbinsX()) elecIsoXaxisMC-=1;
-		int elecIsoYaxisMC= ElecIsoMCTAP_->GetYaxis()->FindBin(genPTRelJet_);
-		if (elecIsoYaxisMC > ElecIsoMCTAP_->GetNbinsY()) elecIsoYaxisMC-=1;
-		double elecIsoEffMC = ElecIsoMCTAP_->GetBinContent(elecIsoXaxisMC,elecIsoYaxisMC );
-
-		int elecIsoXaxisData= ElecIsoDataTAP_->GetXaxis()->FindBin(deltaRMuJet_);
-		if (elecIsoXaxisData > ElecIsoDataTAP_->GetNbinsX()) elecIsoXaxisData-=1;
-		int elecIsoYaxisData= ElecIsoDataTAP_->GetYaxis()->FindBin(genPTRelJet_);
-		if (elecIsoYaxisData > ElecIsoDataTAP_->GetNbinsY()) elecIsoYaxisData-=1;
-		double elecIsoEffData = ElecIsoDataTAP_->GetBinContent(elecIsoXaxisData,elecIsoYaxisData );
-
-		double elecIsoWeightMC = totalBinByBinMuons_ * (elecBinByBinAccEff_) * (elecBinByBinRecoEff_) * (1 - elecIsoEffMC) ;
-		double elecIsoWeightData = totalBinByBinMuons_ * (elecBinByBinAccEff_) * (elecBinByBinRecoEff_) * (1 - elecIsoEffData) ;
-		
-		elecIsoTAPRelUncertainty_ = (elecIsoWeightMC-elecIsoWeightData)/elecIsoWeightData;
-		if (elecIsoTAPRelUncertainty_<-0.00) elecIsoTAPRelUncertainty_=elecIsoTAPRelUncertainty_ * (-1);
-		double ElecIsoFraction = elecBinByBinIsoWeight_/resultBBBWMTWDiLep_;
-		elecIsoTAPUp_ = resultBBBWMTWDiLep_ + (elecIsoTAPRelUncertainty_ * ElecIsoFraction);
-		elecIsoTAPDown_ = resultBBBWMTWDiLep_ - (elecIsoTAPRelUncertainty_ * ElecIsoFraction);
 
 		int elecRecoXaxisMC= ElecRecoMCTAP_->GetXaxis()->FindBin(deltaRMuJet_);
 		if (elecRecoXaxisMC > ElecRecoMCTAP_->GetNbinsX()) elecRecoXaxisMC-=1;
@@ -759,6 +851,8 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 		double elecRecoWeightMC = totalBinByBinMuons_ * (elecBinByBinAccEff_) * (1 - elecRecoEffMC);
 		double elecRecoWeightData = totalBinByBinMuons_ * (elecBinByBinAccEff_) * (1 - elecRecoEffData);
+		elecTAPRecoWeightMC_=elecRecoWeightMC;
+		elecTAPRecoWeightData_=elecRecoWeightData;
 		elecRecoTAPRelUncertainty_ = (elecRecoWeightMC-elecRecoWeightData)/elecRecoWeightData;
 		if (elecRecoTAPRelUncertainty_<0.00) elecRecoTAPRelUncertainty_=elecRecoTAPRelUncertainty_*(-1);
 		double ElecRecoFraction = elecBinByBinRecoWeight_/resultBBBWMTWDiLep_;
@@ -777,10 +871,10 @@ LostLeptonBkg::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		muonIsoTAPUp_=resultBBBWMTWDiLep_*1.2;
 		muonIsoTAPDown_=resultBBBWMTWDiLep_*0.8;}
 
-		elecRecoTAPUp_=resultBBBWMTWDiLep_*1.2;
-		elecRecoTAPDown_=resultBBBWMTWDiLep_*0.8;
-		elecIsoTAPUp_=resultBBBWMTWDiLep_*1.2;
-		elecIsoTAPDown_=resultBBBWMTWDiLep_*0.8;
+	//	elecRecoTAPUp_=resultBBBWMTWDiLep_*1.2;
+	//	elecRecoTAPDown_=resultBBBWMTWDiLep_*0.8;
+	//	elecIsoTAPUp_=resultBBBWMTWDiLep_*1.2;
+	//	elecIsoTAPDown_=resultBBBWMTWDiLep_*0.8;
 	}
 	// acceptance unceratinty
 	if (muonAccUncertaintyUp_>0.001 && elecAccUncertaintyUp_>0.001)
@@ -1057,9 +1151,17 @@ std::cout<<"LostLeptonBkg::binBybinGetEff ended"<<std::endl;
   MuIsoMCTAPBinXMax_ = MuIsoMCTAP_->GetXaxis()->GetXmax();
   MuIsoMCTAPBinYMax_ = MuIsoMCTAP_->GetYaxis()->GetXmax();
 
+
+
   MuIsoDataTAP_ = (TH2F*)dMuon->Get("Data_TAP_mu_iso_eff");
   MuIsoDataTAPBinXMax_ = MuIsoDataTAP_->GetXaxis()->GetXmax();
   MuIsoDataTAPBinYMax_ = MuIsoDataTAP_->GetYaxis()->GetXmax();
+
+  if (TAPUncertaintiesHTNJET_)
+  {
+  MuIsoMCTAPHTNJET_ = (TH2F*)dMuon->Get("MC_TAP_mu_iso_eff_HTNJet");
+  MuIsoDataTAPHTNJET_ = (TH2F*)dMuon->Get("Data_TAP_mu_iso_eff_HTNJet");
+  }
 
 
   MuRecoMCTAP_ = (TH2F*)dMuon->Get("MC_TAP_mu_reco_eff");
@@ -1070,6 +1172,12 @@ std::cout<<"LostLeptonBkg::binBybinGetEff ended"<<std::endl;
   MuRecoDataTAPBinXMax_ = MuRecoDataTAP_->GetXaxis()->GetXmax();
   MuRecoDataTAPBinYMax_ = MuRecoDataTAP_->GetYaxis()->GetXmax();
   std::cout<<"prestuff done"<<std::endl;
+
+  ElecRecoMCTAP_ = (TH2F*)dElec->Get("MC_TAP_elec_reco_eff");
+  ElecRecoDataTAP_ = (TH2F*)dElec->Get("Data_TAP_elec_reco_eff");
+
+  ElecIsoMCTAP_ = (TH2F*)dElec->Get("MC_TAP_elec_iso_eff");
+  ElecIsoDataTAP_ = (TH2F*)dElec->Get("Data_TAP_elec_iso_eff");
 }
   // uncertainties tag and probe eff input
 
@@ -1242,6 +1350,16 @@ std::cout<<"LostLeptonBkg::binBybinGetEff ended"<<std::endl;
     tree_->Branch("elecAccUncertaintyUp",&elecAccUncertaintyUp_,"elecAccUncertaintyUp/F");
     tree_->Branch("elecAccUncertaintyDown",&elecAccUncertaintyDown_,"elecAccUncertaintyDown/F");
 
+    tree_->Branch("muonTAPIsoWeightMC",&muonTAPIsoWeightMC_,"muonTAPIsoWeightMC/F");
+    tree_->Branch("muonTAPIsoWeightData",&muonTAPIsoWeightData_,"muonTAPIsoWeightData/F");
+    tree_->Branch("muonTAPRecoWeightMC",&muonTAPRecoWeightMC_,"muonTAPRecoWeightMC/F");
+    tree_->Branch("muonTAPRecoWeightData",&muonTAPRecoWeightData_,"muonTAPRecoWeightData/F");
+
+    tree_->Branch("elecTAPIsoWeightMC",&elecTAPIsoWeightMC_,"elecTAPIsoWeightMC/F");
+    tree_->Branch("elecTAPIsoWeightData",&elecTAPIsoWeightData_,"elecTAPIsoWeightData/F");
+    tree_->Branch("elecTAPRecoWeightMC",&elecTAPRecoWeightMC_,"elecTAPRecoWeightMC/F");
+    tree_->Branch("elecTAPRecoWeightData",&elecTAPRecoWeightData_,"elecTAPRecoWeightData/F");
+
 }
 void 
 LostLeptonBkg::ResetValues()
@@ -1313,16 +1431,35 @@ muonBinByBinIsoWeight_=-1;
 muonBinByBinRecoWeight_=-1;
 muonBinByBinAccWeight_=-1;
 muonBinByBinTotalWeight_=-1;
+muonBinByBinIsoEff_=-1;
+muonBinByBinRecoEff_=-1;
+muonBinByBinAccEff_=-1;
+muonBinByBinIsoEffError_=-1;
+muonBinByBinRecoEffError_=-1;
+muonBinByBinAccEffError_=-1;
 
 elecBinByBinAccWeight_=-1;
 elecBinByBinAccEff_=-1;
+elecBinByBinAccEffError_=-1;
 elecBinByBinRecoWeight_=-1;
 elecBinByBinRecoEff_=-1;
+elecBinByBinRecoEffError_=-1;
 elecBinByBinIsoWeight_=-1;
 elecBinByBinIsoEff_=-1;
+elecBinByBinIsoEffError_=-1;
 elecBinByBinTotalWeight_=-1;
 
 // tag and probe uncertainties
+muonTAPIsoWeightMC_=0;
+muonTAPIsoWeightData_=0;
+muonTAPRecoWeightMC_=0;
+muonTAPRecoWeightData_=0;
+
+elecTAPIsoWeightMC_=0;
+elecTAPIsoWeightData_=0;
+elecTAPRecoWeightMC_=0;
+elecTAPRecoWeightData_=0;
+
 
 muonIsoTAPRelUncertainty_=0;
 muonIsoTAPUp_=0;
@@ -1353,6 +1490,8 @@ recoMtw2_=0;
 recoMtw3_=0;
 recoMtw4_=0;
 recoMtw5_=0;
+
+
 }
 // ------------ method called once each job just after ending the event loop  ------------
 void 

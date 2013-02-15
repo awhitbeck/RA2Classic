@@ -13,7 +13,7 @@
 //
 // Original Author:  Arne-Rasmus Draeger,,,uni-hamburg
 //         Created:  Thu Sep 27 10:50:02 CEST 2012
-// $Id: MCEffCalculator.cc,v 1.16 2012/12/05 13:10:48 adraeger Exp $
+// $Id: MCEffCalculator.cc,v 1.18 2013/02/04 19:02:41 adraeger Exp $
 //
 //
 
@@ -727,8 +727,8 @@ MCEffCalculator::beginJob()
 	// iso electron and muon iso
 	double binHTNJet35 [] = {500,1000,2500};
 	int BinHTNJet35 = 2;
-	double binMHTNJet35  [] = {200,450,2500};
-	int BinMHTNJet35 = 2;
+	double binMHTNJet35  [] = {200,350,450,2500};
+	int BinMHTNJet35 = 3;
 
 
 	double binHTNJet67 [] = {500,1000,2500};
@@ -745,67 +745,109 @@ MCEffCalculator::beginJob()
 	std::cout<<"MCEffCalculator::TH2 creation started."<<std::endl;
 
  	isoEffTH2PassedMuNJet35_=fs->make<TH2F>("isoEffTH2PassedMuNJet35", "isoEffTH2PassedMuNJet35",BinHTNJet35,binHTNJet35,BinMHTNJet35,binMHTNJet35);
+  	isoEffTH2PassedMuNJet35_->Sumw2();
  	isoEffTH2FailedMuNJet35_=fs->make<TH2F>("isoEffTH2FailedMuNJet35", "isoEffTH2FailedMuNJet35",BinHTNJet35,binHTNJet35,BinMHTNJet35,binMHTNJet35);
+	isoEffTH2FailedMuNJet35_->Sumw2();
 
  	isoEffTH2PassedMuNJet67_=fs->make<TH2F>("isoEffTH2PassedMuNJet67", "isoEffTH2PassedMuNJet67_",BinHTNJet67,binHTNJet67,BinMHTNJet67,binMHTNJet67);
+	isoEffTH2PassedMuNJet67_->Sumw2();
  	isoEffTH2FailedMuNJet67_=fs->make<TH2F>("isoEffTH2FailedMuNJet67", "isoEffTH2FailedMuNJet67_",BinHTNJet67,binHTNJet67,BinMHTNJet67,binMHTNJet67);
+	isoEffTH2FailedMuNJet67_->Sumw2();
 
  	isoEffTH2PassedMuNJet8Inf_=fs->make<TH2F>("isoEffTH2PassedMuNJet8Inf", "isoEffTH2PassedMuNJet8Inf",BinHTNJet8Inf,binHTNJet8Inf,BinMHTNJet8Inf,binMHTNJet8Inf);
+	isoEffTH2PassedMuNJet8Inf_->Sumw2();
  	isoEffTH2FailedMuNJet8Inf_=fs->make<TH2F>("isoEffTH2FailedMuNJet8Inf", "isoEffTH2FailedMuNJet8Inf",BinHTNJet8Inf,binHTNJet8Inf,BinMHTNJet8Inf,binMHTNJet8Inf);
+	isoEffTH2FailedMuNJet8Inf_->Sumw2();
 
 
  	isoEffTH2PassedElecNJet35_=fs->make<TH2F>("isoEffTH2PassedElecNJet35", "isoEffTH2PassedElecNJet35",BinHTNJet35,binHTNJet35,BinMHTNJet35,binMHTNJet35);
+	isoEffTH2PassedElecNJet35_->Sumw2();
  	isoEffTH2FailedElecNJet35_=fs->make<TH2F>("isoEffTH2FailedElecNJet35", "isoEffTH2FailedElecNJet35",BinHTNJet35,binHTNJet35,BinMHTNJet35,binMHTNJet35);
+	isoEffTH2FailedElecNJet35_->Sumw2();
 
  	isoEffTH2PassedElecNJet67_=fs->make<TH2F>("isoEffTH2PassedElecNJet67", "isoEffTH2PassedElecNJet67",BinHTNJet67,binHTNJet67,BinMHTNJet67,binMHTNJet67);
+	isoEffTH2PassedElecNJet67_->Sumw2();
  	isoEffTH2FailedElecNJet67_=fs->make<TH2F>("isoEffTH2FailedElecNJet67", "isoEffTH2FailedElecNJet67",BinHTNJet67,binHTNJet67,BinMHTNJet67,binMHTNJet67);
+	isoEffTH2FailedElecNJet67_->Sumw2();
 
  	isoEffTH2PassedElecNJet8Inf_=fs->make<TH2F>("isoEffTH2PassedElecNJet8Inf", "isoEffTH2PassedElecNJet8Inf",BinHTNJet8Inf,binHTNJet8Inf,BinMHTNJet8Inf,binMHTNJet8Inf);
+	isoEffTH2PassedElecNJet8Inf_->Sumw2();
  	isoEffTH2FailedElecNJet8Inf_=fs->make<TH2F>("isoEffTH2FailedElecNJet8Inf", "isoEffTH2FailedElecNJet8Inf",BinHTNJet8Inf,binHTNJet8Inf,BinMHTNJet8Inf,binMHTNJet8Inf);
+	isoEffTH2FailedElecNJet8Inf_->Sumw2();
 
 
 	std::cout<<"MCEffCalculator::TH2 creation done."<<std::endl;
 
 	// book all the result plots
 	MuonAccFailedTH2F_ =fs->make<TH2F>("MuonAccFailed3", "MuonAccFailed3",MhtBins,mhtbins,NJetBins,nJetBins);
+	MuonAccFailedTH2F_->Sumw2();
 	MuonAccPassedTH2F_ =fs->make<TH2F>("MuonAccPassed3", "MuonAccPassed3",MhtBins,mhtbins,NJetBins,nJetBins);
+	MuonAccPassedTH2F_->Sumw2();
 	ElecAccFailedTH2F_ =fs->make<TH2F>("ElecAccFailed3", "ElecAccFailed3",MhtBins,mhtbins,NJetBins,nJetBins);
+	ElecAccFailedTH2F_->Sumw2();
 	ElecAccPassedTH2F_ =fs->make<TH2F>("ElecAccPassed3", "ElecAccPassed3",MhtBins,mhtbins,NJetBins,nJetBins);
+	ElecAccPassedTH2F_->Sumw2();
 
 	muonIDFailedTH2F_ = fs->make<TH2F>("MuonRecoFailed", "MuonRecoFailed",DeltaRbinsIdMu,deltaRbinsIdMu,Ptbins,ptbins);
+	muonIDFailedTH2F_->Sumw2();
 	muonIDPassedTH2F_ = fs->make<TH2F>("MuonRecoPassed", "MuonRecoPassed",DeltaRbinsIdMu,deltaRbinsIdMu,Ptbins,ptbins);
+	muonIDPassedTH2F_->Sumw2();
 	muonIsoFailedTH2F_ = fs->make<TH2F>("muonIsoFailed","muonIsoFailed",DeltaRbinsIsoMu,deltaRbinsIsoMu,Ptbins,ptbins);
+	muonIsoFailedTH2F_->Sumw2();
 	muonIsoPassedTH2F_ = fs->make<TH2F>("muonIsoPassed","muonIsoPassed",DeltaRbinsIsoMu,deltaRbinsIsoMu,Ptbins,ptbins);
+	muonIsoPassedTH2F_->Sumw2();
 
 	muonIDFailed2TH2F_ = fs->make<TH2F>("MuonRecoFailed2", "MuonRecoFailed2",DeltaRbinsIdMu,deltaRbinsIdMu,PtbinsMu,ptbinsMu);
+	muonIDFailed2TH2F_->Sumw2();
 	muonIDPassed2TH2F_ = fs->make<TH2F>("MuonRecoPassed2", "MuonRecoPassed2",DeltaRbinsIdMu,deltaRbinsIdMu,PtbinsMu,ptbinsMu);
+	muonIDPassed2TH2F_->Sumw2();
 	muonIsoFailed2TH2F_ = fs->make<TH2F>("muonIsoFailed2","muonIsoFailed2",DeltaRbinsIsoMu,deltaRbinsIsoMu,PtbinsMu,ptbinsMu);
+	muonIsoFailed2TH2F_->Sumw2();
 	muonIsoPassed2TH2F_ = fs->make<TH2F>("muonIsoPassed2","muonIsoPassed2",DeltaRbinsIsoMu,deltaRbinsIsoMu,PtbinsMu,ptbinsMu);
+	muonIsoPassed2TH2F_->Sumw2();
 
 	MuonAccPassedTH1F_ = fs->make<TH1F>("muonAccPassed","muonAccPassed",40,0,200);
+	MuonAccPassedTH1F_->Sumw2();
 	MuonAccPassed2TH1F_ = fs->make<TH1F>("muonAccPassed2","muonAccPassed2",MhtBins,mhtbins);
+	MuonAccPassed2TH1F_->Sumw2();
 	MuonAccFailedTH1F_ = fs->make<TH1F>("muonAccFailed","muonAccFailed",40,0,200);
+	MuonAccFailedTH1F_->Sumw2();
 	MuonAccFailed2TH1F_ = fs->make<TH1F>("muonAccFailed2","muonAccFailed2",MhtBins,mhtbins);
+	MuonAccFailed2TH1F_->Sumw2();
 	MuonMTPassedTH2F_ = fs->make<TH2F>("muonMT","muonMT",1,0,1,1,0,1);
+	MuonMTPassedTH2F_->Sumw2();
 
 
 	elecIDFailedTH2F_ = fs->make<TH2F>("elecIdFailed","elecIdFailed",DeltaRbinsIdElec,deltaRbinsIdElec,Ptbins,ptbins);
+	elecIDFailedTH2F_->Sumw2();
 	elecIDPassedTH2F_ = fs->make<TH2F>("elecIdPassed","elecIdPassed",DeltaRbinsIdElec,deltaRbinsIdElec,Ptbins,ptbins);
+	elecIDPassedTH2F_->Sumw2();
 	elecIsoFailedTH2F_ = fs->make<TH2F>("elecIsoFailed","elecIsoFailed",DeltaRbinsIsoElec,deltaRbinsIsoElec,Ptbins,ptbins);
+	elecIsoFailedTH2F_->Sumw2();
 	elecIsoPassedTH2F_ = fs->make<TH2F>("elecIsoPassed","elecIsoPassed",DeltaRbinsIsoElec,deltaRbinsIsoElec,Ptbins,ptbins);
+	elecIsoPassedTH2F_->Sumw2();
 
 	elecIDFailed2TH2F_ = fs->make<TH2F>("elecIdFailed2","elecIdFailed2",DeltaRbinsIdElec,deltaRbinsIdElec,PtbinsElec,ptbinsElec);
+	elecIDFailed2TH2F_->Sumw2();
 	elecIDPassed2TH2F_ = fs->make<TH2F>("elecIdPassed2","elecIdPassed2",DeltaRbinsIdElec,deltaRbinsIdElec,PtbinsElec,ptbinsElec);
+	elecIDPassed2TH2F_->Sumw2();
 	elecIsoFailed2TH2F_ = fs->make<TH2F>("elecIsoFailed2","elecIsoFailed2",DeltaRbinsIsoElec,deltaRbinsIsoElec,PtbinsElec,ptbinsElec);
+	elecIsoFailed2TH2F_->Sumw2();
 	elecIsoPassed2TH2F_ = fs->make<TH2F>("elecIsoPassed2","elecIsoPassed2",DeltaRbinsIsoElec,deltaRbinsIsoElec,PtbinsElec,ptbinsElec);
+	elecIsoPassed2TH2F_->Sumw2();
 
 	ElecAccPassedTH1F_ = fs->make<TH1F>("elecAccPassed","elecAccPassed",40,0,200);
+	ElecAccPassedTH1F_->Sumw2();
 	ElecAccPassed2TH1F_ = fs->make<TH1F>("elecAccPassed2","elecAccPassed2",MhtBins,mhtbins);
+	ElecAccPassed2TH1F_->Sumw2();
 	ElecAccFailedTH1F_ = fs->make<TH1F>("elecAccFailed","elecAccFailed",40,0,200);
+	ElecAccFailedTH1F_->Sumw2();
 	ElecAccFailed2TH1F_ = fs->make<TH1F>("elecAccFailed2","elecAccFailed2",MhtBins,mhtbins);
+	ElecAccFailed2TH1F_->Sumw2();
 
 	// MTW 
-	MTWTH2F_ =fs->make<TH2F>("MTW","MTW",400,0,400,MhtBins,mhtbins); 
+	MTWTH2F_ =fs->make<TH2F>("MTW","MTW",400,0,400,MhtBins,mhtbins);
+	MTWTH2F_->Sumw2(); 
 	
 	// special HT1
 	lepDeltaR_ = fs->make<TH1F>("lepDeltaR","lepDeltaR",40,0,4);
