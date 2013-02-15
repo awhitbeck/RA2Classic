@@ -55,6 +55,7 @@ class LostLeptonBkg : public edm::EDProducer {
 	// other inputs
 	double MTWMax_;
 	bool MTWCut_;
+	bool statErrorEffmaps_;
  	double MinMuPT_, MinElecPT_;
 	Float_t eventWeight_;
 
@@ -95,10 +96,14 @@ class LostLeptonBkg : public edm::EDProducer {
 	// uncertainty from tag and probe
 
 	TH2F *MuIsoMCTAP_, *MuRecoMCTAP_, *MuIsoDataTAP_, *MuRecoDataTAP_;
+	TH2F *MuIsoMCTAPHTNJET_, *MuIsoDataTAPHTNJET_;
+	TH2F *ElecRecoMCTAP_, *ElecRecoDataTAP_;
 	Float_t MuIsoMCTAPBinXMax_, MuIsoMCTAPBinYMax_, MuRecoMCTAPBinXMax_, MuRecoMCTAPBinYMax_;
 	Float_t MuIsoDataTAPBinXMax_, MuIsoDataTAPBinYMax_, MuRecoDataTAPBinXMax_, MuRecoDataTAPBinYMax_;
+	Float_t muonTAPIsoWeightData_, muonTAPIsoWeightMC_, muonTAPRecoWeightMC_, muonTAPRecoWeightData_;
+	Float_t elecTAPIsoWeightData_, elecTAPIsoWeightMC_, elecTAPRecoWeightMC_, elecTAPRecoWeightData_;
 
-	TH2F *ElecIsoMCTAP_, *ElecRecoMCTAP_, *ElecIsoDataTAP_, *ElecRecoDataTAP_;
+	TH2F *ElecIsoMCTAP_, *ElecIsoDataTAP_;
 	Float_t ElecIsoMCTAPBinXMax_, ElecIsoMCTAPBinYMax_, ElecRecoMCTAPBinXMax_, ElecRecoMCTAPBinYMax_;
 	Float_t ElecIsoDataTAPBinXMax_, ElecIsoDataTAPBinYMax_, ElecRecoDataTAPBinXMax_, ElecRecoDataTAPBinYMax_;
 	// Variables
@@ -150,9 +155,11 @@ class LostLeptonBkg : public edm::EDProducer {
 	// binbybin sepearte result values
 	Float_t muonBinByBinIsoWeight_, muonBinByBinRecoWeight_, muonBinByBinAccWeight_;
  	Float_t muonBinByBinIsoEff_, muonBinByBinRecoEff_, muonBinByBinAccEff_;
+	Float_t muonBinByBinIsoEffError_, muonBinByBinRecoEffError_, muonBinByBinAccEffError_;
 
 	Float_t elecBinByBinIsoWeight_, elecBinByBinRecoWeight_, elecBinByBinAccWeight_;
  	Float_t elecBinByBinIsoEff_, elecBinByBinRecoEff_, elecBinByBinAccEff_;
+	Float_t elecBinByBinIsoEffError_, elecBinByBinRecoEffError_, elecBinByBinAccEffError_;
 
 	Float_t totalBinByBinMuons_;
 	Float_t muonBinByBinTotalWeight_, elecBinByBinTotalWeight_;
@@ -164,13 +171,14 @@ class LostLeptonBkg : public edm::EDProducer {
 	Float_t resultBBBWMTWDiLep_, resultBBBWMTWDiLepUp_, resultBBBWMTWDiLepDown_;
 
 	// tag and probe
-	bool TAPUncertainties_,TAPConstUncertainty_, IsoPlots_;
+	bool TAPUncertainties_,TAPUncertaintiesHTNJET_,TAPConstUncertainty_, IsoPlots_;
 
 	Float_t muonIsoTAPRelUncertainty_, muonIsoTAPUp_, muonIsoTAPDown_;
 	Float_t muonRecoTAPRelUncertainty_, muonRecoTAPUp_, muonRecoTAPDown_;
 
 	Float_t elecIsoTAPRelUncertainty_, elecIsoTAPUp_, elecIsoTAPDown_;
 	Float_t elecRecoTAPRelUncertainty_, elecRecoTAPUp_, elecRecoTAPDown_;
+
 
 	// acceptance
 	Float_t resultWeightBinByBinAccUp_, resultWeightBinByBinAccDown_;
