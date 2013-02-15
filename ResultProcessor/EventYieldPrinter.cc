@@ -1,4 +1,4 @@
-// $Id: EventYieldPrinter.cc,v 1.8 2013/02/11 10:19:40 mschrode Exp $
+// $Id: EventYieldPrinter.cc,v 1.9 2013/02/14 18:20:44 mschrode Exp $
 
 #include <fstream>
 #include <iomanip>
@@ -146,7 +146,7 @@ void EventYieldPrinter::printToLaTeX(const TString &outFileName) const {
     if( (*itd)->nSyst() > 1 ) {
       for(std::vector<TString>::const_iterator systIt = (*itd)->systLabelsBegin();
 	  systIt != (*itd)->systLabelsEnd(); ++systIt) {
-	file << " & " << *systIt << "[\%]";
+	file << " & " << *systIt << "[\\%]";
       }
     }
     file << "  \\\\ \n\\midrule\n";
