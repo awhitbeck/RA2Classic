@@ -1,4 +1,4 @@
-// $Id: EventYieldPrinter.cc,v 1.9 2013/02/14 18:20:44 mschrode Exp $
+// $Id: EventYieldPrinter.cc,v 1.10 2013/02/15 14:34:15 mschrode Exp $
 
 #include <fstream>
 #include <iomanip>
@@ -203,6 +203,7 @@ void EventYieldPrinter::printDataCard(const TString &outFileName) const {
     commentOnBinning += " is for " + (*its)->uid() + ", ";
   }
 
+  
   // Loop over input datasets
   for(DataSetIt itd = inputDataSets.begin(); itd != inputDataSets.end(); ++itd) {
     // General informatin
@@ -232,14 +233,14 @@ void EventYieldPrinter::printDataCard(const TString &outFileName) const {
       file << "# Uncertainties --> at least stat. and syst." << std::endl;
       file << "# In absolute numbers" << std::endl;
       file << "nuisance = stat. uncert.; ";
-      for(std::vector<TString>::const_iterator itu = (*itd)->systLabelsBegin();
-	  itu != (*itd)->systLabelsEnd(); ++itu) {
-	file << *itu << "; ";
+      if( (*itd)->hasSyst() ) {
+	file << GlobalParameters::defaultUncertaintyLabel();
       }
       file << std::endl;
       // define uncertainty distributions
-      for(unsigned int i = 1; i <= (*itd)->nSyst() + 1; ++i) {
-	file << (*itd)->label() << "_uncertaintyDistribution_" << i << " = lnN" << std::endl;
+      file << (*itd)->label() << "_uncertaintyDistribution_1 = lnN" << std::endl;
+      if( (*itd)->hasSyst() ) {
+	file << (*itd)->label() << "_uncertaintyDistribution_2 = lnN" << std::endl;
       }
       // print statistical uncertainties in each bin
       file << (*itd)->label() << "_uncertainty_1 = ";
@@ -248,22 +249,87 @@ void EventYieldPrinter::printDataCard(const TString &outFileName) const {
 	file << std::setw(width) << selectedDataSet->stat();
       }
       file << std::endl;
-      // print further uncertainties in each bin
-      unsigned int nUncert = 2;
-      for(std::vector<TString>::const_iterator itu = (*itd)->systLabelsBegin();
-	  itu != (*itd)->systLabelsEnd(); ++itu, ++nUncert) {
-	file << (*itd)->label() << "_uncertaintyDN_" << nUncert << " = ";
+      // print total systematic uncertainty in each bin
+      if( (*itd)->hasSyst() ) {
+	file << (*itd)->label() << "_uncertaintyDN_2 = ";
 	for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
 	  const DataSet* selectedDataSet = DataSet::find((*itd)->label(),*its);
+	  file << std::setw(width) << selectedDataSet->totSystDn() << " ";
+	}
+	file << std::endl;
+	file << (*itd)->label() << "_uncertaintyUP_2 = ";
+	for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
+	  const DataSet* selectedDataSet = DataSet::find((*itd)->label(),*its);
+	  file << std::setw(width) << selectedDataSet->totSystUp() << " ";
+	}
+	file << std::endl;
+      }
+    }
+
+
+    // Optionally, print individual uncertainties
+    if( (*itd)->type() != DataSet::Data && (*itd)->nSyst() > 1 ) {
+      // General informatin
+      file << "\n\n";
+      file << "# General information:" << std::endl;
+      file << "luminosity = " << 1000.*(GlobalParameters::lumi()).Atof() << " # given in pb-1" << std::endl;
+      file << "channels   = " << nBins << " # total number of channels / bins. Counting ordering, MHT, HT and nJets." << std::endl;
+      file << "sample     = " << (*itd)->label() << " # name of the sample" << std::endl;
+      if( (*itd)->type() == DataSet::Prediction ) {
+	file << "nuisances = " << (*itd)->nSyst() + 1 << " # number of nuisance/uncertainties" << std::endl;
+      }
+      
+      // Binning information
+      file << "\n" << commentOnBinning << std::endl;
+      file << binning << std::endl;
+      
+      // Yields
+      file << (*itd)->label() << "_events = ";
+      
+      for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
+	const DataSet* selectedDataSet = DataSet::find((*itd)->label(),*its);
+	file << std::setw(width) << selectedDataSet->yield();
+      }
+      file << std::endl;
+      
+      if( (*itd)->type() != DataSet::Data ) {
+	// define number of uncertainties
+	file << "# Uncertainties --> at least stat. and syst." << std::endl;
+	file << "# In absolute numbers" << std::endl;
+	file << "nuisance = stat. uncert.; ";
+	for(std::vector<TString>::const_iterator itu = (*itd)->systLabelsBegin();
+	    itu != (*itd)->systLabelsEnd(); ++itu) {
+	  file << *itu << "; ";
+	}
+	file << std::endl;
+	// define uncertainty distributions
+	for(unsigned int i = 1; i <= (*itd)->nSyst() + 1; ++i) {
+	  file << (*itd)->label() << "_uncertaintyDistribution_" << i << " = lnN" << std::endl;
+	}
+	// print statistical uncertainties in each bin
+	file << (*itd)->label() << "_uncertainty_1 = ";
+	for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
+	  const DataSet* selectedDataSet = DataSet::find((*itd)->label(),*its);
+	  file << std::setw(width) << selectedDataSet->stat();
+	}
+	file << std::endl;
+	// print further uncertainties in each bin
+	unsigned int nUncert = 2;
+	for(std::vector<TString>::const_iterator itu = (*itd)->systLabelsBegin();
+	    itu != (*itd)->systLabelsEnd(); ++itu, ++nUncert) {
+	  file << (*itd)->label() << "_uncertaintyDN_" << nUncert << " = ";
+	  for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
+	    const DataSet* selectedDataSet = DataSet::find((*itd)->label(),*its);
 	  file << std::setw(width) << selectedDataSet->systDn(*itu) << " ";
+	  }
+	  file << std::endl;
+	  file << (*itd)->label() << "_uncertaintyUP_" << nUncert << " = ";
+	  for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
+	    const DataSet* selectedDataSet = DataSet::find((*itd)->label(),*its);
+	    file << std::setw(width) << selectedDataSet->systUp(*itu) << " ";
+	  }
+	  file << std::endl;
 	}
-	file << std::endl;
-	file << (*itd)->label() << "_uncertaintyUP_" << nUncert << " = ";
-	for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
-	  const DataSet* selectedDataSet = DataSet::find((*itd)->label(),*its);
-	  file << std::setw(width) << selectedDataSet->systUp(*itu) << " ";
-	}
-	file << std::endl;
       }
     }
     file << "\n\n\n\n";
