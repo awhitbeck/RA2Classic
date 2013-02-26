@@ -71,7 +71,7 @@ private:
   void plotSpectrum2D(const TString &var1, const TString &var2, const DataSet *dataSet, const HistParams &histParams) const;
   void plotSpectra(const TString &var, const DataSets &dataSets, const HistParams &histParams) const;
   void plotComparisonOfNormedSpectra(const TString &var, const DataSets &dataSets, const HistParams &histParams) const;
-  void plotComparisonOfSpectra(const TString &var, const DataSets &dataSets1, const DataSets &dataSets2, const HistParams &histParams) const;
+  void plotComparisonOfSpectra(const TString &var, const DataSets &dataSets1, const DataSets &dataSets2, const DataSets &signals, const HistParams &histParams) const;
   void createDistribution1D(const DataSet *dataSet, const TString &var, TH1* &h, TGraphAsymmErrors* &uncert, const HistParams &histParams) const;
   void createDistributionRatio(const DataSet *dataSet, const TString &var1, const TString &var2, TH1* &h, TGraphAsymmErrors* &uncert, const HistParams &histParams) const;
   void createDistribution2D(const DataSet *dataSet, const TString &var1, const TString &var2, TH2* &h, const HistParams &histParams) const;

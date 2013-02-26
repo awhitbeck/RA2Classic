@@ -79,7 +79,7 @@ void PlotBuilder::run(const TString &key) const {
       }
       HistParams histParams(it->value("histogram"));
       
-      // +++ Plot type: Sinlge spectrum for all selections
+      // +++ Plot type: Single spectrum or stack for all selections
       if( it->hasName("dataset") ) {
 	std::vector<TString> dataSetLabels;
 	Config::split(it->value("dataset"),"+",dataSetLabels); // Possibly stacked dataset
@@ -131,13 +131,17 @@ void PlotBuilder::run(const TString &key) const {
 	  plotComparisonOfNormedSpectra(variables.front(),dataSets,histParams);
 	}
       }
-      // +++ Plot type: Comparison of two (stacked) datasets for all selections
+      // +++ Plot type: Comparison of two (stacked) datasets for all selections plus optional signals
       else if( it->hasName("dataset1") && it->hasName("dataset2") ) {
 	// Read names of (stacked) datasets
 	std::vector<TString> dataSetLabels1;
 	std::vector<TString> dataSetLabels2;
+	std::vector<TString> signalLabels;
 	Config::split(it->value("dataset1"),"+",dataSetLabels1);
 	Config::split(it->value("dataset2"),"+",dataSetLabels2);
+	if( it->hasName("signals") ) {
+	  Config::split(it->value("signals"),",",signalLabels);
+	}
 	for(std::vector<TString>::const_iterator itd = dataSetLabels1.begin();
 	    itd != dataSetLabels1.end(); ++itd) {
  	  if( !DataSet::labelExists(*itd) ) {
@@ -147,6 +151,13 @@ void PlotBuilder::run(const TString &key) const {
 	}
 	for(std::vector<TString>::const_iterator itd = dataSetLabels2.begin();
 	    itd != dataSetLabels2.end(); ++itd) {
+ 	  if( !DataSet::labelExists(*itd) ) {
+ 	    std::cerr << "\n\nERROR in PlotBuilder::run(): dataset '" << *itd << "' does not exist" << std::endl;
+ 	    exit(-1);
+ 	  }
+	}
+	for(std::vector<TString>::const_iterator itd = signalLabels.begin();
+	    itd != signalLabels.end(); ++itd) {
  	  if( !DataSet::labelExists(*itd) ) {
  	    std::cerr << "\n\nERROR in PlotBuilder::run(): dataset '" << *itd << "' does not exist" << std::endl;
  	    exit(-1);
@@ -165,7 +176,12 @@ void PlotBuilder::run(const TString &key) const {
 	      itd != dataSetLabels2.end(); ++itd) {
 	    dataSets2.push_back(DataSet::find(*itd,*its));
 	  }
-	  plotComparisonOfSpectra(variables.front(),dataSets1,dataSets2,histParams);
+	  DataSets signals;
+	  for(std::vector<TString>::const_iterator itd = signalLabels.begin();
+	      itd != signalLabels.end(); ++itd) {
+	    signals.push_back(DataSet::find(*itd,*its));
+	  }
+	  plotComparisonOfSpectra(variables.front(),dataSets1,dataSets2,signals,histParams);
 	}
 
       }
@@ -409,7 +425,7 @@ void PlotBuilder::plotSpectra(const TString &var, const DataSets &dataSets, cons
 
 
 
-void PlotBuilder::plotComparisonOfSpectra(const TString &var, const DataSets &dataSets1, const DataSets &dataSets2, const HistParams &histParams) const {
+void PlotBuilder::plotComparisonOfSpectra(const TString &var, const DataSets &dataSets1, const DataSets &dataSets2, const DataSets &signals, const HistParams &histParams) const {
   std::vector<TH1*> hists1;
   std::vector<TString> legEntries1;
   TGraphAsymmErrors* unc1 = 0;
@@ -418,6 +434,19 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const DataSets &da
   std::vector<TString> legEntries2;
   TGraphAsymmErrors* unc2 = 0;
   createStack1D(dataSets2,var,hists2,legEntries2,unc2,histParams);
+  std::vector<TH1*> histsSig;
+  std::vector<TString> legEntriesSig;
+  for(DataSetIt itd = signals.begin();
+      itd != signals.end(); ++itd) {
+    TH1* h = 0;
+    TGraphAsymmErrors* u = 0;
+    createDistribution1D(*itd,var,h,u,histParams);
+    histsSig.push_back(h);
+    if( u ) delete u;
+    char entry[50];
+    sprintf(entry," %s (%.1f)",dataSetLabelInPlot(*itd).Data(),h->Integral(1,h->GetNbinsX()));
+    legEntriesSig.push_back(entry);
+  }
 
   TCanvas* can = new TCanvas("can","",canSize_,canSize_);
   can->SetBottomMargin(0.2 + 0.8*can->GetBottomMargin()-0.2*can->GetTopMargin());
@@ -544,11 +573,17 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const DataSets &da
   }
   // Plot only MC uncertainty band
   if( uncMC ) uncMC->Draw("E2same");
+  // Plot signal
+  for(std::vector<TH1*>::iterator it = histsSig.begin();
+      it != histsSig.end(); ++it) {
+    (*it)->Draw("HISTsame");
+  }
+  // Plots data
   for(std::vector<TH1*>::iterator it = histsData->begin();
       it != histsData->end(); ++it) {
     (*it)->Draw("PEsame");
   }
-  // Add legend entries (first data, than MC)
+  // Add legend entries (first data, then MC, then signal)
   std::vector<TString>::const_iterator itL = legEntriesData->begin();
   for(std::vector<TH1*>::iterator itH = histsData->begin();
       itH != histsData->end(); ++itH,++itL) {
@@ -558,6 +593,11 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const DataSets &da
   for(std::vector<TH1*>::iterator itH = histsMC->begin();
       itH != histsMC->end(); ++itH,++itL) {
     leg->AddEntry(*itH,*itL,"F");
+  }
+  itL = legEntriesSig.begin();
+  for(std::vector<TH1*>::iterator itH = histsSig.begin();
+      itH != histsSig.end(); ++itH,++itL) {
+    leg->AddEntry(*itH,*itL,"L");
   }
   gPad->RedrawAxis();
   // Add ratio plot (data/MC)
@@ -594,6 +634,10 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const DataSets &da
   }
   for(std::vector<TH1*>::iterator it = hists2.begin();
       it != hists2.end(); ++it) {
+    delete *it;
+  }
+  for(std::vector<TH1*>::iterator it = histsSig.begin();
+      it != histsSig.end(); ++it) {
     delete *it;
   }
   if( unc1 ) delete unc1;
@@ -875,9 +919,6 @@ void PlotBuilder::createStack1D(const DataSets &dataSets, const TString &var, st
     setGenericStyle(h,*itd);
     char entry[50];
     sprintf(entry," %s (%.1f)",dataSetLabelInPlot(*itd).Data(),h->Integral(1,h->GetNbinsX()));
-//     TString entry = " "+dataSetLabelInPlot(*itd)+" (";
-//     entry += static_cast<int>(h->Integral(1,h->GetNbinsX()));
-//     entry += +")";
     legEntries.push_back(entry);
     
     // Add histogram to all previous histograms
@@ -1019,6 +1060,12 @@ void PlotBuilder::setGenericStyle(TH1* h, const DataSet *dataSet) const {
     h->SetMarkerColor(c);
     h->SetLineColor(c);
     h->SetFillColor(c);
+  } else if( dataSet->type() == DataSet::Signal ) {
+    int c = color(dataSet);
+    h->SetMarkerStyle(0);
+    h->SetMarkerColor(c);
+    h->SetLineColor(c);
+    h->SetLineWidth(3);
   }
 }
 
