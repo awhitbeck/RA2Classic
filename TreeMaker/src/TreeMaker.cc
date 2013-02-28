@@ -57,7 +57,7 @@
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id: TreeMaker.cc,v 1.14 2013/01/24 19:36:53 seema Exp $
+// $Id: TreeMaker.cc,v 1.15 2013/02/08 10:10:24 mschrode Exp $
 //
 //
 
@@ -75,7 +75,9 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 
 //
@@ -132,6 +134,7 @@ TreeMaker::TreeMaker(const edm::ParameterSet& iConfig)
   patJetsPhotonMultiplicity_ = new Float_t[nMaxJets_];
   patJetsMuonEnergyFraction_ = new Float_t[nMaxJets_];
   patJetsMuonMultiplicity_ = new Float_t[nMaxJets_];
+  patJetsHOEnergy_ = new Float_t[nMaxJets_];
   patJetsBTagCSV_ = new Float_t[nMaxJets_];
 
   filterDecisions_ = std::vector<UChar_t>(filterDecisionTags_.size(),0);
@@ -176,6 +179,7 @@ TreeMaker::~TreeMaker() {
   delete [] patJetsPhotonMultiplicity_;
   delete [] patJetsMuonEnergyFraction_;
   delete [] patJetsMuonMultiplicity_;
+  delete [] patJetsHOEnergy_;
   delete [] patJetsBTagCSV_;
   for(unsigned int i = 0; i < candidatesInputTag_.size(); ++i) {
     delete [] candidatesPt_.at(i);
@@ -289,6 +293,12 @@ TreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
  	patJetsMuonEnergyFraction_[patJetsNum_]	            = j->muonEnergyFraction();
  	patJetsMuonMultiplicity_[patJetsNum_]   	    = j->muonMultiplicity();
  	patJetsBTagCSV_[patJetsNum_]                        = j->bDiscriminator("combinedSecondaryVertexBJetTags");
+
+	patJetsHOEnergy_[patJetsNum_] = 0.;
+	std::vector<reco::PFCandidatePtr> pfCands = j->getPFConstituents();
+	for(std::vector<reco::PFCandidatePtr>::const_iterator pfCandIt = pfCands.begin(); pfCandIt != pfCands.end(); ++pfCandIt) {
+	  patJetsHOEnergy_[patJetsNum_] += (*pfCandIt)->hoEnergy();
+	}
       }
     }
   }
@@ -422,6 +432,7 @@ TreeMaker::beginJob() {
     tree_->Branch((patJetsNameInTree_+"PhotonMultiplicity").c_str(),patJetsPhotonMultiplicity_,(patJetsNameInTree_+"PhotonMultiplicity["+patJetsNameInTree_+"Num]/F").c_str());
     tree_->Branch((patJetsNameInTree_+"MuonEnergyFraction").c_str(),patJetsMuonEnergyFraction_,(patJetsNameInTree_+"MuonEnergyFraction["+patJetsNameInTree_+"Num]/F").c_str());
     tree_->Branch((patJetsNameInTree_+"MuonMultiplicity").c_str(),patJetsMuonMultiplicity_,(patJetsNameInTree_+"MuonMultiplicity["+patJetsNameInTree_+"Num]/F").c_str());
+    tree_->Branch((patJetsNameInTree_+"HOEnergy").c_str(),patJetsHOEnergy_,(patJetsNameInTree_+"HOEnergy["+patJetsNameInTree_+"Num]/F").c_str());
     tree_->Branch((patJetsNameInTree_+"BTagCSV").c_str(),patJetsBTagCSV_,(patJetsNameInTree_+"BTagCSV["+patJetsNameInTree_+"Num]/F").c_str());
   }
 
@@ -559,6 +570,7 @@ TreeMaker::setBranchVariablesToDefault() {
     patJetsPhotonMultiplicity_[i] = -9999.;
     patJetsMuonEnergyFraction_[i] = -9999.;
     patJetsMuonMultiplicity_[i] = -9999.;
+    patJetsHOEnergy_[i] = -9999.;
     patJetsBTagCSV_[i] = -9999.;
   }
 

@@ -1,7 +1,7 @@
 //
 // Original Author:  Matthias Schroeder,,,
 //         Created:  Mon Jul 30 16:39:54 CEST 2012
-// $Id: TreeMaker.h,v 1.11 2013/01/24 20:01:57 seema Exp $
+// $Id: TreeMaker.h,v 1.12 2013/02/08 10:10:24 mschrode Exp $
 //
 //
 
@@ -97,6 +97,7 @@ private:
   Float_t* patJetsPhotonMultiplicity_;
   Float_t* patJetsMuonEnergyFraction_;
   Float_t* patJetsMuonMultiplicity_;
+  Float_t* patJetsHOEnergy_;
   Float_t* patJetsBTagCSV_;
 
   // Any double-precision variables
