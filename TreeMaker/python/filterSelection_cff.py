@@ -1,4 +1,4 @@
-# $Id: filterSelection_cff.py,v 1.2 2012/10/30 21:13:23 mschrode Exp $
+# $Id: filterSelection_cff.py,v 1.3 2013/01/08 09:10:30 mschrode Exp $
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -9,9 +9,6 @@ HBHENoiseFilter = booleanFilter.clone(
     )
 beamHaloFilter = booleanFilter.clone(
     ResultSource = cms.InputTag("beamHaloFilter")
-    )
-eeNoiseFilter = booleanFilter.clone(
-    ResultSource = cms.InputTag("eeNoiseFilter")
     )
 trackingFailureFilter = booleanFilter.clone(
     ResultSource = cms.InputTag("trackingFailureFilter")
@@ -51,7 +48,6 @@ logErrorTooManyClustersFilter = booleanFilter.clone(
 filterSelection = cms.Sequence(
     HBHENoiseFilter *
     beamHaloFilter *
-    #eeNoiseFilter *
     trackingFailureFilter *
     inconsistentMuonFilter *
     greedyMuonFilter *
