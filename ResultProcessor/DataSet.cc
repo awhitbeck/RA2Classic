@@ -340,7 +340,7 @@ void DataSet::computeYield(const std::vector<TString> &uncLabel) {
     systLabels_.push_back(*it);
   }
   
-  // Loop over events and count yield (sum of events weights)
+  // Loop over events and count yield (sum of event weights)
   // for nominal and varied weights
   for(EventIt evtIt = evts_.begin(); evtIt != evts_.end(); ++evtIt) {
     yield_ += (*evtIt)->weight();

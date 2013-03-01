@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cmath>
 #include <cstdlib>
 #include <iostream>
 #include <vector>
@@ -102,7 +103,7 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
   // Loop over tree and build events
   Events evts;
   for(int i = 0; i < tree->GetEntries(); ++i) {
-    //for(int i = 0; i < 100000; ++i) {
+  //for(int i = 0; i < 10; ++i) {
     //if( i%100 == 0 ) std::cout << "  " << i << std::endl;
 
     // Read variables of this entry
@@ -139,10 +140,18 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
       double uup = varsUncUp.at(i);
       if( symUnc.at(i) ) uup = udn;
       if( !uncDn.at(i).IsFloat() ) {
-	udn = (varWeight - udn) / varWeight;
+	if( varWeight ) {
+	  udn = std::abs(varWeight - udn) / varWeight;
+	} else {
+	  udn = 0.;
+	}
       }
       if( !uncUp.at(i).IsFloat() ) {
-	uup = (uup - varWeight) / varWeight;
+	if( varWeight ) {
+	  uup = std::abs(uup - varWeight) / varWeight;
+	} else {
+	  uup = 0.;
+	}
       }
       evt->addRelUnc(udn,uup,uncLabel.at(i));
     }
