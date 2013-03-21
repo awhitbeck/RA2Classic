@@ -6,26 +6,14 @@ nuisances = 9 # number of nuisance/uncertainties
 
 # bin1 is for NJet_3-5__HT_0500-0800__MHT_200-300, bin2 is for NJet_3-5__HT_0500-0800__MHT_300-450, bin3 is for NJet_3-5__HT_0500-0800__MHT_450-600, bin4 is for NJet_3-5__HT_0500-0800__MHT_600-Inf, bin5 is for NJet_3-5__HT_0800-1000__MHT_200-300, bin6 is for NJet_3-5__HT_0800-1000__MHT_300-450, bin7 is for NJet_3-5__HT_0800-1000__MHT_450-600, bin8 is for NJet_3-5__HT_0800-1000__MHT_600-Inf, bin9 is for NJet_3-5__HT_1000-1250__MHT_200-300, bin10 is for NJet_3-5__HT_1000-1250__MHT_300-450, bin11 is for NJet_3-5__HT_1000-1250__MHT_450-600, bin12 is for NJet_3-5__HT_1000-1250__MHT_600-Inf, bin13 is for NJet_3-5__HT_1250-1500__MHT_200-300, bin14 is for NJet_3-5__HT_1250-1500__MHT_300-450, bin15 is for NJet_3-5__HT_1250-1500__MHT_450-Inf, bin16 is for NJet_3-5__HT_1500-Inf__MHT_200-300, bin17 is for NJet_3-5__HT_1500-Inf__MHT_300-Inf, bin18 is for NJet_6-7__HT_0500-0800__MHT_200-300, bin19 is for NJet_6-7__HT_0500-0800__MHT_300-450, bin20 is for NJet_6-7__HT_0500-0800__MHT_450-Inf, bin21 is for NJet_6-7__HT_0800-1000__MHT_200-300, bin22 is for NJet_6-7__HT_0800-1000__MHT_300-450, bin23 is for NJet_6-7__HT_0800-1000__MHT_450-Inf, bin24 is for NJet_6-7__HT_1000-1250__MHT_200-300, bin25 is for NJet_6-7__HT_1000-1250__MHT_300-450, bin26 is for NJet_6-7__HT_1000-1250__MHT_450-Inf, bin27 is for NJet_6-7__HT_1250-1500__MHT_200-300, bin28 is for NJet_6-7__HT_1250-1500__MHT_300-450, bin29 is for NJet_6-7__HT_1250-1500__MHT_450-Inf, bin30 is for NJet_6-7__HT_1500-Inf__MHT_200-300, bin31 is for NJet_6-7__HT_1500-Inf__MHT_300-Inf, bin32 is for NJet_8-Inf__HT_0500-0800__MHT_200-Inf, bin33 is for NJet_8-Inf__HT_0800-1000__MHT_200-Inf, bin34 is for NJet_8-Inf__HT_1000-1250__MHT_200-Inf, bin35 is for NJet_8-Inf__HT_1250-1500__MHT_200-Inf, bin36 is for NJet_8-Inf__HT_1500-Inf__MHT_200-Inf, 
 channel = bin1; bin2; bin3; bin4; bin5; bin6; bin7; bin8; bin9; bin10; bin11; bin12; bin13; bin14; bin15; bin16; bin17; bin18; bin19; bin20; bin21; bin22; bin23; bin24; bin25; bin26; bin27; bin28; bin29; bin30; bin31; bin32; bin33; bin34; bin35; bin36; 
-<<<<<<< datacard_ll.txt
 ll_events = 2209.26  660.37  80.26  9.29  276.87  112.39  37.50  8.74  103.36  52.44  6.97  2.20  30.75  10.10  2.30  16.65  9.72  133.74  22.15  1.84  56.49  10.51  2.98  23.33  7.71  1.84  11.19  3.43  1.84  9.75  3.15  1.93  5.01  1.40  4.81  1.84 
-=======
-Data_events =  2209.26  660.37  80.26  9.29  276.87  112.39  37.50  8.74  103.36  52.44  6.97  2.20  30.75  10.10  2.30  16.65  9.72  133.74  22.15  0.00  56.49  10.51  2.98  23.33  7.71  0.00  11.19  3.43  0.00  9.75  3.15  1.93  5.01  1.40  4.81  0.00
->>>>>>> 1.9
 # Uncertainties --> at least stat. and syst.
 # In absolute numbers
 nuisance = stat. uncert.; syst. uncert.
 Data_uncertaintyDistribution_1 = lnN
 Data_uncertaintyDistribution_2 = lnN
-<<<<<<< datacard_ll.txt
 Data_uncertainty_DN_1 = 51.90  27.19  9.55  3.31  18.89  11.95  6.76  3.11  12.12  8.42  2.86  1.58  6.43  3.83  1.63  4.63  3.68  11.97  4.62  0.00  7.92  3.04  2.11  5.10  2.92  0.00  3.96  1.98  0.00  4.88  2.23  1.37  2.04  1.40  2.41  0.00
 Data_uncertainty_UP_1 = 51.90  27.19  9.55  3.31  18.89  11.95  6.76  3.11  12.12  8.42  2.86  1.58  6.43  3.83  1.63  4.63  3.68  11.97  4.62  1.84  7.92  3.04  2.11  5.10  2.92  1.84  3.96  1.98  0.00  4.88  2.23  1.37  2.04  1.40  2.41  1.84
-=======
-Data_uncertainty_DN_1 = 51.90  27.19  9.55  3.31  18.89  11.95  6.76  3.11  12.12  8.42  2.86  1.58  6.43  3.83  1.63  4.63  3.68  11.97  4.62  0.00  7.92  3.04  2.11  5.10  2.92  0.00  3.96  1.98  0.00  4.88  2.23  1.37  2.04  1.40  2.41  0.00
-Data_uncertainty_UP_1 = 51.90  27.19  9.55  3.31  18.89  11.95  6.76  3.11  12.12  8.42  2.86  1.58  6.43  3.83  1.63  4.63  3.68  11.97  4.62  1.84  7.92  3.04  2.11  5.10  2.92  1.84  3.96  1.98  0.00  4.88  2.23  1.37  2.04  1.40  2.41  1.84
-
-Data_uncertaintyDN_2 =  704.18  219.11  35.89  4.25  86.09  35.25  18.50  4.42  40.82  21.81  6.02  1.96  12.66  4.06  1.97  6.84  4.77  45.07  7.87  0.0  18.64  3.67  3.13  10.84  3.42  0.00  4.74  1.72  0.00  3.81  1.38  1.06  2.49  0.72  3.19  0.00
-Data_uncertaintyUP_2 =   692.20  215.28  35.56  3.86  84.66  34.67  18.37  3.99  40.44  21.60  6.00  1.91  12.54  4.02  1.97  6.77  4.68  43.45  7.58  0.07  17.99  3.53  4.14  10.63  3.35  0.07  4.64  1.65  0.05  3.59  1.27  1.05  2.44  0.71  3.31  0.04
->>>>>>> 1.9
 
 ll_uncertaintyUP_2 = 
 371.56  110.20  13.38  1.66  47.13  19.25  6.39  1.56  17.44  8.98  1.25  0.41  5.25  1.81  0.43  2.74  1.68  55.60  9.33  0.00  23.62  4.35  1.38  10.14  3.27  0.00  4.86  1.65  0.00  4.16  1.41  0.96  2.15  0.60  2.11  0.00  
