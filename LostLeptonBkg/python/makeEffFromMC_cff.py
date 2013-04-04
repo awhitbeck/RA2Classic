@@ -146,6 +146,29 @@ def makeTreeFromPAT(process,
         process.PBNRFilter
         )
 
+    FilterNames = cms.VInputTag()
+    FilterNames.append(cms.InputTag("HBHENoiseFilterRA2","HBHENoiseFilterResult","PAT"))
+    FilterNames.append(cms.InputTag("beamHaloFilter"))
+    FilterNames.append(cms.InputTag("trackingFailureFilter"))
+    FilterNames.append(cms.InputTag("inconsistentMuons"))
+    FilterNames.append(cms.InputTag("greedyMuons"))
+    FilterNames.append(cms.InputTag("ra2EcalTPFilter"))
+    FilterNames.append(cms.InputTag("ra2EcalBEFilter"))
+    FilterNames.append(cms.InputTag("hcalLaserEventFilter"))
+    FilterNames.append(cms.InputTag("ecalLaserCorrFilter"))
+    FilterNames.append(cms.InputTag("eeBadScFilter"))
+    FilterNames.append(cms.InputTag("PBNRFilter"))
+    FilterNames.append(cms.InputTag("HCALLaserEvtFilterList2012"))
+    FilterNames.append(cms.InputTag("manystripclus53X"))
+    FilterNames.append(cms.InputTag("toomanystripclus53X"))
+    FilterNames.append(cms.InputTag("logErrorTooManyClusters"))
+ #   FilterNames.append(cms.InputTag("RA2CaloVsPFMHTFilter"))
+    FilterNames.append(cms.InputTag("RA2HONoiseFilter"))
+
+
+
+
+
 
     ## --- Setup WeightProducer -------------------------------------------
     from RA2Classic.WeightProducer.getWeightProducer_cff import getWeightProducer
@@ -241,6 +264,8 @@ def makeTreeFromPAT(process,
 	MetJetTagUp = cms.InputTag('jesUp:METs'),
 	MetJetTagDown = cms.InputTag('jesDown:METs'),
 	IsoPlots = cms.bool(True),
+	TAPUncertaintiesHTNJET = cms.bool(True),
+	statErrorEffmaps = cms.bool(True),
     )
 
 
@@ -265,6 +290,12 @@ def makeTreeFromPAT(process,
         Variation  = cms.string('Down')         # Either 'Up' or 'Dn' to produce jets with JES +/- 1 sigma, respectively
     )
 
+    from RA2Classic.LostLeptonBkg.ra2Filters_cfi import ra2FilterSelection
+    process.RA2Filters = ra2FilterSelection.clone(
+    Filters           = FilterNames
+    )
+
+
 
 
     ## --- Final paths ----------------------------------------------------
@@ -286,9 +317,10 @@ def makeTreeFromPAT(process,
 #	process.jesDown *
 #	process.promtLeptons *
 	process.RA2Selector *
+	process.RA2Filters *
 	process.ak5CaloJetsL2L3 *
  #       process.dump *
-#	process.LostLeptonBkgMCEffCalculator *
+	process.LostLeptonBkgMCEffCalculator *
 	process.LostLeptonBkgProducer
 #	process.RA2TreeMaker 
 

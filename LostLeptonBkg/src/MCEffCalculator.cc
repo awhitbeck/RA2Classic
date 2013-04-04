@@ -13,7 +13,7 @@
 //
 // Original Author:  Arne-Rasmus Draeger,,,uni-hamburg
 //         Created:  Thu Sep 27 10:50:02 CEST 2012
-// $Id: MCEffCalculator.cc,v 1.18 2013/02/04 19:02:41 adraeger Exp $
+// $Id: MCEffCalculator.cc,v 1.19 2013/02/15 10:54:41 adraeger Exp $
 //
 //
 
@@ -192,8 +192,8 @@ genPTRelJet_=genPt_/genPTJet_;
 
 
 // one muon has been found the three different efficiencies will be determined now. first acc than reco and final iso the results will be stored in th2f histogramms.
-
-   if (nGenMu_==1 && nGenElec_==0)
+   if(nGenElec_==0 && nGenMu_==1 )
+//   if (nGenMu_==1 && nGenElec_==0)
    {
 	deltaGenR_ = DRToClosestJet(iEvent,caloJetTag_, muonGenEta_, muonGenPhi_).first;
 	closestJetToMuonGenPt_ = DRToClosestJet(iEvent,caloJetTag_, muonGenEta_,muonGenPhi_).second;
@@ -457,20 +457,35 @@ genPTRelJet_=genPt_/genPTJet_;
    if(nRecoMu_ ==-1)
 	{
 		recoEffTH3FFailedMu_->Fill(ht_,mht_,nJets_,eventWeight_);
+		// seperate for NJets
+		if (nJets_ > 2.5 && 5.5 > nJets_)recoEffTH2FailedMuNJet35_->Fill(ht_,mht_,eventWeight_);
+		if (nJets_ > 5.5 && 7.5 > nJets_)recoEffTH2FailedMuNJet67_->Fill(ht_,mht_,eventWeight_);
+		if (nJets_ > 7.5)recoEffTH2FailedMuNJet8Inf_->Fill(ht_,mht_,eventWeight_);
 	}
    if (nRecoMu_==1)
 	{
 		recoEffTH3FPassedMu_->Fill(ht_,mht_,nJets_,eventWeight_);
+		if (nJets_ > 2.5 && 5.5 > nJets_)recoEffTH2PassedMuNJet35_->Fill(ht_,mht_,eventWeight_);
+		if (nJets_ > 5.5 && 7.5 > nJets_)recoEffTH2PassedMuNJet67_->Fill(ht_,mht_,eventWeight_);
+		if (nJets_ > 7.5)recoEffTH2PassedMuNJet8Inf_->Fill(ht_,mht_,eventWeight_);
 	}
 
 
    if(nRecoElec_ ==-1)
 	{
 		recoEffTH3FFailedElec_->Fill(ht_,mht_,nJets_,eventWeight_);
+		// seperate for NJets
+		if (nJets_ > 2.5 && 5.5 > nJets_)recoEffTH2FailedElecNJet35_->Fill(ht_,mht_,eventWeight_);
+		if (nJets_ > 5.5 && 7.5 > nJets_)recoEffTH2FailedElecNJet67_->Fill(ht_,mht_,eventWeight_);
+		if (nJets_ > 7.5)recoEffTH2FailedElecNJet8Inf_->Fill(ht_,mht_,eventWeight_);
 	}
    if (nRecoElec_ ==1)
 	{
 		recoEffTH3FPassedElec_->Fill(ht_,mht_,nJets_,eventWeight_);
+		// seperate for NJets
+		if (nJets_ > 2.5 && 5.5 > nJets_)recoEffTH2PassedElecNJet35_->Fill(ht_,mht_,eventWeight_);
+		if (nJets_ > 5.5 && 7.5 > nJets_)recoEffTH2PassedElecNJet67_->Fill(ht_,mht_,eventWeight_);
+		if (nJets_ > 7.5)recoEffTH2PassedElecNJet8Inf_->Fill(ht_,mht_,eventWeight_);
 	}
 
    if(nIsoMu_ ==-1)
@@ -688,11 +703,11 @@ MCEffCalculator::beginJob()
 //	double ptbins [] = {0, 0.1, 0.2, 0.3, 0.4, 0.5,0.6,0.7,0.8,0.9,1,1.5,2,2.5,3};
 	// binning for the mtw MHT distribution
 	double mhtbins []={200,600,1600};
-	double nJetBins []={2,3,6,8,14};
+	double nJetBins []={3,4,6,7,14};
 	int NJetBins = 4;
 	int MhtBins = 2;
 
-	double binNJet [] ={2,3,6,8,14};
+	double binNJet [] ={3,4,5,6,14};
 	int BinNJets = 4;
 	double binMHT  [] = {200,450,2500};
 	int BinMHT = 2;
@@ -725,22 +740,28 @@ MCEffCalculator::beginJob()
 
 
 	// iso electron and muon iso
-	double binHTNJet35 [] = {500,1000,2500};
-	int BinHTNJet35 = 2;
-	double binMHTNJet35  [] = {200,350,450,2500};
-	int BinMHTNJet35 = 3;
+	double binHTNJet35 [] = {500,800,1000,1250,2500};
+	int BinHTNJet35 = 4;
+	double binMHTNJet35  [] = {200,300,450,600,2500};
+	int BinMHTNJet35 = 4;
 
 
-	double binHTNJet67 [] = {500,1000,2500};
-	int BinHTNJet67 = 2;
-	double binMHTNJet67  [] = {200,300,2500};
-	int BinMHTNJet67 = 2;
+	double binHTNJet67 [] = {500,800,1000,1250,1500,2500};
+	int BinHTNJet67 = 5;
+	double binMHTNJet67  [] = {200,300,450,2500};
+	int BinMHTNJet67 = 3;
 
 
-	double binHTNJet8Inf [] = {500,2500};
-	int BinHTNJet8Inf = 1;
-	double binMHTNJet8Inf  [] = {200,2500};
-	int BinMHTNJet8Inf = 1;
+	double binHTNJet8InfMu [] = {500,800,1000,1250,1500,2500};
+	int BinHTNJet8InfMu = 5;
+	double binMHTNJet8InfMu  [] = {200,2500};
+	int BinMHTNJet8InfMu = 1;
+
+	double binHTNJet8InfElec [] = {500,1000,1250,1500,2500};
+	int BinHTNJet8InfElec = 4;
+	double binMHTNJet8InfElec  [] = {200,2500};
+	int BinMHTNJet8InfElec = 1;
+
 
 	std::cout<<"MCEffCalculator::TH2 creation started."<<std::endl;
 
@@ -754,9 +775,9 @@ MCEffCalculator::beginJob()
  	isoEffTH2FailedMuNJet67_=fs->make<TH2F>("isoEffTH2FailedMuNJet67", "isoEffTH2FailedMuNJet67_",BinHTNJet67,binHTNJet67,BinMHTNJet67,binMHTNJet67);
 	isoEffTH2FailedMuNJet67_->Sumw2();
 
- 	isoEffTH2PassedMuNJet8Inf_=fs->make<TH2F>("isoEffTH2PassedMuNJet8Inf", "isoEffTH2PassedMuNJet8Inf",BinHTNJet8Inf,binHTNJet8Inf,BinMHTNJet8Inf,binMHTNJet8Inf);
+ 	isoEffTH2PassedMuNJet8Inf_=fs->make<TH2F>("isoEffTH2PassedMuNJet8Inf", "isoEffTH2PassedMuNJet8Inf",BinHTNJet8InfMu,binHTNJet8InfMu,BinMHTNJet8InfMu,binMHTNJet8InfMu);
 	isoEffTH2PassedMuNJet8Inf_->Sumw2();
- 	isoEffTH2FailedMuNJet8Inf_=fs->make<TH2F>("isoEffTH2FailedMuNJet8Inf", "isoEffTH2FailedMuNJet8Inf",BinHTNJet8Inf,binHTNJet8Inf,BinMHTNJet8Inf,binMHTNJet8Inf);
+ 	isoEffTH2FailedMuNJet8Inf_=fs->make<TH2F>("isoEffTH2FailedMuNJet8Inf", "isoEffTH2FailedMuNJet8Inf",BinHTNJet8InfMu,binHTNJet8InfMu,BinMHTNJet8InfMu,binMHTNJet8InfMu);
 	isoEffTH2FailedMuNJet8Inf_->Sumw2();
 
 
@@ -770,10 +791,42 @@ MCEffCalculator::beginJob()
  	isoEffTH2FailedElecNJet67_=fs->make<TH2F>("isoEffTH2FailedElecNJet67", "isoEffTH2FailedElecNJet67",BinHTNJet67,binHTNJet67,BinMHTNJet67,binMHTNJet67);
 	isoEffTH2FailedElecNJet67_->Sumw2();
 
- 	isoEffTH2PassedElecNJet8Inf_=fs->make<TH2F>("isoEffTH2PassedElecNJet8Inf", "isoEffTH2PassedElecNJet8Inf",BinHTNJet8Inf,binHTNJet8Inf,BinMHTNJet8Inf,binMHTNJet8Inf);
+ 	isoEffTH2PassedElecNJet8Inf_=fs->make<TH2F>("isoEffTH2PassedElecNJet8Inf", "isoEffTH2PassedElecNJet8Inf",BinHTNJet8InfElec,binHTNJet8InfElec,BinMHTNJet8InfElec,binMHTNJet8InfElec);
 	isoEffTH2PassedElecNJet8Inf_->Sumw2();
- 	isoEffTH2FailedElecNJet8Inf_=fs->make<TH2F>("isoEffTH2FailedElecNJet8Inf", "isoEffTH2FailedElecNJet8Inf",BinHTNJet8Inf,binHTNJet8Inf,BinMHTNJet8Inf,binMHTNJet8Inf);
+ 	isoEffTH2FailedElecNJet8Inf_=fs->make<TH2F>("isoEffTH2FailedElecNJet8Inf", "isoEffTH2FailedElecNJet8Inf",BinHTNJet8InfElec,binHTNJet8InfElec,BinMHTNJet8InfElec,binMHTNJet8InfElec);
 	isoEffTH2FailedElecNJet8Inf_->Sumw2();
+
+
+ 	recoEffTH2PassedMuNJet35_=fs->make<TH2F>("recoEffTH2PassedMuNJet35", "recoEffTH2PassedMuNJet35",BinHTNJet35,binHTNJet35,BinMHTNJet35,binMHTNJet35);
+  	recoEffTH2PassedMuNJet35_->Sumw2();
+ 	recoEffTH2FailedMuNJet35_=fs->make<TH2F>("recoEffTH2FailedMuNJet35", "recoEffTH2FailedMuNJet35",BinHTNJet35,binHTNJet35,BinMHTNJet35,binMHTNJet35);
+	recoEffTH2FailedMuNJet35_->Sumw2();
+
+ 	recoEffTH2PassedMuNJet67_=fs->make<TH2F>("recoEffTH2PassedMuNJet67", "recoEffTH2PassedMuNJet67_",BinHTNJet67,binHTNJet67,BinMHTNJet67,binMHTNJet67);
+	recoEffTH2PassedMuNJet67_->Sumw2();
+ 	recoEffTH2FailedMuNJet67_=fs->make<TH2F>("recoEffTH2FailedMuNJet67", "recoEffTH2FailedMuNJet67_",BinHTNJet67,binHTNJet67,BinMHTNJet67,binMHTNJet67);
+	recoEffTH2FailedMuNJet67_->Sumw2();
+
+ 	recoEffTH2PassedMuNJet8Inf_=fs->make<TH2F>("recoEffTH2PassedMuNJet8Inf", "recoEffTH2PassedMuNJet8Inf",BinHTNJet8InfMu,binHTNJet8InfMu,BinMHTNJet8InfMu,binMHTNJet8InfMu);
+	recoEffTH2PassedMuNJet8Inf_->Sumw2();
+ 	recoEffTH2FailedMuNJet8Inf_=fs->make<TH2F>("recoEffTH2FailedMuNJet8Inf", "recoEffTH2FailedMuNJet8Inf",BinHTNJet8InfMu,binHTNJet8InfMu,BinMHTNJet8InfMu,binMHTNJet8InfMu);
+	recoEffTH2FailedMuNJet8Inf_->Sumw2();
+
+
+ 	recoEffTH2PassedElecNJet35_=fs->make<TH2F>("recoEffTH2PassedElecNJet35", "recoEffTH2PassedElecNJet35",BinHTNJet35,binHTNJet35,BinMHTNJet35,binMHTNJet35);
+	recoEffTH2PassedElecNJet35_->Sumw2();
+ 	recoEffTH2FailedElecNJet35_=fs->make<TH2F>("recoEffTH2FailedElecNJet35", "recoEffTH2FailedElecNJet35",BinHTNJet35,binHTNJet35,BinMHTNJet35,binMHTNJet35);
+	recoEffTH2FailedElecNJet35_->Sumw2();
+
+ 	recoEffTH2PassedElecNJet67_=fs->make<TH2F>("recoEffTH2PassedElecNJet67", "recoEffTH2PassedElecNJet67",BinHTNJet67,binHTNJet67,BinMHTNJet67,binMHTNJet67);
+	recoEffTH2PassedElecNJet67_->Sumw2();
+ 	recoEffTH2FailedElecNJet67_=fs->make<TH2F>("recoEffTH2FailedElecNJet67", "recoEffTH2FailedElecNJet67",BinHTNJet67,binHTNJet67,BinMHTNJet67,binMHTNJet67);
+	recoEffTH2FailedElecNJet67_->Sumw2();
+
+ 	recoEffTH2PassedElecNJet8Inf_=fs->make<TH2F>("recoEffTH2PassedElecNJet8Inf", "recoEffTH2PassedElecNJet8Inf",BinHTNJet8InfElec,binHTNJet8InfElec,BinMHTNJet8InfElec,binMHTNJet8InfElec);
+	recoEffTH2PassedElecNJet8Inf_->Sumw2();
+ 	recoEffTH2FailedElecNJet8Inf_=fs->make<TH2F>("recoEffTH2FailedElecNJet8Inf", "recoEffTH2FailedElecNJet8Inf",BinHTNJet8InfElec,binHTNJet8InfElec,BinMHTNJet8InfElec,binMHTNJet8InfElec);
+	recoEffTH2FailedElecNJet8Inf_->Sumw2();
 
 
 	std::cout<<"MCEffCalculator::TH2 creation done."<<std::endl;
@@ -1301,6 +1354,7 @@ std::pair <double,double> MCEffCalculator::DRToClosestJet(const edm::Event& iEve
 }
 
 
+
 double
 MCEffCalculator::MTWCalculator(const edm::Event& iEvent, edm::InputTag metTag, double lepPT, double lepPhi)
 {
@@ -1308,9 +1362,11 @@ MCEffCalculator::MTWCalculator(const edm::Event& iEvent, edm::InputTag metTag, d
   iEvent.getByLabel(metTag,met);
   double metPT = met->at(0).pt();
 //  std::cout<<"MTWCalculator:metPT"<<metPT<<std::endl;
+//  std::cout<<"MTWCalculator:met->at(0).phi()"<<met->at(0).phi()<<std::endl;
  // dR = deltaR(met->at(0).eta(),met->at(0).phi(),lepEta,lepPhi);
     double deltaPhi =reco::deltaPhi(lepPhi, met->at(0).phi());
- //   std::cout<<"MTWCalculator:MTW"<<sqrt(2*lepPT*metPT*(1-cos(deltaPhi)) )<<std::endl;
+//  std::cout<<"MTWCalculator:deltaPhi"<<deltaPhi<<std::endl;
+//    std::cout<<"MTWCalculator:MTW"<<sqrt(2*lepPT*metPT*(1-cos(deltaPhi)) )<<std::endl;
     return sqrt(2*lepPT*metPT*(1-cos(deltaPhi)) );
 
 }

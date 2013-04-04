@@ -74,7 +74,7 @@ class LostLeptonBkg : public edm::EDProducer {
 	TH2F *MuonRecoEff2_, *MuonIsoEff2_;
 	TH2F *ElecRecoEff_, *ElecIsoEff_;
 	TH2F *ElecRecoEff2_, *ElecIsoEff2_;
-	TH1F *MTWEff_;
+	TH1F *MTWEff_, *MTWNJet_;
 	Float_t MuonAccEff_, ElecAccEff_;
 	Float_t muonAccEff2_, elecAccEff2_;
 
@@ -84,6 +84,8 @@ class LostLeptonBkg : public edm::EDProducer {
 	TH3F *ElecAccBinByBinEff_, *ElecRecoBinByBinEff_, *ElecIsoBinByBinEff_;
 	TH2F *MuonIsoBinByBinEff35_, *MuonIsoBinByBinEff67_, *MuonIsoBinByBinEff8Inf_;
 	TH2F *ElecIsoBinByBinEff35_, *ElecIsoBinByBinEff67_, *ElecIsoBinByBinEff8Inf_;
+	TH2F *MuonRecoBinByBinEff35_, *MuonRecoBinByBinEff67_, *MuonRecoBinByBinEff8Inf_;
+	TH2F *ElecRecoBinByBinEff35_, *ElecRecoBinByBinEff67_, *ElecRecoBinByBinEff8Inf_;
 	Float_t muonBinByBinXMax_,muonBinByBinYMax_,muonBinByBinZMax_,elecBinByBinXMax_,elecBinByBinYMax_,elecBinByBinZMax_;
 	Float_t muonAccBinByBinXMax_,muonAccBinByBinYMax_,muonAccBinByBinZMax_;
 	Float_t muonRecoBinByBinXMax_,muonRecoBinByBinYMax_,muonRecoBinByBinZMax_;
@@ -106,6 +108,10 @@ class LostLeptonBkg : public edm::EDProducer {
 	TH2F *ElecIsoMCTAP_, *ElecIsoDataTAP_;
 	Float_t ElecIsoMCTAPBinXMax_, ElecIsoMCTAPBinYMax_, ElecRecoMCTAPBinXMax_, ElecRecoMCTAPBinYMax_;
 	Float_t ElecIsoDataTAPBinXMax_, ElecIsoDataTAPBinYMax_, ElecRecoDataTAPBinXMax_, ElecRecoDataTAPBinYMax_;
+
+	// uncertainty from statistics of eff.
+	Float_t MuIsoStatUp_, MuIsoStatDown_, MuRecoStatUp_, MuRecoStatDown_, MuAccStatUp_, MuAccStatDown_;
+	Float_t ElecIsoStatUp_, ElecIsoStatDown_, ElecRecoStatUp_, ElecRecoStatDown_, ElecAccStatUp_, ElecAccStatDown_;
 	// Variables
 	float met_;
 	float mht_, ht_;
@@ -186,6 +192,10 @@ class LostLeptonBkg : public edm::EDProducer {
 
 	// diboson contribution
 	Float_t diBosonDown_,resultWeightBinByBinDiBosonDown_;
+
+	// nonclosure
+	Float_t resultWeightBinByBinNonClosureUp_, resultWeightBinByBinNonClosureDown_;
+	Float_t nonClosureHighNJet_, nonClosureLowNJet_;
 	// mtw cut
 
 	Float_t metup_, metdown_;
@@ -193,6 +203,9 @@ class LostLeptonBkg : public edm::EDProducer {
 	// not isoalted cs but reco good MTW match
 	int nRecoMu_;
 	Float_t recoMtw1_, recoMtw2_, recoMtw3_, recoMtw4_, recoMtw5_;
+
+
+
 
       // ----------member data ---------------------------
 };
