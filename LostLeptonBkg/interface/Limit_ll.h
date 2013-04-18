@@ -46,7 +46,7 @@ class Limit_ll : public edm::EDProducer {
 	double MTWMax_;
 	Float_t eventWeight_;
 	bool MTWCut_;
-	double DiLepCorrection_, DiLepCorrectionUp_, DiLepCorrectionDown_;
+	double DiLepCorrection_, DiLepCorrectionUp_, DiLepCorrectionDown_, eventWeightInput_;
 	Float_t muonAccEff2_, elecAccEff2_;
 	Float_t muonBinByBinEff_, muonBinByBinWeight_, totalMuonsBinByBinWeight_, elecBinByBinEff_, elecWeightBinByBin_, resultWeightBinByBin_, resultWeightBinByBinMTW_, totalMuonsBinByBin_;
 	// binbybin sepearte result values

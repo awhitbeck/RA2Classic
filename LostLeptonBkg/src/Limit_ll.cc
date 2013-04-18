@@ -41,6 +41,7 @@ Limit_ll::Limit_ll(const edm::ParameterSet& iConfig)
    Path_ = iConfig.getParameter <std::string> ("Path");
    MTWMax_ = iConfig.getParameter <double> ("MTWMax");
    MTWCut_ = iConfig.getParameter <bool> ("MTWCut");
+   eventWeightInput_ = iConfig.getParameter <double> ("EventWeight");
 
 	// lost lepton input
 
@@ -106,6 +107,7 @@ if (iteration_)return;
 	c->SetBranchAddress("NVtx",&NVtx);
 	eventWeight_ =0;
 	c->SetBranchAddress("Weight",&eventWeight_);
+if(eventWeightInput_!=0) eventWeight_=eventWeightInput_;
 	UShort_t nMu_ = 0;
 	c->SetBranchAddress("PATMuonsPFIDIsoNum",&nMu_);
 	Float_t MuPt_[50];
@@ -129,6 +131,7 @@ iteration_=true;
 	for(int ii = 0; ii < c->GetEntries(); ++ii) 
 	{
   		c->GetEntry(ii);
+if(eventWeightInput_!=0) eventWeight_=eventWeightInput_;
 	float MetPt= MetPt_[0];
 	float MuPhi=MuPhi_[0];
 	float MuPt = MuPt_[0];
@@ -171,14 +174,17 @@ if ( ht_>500 && mht_>200 && nJets_>2 && nMu_==1 && nElec_==0)
 //	std::cout<<"ht_"<<ht_<<std::endl;
  	double muAccXmax = MuonAccEff3_->GetXaxis()->GetXmax();
 //	std::cout<<"muAccXmax"<<muAccXmax<<std::endl;
+//	std::cout<<"muAccXmax"<<muAccXmax<<std::endl;
  	double muAccYmax = MuonAccEff3_->GetYaxis()->GetXmax();
+//	std::cout<<"muAccYmax"<<muAccYmax<<std::endl;
 //	std::cout<<"muAccYmax"<<muAccYmax<<std::endl;
 	double mht=mht_;
 	if ( muAccXmax<mht_) mht=muAccXmax-1;
+//	std::cout<<"muonAccXaxis3MHTused"<<mht<<", muonAccXaxis3"<<MuonAccEff3_->GetXaxis()->FindBin(mht)<<std::endl;
 	int muonAccXaxis3= MuonAccEff3_->GetXaxis()->FindBin(mht);
-	int nJets=nJets_;
-	if (muAccYmax<nJets_) nJets=muAccYmax-0.2;
-	int muonAccYaxis3= MuonAccEff3_->GetYaxis()->FindBin(nJets+0.1);
+ 	int njets=nJets_;
+	if( (nJets_+0.1)> muAccYmax) njets= muAccYmax-1;
+	int muonAccYaxis3= MuonAccEff3_->GetYaxis()->FindBin(njets+0.1);
 
 	muonAccEff2_ = MuonAccEff3_->GetBinContent(muonAccXaxis3,muonAccYaxis3);
 
@@ -395,7 +401,7 @@ std::cout<<"NJets"<<nJets_<<", HT"<<ht_<<", mht"<<mht_<<std::endl;
 	int elecAccXaxis3= ElecAccEff3_->GetXaxis()->FindBin(mht2);
 
 	int nJets2=nJets_;
-	if (elecAccYmax<nJets_) nJets2=elecAccYmax-0.2;
+	if (elecAccYmax<(nJets_+0.1)) nJets2=elecAccYmax-0.2;
 	int elecAccYaxis3= ElecAccEff3_->GetYaxis()->FindBin(nJets2+0.1);
 	elecAccEff2_ = ElecAccEff3_->GetBinContent(elecAccXaxis3,elecAccYaxis3);
 	// use these IN AN up to now 14Mar2013
