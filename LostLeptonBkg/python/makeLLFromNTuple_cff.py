@@ -32,7 +32,7 @@ def makeLLFromNTuple(process,
 
     ## --- Files to process ------------------------------------------------
     process.maxEvents = cms.untracked.PSet(
-        input = cms.untracked.int32(numProcessedEvt)
+        input = cms.untracked.int32(12)
         )
     process.source = cms.Source("EmptySource" )
         

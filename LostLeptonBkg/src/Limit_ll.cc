@@ -81,6 +81,7 @@ Limit_ll::~Limit_ll()
 void
 Limit_ll::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+if (iteration_)return;
    using namespace edm;
 //	std::cout<<"Producer started"<<std::endl;
 //	std::cout<<"Path_"<<Path_<<std::endl;
@@ -122,7 +123,7 @@ Limit_ll::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	Float_t MetPhi_[50];
 	c->SetBranchAddress("PATMETsPFPhi",&MetPhi_);
 
-
+iteration_=true;
 //	std::cout<<"Variables loaded"<<std::endl;
 //	std::cout<<"c->GetEntries()"<<c->GetEntries()<<std::endl;	
 	for(int ii = 0; ii < c->GetEntries(); ++ii) 
@@ -152,6 +153,7 @@ if ( ht_>500 && mht_>200 && nJets_>2 && nMu_==1 && nElec_==0)
 
     double deltaPhi =reco::deltaPhi(MuPhi, MetPhi);
 //std::cout<<"sqrt(2*MuPt_*MetPt*(1-cos(deltaPhi)) )"<<sqrt(2*MuPt*MetPt*(1-cos(deltaPhi)) )<<std::endl;
+    mtwTH1_->Fill(sqrt(2*MuPt*MetPt*(1-cos(deltaPhi)) ),eventWeight_);
  if(    sqrt(2*MuPt*MetPt*(1-cos(deltaPhi)) )<100)
 {
 
@@ -282,15 +284,19 @@ double error_=0;
 //	if (statErrorEffmaps_) muonBinByBinAccEffError_= MuonAccBinByBinEff_->GetBinError(muonBinByBinAccXaxis,muonBinByBinAccYaxis,muonBinByBinAccZaxis );
 
 
-	if (muonBinByBinAccEff_ <0.01 || muonBinByBinAccEff_ > 1) std::cout<<"Error muonBinByBinAccEff_ is"<<muonBinByBinAccEff_<<std::endl;
-	if (muonBinByBinAccEff_<0.01) muonBinByBinAccEff_=0.01;
-	if (muonBinByBinAccEff_>1 ) muonBinByBinAccEff_=1;
-	muonBinByBinAccWeight_ = eventWeight_ * 1/muonBinByBinIsoEff_ * 1/muonBinByBinRecoEff_ *(1-muonBinByBinAccEff_)/muonBinByBinAccEff_;
+	if (muonAccEff2_ <0.01 || muonAccEff2_ > 1) 
+	{
+std::cout<<"Error muonBinByBinAccEff_ is"<<muonAccEff2_<<std::endl;
+std::cout<<"NJets"<<nJets_<<", HT"<<ht_<<", mht"<<mht_<<std::endl;
+}
+	if (muonAccEff2_<0.01) muonAccEff2_=0.01;
+	if (muonAccEff2_>1 ) muonAccEff2_=1;
+	muonBinByBinAccWeight_ = eventWeight_ * 1/muonBinByBinIsoEff_ * 1/muonBinByBinRecoEff_ *(1-muonAccEff2_)/muonAccEff2_;
 	//std::cout<<"LostLeptonBkg::muonBinByBinAccWeight_:"<<muonBinByBinAccWeight_<<std::endl;
 	// total binbybin muon weight
 	muonBinByBinTotalWeight_ = muonBinByBinIsoWeight_ + muonBinByBinRecoWeight_ + muonBinByBinAccWeight_;
 	//std::cout<<"LostLeptonBkg::muonBinByBinTotalWeight_:"<<muonBinByBinTotalWeight_<<std::endl;
-	totalBinByBinMuons_ = eventWeight_ / (muonBinByBinAccEff_ * muonBinByBinRecoEff_ * muonBinByBinIsoEff_);
+	totalBinByBinMuons_ = eventWeight_ / (muonAccEff2_ * muonBinByBinRecoEff_ * muonBinByBinIsoEff_);
 
 	// binbybin elec eff
 
@@ -442,7 +448,8 @@ if (resultBBBWMTWDiLep_>20)
 std::cout<<"LostLeptonResultWeight"<<resultBBBWMTWDiLep_<<", original weight:"<<eventWeight_<<std::endl;
 //std::cout<<"ht_"<<ht_<<", mht"<<mht_<<", nJets_"<<nJets_<<"mtw_"<<sqrt(2*MuPt*MetPt*(1-cos(deltaPhi)) )<<std::endl;
 }
-std::cout<<"LostLeptonResultWeight"<<resultBBBWMTWDiLep_<<std::endl;
+resultMTWWeight_->Fill(sqrt(2*MuPt*MetPt*(1-cos(deltaPhi)) ),resultBBBWMTWDiLep_);
+
 }
 
 
@@ -506,6 +513,7 @@ std::cout<<"LostLeptonResultWeight"<<resultBBBWMTWDiLep_<<std::endl;
 void 
 Limit_ll::beginJob()
 {
+
 std::cout<<"Eff loading...";
   std::string fileName("RA2Classic/LostLeptonBkg/data/");
   fileName += EfficiencyFileName_;
@@ -547,6 +555,11 @@ MTWNJet_= (TH1F*)dMuon->Get("MTWCutNJet");
   edm::FileInPath fip(fileName1);
   TFile* InputFile = TFile::Open(fip.fullPath().c_str());
 std::cout<<"done"<<std::endl;
+std::cout<<"Creating output file with histogramms"<<std::endl;
+    	edm::Service<TFileService> fs;
+	mtwTH1_ =fs->make<TH1F>("MTW","MTW",30, 0, 300);
+	resultMTWWeight_ =fs->make<TH1F>("ResultLLWeight","ResultLLPrediction",22, 0, 110);
+iteration_=false;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

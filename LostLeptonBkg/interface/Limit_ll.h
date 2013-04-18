@@ -6,8 +6,10 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <TH1F.h>
 #include <TH2F.h>
 #include <TH3F.h>
 #include <TFile.h>
@@ -65,10 +67,11 @@ class Limit_ll : public edm::EDProducer {
 	// uncertainties and corrections for binbybin
 	Float_t resultBBBWMTWDiLep_, resultBBBWMTWDiLepUp_, resultBBBWMTWDiLepDown_;
 
-	TH1F *MTWNJet_;
+	TH1F *MTWNJet_, *mtwTH1_, *resultMTWWeight_;
 	TH2F *MuonAccEff3_, *ElecAccEff3_;
 	TH2F *MuonIsoBinByBinEff35_, *MuonIsoBinByBinEff67_, *MuonIsoBinByBinEff8Inf_;
 	TH2F *ElecIsoBinByBinEff35_, *ElecIsoBinByBinEff67_, *ElecIsoBinByBinEff8Inf_;
 	TH2F *MuonRecoBinByBinEff35_, *MuonRecoBinByBinEff67_, *MuonRecoBinByBinEff8Inf_;
 	TH2F *ElecRecoBinByBinEff35_, *ElecRecoBinByBinEff67_, *ElecRecoBinByBinEff8Inf_;
+	bool iteration_;
 };
