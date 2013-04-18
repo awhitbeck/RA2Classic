@@ -146,29 +146,6 @@ def makeTreeFromPAT(process,
         process.PBNRFilter
         )
 
-    FilterNames = cms.VInputTag()
-    FilterNames.append(cms.InputTag("HBHENoiseFilterRA2","HBHENoiseFilterResult","PAT"))
-    FilterNames.append(cms.InputTag("beamHaloFilter"))
-    FilterNames.append(cms.InputTag("trackingFailureFilter"))
-    FilterNames.append(cms.InputTag("inconsistentMuons"))
-    FilterNames.append(cms.InputTag("greedyMuons"))
-    FilterNames.append(cms.InputTag("ra2EcalTPFilter"))
-    FilterNames.append(cms.InputTag("ra2EcalBEFilter"))
-    FilterNames.append(cms.InputTag("hcalLaserEventFilter"))
-    FilterNames.append(cms.InputTag("ecalLaserCorrFilter"))
-    FilterNames.append(cms.InputTag("eeBadScFilter"))
-    FilterNames.append(cms.InputTag("PBNRFilter"))
-    FilterNames.append(cms.InputTag("HCALLaserEvtFilterList2012"))
-    FilterNames.append(cms.InputTag("manystripclus53X"))
-    FilterNames.append(cms.InputTag("toomanystripclus53X"))
-    FilterNames.append(cms.InputTag("logErrorTooManyClusters"))
- #   FilterNames.append(cms.InputTag("RA2CaloVsPFMHTFilter"))
-    FilterNames.append(cms.InputTag("RA2HONoiseFilter"))
-
-
-
-
-
 
     ## --- Setup WeightProducer -------------------------------------------
     from RA2Classic.WeightProducer.getWeightProducer_cff import getWeightProducer
@@ -211,9 +188,9 @@ def makeTreeFromPAT(process,
 	# filter used to slecte the RA2 baseline important for efficiency caluclaiton
     from RA2Classic.Utils.RA2Selection_cfi import RA2Selection
     process.RA2Selector = RA2Selection.clone(
-    	nJets		= cms.uint32 (3),
-	HTMin		= cms.double(500),
-	MHTMin		= cms.double(100),
+    	nJets		= cms.uint32 (1),
+	HTMin		= cms.double(50),
+	MHTMin		= cms.double(0),
 	
 	)
 
@@ -222,22 +199,6 @@ def makeTreeFromPAT(process,
     process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 
    
-#   from RA2Classic.LostLeptonBkg.llPrediction_cff import llPrediction
- #  process.lostLeptonPrediction = llPrediction()
-    from RA2Classic.LostLeptonBkg.MCEffCalculator_cfi import MCEffCalculator
-    process.LostLeptonBkgMCEffCalculator = MCEffCalculator.clone(
-        MuonIDTag = cms.InputTag("patMuonsPFID"),
-	MuonIDISOTag = cms.InputTag("patMuonsPFIDIso"),
-        ElecIDTag = cms.InputTag("ra2ElectronsID"), 
-	ElecIDISOTag = cms.InputTag("ra2ElectronsIDIso"),
-#        ElecIDTag = cms.InputTag("patElectronsIDIso"), 
-#	ElecIDISOTag = cms.InputTag("patElectronsIDIso"),
-	HTTag	   = cms.InputTag(htInputCol),
- 	MHTTag	   = cms.InputTag(mhtInputCol),
-	CaloJetTag	= cms.InputTag('ak5CaloJetsL2L3'),
-#	CaloJetTag	= cms.InputTag('cleanPatJetsAK5Calo'),
-    )
-
 
     from RA2Classic.LostLeptonBkg.promtisomu_cfi import promtIsoMu
     process.promtLeptons = promtIsoMu.clone(
@@ -245,29 +206,24 @@ def makeTreeFromPAT(process,
 	CaloJetTag = cms.InputTag("ak5CaloJetsL2L3"),
 #	CaloJetTag	= cms.InputTag('cleanPatJetsAK5Calo'),
     )
-
- #  process.lostLeptonPrediction = llPrediction()
-    from RA2Classic.LostLeptonBkg.bkglostlepton_cfi import bkglostlepton
-    process.LostLeptonBkgProducer = bkglostlepton.clone(
-    	HTJets		= cms.InputTag('HTJets'),
-	MetTag		= cms.InputTag('patMETsPF'),
-	CaloJetTag	= cms.InputTag('ak5CaloJetsL2L3'),
-#	CaloJetTag	= cms.InputTag('cleanPatJetsAK5Calo'),
-#	MuonTag		= cms.InputTag('promtLeptons:PromtMuon'),
-	MuonTag		= cms.InputTag('patMuonsPFIDIso'),
-	ElecTag         = cms.InputTag("ra2ElectronsIDIso"),
-#	ElecTag         = cms.InputTag("patElectronsIDIso"),
-	MTWCut		= cms.bool(True),
-	EfficiencyFileName = cms.string('MCEff.root'),
+    from RA2Classic.LostLeptonBkg.tapTreeProducer_cfi import tapTreeProducer
+    process.tapTreeMuId = tapTreeProducer.clone(
 	HTTag	   = cms.InputTag(htInputCol),
  	MHTTag	   = cms.InputTag(mhtInputCol),
-	MetJetTagUp = cms.InputTag('jesUp:METs'),
-	MetJetTagDown = cms.InputTag('jesDown:METs'),
-	IsoPlots = cms.bool(True),
-	TAPUncertaintiesHTNJET = cms.bool(True),
-	statErrorEffmaps = cms.bool(True),
     )
-
+    process.tapTreeMuIso = process.tapTreeMuId.clone(
+       MuElecIdIso    = cms.uint32(1)
+    )
+    process.tapTreeElecId = process.tapTreeMuId.clone(
+       MuElecIdIso    = cms.uint32(2)
+    )
+    process.tapTreeElecIso = process.tapTreeMuId.clone(
+       MuElecIdIso    = cms.uint32(3)
+    )
+    process.tapTreeElecIdGsf = process.tapTreeMuId.clone(
+       MuElecIdIso    = cms.uint32(4)
+    )
+    
 
 
  #electrons selectors for ID electrons
@@ -290,12 +246,6 @@ def makeTreeFromPAT(process,
         Variation  = cms.string('Down')         # Either 'Up' or 'Dn' to produce jets with JES +/- 1 sigma, respectively
     )
 
-    from RA2Classic.LostLeptonBkg.ra2Filters_cfi import ra2FilterSelection
-    process.RA2Filters = ra2FilterSelection.clone(
-    Filters           = FilterNames
-    )
-
-
 
 
     ## --- Final paths ----------------------------------------------------
@@ -317,11 +267,15 @@ def makeTreeFromPAT(process,
 #	process.jesDown *
 #	process.promtLeptons *
 	process.RA2Selector *
-	process.RA2Filters *
-	process.ak5CaloJetsL2L3 *
- #       process.dump *
+#	process.ak5CaloJetsL2L3 *
+#	process.dump *
+	process.tapTreeMuId *
+	process.tapTreeMuIso *
+	process.tapTreeElecId *
+	process.tapTreeElecIdGsf *
+	process.tapTreeElecIso
 #	process.LostLeptonBkgMCEffCalculator *
-	process.LostLeptonBkgProducer
+#	process.LostLeptonBkgProducer
 #	process.RA2TreeMaker 
 
         )
