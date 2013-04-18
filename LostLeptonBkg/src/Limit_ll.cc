@@ -139,7 +139,7 @@ Limit_ll::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 //	if(nMu_==1 && nElec_==0 && mtw_ && ht_>500 && mht_>200)
-if ( ht_>500 && mht_>200 && nJets_>2 && nMu_==1)
+if ( ht_>500 && mht_>200 && nJets_>2 && nMu_==1 && nElec_==0)
 
 {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -167,11 +167,16 @@ if ( ht_>500 && mht_>200 && nJets_>2 && nMu_==1)
 //	std::cout<<"nJets_"<<nJets_<<std::endl;
 //	std::cout<<"mht_"<<mht_<<std::endl;
 //	std::cout<<"ht_"<<ht_<<std::endl;
-
-	int muonAccXaxis3= MuonAccEff3_->GetXaxis()->FindBin(mht_);
-	if (muonAccXaxis3 > MuonAccEff3_->GetNbinsX()) muonAccXaxis3-=1;
-	int muonAccYaxis3= MuonAccEff3_->GetYaxis()->FindBin(nJets_+0.1);
-	if (nJets_<3) muonAccYaxis3= MuonAccEff3_->GetYaxis()->FindBin(3);
+ 	double muAccXmax = MuonAccEff3_->GetXaxis()->GetXmax();
+//	std::cout<<"muAccXmax"<<muAccXmax<<std::endl;
+ 	double muAccYmax = MuonAccEff3_->GetYaxis()->GetXmax();
+//	std::cout<<"muAccYmax"<<muAccYmax<<std::endl;
+	double mht=mht_;
+	if ( muAccXmax<mht_) mht=muAccXmax-1;
+	int muonAccXaxis3= MuonAccEff3_->GetXaxis()->FindBin(mht);
+	int nJets=nJets_;
+	if (muAccYmax<nJets_) nJets=muAccYmax-0.2;
+	int muonAccYaxis3= MuonAccEff3_->GetYaxis()->FindBin(nJets+0.1);
 
 	muonAccEff2_ = MuonAccEff3_->GetBinContent(muonAccXaxis3,muonAccYaxis3);
 
@@ -185,34 +190,71 @@ if ( ht_>500 && mht_>200 && nJets_>2 && nMu_==1)
 
 	if (nJets_ > 2.5 && 5.5 > nJets_)
 	{
-		muonBinByBinIsoXaxis = MuonIsoBinByBinEff35_->GetXaxis()->FindBin(ht_);
-		muonBinByBinIsoYaxis = MuonIsoBinByBinEff35_->GetYaxis()->FindBin(mht_);
+	 	double muIsoXmax = MuonIsoBinByBinEff35_->GetXaxis()->GetXmax();
+		double ht = ht_;
+		if (muIsoXmax<ht_)ht= muIsoXmax-1;
+ 		double muIsoYmax = MuonIsoBinByBinEff35_->GetYaxis()->GetXmax();
+		double mht = mht_;
+		if (muIsoYmax<mht_)mht= muIsoYmax-1;		
+		muonBinByBinIsoXaxis = MuonIsoBinByBinEff35_->GetXaxis()->FindBin(ht);
+		muonBinByBinIsoYaxis = MuonIsoBinByBinEff35_->GetYaxis()->FindBin(mht);
 		muonBinByBinIsoEff_ = MuonIsoBinByBinEff35_->GetBinContent(muonBinByBinIsoXaxis,muonBinByBinIsoYaxis);
 
-		muonBinByBinRecoXaxis = MuonRecoBinByBinEff35_->GetXaxis()->FindBin(ht_);
-		muonBinByBinRecoYaxis = MuonRecoBinByBinEff35_->GetYaxis()->FindBin(mht_);
+
+	 	double muRecoXmax = MuonRecoBinByBinEff35_->GetXaxis()->GetXmax();
+		double ht1 = ht_;
+		if (muRecoXmax<ht_)ht1= muRecoXmax-1;
+ 		double muRecoYmax = MuonRecoBinByBinEff35_->GetYaxis()->GetXmax();
+		double mht1 = mht_;
+		if (muRecoYmax<mht_)mht1= muRecoYmax-1;		
+		muonBinByBinRecoXaxis = MuonRecoBinByBinEff35_->GetXaxis()->FindBin(ht1);
+		muonBinByBinRecoYaxis = MuonRecoBinByBinEff35_->GetYaxis()->FindBin(mht1);
 		muonBinByBinRecoEff_ = MuonRecoBinByBinEff35_->GetBinContent(muonBinByBinRecoXaxis,muonBinByBinRecoYaxis);
 
 	}
 	if (nJets_ > 5.5 && 7.5 > nJets_)
 	{
-		muonBinByBinIsoXaxis = MuonIsoBinByBinEff67_->GetXaxis()->FindBin(ht_);
-		muonBinByBinIsoYaxis = MuonIsoBinByBinEff67_->GetYaxis()->FindBin(mht_);
+	 	double muIsoXmax = MuonIsoBinByBinEff67_->GetXaxis()->GetXmax();
+		double ht = ht_;
+		if (muIsoXmax<ht_)ht= muIsoXmax-1;
+ 		double muIsoYmax = MuonIsoBinByBinEff67_->GetYaxis()->GetXmax();
+		double mht = mht_;
+		if (muIsoYmax<mht_)mht= muIsoYmax-1;		
+		muonBinByBinIsoXaxis = MuonIsoBinByBinEff67_->GetXaxis()->FindBin(ht);
+		muonBinByBinIsoYaxis = MuonIsoBinByBinEff67_->GetYaxis()->FindBin(mht);
 		muonBinByBinIsoEff_ = MuonIsoBinByBinEff67_->GetBinContent(muonBinByBinIsoXaxis,muonBinByBinIsoYaxis);
 
-		muonBinByBinRecoXaxis = MuonRecoBinByBinEff67_->GetXaxis()->FindBin(ht_);
-		muonBinByBinRecoYaxis = MuonRecoBinByBinEff67_->GetYaxis()->FindBin(mht_);
+	 	double muRecoXmax = MuonRecoBinByBinEff67_->GetXaxis()->GetXmax();
+		double ht1 = ht_;
+		if (muRecoXmax<ht_)ht1= muRecoXmax-1;
+ 		double muRecoYmax = MuonRecoBinByBinEff67_->GetYaxis()->GetXmax();
+		double mht1 = mht_;
+		if (muRecoYmax<mht_)mht1= muRecoYmax-1;		
+		muonBinByBinRecoXaxis = MuonRecoBinByBinEff67_->GetXaxis()->FindBin(ht1);
+		muonBinByBinRecoYaxis = MuonRecoBinByBinEff67_->GetYaxis()->FindBin(mht1);
 		muonBinByBinRecoEff_ = MuonRecoBinByBinEff67_->GetBinContent(muonBinByBinRecoXaxis,muonBinByBinRecoYaxis);
 
 	}
 	if (nJets_ > 7.5)
 	{
-		muonBinByBinIsoXaxis = MuonIsoBinByBinEff8Inf_->GetXaxis()->FindBin(ht_);
-		muonBinByBinIsoYaxis = MuonIsoBinByBinEff8Inf_->GetYaxis()->FindBin(mht_);
+	 	double muIsoXmax = MuonIsoBinByBinEff8Inf_->GetXaxis()->GetXmax();
+		double ht = ht_;
+		if (muIsoXmax<ht_)ht= muIsoXmax-1;
+ 		double muIsoYmax = MuonIsoBinByBinEff8Inf_->GetYaxis()->GetXmax();
+		double mht = mht_;
+		if (muIsoYmax<mht_)mht= muIsoYmax-1;		
+		muonBinByBinIsoXaxis = MuonIsoBinByBinEff8Inf_->GetXaxis()->FindBin(ht);
+		muonBinByBinIsoYaxis = MuonIsoBinByBinEff8Inf_->GetYaxis()->FindBin(mht);
 		muonBinByBinIsoEff_ = MuonIsoBinByBinEff8Inf_->GetBinContent(muonBinByBinIsoXaxis,muonBinByBinIsoYaxis);
 
-		muonBinByBinRecoXaxis = MuonRecoBinByBinEff8Inf_->GetXaxis()->FindBin(ht_);
-		muonBinByBinRecoYaxis = MuonRecoBinByBinEff8Inf_->GetYaxis()->FindBin(mht_);
+	 	double muRecoXmax = MuonRecoBinByBinEff8Inf_->GetXaxis()->GetXmax();
+		double ht1 = ht_;
+		if (muRecoXmax<ht_)ht1= muRecoXmax-1;
+ 		double muRecoYmax = MuonRecoBinByBinEff8Inf_->GetYaxis()->GetXmax();
+		double mht1 = mht_;
+		if (muRecoYmax<mht_)mht1= muRecoYmax-1;		
+		muonBinByBinRecoXaxis = MuonRecoBinByBinEff8Inf_->GetXaxis()->FindBin(ht1);
+		muonBinByBinRecoYaxis = MuonRecoBinByBinEff8Inf_->GetYaxis()->FindBin(mht1);
 		muonBinByBinRecoEff_ = MuonRecoBinByBinEff8Inf_->GetBinContent(muonBinByBinRecoXaxis,muonBinByBinRecoYaxis);
 
 	}
@@ -221,7 +263,7 @@ double error_=0;
 
 
 //	muonBinByBinIsoEff_ = MuonIsoBinByBinEff_->GetBinContent(muonBinByBinIsoXaxis,muonBinByBinIsoYaxis,muonBinByBinIsoZaxis );
-	if (muonBinByBinIsoEff_ <0.01 || muonBinByBinIsoEff_ > 1) 
+	if (muonBinByBinIsoEff_ <0.01 || muonBinByBinIsoEff_ > 1) std::cout<<"Error muonBinByBinIsoEff_ is"<<muonBinByBinIsoEff_<<std::endl;
 	if (muonBinByBinIsoEff_<0.01) muonBinByBinIsoEff_=0.01;
 	if (muonBinByBinIsoEff_>1 ) muonBinByBinIsoEff_=1;
 	muonBinByBinIsoWeight_ = eventWeight_ * (1 - muonBinByBinIsoEff_)/muonBinByBinIsoEff_;	
@@ -229,7 +271,7 @@ double error_=0;
 	//used these in AN up to now 14Mar2013
 //	muonBinByBinRecoEff_ = muonRecoEff2_;
 //	muonBinByBinRecoEffError = muonRecoEff2Error;
-	if (muonBinByBinRecoEff_ <0.01 || muonBinByBinRecoEff_ > 1) 
+	if (muonBinByBinRecoEff_ <0.01 || muonBinByBinRecoEff_ > 1) std::cout<<"Error muonBinByBinRecoEff_ is"<<muonBinByBinRecoEff_<<std::endl;
 	if (muonBinByBinRecoEff_<0.01) muonBinByBinRecoEff_=0.01;
 	if (muonBinByBinRecoEff_>1 ) muonBinByBinRecoEff_=1;
 	muonBinByBinRecoWeight_ = eventWeight_ * 1 / muonBinByBinIsoEff_ * (1-muonBinByBinRecoEff_)/muonBinByBinRecoEff_;
@@ -240,7 +282,7 @@ double error_=0;
 //	if (statErrorEffmaps_) muonBinByBinAccEffError_= MuonAccBinByBinEff_->GetBinError(muonBinByBinAccXaxis,muonBinByBinAccYaxis,muonBinByBinAccZaxis );
 
 
-	if (muonBinByBinAccEff_ <0.01 || muonBinByBinAccEff_ > 1) error_+=103;
+	if (muonBinByBinAccEff_ <0.01 || muonBinByBinAccEff_ > 1) std::cout<<"Error muonBinByBinAccEff_ is"<<muonBinByBinAccEff_<<std::endl;
 	if (muonBinByBinAccEff_<0.01) muonBinByBinAccEff_=0.01;
 	if (muonBinByBinAccEff_>1 ) muonBinByBinAccEff_=1;
 	muonBinByBinAccWeight_ = eventWeight_ * 1/muonBinByBinIsoEff_ * 1/muonBinByBinRecoEff_ *(1-muonBinByBinAccEff_)/muonBinByBinAccEff_;
@@ -266,29 +308,69 @@ double error_=0;
 	int elecBinByBinRecoYaxis=0;
 	if (nJets_ > 2.5 && 5.5 > nJets_)
 	{
-		elecBinByBinIsoXaxis = ElecIsoBinByBinEff35_->GetXaxis()->FindBin(ht_);
-		elecBinByBinIsoYaxis = ElecIsoBinByBinEff35_->GetYaxis()->FindBin(mht_);
+	 	double elecIsoXmax = ElecIsoBinByBinEff35_->GetXaxis()->GetXmax();
+		double ht = ht_;
+		if (elecIsoXmax<ht_)ht= elecIsoXmax-1;
+ 		double elecIsoYmax = ElecIsoBinByBinEff35_->GetYaxis()->GetXmax();
+		double mht = mht_;
+		if (elecIsoYmax<mht_)mht= elecIsoYmax-1;		
+		elecBinByBinIsoXaxis = ElecIsoBinByBinEff35_->GetXaxis()->FindBin(ht);
+		elecBinByBinIsoXaxis = ElecIsoBinByBinEff35_->GetYaxis()->FindBin(mht);
 		elecBinByBinIsoEff_ = ElecIsoBinByBinEff35_->GetBinContent(elecBinByBinIsoXaxis,elecBinByBinIsoYaxis);
-		elecBinByBinRecoXaxis = ElecRecoBinByBinEff35_->GetXaxis()->FindBin(ht_);
-		elecBinByBinRecoYaxis = ElecRecoBinByBinEff35_->GetYaxis()->FindBin(mht_);
+
+	 	double elecRecoXmax = ElecRecoBinByBinEff35_->GetXaxis()->GetXmax();
+		double ht3 = ht_;
+		if (elecRecoXmax<ht_)ht3= elecRecoXmax-1;
+ 		double elecRecoYmax = ElecRecoBinByBinEff35_->GetYaxis()->GetXmax();
+		double mht3 = mht_;
+		if (elecRecoXmax<mht_)mht3= elecRecoYmax-1;		
+		elecBinByBinRecoXaxis = ElecRecoBinByBinEff35_->GetXaxis()->FindBin(ht3);
+		elecBinByBinRecoYaxis = ElecRecoBinByBinEff35_->GetYaxis()->FindBin(mht3);
+
 		elecBinByBinRecoEff_ = ElecRecoBinByBinEff35_->GetBinContent(elecBinByBinRecoXaxis,elecBinByBinRecoYaxis);
 	}
 	if (nJets_ > 5.5 && 7.5 > nJets_)
 	{
-		elecBinByBinIsoXaxis = ElecIsoBinByBinEff67_->GetXaxis()->FindBin(ht_);
-		elecBinByBinIsoYaxis = ElecIsoBinByBinEff67_->GetYaxis()->FindBin(mht_);
+	 	double elecIsoXmax = ElecIsoBinByBinEff67_->GetXaxis()->GetXmax();
+		double ht = ht_;
+		if (elecIsoXmax<ht_)ht= elecIsoXmax-1;
+ 		double elecIsoYmax = ElecIsoBinByBinEff67_->GetYaxis()->GetXmax();
+		double mht = mht_;
+		if (elecIsoYmax<mht_)mht= elecIsoYmax-1;		
+		elecBinByBinIsoXaxis = ElecIsoBinByBinEff67_->GetXaxis()->FindBin(ht);
+		elecBinByBinIsoXaxis = ElecIsoBinByBinEff67_->GetYaxis()->FindBin(mht);
 		elecBinByBinIsoEff_ = ElecIsoBinByBinEff67_->GetBinContent(elecBinByBinIsoXaxis,elecBinByBinIsoYaxis);
-		elecBinByBinRecoXaxis = ElecRecoBinByBinEff67_->GetXaxis()->FindBin(ht_);
-		elecBinByBinRecoYaxis = ElecRecoBinByBinEff67_->GetYaxis()->FindBin(mht_);
+	 	double elecRecoXmax = ElecRecoBinByBinEff67_->GetXaxis()->GetXmax();
+		double ht3 = ht_;
+		if (elecRecoXmax<ht_)ht3= elecRecoXmax-1;
+ 		double elecRecoYmax = ElecRecoBinByBinEff67_->GetYaxis()->GetXmax();
+		double mht3 = mht_;
+		if (elecRecoXmax<mht_)mht3= elecRecoYmax-1;		
+		elecBinByBinRecoXaxis = ElecRecoBinByBinEff67_->GetXaxis()->FindBin(ht3);
+		elecBinByBinRecoYaxis = ElecRecoBinByBinEff67_->GetYaxis()->FindBin(mht3);
 		elecBinByBinRecoEff_ = ElecRecoBinByBinEff67_->GetBinContent(elecBinByBinRecoXaxis,elecBinByBinRecoYaxis);
 	}
 	if (nJets_ > 7.5)
 	{
-		elecBinByBinIsoXaxis = ElecIsoBinByBinEff8Inf_->GetXaxis()->FindBin(ht_);
-		elecBinByBinIsoYaxis = ElecIsoBinByBinEff8Inf_->GetYaxis()->FindBin(mht_);
+	 	double elecIsoXmax = ElecIsoBinByBinEff8Inf_->GetXaxis()->GetXmax();
+		double ht = ht_;
+		if (elecIsoXmax<ht_)ht= elecIsoXmax-1;
+ 		double elecIsoYmax = ElecIsoBinByBinEff8Inf_->GetYaxis()->GetXmax();
+		double mht = mht_;
+		if (elecIsoYmax<mht_)mht= elecIsoYmax-1;		
+		elecBinByBinIsoXaxis = ElecIsoBinByBinEff8Inf_->GetXaxis()->FindBin(ht);
+		elecBinByBinIsoXaxis = ElecIsoBinByBinEff8Inf_->GetYaxis()->FindBin(mht);
+
 		elecBinByBinIsoEff_ = ElecIsoBinByBinEff8Inf_->GetBinContent(elecBinByBinIsoXaxis,elecBinByBinIsoYaxis);
-		elecBinByBinRecoXaxis = ElecRecoBinByBinEff8Inf_->GetXaxis()->FindBin(ht_);
-		elecBinByBinRecoYaxis = ElecRecoBinByBinEff8Inf_->GetYaxis()->FindBin(mht_);
+	 	double elecRecoXmax = ElecRecoBinByBinEff8Inf_->GetXaxis()->GetXmax();
+		double ht3 = ht_;
+		if (elecRecoXmax<ht_)ht3= elecRecoXmax-1;
+ 		double elecRecoYmax = ElecRecoBinByBinEff8Inf_->GetYaxis()->GetXmax();
+		double mht3 = mht_;
+		if (elecRecoXmax<mht_)mht3= elecRecoYmax-1;		
+		elecBinByBinRecoXaxis = ElecRecoBinByBinEff8Inf_->GetXaxis()->FindBin(ht3);
+		elecBinByBinRecoYaxis = ElecRecoBinByBinEff8Inf_->GetYaxis()->FindBin(mht3);
+
 		elecBinByBinRecoEff_ = ElecRecoBinByBinEff8Inf_->GetBinContent(elecBinByBinRecoXaxis,elecBinByBinRecoYaxis);
 
 	}
@@ -298,11 +380,17 @@ double error_=0;
 
 //	if (statErrorEffmaps_) elecBinByBinAccEffError_= ElecAccBinByBinEff_->GetBinError(elecBinByBinAccXaxis,elecBinByBinAccYaxis,elecBinByBinAccZaxis );
 
+ 	double elecAccXmax = ElecAccEff3_->GetXaxis()->GetXmax();
+//	std::cout<<"muAccXmax"<<muAccXmax<<std::endl;
+ 	double elecAccYmax = ElecAccEff3_->GetYaxis()->GetXmax();
+//	std::cout<<"muAccYmax"<<muAccYmax<<std::endl;
+	double mht2=mht_;
+	if ( elecAccXmax<mht_) mht2=elecAccXmax-1;
+	int elecAccXaxis3= ElecAccEff3_->GetXaxis()->FindBin(mht2);
 
-	int elecAccXaxis3= ElecAccEff3_->GetXaxis()->FindBin(mht_);
-	if (elecAccXaxis3 > ElecAccEff3_->GetNbinsX()) elecAccXaxis3-=1;
-	int elecAccYaxis3= ElecAccEff3_->GetYaxis()->FindBin(nJets_+0.1);
-	if (nJets_<3)elecAccYaxis3= ElecAccEff3_->GetYaxis()->FindBin(3);
+	int nJets2=nJets_;
+	if (elecAccYmax<nJets_) nJets2=elecAccYmax-0.2;
+	int elecAccYaxis3= ElecAccEff3_->GetYaxis()->FindBin(nJets2+0.1);
 	elecAccEff2_ = ElecAccEff3_->GetBinContent(elecAccXaxis3,elecAccYaxis3);
 	// use these IN AN up to now 14Mar2013
 	elecBinByBinAccEff_ = elecAccEff2_;
@@ -348,8 +436,13 @@ double error_=0;
 	}
 	else resultBBBWMTWDiLep_=resultBBBWMTW_;
 	// mtw uncertainty
-std::cout<<"LostLeptonResultWeight"<<resultBBBWMTWDiLep_<<std::endl;
+if (resultBBBWMTWDiLep_>20)
 
+{
+std::cout<<"LostLeptonResultWeight"<<resultBBBWMTWDiLep_<<", original weight:"<<eventWeight_<<std::endl;
+//std::cout<<"ht_"<<ht_<<", mht"<<mht_<<", nJets_"<<nJets_<<"mtw_"<<sqrt(2*MuPt*MetPt*(1-cos(deltaPhi)) )<<std::endl;
+}
+std::cout<<"LostLeptonResultWeight"<<resultBBBWMTWDiLep_<<std::endl;
 }
 
 

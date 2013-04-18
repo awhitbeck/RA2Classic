@@ -13,7 +13,7 @@
 //
 // Original Author:  Arne-Rasmus Draeger,,,uni-hamburg
 //         Created:  Tue Sep 25 13:40:40 CEST 2012
-// $Id: LostLeptonBkg.cc,v 1.10 2013/02/15 10:53:34 adraeger Exp $
+// $Id: LostLeptonBkg.cc,v 1.11 2013/03/21 17:49:07 adraeger Exp $
 //
 //
 #include <TString.h>
@@ -773,9 +773,9 @@ std::cout<<"bb1"<<std::endl;
 	if(TAPUncertainties_)
   	{
 		// muon tag and probe uncertainty
-		int muonIsoXaxisMC= MuIsoMCTAP_->GetXaxis()->FindBin(deltaRMuJet_);
+		int muonIsoXaxisMC= MuIsoMCTAP_->GetXaxis()->FindBin(ht_);
 		if (muonIsoXaxisMC > MuIsoMCTAP_->GetNbinsX()) muonIsoXaxisMC-=1;
-		int muonIsoYaxisMC= MuIsoMCTAP_->GetYaxis()->FindBin(genPTRelJet_);
+		int muonIsoYaxisMC= MuIsoMCTAP_->GetYaxis()->FindBin(nJets_);
 		if (muonIsoYaxisMC > MuIsoMCTAP_->GetNbinsY()) muonIsoYaxisMC-=1;
 		
 
@@ -783,9 +783,9 @@ std::cout<<"bb1"<<std::endl;
 		double muonIsoEffMC = MuIsoMCTAP_->GetBinContent(muonIsoXaxisMC,muonIsoYaxisMC );
 
 
-		int muonIsoXaxisData= MuIsoDataTAP_->GetXaxis()->FindBin(deltaRMuJet_);
+		int muonIsoXaxisData= MuIsoDataTAP_->GetXaxis()->FindBin(ht_);
 		if (muonIsoXaxisData > MuIsoDataTAP_->GetNbinsX()) muonIsoXaxisData-=1;
-		int muonIsoYaxisData= MuIsoDataTAP_->GetYaxis()->FindBin(genPTRelJet_);
+		int muonIsoYaxisData= MuIsoDataTAP_->GetYaxis()->FindBin(nJets_);
 		if (muonIsoYaxisData > MuIsoDataTAP_->GetNbinsY()) muonIsoYaxisData-=1;
 		double muonIsoEffData = MuIsoDataTAP_->GetBinContent(muonIsoXaxisData,muonIsoYaxisData );
 
@@ -796,14 +796,16 @@ std::cout<<"bb1"<<std::endl;
 		int muonIsoYaxisMCHTNJet = MuIsoMCTAPHTNJET_->GetYaxis()->FindBin(nJets_);
 		if (muonIsoYaxisMCHTNJet > MuIsoMCTAPHTNJET_->GetNbinsY()+1) muonIsoYaxisMCHTNJet-=1;
 		muonIsoEffMC = MuIsoMCTAPHTNJET_->GetBinContent(muonIsoXaxisMCHTNJet, muonIsoYaxisMCHTNJet);
-		//std::cout<<"TAPUncertaintiesHTNJet::muonIsoEffMC="<<MuIsoMCTAPHTNJET_->GetBinContent(muonIsoXaxisMCHTNJet, muonIsoYaxisMCHTNJet)<<std::endl;
+		if (muonIsoEffMC>0.999) muonIsoEffMC=0.999;
+		std::cout<<"TAPUncertaintiesHTNJet::muonIsoEffMC="<<MuIsoMCTAPHTNJET_->GetBinContent(muonIsoXaxisMCHTNJet, muonIsoYaxisMCHTNJet)<<std::endl;
 
 		int muonIsoXaxisDataHTNJet = MuIsoDataTAPHTNJET_->GetXaxis()->FindBin(ht_);
 		if (muonIsoXaxisDataHTNJet > MuIsoDataTAPHTNJET_->GetNbinsX()+1) muonIsoXaxisDataHTNJet-=1;
 		int muonIsoYaxisDataHTNJet = MuIsoDataTAPHTNJET_->GetYaxis()->FindBin(nJets_);
 		if (muonIsoYaxisDataHTNJet > MuIsoDataTAPHTNJET_->GetNbinsY()+1) muonIsoYaxisDataHTNJet-=1;
 		muonIsoEffData = MuIsoDataTAPHTNJET_->GetBinContent(muonIsoXaxisDataHTNJet, muonIsoYaxisDataHTNJet);
-		//std::cout<<"TAPUncertaintiesHTNJet::muonIsoEffData="<<MuIsoDataTAPHTNJET_->GetBinContent(muonIsoXaxisDataHTNJet, muonIsoYaxisDataHTNJet)<<std::endl;
+		if (muonIsoEffData>0.999) muonIsoEffData=0.999;
+		std::cout<<"TAPUncertaintiesHTNJet::muonIsoEffData="<<MuIsoDataTAPHTNJET_->GetBinContent(muonIsoXaxisDataHTNJet, muonIsoYaxisDataHTNJet)<<std::endl;
 		}
 		if (muonIsoEffMC <0.001) error_+=999;
 		if (muonIsoEffMC >1) error_+=-999;
@@ -816,15 +818,15 @@ std::cout<<"bb1"<<std::endl;
 		if (muonIsoEffData >0.99) muonIsoEffData=0.99;
 		double muonTAPIsoWeightMC = eventWeight_ * (1 - muonIsoEffMC)/muonIsoEffMC;
 		double muonTAPIsoWeightData = eventWeight_ * (1 - muonIsoEffData)/muonIsoEffData;
-		muonIsoTAPRelUncertainty_ = (muonTAPIsoWeightMC-muonTAPIsoWeightData)/muonTAPIsoWeightData;
+		muonIsoTAPRelUncertainty_ = (muonTAPIsoWeightMC-muonTAPIsoWeightData)/muonTAPIsoWeightMC;
 		if (muonIsoTAPRelUncertainty_<-0.00) muonIsoTAPRelUncertainty_=muonIsoTAPRelUncertainty_ * (-1);
 		double MuIsoFraction = muonBinByBinIsoWeight_/resultBBBWMTWDiLep_;
 		muonTAPIsoWeightMC_= resultBBBWMTWDiLep_ - muonBinByBinIsoWeight_ + muonTAPIsoWeightMC;
 		muonTAPIsoWeightData_= resultBBBWMTWDiLep_ - muonBinByBinIsoWeight_ + muonTAPIsoWeightData;
 	
 		muonIsoTAPUp_ = resultBBBWMTWDiLep_ + sqrt( (resultBBBWMTWDiLep_ *(muonIsoTAPRelUncertainty_ * MuIsoFraction)) * (resultBBBWMTWDiLep_ *(muonIsoTAPRelUncertainty_ * MuIsoFraction)) + MuIsoStatUp_ * MuIsoStatUp_);
-		//std::cout<<"muonIsoTAPUp_::"<<muonIsoTAPUp_<<std::endl;
-		//std::cout<<"MuIsoStatUp_"<<MuIsoStatUp_<<std::endl;
+		std::cout<<"muonIsoTAPUp_::"<<muonIsoTAPUp_<<std::endl;
+		std::cout<<"MuIsoStatUp_"<<MuIsoStatUp_<<std::endl;
 		muonIsoTAPDown_ = resultBBBWMTWDiLep_ - sqrt( (resultBBBWMTWDiLep_ *(muonIsoTAPRelUncertainty_ * MuIsoFraction)) *(resultBBBWMTWDiLep_ *(muonIsoTAPRelUncertainty_ * MuIsoFraction)) + MuIsoStatDown_ * MuIsoStatDown_);
 		if (muonIsoTAPDown_<0.0001)muonIsoTAPDown_=0.0001;
 		//std::cout<<"muonIsoTAPDown_::"<<muonIsoTAPDown_<<std::endl;
@@ -833,18 +835,20 @@ std::cout<<"bb1"<<std::endl;
 		if (muonIsoTAPUp_ >10) muonIsoTAPUp_=10;
 		if (muonIsoTAPDown_<0.01) muonIsoTAPDown_=0.01;
 
-		int muonRecoXaxisMC= MuRecoMCTAP_->GetXaxis()->FindBin(MuPt_);
+		int muonRecoXaxisMC= MuRecoMCTAP_->GetXaxis()->FindBin(ht_);
 
 		if (muonRecoXaxisMC > MuRecoMCTAP_->GetNbinsX()) muonRecoXaxisMC-=1;
-		int muonRecoYaxisMC= MuRecoMCTAP_->GetYaxis()->FindBin(deltaRMuJet_);
+		int muonRecoYaxisMC= MuRecoMCTAP_->GetYaxis()->FindBin(nJets_);
 		if (muonRecoYaxisMC > MuRecoMCTAP_->GetNbinsY()) muonRecoYaxisMC-=1;
 		double muonRecoEffMC = MuRecoMCTAP_->GetBinContent(muonRecoXaxisMC,muonRecoYaxisMC );
+		if (muonRecoEffMC>0.999) muonRecoEffMC=0.999;
 		std::cout<<"muonRecoEffMCTAP"<<muonRecoEffMC<<std::endl;
-		int muonRecoXaxisData= MuRecoDataTAP_->GetXaxis()->FindBin(MuPt_);
+		int muonRecoXaxisData= MuRecoDataTAP_->GetXaxis()->FindBin(ht_);
 		if (muonRecoXaxisData > MuRecoDataTAP_->GetNbinsX()) muonRecoXaxisData-=1;
-		int muonRecoYaxisData= MuRecoDataTAP_->GetYaxis()->FindBin(deltaRMuJet_);
+		int muonRecoYaxisData= MuRecoDataTAP_->GetYaxis()->FindBin(nJets_);
 		if (muonRecoYaxisData > MuRecoDataTAP_->GetNbinsY()) muonRecoYaxisData-=1;
 		double muonRecoEffData = MuRecoDataTAP_->GetBinContent(muonRecoXaxisData,muonRecoYaxisData );
+		if (muonRecoEffData>0.999) muonRecoEffData=0.999;
 		std::cout<<"muonRecoEffDataTAP"<<muonRecoEffData<<std::endl;
 		double muonRecoWeightMC = eventWeight_ * 1 / muonBinByBinIsoEff_ * (1-muonRecoEffMC)/muonRecoEffMC;
 		std::cout<<"muonRecoWeightMCTAP"<<muonRecoWeightMC<<std::endl;
@@ -853,7 +857,7 @@ std::cout<<"bb1"<<std::endl;
 		muonTAPRecoWeightMC_= resultBBBWMTWDiLep_ - muonBinByBinRecoWeight_ + muonRecoWeightMC;
 		muonTAPRecoWeightData_= resultBBBWMTWDiLep_ - muonBinByBinRecoWeight_ + muonRecoWeightData;
 
-		muonRecoTAPRelUncertainty_ = (muonRecoWeightMC-muonRecoWeightData)/muonRecoWeightData;
+		muonRecoTAPRelUncertainty_ = (muonRecoWeightMC-muonRecoWeightData)/muonRecoWeightMC;
 		std::cout<<"muonRecoTAPRelUncertainty_"<<muonRecoTAPRelUncertainty_<<std::endl;
 		if (muonRecoTAPRelUncertainty_<0.00) muonRecoTAPRelUncertainty_=muonRecoTAPRelUncertainty_*(-1);
 		std::cout<<"muonRecoTAPRelUncertainty_"<<muonRecoTAPRelUncertainty_<<std::endl;
@@ -878,21 +882,23 @@ std::cout<<"bb1"<<std::endl;
 
 		
 
-		int elecRecoXaxisMC= ElecRecoMCTAP_->GetXaxis()->FindBin(MuEta_);
+		int elecRecoXaxisMC= ElecRecoMCTAP_->GetXaxis()->FindBin(ht_);
 		if (elecRecoXaxisMC > ElecRecoMCTAP_->GetNbinsX()) elecRecoXaxisMC-=1;
-		int elecRecoYaxisMC= ElecRecoMCTAP_->GetYaxis()->FindBin(MuPt_);
+		int elecRecoYaxisMC= ElecRecoMCTAP_->GetYaxis()->FindBin(nJets_);
 		if (elecRecoYaxisMC > ElecRecoMCTAP_->GetNbinsY()) elecRecoYaxisMC-=1;
 		double elecRecoEffMC = ElecRecoMCTAP_->GetBinContent(elecRecoXaxisMC,elecRecoYaxisMC );
-
-		int elecRecoXaxisData= ElecRecoDataTAP_->GetXaxis()->FindBin(MuEta_);
+		if (elecRecoEffMC>0.999) elecRecoEffMC=0.999;
+		std::cout<<"elecRecoMCTAPEff"<<elecRecoEffMC<<std::endl;
+		int elecRecoXaxisData= ElecRecoDataTAP_->GetXaxis()->FindBin(ht_);
 		if (elecRecoXaxisData > ElecRecoDataTAP_->GetNbinsX()) elecRecoXaxisData-=1;
-		int elecRecoYaxisData= ElecRecoDataTAP_->GetYaxis()->FindBin(MuPt_);
+		int elecRecoYaxisData= ElecRecoDataTAP_->GetYaxis()->FindBin(nJets_);
 		if (elecRecoYaxisData > ElecRecoDataTAP_->GetNbinsY()) elecRecoYaxisData-=1;
 		double elecRecoEffData = ElecRecoDataTAP_->GetBinContent(elecRecoXaxisData,elecRecoYaxisData );
-
+		if (elecRecoEffData>0.999) elecRecoEffData=0.999;
+		std::cout<<"elecRecoDataTAPEff"<<elecRecoEffData<<std::endl;
 		double elecTAPRecoWeightMC = totalBinByBinMuons_ * (elecBinByBinAccEff_) * (1 - elecRecoEffMC);
 		double elecTAPRecoWeightData = totalBinByBinMuons_ * (elecBinByBinAccEff_) * (1 - elecRecoEffData);
-		elecRecoTAPRelUncertainty_ = (elecTAPRecoWeightMC-elecTAPRecoWeightData)/elecTAPRecoWeightData;
+		elecRecoTAPRelUncertainty_ = (elecTAPRecoWeightMC-elecTAPRecoWeightData)/elecTAPRecoWeightMC;
 		if (elecRecoTAPRelUncertainty_<0.00) elecRecoTAPRelUncertainty_=elecRecoTAPRelUncertainty_*(-1);
 		double ElecRecoFraction = elecBinByBinRecoWeight_/resultBBBWMTWDiLep_;
 		elecRecoTAPUp_ = resultBBBWMTWDiLep_ + sqrt(resultBBBWMTWDiLep_ * (elecRecoTAPRelUncertainty_ * ElecRecoFraction) * resultBBBWMTWDiLep_ * (elecRecoTAPRelUncertainty_ * ElecRecoFraction) + ElecRecoStatUp_ * ElecRecoStatUp_);
@@ -904,21 +910,24 @@ std::cout<<"bb1"<<std::endl;
 
 
 
-		int elecIsoXaxisMC= ElecIsoMCTAP_->GetXaxis()->FindBin(MuEta_);
+		int elecIsoXaxisMC= ElecIsoMCTAP_->GetXaxis()->FindBin(ht_);
 		if (elecIsoXaxisMC > ElecIsoMCTAP_->GetNbinsX()) elecIsoXaxisMC-=1;
-		int elecIsoYaxisMC= ElecIsoMCTAP_->GetYaxis()->FindBin(MuPt_);
+		int elecIsoYaxisMC= ElecIsoMCTAP_->GetYaxis()->FindBin(nJets_);
 		if (elecIsoYaxisMC > ElecIsoMCTAP_->GetNbinsY()) elecIsoYaxisMC-=1;
 		double elecIsoEffMC = ElecIsoMCTAP_->GetBinContent(elecIsoXaxisMC,elecIsoYaxisMC );
-
-		int elecIsoXaxisData= ElecIsoDataTAP_->GetXaxis()->FindBin(MuEta_);
+		if (elecIsoEffMC>0.999) elecIsoEffMC=0.999;
+		std::cout<<"elecIsoMCTAPEff"<<elecIsoEffMC<<std::endl;
+		int elecIsoXaxisData= ElecIsoDataTAP_->GetXaxis()->FindBin(ht_);
 		if (elecIsoXaxisData > ElecIsoDataTAP_->GetNbinsX()) elecIsoXaxisData-=1;
-		int elecIsoYaxisData= ElecIsoDataTAP_->GetYaxis()->FindBin(MuPt_);
+		int elecIsoYaxisData= ElecIsoDataTAP_->GetYaxis()->FindBin(nJets_);
 		if (elecIsoYaxisData > ElecIsoDataTAP_->GetNbinsY()) elecIsoYaxisData-=1;
 		double elecIsoEffData = ElecIsoDataTAP_->GetBinContent(elecIsoXaxisData,elecIsoYaxisData );
+		if (elecIsoEffData>0.999) elecIsoEffData=0.999;
+		std::cout<<"elecIsoDataTAPEff"<<elecIsoEffData<<std::endl;
 
 		double elecTAPIsoWeightMC = totalBinByBinMuons_ * (elecBinByBinAccEff_) * (elecBinByBinRecoEff_) * (1 - elecIsoEffMC);
 		double elecTAPIsoWeightData = totalBinByBinMuons_ * (elecBinByBinAccEff_) * (elecBinByBinRecoEff_) * (1 - elecIsoEffData);
-		elecIsoTAPRelUncertainty_ = (elecTAPIsoWeightMC-elecTAPIsoWeightData)/elecTAPIsoWeightData;
+		elecIsoTAPRelUncertainty_ = (elecTAPIsoWeightMC-elecTAPIsoWeightData)/elecTAPIsoWeightMC;
 		if (elecIsoTAPRelUncertainty_<0.00) elecIsoTAPRelUncertainty_=elecIsoTAPRelUncertainty_*(-1);
 		double ElecIsoFraction = elecBinByBinIsoWeight_/resultBBBWMTWDiLep_;
 		elecIsoTAPUp_ = resultBBBWMTWDiLep_ + sqrt(resultBBBWMTWDiLep_ * (elecIsoTAPRelUncertainty_ * ElecIsoFraction) * resultBBBWMTWDiLep_ * (elecIsoTAPRelUncertainty_ * ElecIsoFraction)+ ElecIsoStatUp_ * ElecIsoStatUp_);
@@ -1295,7 +1304,7 @@ if (false)
 //std::cout<<"LostLeptonBkg::binBybinGetEff ended"<<std::endl;
   if(TAPUncertainties_)
 {
-	//std::cout<<"LostLeptonBkg::TagAndProbeUncertainties are being calculated!"<<std::endl;
+	std::cout<<"LostLeptonBkg::TagAndProbeUncertainties are being calculated!"<<std::endl;
   MuIsoMCTAP_ = (TH2F*)dMuon->Get("MC_TAP_mu_iso_eff");
   MuIsoMCTAPBinXMax_ = MuIsoMCTAP_->GetXaxis()->GetXmax();
   MuIsoMCTAPBinYMax_ = MuIsoMCTAP_->GetYaxis()->GetXmax();
@@ -1308,8 +1317,8 @@ if (false)
 
   if (TAPUncertaintiesHTNJET_)
   {
-  MuIsoMCTAPHTNJET_ = (TH2F*)dMuon->Get("MC_TAP_mu_iso_eff_HTNJet");
-  MuIsoDataTAPHTNJET_ = (TH2F*)dMuon->Get("Data_TAP_mu_iso_eff_HTNJet");
+  MuIsoMCTAPHTNJET_ = (TH2F*)dMuon->Get("MC_TAP_mu_iso_eff");
+  MuIsoDataTAPHTNJET_ = (TH2F*)dMuon->Get("Data_TAP_mu_iso_eff");
   }
 
 

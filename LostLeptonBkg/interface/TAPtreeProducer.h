@@ -54,7 +54,7 @@ class TAPtreeProducer : public edm::EDProducer {
 
 	edm::InputTag PromtMuonTag_;
 	edm::InputTag PromtElecTag_;
-
+	edm::InputTag GsfElecTag_;
 
 	edm::InputTag MhtTag_,HTTag_,MHTTag_, NVTag_;
 	edm::InputTag CaloJetTag_;
@@ -65,6 +65,7 @@ class TAPtreeProducer : public edm::EDProducer {
 	bool MTWCut_;
  	double MinMuPT_, MinElecPT_;
 	Float_t eventWeight_;
+	unsigned int MuElecIdIso_;
 
 	// input corrections uncertainties
 	edm::InputTag MetJetTagUp_, MetJetTagDown_;
@@ -78,7 +79,7 @@ class TAPtreeProducer : public edm::EDProducer {
 	Float_t MuPt_;
 	Float_t MuEta_;
 	Float_t MuPhi_;
-	UShort_t nV_, nJets_;
+	int nV_, nJets_;
 	int nCaloJets_;
 
 	int muPromtMatched_;
@@ -94,13 +95,14 @@ class TAPtreeProducer : public edm::EDProducer {
 	UShort_t nIsoMu_, nRecoMu_, nPromtMu_, nIsoElec_, nRecoElec_, nPromtElec_;
 
 	// muon 
-	Float_t RecoMuInvariantMass_, IsoMuInvariantMass_, RecoElecInvariantMass_, IsoElecInvariantMass_;
-	bool MuIdPass_, MuIsoPass_, ElecIdPass_, ElecIsoPass_;
-	bool MuIdPairFound_, MuIsoPairFound_, ElecIdPairFound_, ElecIsoPairFound_;
+	Float_t RecoMuInvariantMass_, IsoMuInvariantMass_, RecoElecInvariantMass_,RecoGsfElecInvariantMass_, IsoElecInvariantMass_;
+	Int_t MuIdPass_, MuIsoPass_, ElecIdPass_, ElecIsoPass_, ElecIdGsfPass_;
+	bool MuIdPairFound_, MuIsoPairFound_, ElecIdPairFound_, ElecIsoPairFound_, ElecIdGsfPairFound_ ;
 
 	Float_t MuIdProbePt_, MuIdProbeEta_, MuIdProbePhi_;
 	Float_t MuIsoProbePt_, MuIsoProbeEta_, MuIsoProbePhi_;
 	Float_t ElecIdProbePt_, ElecIdProbeEta_, ElecIdProbePhi_;
+	Float_t ElecIdGsfProbePt_, ElecIdGsfProbeEta_, ElecIdGsfProbePhi_;
 	Float_t ElecIsoProbePt_, ElecIsoProbeEta_, ElecIsoProbePhi_;
 
 
