@@ -1,6 +1,7 @@
-// $Id: EventYieldPrinter.cc,v 1.11 2013/02/16 18:58:24 mschrode Exp $
+// $Id: EventYieldPrinter.cc,v 1.12 2013/04/22 13:07:39 mschrode Exp $
 
 #include <cmath>
+#include <cstdlib>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -14,9 +15,11 @@
 
 
 
-EventYieldPrinter::EventYieldPrinter() {
+EventYieldPrinter::EventYieldPrinter() 
+  : inputDataSets_(DataSet::findAllUnselected()) {
   
   const TString outFileNamePrefix = Output::resultDir()+"/"+Output::id();
+  prepareSummaryTable();
 
   std::cout << "  - Writing event-yield information to '" << outFileNamePrefix << "_EventYields.tex'" << std::endl;
   printToLaTeX(outFileNamePrefix+"_EventYields.tex");
@@ -28,43 +31,38 @@ EventYieldPrinter::EventYieldPrinter() {
 }
 
 
-void EventYieldPrinter::printToScreen() const {
-  DataSets inputDataSets = DataSet::findAllUnselected();
-  unsigned int width = Selection::maxLabelLength() + 4;
-  unsigned int nSeps = width;
+void EventYieldPrinter::prepareSummaryTable() {
 
+  // Print DataSets of different type together
   std::vector<DataSet::Type> printedTypes;
   printedTypes.push_back(DataSet::Data);
   printedTypes.push_back(DataSet::MC);
   printedTypes.push_back(DataSet::Prediction);
   printedTypes.push_back(DataSet::Signal);
-
   std::vector<bool> printTotalYield(printedTypes.size(),false);
 
-
-  std::cout << "\n\n\n\n";
-  std::cout << std::setw(width) << "Selection";
+  // Header row
+  std::vector<TString> tableRow;
+  tableRow.push_back(" Selection ");
   for(unsigned int typeIdx = 0; typeIdx < printedTypes.size(); ++typeIdx) {
     unsigned int nDataSetsOfThisType = 0;
-    for(DataSetIt itd = inputDataSets.begin(); itd != inputDataSets.end(); ++itd) {
+    for(DataSetIt itd = inputDataSets_.begin(); itd != inputDataSets_.end(); ++itd) {
       if( (*itd)->type() == printedTypes.at(typeIdx) ) {
-	std::cout << std::setw(5) << " | " << std::setw(12) << (*itd)->label();
-	nSeps += 17;
+	tableRow.push_back((" "+(*itd)->label()+" "));
 	++nDataSetsOfThisType;
       }
     }
     if( nDataSetsOfThisType > 1 ) {
       printTotalYield.at(typeIdx) = true;
-      std::cout << std::setw(5) << " | " << std::setw(12) << "Total " << DataSet::toString(printedTypes.at(typeIdx));
+      tableRow.push_back((" Total "+DataSet::toString(printedTypes.at(typeIdx))+" "));
     }
   }
-  std::cout << "\n";
-  for(unsigned int i = 0; i < nSeps; ++i) {
-    std::cout << "-";
-  }
-  std::cout << "\n";
+  summaryTable_.push_back(tableRow);
+
+  // One row per selection
   for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
-    std::cout << std::setw(width) << (*its)->uid();
+    tableRow.clear();
+    tableRow.push_back((" "+(*its)->uid()+" "));
     DataSets selectedDataSets = DataSet::findAllWithSelection((*its)->uid());
     char yield[50];
     char stat[50];
@@ -77,43 +75,112 @@ void EventYieldPrinter::printToScreen() const {
       double totSystUp = 0.;
       for(DataSetIt itsd = selectedDataSets.begin(); itsd != selectedDataSets.end(); ++itsd) {
 	if( (*itsd)->type() == printedTypes.at(typeIdx) ) {
-	  std::cout << std::setw(5) << " | ";
-	  sprintf(yield,"%.1f",(*itsd)->yield());
-	  totYield += (*itsd)->yield();
-	  sprintf(stat,"%.1f",(*itsd)->stat());
-	  totStat += std::sqrt( (*itsd)->stat()*(*itsd)->stat() + totStat*totStat );
-	  std::cout << std::setw(12) << yield << " +/- " << stat;
-	  if( (*itsd)->hasSyst() ) {
-	    sprintf(systDn,"%.1f",(*itsd)->totSystDn());
-	    totSystDn += std::sqrt( (*itsd)->totSystDn()*(*itsd)->totSystDn() + totSystDn*totSystDn );
-	    sprintf(systUp,"%.1f",(*itsd)->totSystUp());
-	    totSystUp += std::sqrt( (*itsd)->totSystUp()*(*itsd)->totSystUp() + totSystUp*totSystUp );
-	    std::cout << " +" << systUp << " -" << systDn;
+	  TString tableCell = " ";
+	  if( printedTypes.at(typeIdx) == DataSet::Data ) {
+	    sprintf(yield,"%.0f",(*itsd)->yield());
+	    totYield += (*itsd)->yield();
+	    tableCell += yield;
+	  } else {
+	    sprintf(yield,"%.1f",(*itsd)->yield());
+	    totYield += (*itsd)->yield();
+	    sprintf(stat,"%.1f",(*itsd)->stat());
+	    totStat += std::sqrt( (*itsd)->stat()*(*itsd)->stat() + totStat*totStat );
+	    tableCell += yield;
+	    tableCell += " +/- ";
+	    tableCell += stat;
+	    if( (*itsd)->hasSyst() ) {
+	      sprintf(systDn,"%.1f",(*itsd)->totSystDn());
+	      totSystDn += std::sqrt( (*itsd)->totSystDn()*(*itsd)->totSystDn() + totSystDn*totSystDn );
+	      sprintf(systUp,"%.1f",(*itsd)->totSystUp());
+	      totSystUp += std::sqrt( (*itsd)->totSystUp()*(*itsd)->totSystUp() + totSystUp*totSystUp );
+	      tableCell += " +";
+	      tableCell += systUp;
+	      tableCell += " -";
+	      tableCell += systDn;
+	    }
 	  }
+	  tableCell += " ";
+	  tableRow.push_back(tableCell);
 	}
       }
       if( printTotalYield.at(typeIdx) ) {
-	std::cout << std::setw(5) << " | ";
-	sprintf(yield,"%.1f",totYield);
-	sprintf(stat,"%.1f",totStat);
-	sprintf(systDn,"%.1f",totSystDn);
-	sprintf(systUp,"%.1f",totSystUp);
-	std::cout << std::setw(12) << yield << " +/- " << stat;
-	if( totSystDn > 0. ) {
-	  std::cout << " +" << systUp << " -" << systDn;
+	TString tableCell = " ";
+	if( printedTypes.at(typeIdx) == DataSet::Data ) {
+	  sprintf(yield,"%.1f",totYield);
+	  tableCell += yield;
+	} else {
+	  sprintf(yield,"%.1f",totYield);
+	  sprintf(stat,"%.1f",totStat);
+	  sprintf(systDn,"%.1f",totSystDn);
+	  sprintf(systUp,"%.1f",totSystUp);
+	  tableCell += yield;
+	  tableCell += " +/- ";
+	  tableCell += stat;
+	  if( totSystDn > 0. ) {
+	    tableCell += " +";
+	    tableCell += systUp;
+	    tableCell += " -";
+	    tableCell += systDn;
+	  }
 	}
+	tableCell += " ";
+	tableRow.push_back(tableCell);
       }
     }
-    std::cout << "\n";
+    summaryTable_.push_back(tableRow);
   }
+
+  // Sanity check
+  const unsigned int nCols = summaryTable_.front().size();
+  for(std::vector< std::vector<TString> >::const_iterator itr = summaryTable_.begin();
+      itr != summaryTable_.end(); ++itr) { // Loop over rows
+    if( itr->size() != nCols ) {
+      std::cerr << "ERROR in EventYieldPrinter when building summary table" << std::endl;
+      exit(-1);
+    }
+  }
+
+  // Find column width
+  summaryTableColw_ = std::vector<unsigned int>(summaryTable_.front().size(),0);
+  for(std::vector< std::vector<TString> >::const_iterator itr = summaryTable_.begin();
+      itr != summaryTable_.end(); ++itr) { // Loop over rows
+    unsigned int colIdx = 0;
+    for(std::vector<TString>::const_iterator itc = itr->begin();
+	itc != itr->end(); ++itc, ++colIdx) { // Loop over columns
+      if( itc->Length() > summaryTableColw_.at(colIdx) ) summaryTableColw_.at(colIdx) = itc->Length();
+    }
+  }
+}
+
+
+void EventYieldPrinter::printToScreen() const {
+  // Print header
+  std::cout << "\n\n\n\n";
+  for(unsigned int colIdx = 0; colIdx < summaryTable_.front().size(); ++colIdx) {
+    std::cout << std::setw(summaryTableColw_.at(colIdx)) << summaryTable_.front().at(colIdx) << "|";
+  }
+  std::cout << "\n";
+  for(unsigned int colIdx = 0; colIdx < summaryTable_.front().size(); ++colIdx) {
+    for(unsigned int i = 0; i < summaryTableColw_.at(colIdx); ++i) {
+      std::cout << "-";
+    }
+    std::cout << "+";
+  }
+  std::cout << "\n";
+  // Print body
+  for(std::vector< std::vector<TString> >::const_iterator itr = summaryTable_.begin()+1;
+      itr != summaryTable_.end(); ++itr) { // Loop over rows
+    for(unsigned int colIdx = 0; colIdx < itr->size(); ++colIdx) { // Loop over columns
+      std::cout << std::setw(summaryTableColw_.at(colIdx)) << itr->at(colIdx) << "|";
+    }
+  std::cout << "\n";
+  }
+  std::cout << "\n";
 }
 
 
 void EventYieldPrinter::printToLaTeX(const TString &outFileName) const {
   ofstream file(outFileName);
-
-  DataSets inputDataSets = DataSet::findAllUnselected();
-  unsigned int width = Selection::maxLabelLength() + 4;
 
   // Print yields and total uncertainties
   // per datasets (rows) and selections (columns)
@@ -122,54 +189,47 @@ void EventYieldPrinter::printToLaTeX(const TString &outFileName) const {
   file << "% Datasets vs Selections: yields and total uncertainties" << std::endl;
   file << "%===========================================================================" << std::endl;
   file << "\n\\begin{tabular}{l";
-  for(unsigned int i = 1; i < inputDataSets.size()+1; ++i) {
+  for(unsigned int i = 1; i < summaryTable_.front().size(); ++i) {
     file << "r";
   }
   file << "}\n";
   file << "\\toprule\n";
-
-  file << std::setw(width) << "Selection";
-  for(DataSetIt itd = inputDataSets.begin(); itd != inputDataSets.end(); ++itd) {
-    file << std::setw(5) << " & " << std::setw(12) << Output::cleanLatexName((*itd)->label());
+  for(unsigned int colIdx = 0; colIdx < summaryTable_.front().size(); ++colIdx) {
+    file << std::setw(summaryTableColw_.at(colIdx)+8) << Output::cleanLatexName(summaryTable_.front().at(colIdx));
+    file << (colIdx < summaryTable_.front().size()-1 ? " & " : " \\\\ \n\\midrule\n");
   }
-  file << "  \\\\ \n\\midrule\n";
-  for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
-    file << std::setw(width) << Output::cleanLatexName((*its)->uid());
-    DataSets selectedDataSets = DataSet::findAllWithSelection((*its)->uid());
-    for(DataSetIt itsd = selectedDataSets.begin(); itsd != selectedDataSets.end(); ++itsd) {
-      file << std::setw(5) << " & ";
-      char yield[50];
-      char stat[50];
-      if( (*itsd)->type() == DataSet::Data ) {
-	sprintf(yield,"%.0f",(*itsd)->yield());
-	file << "$" << std::setw(12) << yield;
-      } else {	
-	sprintf(yield,"%.1f",(*itsd)->yield());
-	sprintf(stat,"%.1f",(*itsd)->stat());
-	file << "$" << std::setw(12) << yield << " \\pm " << stat;
+  for(std::vector< std::vector<TString> >::const_iterator itr = summaryTable_.begin()+1;
+      itr != summaryTable_.end(); ++itr) { // Loop over rows
+    for(unsigned int colIdx = 0; colIdx < itr->size(); ++colIdx) { // Loop over columns
+      TString cell = Output::cleanLatexName(itr->at(colIdx));
+      if( colIdx > 0 ) {
+	cell.ReplaceAll(" +/- ","\\pm");
+	if( cell.Contains("+") ) {
+	  cell.ReplaceAll(" +","{}^{+");
+	  cell.ReplaceAll(" -","}^{-");
+	  cell += "}";
+	}
+	cell.ReplaceAll(" ","");
+	cell = "$" + cell + "$";	  
       }
-      if( (*itsd)->hasSyst() ) {
-	char systDn[50];
-	char systUp[50];
-	sprintf(systDn,"%.1f",(*itsd)->totSystDn());
-	sprintf(systUp,"%.1f",(*itsd)->totSystUp());
-	file << "{}^{+" << systUp << "}_{-" << systDn << "}";
-      }
-      file << "$";
+      file << std::setw(summaryTableColw_.at(colIdx)+8) << cell;
+      file << (colIdx < itr->size()-1 ? "& " : " \\\\ \n");
     }
-    file << "  \\\\ \n";
   }
   file << "\\bottomrule \n\\end{tabular}\n\n\n";
 
 
+
   // Print yields, total uncertainties, and individual syst uncertainties
   // (columns) per selection (rows) for all datasets
+  DataSets inputDataSets_ = DataSet::findAllUnselected();
+  unsigned int width = Selection::maxLabelLength() + 4;
   file << "\n\n\n\n";
   file << "%===========================================================================" << std::endl;
   file << "% Detailed Yields and Uncertainties" << std::endl;
   file << "%===========================================================================" << std::endl;
 
-  for(DataSetIt itd = inputDataSets.begin(); itd != inputDataSets.end(); ++itd) {
+  for(DataSetIt itd = inputDataSets_.begin(); itd != inputDataSets_.end(); ++itd) {
     file << "\n\n%---------------------------------------------------------------------------" << std::endl;
     file << "% Dataset: " << Output::cleanLatexName((*itd)->label()) << std::endl;
     file << "%---------------------------------------------------------------------------" << std::endl;
@@ -225,7 +285,7 @@ void EventYieldPrinter::printToLaTeX(const TString &outFileName) const {
 void EventYieldPrinter::printDataCard(const TString &outFileName) const {
   ofstream file(outFileName);
 
-  DataSets inputDataSets = DataSet::findAllUnselected();
+  DataSets inputDataSets_ = DataSet::findAllUnselected();
   unsigned int width = 8;
 
   // Determine bins
@@ -244,7 +304,7 @@ void EventYieldPrinter::printDataCard(const TString &outFileName) const {
 
   
   // Loop over input datasets
-  for(DataSetIt itd = inputDataSets.begin(); itd != inputDataSets.end(); ++itd) {
+  for(DataSetIt itd = inputDataSets_.begin(); itd != inputDataSets_.end(); ++itd) {
     // General informatin
     file << "# General information:" << std::endl;
     file << "luminosity = " << 1000.*(GlobalParameters::lumi()).Atof() << " # given in pb-1" << std::endl;
