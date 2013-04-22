@@ -1,3 +1,5 @@
+// $Id: $
+
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
@@ -30,6 +32,12 @@ int main(int argc, char *argv[]) {
 
 
 MrRA2::MrRA2(const TString& configFileName) {
+  // CVS Information
+  TString cvsRevision = "$Revision$";
+  TString cvsTag = "$Name$";
+  std::cout << "Revision: " << cvsRevision << std::endl;
+  std::cout << "Name: " << cvsTag << std::endl;
+
   // Initialization
   gErrorIgnoreLevel = 1001;
   Config cfg(configFileName);
