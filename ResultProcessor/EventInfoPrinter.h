@@ -1,4 +1,4 @@
-// $Id: EventInfoPrinter.h,v 1.5 2013/02/07 18:45:45 mschrode Exp $
+// $Id: EventInfoPrinter.h,v 1.6 2013/04/22 13:07:39 mschrode Exp $
 
 #ifndef EVENT_INFO_PRINTER_H
 #define EVENT_INFO_PRINTER_H
@@ -7,6 +7,8 @@
 #include <map>
 #include <set>
 #include <vector>
+
+#include "TString.h"
 
 #include "Config.h"
 #include "DataSet.h"
@@ -18,8 +20,9 @@ public:
   ~EventInfoPrinter() {};
 
 private:
-  static bool greaterByRunNum(const Event* evt1, const Event* evt2) {
-    return evt1->get("RunNum") < evt2->get("RunNum");	
+  static TString runSortVar_;
+  static bool greaterByRun(const Event* evt1, const Event* evt2) {
+    return evt1->get(EventInfoPrinter::runSortVar_) < evt2->get(EventInfoPrinter::runSortVar_);	
   }
 
   const Config &cfg_;

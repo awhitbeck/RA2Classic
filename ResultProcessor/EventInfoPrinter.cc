@@ -1,4 +1,4 @@
-// $Id: EventInfoPrinter.cc,v 1.7 2013/02/07 18:45:45 mschrode Exp $
+// $Id: EventInfoPrinter.cc,v 1.8 2013/04/22 13:07:39 mschrode Exp $
 
 #include <algorithm>
 #include <fstream>
@@ -11,18 +11,11 @@
 #include "Variable.h"
 
 
+TString EventInfoPrinter::runSortVar_ = "";
+
 
 EventInfoPrinter::EventInfoPrinter(const Config &cfg)
   : cfg_(cfg) {
-
-  // Define names of special variables
-  // This should be configurable
-  varNameNJets = "NJets";
-  varNameHT = "HT";
-  varNameMHT = "MHT";
-  varNameRunNum = "RunNum";
-  varNameLumiBlockNum = "LumiBlockNum";
-  varNameEvtNum = "EvtNum";
 
   // Init and run
   if( init("print event info") ) {
@@ -54,29 +47,52 @@ EventInfoPrinter::EventInfoPrinter(const Config &cfg)
 
 
 bool EventInfoPrinter::init(const TString &key) {
+  // Get parameters
   std::vector<Config::Attributes> attrList = cfg_.listOfAttributes(key);
+
+  // Required event-provenance information
+  varNameRunNum = "";
+  varNameLumiBlockNum = "";
+  varNameEvtNum = "";
+  bool provVarsDefined = false;
   for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
       it != attrList.end(); ++it) {
-    if( it->hasName("selections") || it->hasName("variable") ) {
-      if( it->hasName("selections") ) {
-	std::vector<TString> sels;
-	if( Config::split(it->value("selections"),",",sels) ) {
-	  for(std::vector<TString>::const_iterator it = sels.begin(); it != sels.end(); ++it) {
-	    printedSelections_.insert(*it);
+    if( it->hasName("provenance variables") ) {
+      std::vector<TString> vars;
+      if( Config::split(it->value("provenance variables"),"+",vars) ) {
+	if( vars.size() == 3 ) {
+	  varNameRunNum = vars.at(0);
+	  varNameLumiBlockNum = vars.at(1);
+	  varNameEvtNum = vars.at(2);
+	  if( Variable::exists(varNameRunNum) && 
+	      Variable::exists(varNameLumiBlockNum) &&
+	      Variable::exists(varNameEvtNum) ) {
+	    provVarsDefined = true;
+	    EventInfoPrinter::runSortVar_ = varNameRunNum;
+	    break;
 	  }
 	}
       }
-      if( it->hasName("variable") ) {
-	TString variable = it->value("variable");
-	if( !Variable::exists(variable) ) {
-	  std::cerr << "\n\nERROR in EventInfoPrinter::init(): variable '" << variable << "' does not exist" << std::endl;
-	  exit(-1);
+    }
+  }
+  if( !provVarsDefined ) {
+    std::cerr << "\n\nERROR in EventInfoPrinter::init(): event-provenance variables not defined" << std::endl;
+    std::cerr << "  Please add the following information to the config file:" << std::endl;
+    std::cerr << "  'print event info :: provenance variables: <VarNameRunNum> + <VarNameLumiBlockNum> + <VarNameEvtNum>'" << std::endl;
+    exit(-1);
+  }
+
+
+  // Optionally, read selections to be printed
+  for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
+      it != attrList.end(); ++it) {
+    if( it->hasName("selections") ) {
+      std::vector<TString> sels;
+      if( Config::split(it->value("selections"),",",sels) ) {
+	for(std::vector<TString>::const_iterator its = sels.begin();
+	    its != sels.end(); ++its) {
+	  printedSelections_.insert(*its);
 	}
-	int number = -1;
-	if( it->hasName("number") ) {
-	  number = it->value("number").Atoi();
-	}
-	selectionVariables_[variable] = number;
       }
     } else {
       std::cerr << "\n\nERROR in EventInfoPrinter::init(): wrong syntax" << std::endl;
@@ -85,6 +101,38 @@ bool EventInfoPrinter::init(const TString &key) {
       exit(-1);
     }
   }
+
+
+  // Optionally, print num events with highest value of a variable
+  for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
+      it != attrList.end(); ++it) {
+    if( it->hasName("highest") ) {
+      std::vector<TString> varNumPair;
+      if( Config::split(it->value("highest"),",",varNumPair) ) {
+	bool correctSyntax = false;
+	if( varNumPair.size() == 2 ) {
+	  TString variable = varNumPair.at(0);
+	  int number = varNumPair.at(1).Atoi();
+	  if( Variable::exists(variable) ) {
+	    selectionVariables_[variable] = number;
+	    correctSyntax = true;
+	  }
+	}
+	if( !correctSyntax ) {
+	  std::cerr << "\n\nERROR in EventInfoPrinter::init(): wrong syntax" << std::endl;
+	  std::cerr << "  in line with key '" << key << "'" << std::endl;
+	  std::cerr << "  in config file '" << cfg_.fileName() << "'" << std::endl;
+	  exit(-1);
+	}
+      }
+    }
+  }
+
+  // Define names of special variables
+  // This should be configurable
+  varNameNJets = ( Variable::exists("NJets") ? "NJets" : "" );
+  varNameHT = ( Variable::exists("HT") ? "HT" : "" );
+  varNameMHT = ( Variable::exists("MHT") ? "MHT" : "" );
 
   // Output file
   outFileName_ = Output::resultDir()+"/"+Output::id()+"_EventInfo.txt";
@@ -138,10 +186,8 @@ void EventInfoPrinter::selectEvents() {
 	    }
 	  }
 	}
-	// If event contains run-number, sort by it
-	if( Variable::exists("RunNum") ) {
-	  std::sort(selectedEvts.begin(),selectedEvts.end(),EventInfoPrinter::greaterByRunNum);
-	}
+	// Sort by run
+	std::sort(selectedEvts.begin(),selectedEvts.end(),EventInfoPrinter::greaterByRun);
 	// Store list of events
 	printedEvts_[(*itsd)->uid()] = selectedEvts;
       }	// End of loop over datasets
@@ -295,8 +341,9 @@ std::list<TString> EventInfoPrinter::listOfPrintedVariables() const {
   varsInOrder.push_back(varNameRunNum);
   varsInOrder.push_back(varNameLumiBlockNum);
   varsInOrder.push_back(varNameEvtNum);
-  varsInOrder.push_back(varNameHT);
-  varsInOrder.push_back(varNameMHT);
+  if( varNameHT != "" ) varsInOrder.push_back(varNameHT);
+  if( varNameMHT != "" ) varsInOrder.push_back(varNameMHT);
+  if( varNameNJets != "" ) varsInOrder.push_back(varNameNJets);
 
   // The resulting list
   std::list<TString>::iterator endOfOrderedPart = list.begin();    
