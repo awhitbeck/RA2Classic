@@ -1,8 +1,11 @@
-// $Id: EventYieldPrinter.cc,v 1.10 2013/02/15 14:34:15 mschrode Exp $
+// $Id: EventYieldPrinter.cc,v 1.11 2013/02/16 18:58:24 mschrode Exp $
 
+#include <cmath>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <map>
+#include <vector>
 
 #include "DataSet.h"
 #include "EventYieldPrinter.h"
@@ -15,13 +18,13 @@ EventYieldPrinter::EventYieldPrinter() {
   
   const TString outFileNamePrefix = Output::resultDir()+"/"+Output::id();
 
-  printToScreen();
-
   std::cout << "  - Writing event-yield information to '" << outFileNamePrefix << "_EventYields.tex'" << std::endl;
   printToLaTeX(outFileNamePrefix+"_EventYields.tex");
 
   std::cout << "  - Writing data card to '" << outFileNamePrefix << "_DataCard.txt'" << std::endl;
   printDataCard(outFileNamePrefix+"_DataCard.txt");
+
+  printToScreen();
 }
 
 
@@ -30,11 +33,30 @@ void EventYieldPrinter::printToScreen() const {
   unsigned int width = Selection::maxLabelLength() + 4;
   unsigned int nSeps = width;
 
+  std::vector<DataSet::Type> printedTypes;
+  printedTypes.push_back(DataSet::Data);
+  printedTypes.push_back(DataSet::MC);
+  printedTypes.push_back(DataSet::Prediction);
+  printedTypes.push_back(DataSet::Signal);
+
+  std::vector<bool> printTotalYield(printedTypes.size(),false);
+
+
   std::cout << "\n\n\n\n";
   std::cout << std::setw(width) << "Selection";
-  for(DataSetIt itd = inputDataSets.begin(); itd != inputDataSets.end(); ++itd) {
-    std::cout << std::setw(5) << " | " << std::setw(12) << (*itd)->label();
-    nSeps += 17;
+  for(unsigned int typeIdx = 0; typeIdx < printedTypes.size(); ++typeIdx) {
+    unsigned int nDataSetsOfThisType = 0;
+    for(DataSetIt itd = inputDataSets.begin(); itd != inputDataSets.end(); ++itd) {
+      if( (*itd)->type() == printedTypes.at(typeIdx) ) {
+	std::cout << std::setw(5) << " | " << std::setw(12) << (*itd)->label();
+	nSeps += 17;
+	++nDataSetsOfThisType;
+      }
+    }
+    if( nDataSetsOfThisType > 1 ) {
+      printTotalYield.at(typeIdx) = true;
+      std::cout << std::setw(5) << " | " << std::setw(12) << "Total " << DataSet::toString(printedTypes.at(typeIdx));
+    }
   }
   std::cout << "\n";
   for(unsigned int i = 0; i < nSeps; ++i) {
@@ -44,25 +66,42 @@ void EventYieldPrinter::printToScreen() const {
   for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
     std::cout << std::setw(width) << (*its)->uid();
     DataSets selectedDataSets = DataSet::findAllWithSelection((*its)->uid());
-    for(DataSetIt itsd = selectedDataSets.begin(); itsd != selectedDataSets.end(); ++itsd) {
-      std::cout << std::setw(5) << " | ";
-      char yield[50];
-      char stat[50];
-      if( (*itsd)->type() == DataSet::Data ) {
-	sprintf(yield,"%.0f",(*itsd)->yield());
-	std::cout << std::setw(12) << yield;
-      } else if( (*itsd)->hasSyst() ) {
-	char systDn[50];
-	char systUp[50];
-	sprintf(yield,"%.1f",(*itsd)->yield());
-	sprintf(stat,"%.1f",(*itsd)->stat());
-	sprintf(systDn,"%.1f",(*itsd)->totSystDn());
-	sprintf(systUp,"%.1f",(*itsd)->totSystUp());
-	std::cout << std::setw(12) << yield << " +/- " << stat << " +" << systUp << " -" << systDn;
-      } else {
-	sprintf(yield,"%.1f",(*itsd)->yield());
-	sprintf(stat,"%.1f",(*itsd)->stat());
+    char yield[50];
+    char stat[50];
+    char systDn[50];
+    char systUp[50];
+    for(unsigned int typeIdx = 0; typeIdx < printedTypes.size(); ++typeIdx) {
+      double totYield = 0.;
+      double totStat = 0.;
+      double totSystDn = 0.;
+      double totSystUp = 0.;
+      for(DataSetIt itsd = selectedDataSets.begin(); itsd != selectedDataSets.end(); ++itsd) {
+	if( (*itsd)->type() == printedTypes.at(typeIdx) ) {
+	  std::cout << std::setw(5) << " | ";
+	  sprintf(yield,"%.1f",(*itsd)->yield());
+	  totYield += (*itsd)->yield();
+	  sprintf(stat,"%.1f",(*itsd)->stat());
+	  totStat += std::sqrt( (*itsd)->stat()*(*itsd)->stat() + totStat*totStat );
+	  std::cout << std::setw(12) << yield << " +/- " << stat;
+	  if( (*itsd)->hasSyst() ) {
+	    sprintf(systDn,"%.1f",(*itsd)->totSystDn());
+	    totSystDn += std::sqrt( (*itsd)->totSystDn()*(*itsd)->totSystDn() + totSystDn*totSystDn );
+	    sprintf(systUp,"%.1f",(*itsd)->totSystUp());
+	    totSystUp += std::sqrt( (*itsd)->totSystUp()*(*itsd)->totSystUp() + totSystUp*totSystUp );
+	    std::cout << " +" << systUp << " -" << systDn;
+	  }
+	}
+      }
+      if( printTotalYield.at(typeIdx) ) {
+	std::cout << std::setw(5) << " | ";
+	sprintf(yield,"%.1f",totYield);
+	sprintf(stat,"%.1f",totStat);
+	sprintf(systDn,"%.1f",totSystDn);
+	sprintf(systUp,"%.1f",totSystUp);
 	std::cout << std::setw(12) << yield << " +/- " << stat;
+	if( totSystDn > 0. ) {
+	  std::cout << " +" << systUp << " -" << systDn;
+	}
       }
     }
     std::cout << "\n";
@@ -320,7 +359,7 @@ void EventYieldPrinter::printDataCard(const TString &outFileName) const {
 	  file << (*itd)->label() << "_uncertaintyDN_" << nUncert << " = ";
 	  for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
 	    const DataSet* selectedDataSet = DataSet::find((*itd)->label(),*its);
-	  file << std::setw(width) << selectedDataSet->systDn(*itu) << " ";
+	    file << std::setw(width) << selectedDataSet->systDn(*itu) << " ";
 	  }
 	  file << std::endl;
 	  file << (*itd)->label() << "_uncertaintyUP_" << nUncert << " = ";

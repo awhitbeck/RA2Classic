@@ -344,6 +344,7 @@ void DataSet::computeYield(const std::vector<TString> &uncLabel) {
   // for nominal and varied weights
   for(EventIt evtIt = evts_.begin(); evtIt != evts_.end(); ++evtIt) {
     yield_ += (*evtIt)->weight();
+    stat_  += pow((*evtIt)->weight(),2.);
     if( (*evtIt)->hasUnc() ) {
       totSystDn_ += (*evtIt)->weight() * (1.-(*evtIt)->relTotalUncDn());
       totSystUp_ += (*evtIt)->weight() * (1.+(*evtIt)->relTotalUncUp());
@@ -371,15 +372,13 @@ void DataSet::computeYield(const std::vector<TString> &uncLabel) {
 
   // Set statistical uncertainty, depending on dataset type
   // Several cases are distinguished depending on the type of data
-  // - 'Data'       : expect unweighted histogram, leave as it is
-  // - 'MC'         : sqrt(number of entries) = MC statistics
-  // - 'Prediction' : sqrt(number of entries) = control sample statistics
+  // - 'Data'       : sqrt(number of events)
+  // - 'MC'         : sqrt( sum weight^2 ) = MC statistics
+  // - 'Prediction' : sqrt( sum weight^2 ) = control sample statistics
   // See also PlotBuilder::createDistribution
   if( type() == MC || type() == Prediction ) {
-    double scale = yield_;
-    if( size() > 0 ) scale /= size();
-    stat_ = scale * sqrt(1.*size());
-  } else {
+    stat_ = sqrt( stat_ );
+  } else {			// Data
     stat_ = sqrt(yield_);
   }
 

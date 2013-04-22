@@ -670,7 +670,6 @@ void PlotBuilder::createDistribution1D(const DataSet *dataSet, const TString &va
   setGenericStyle(h,dataSet);
 
   // Create temporary histograms to store uncertainties
-  TH1* hUw = static_cast<TH1*>(h->Clone(name+"Er"));
   TH1* hDn = static_cast<TH1*>(h->Clone(name+"Dn"));
   TH1* hUp = static_cast<TH1*>(h->Clone(name+"Up"));
 
@@ -678,7 +677,6 @@ void PlotBuilder::createDistribution1D(const DataSet *dataSet, const TString &va
   for(EventIt itd = dataSet->evtsBegin(); itd != dataSet->evtsEnd(); ++itd) {
     double v = (*itd)->get(var);
     h->Fill(v,(*itd)->weight());
-    hUw->Fill(v);
     if( (*itd)->hasUnc() ) {
       hDn->Fill(v,(*itd)->weightUncDn());
       hUp->Fill(v,(*itd)->weightUncUp());
@@ -691,11 +689,6 @@ void PlotBuilder::createDistribution1D(const DataSet *dataSet, const TString &va
     double err = sqrt( h->GetBinError(h->GetNbinsX())*h->GetBinError(h->GetNbinsX()) + h->GetBinError(h->GetNbinsX()+1)*h->GetBinError(h->GetNbinsX()+1) );
     h->SetBinContent(h->GetNbinsX(),val);
     h->SetBinError(h->GetNbinsX(),err);
-
-    val = hUw->GetBinContent(hUw->GetNbinsX()) + hUw->GetBinContent(hUw->GetNbinsX()+1);
-    err = sqrt( hUw->GetBinError(hUw->GetNbinsX())*hUw->GetBinError(hUw->GetNbinsX()) + hUw->GetBinError(hUw->GetNbinsX()+1)*hUw->GetBinError(hUw->GetNbinsX()+1) );
-    hUw->SetBinContent(hUw->GetNbinsX(),val);
-    hUw->SetBinError(hUw->GetNbinsX(),err);
 
     if( hDn->GetEntries() ) {
       val = hDn->GetBinContent(hDn->GetNbinsX()) + hDn->GetBinContent(hDn->GetNbinsX()+1);
@@ -710,22 +703,6 @@ void PlotBuilder::createDistribution1D(const DataSet *dataSet, const TString &va
       hUp->SetBinError(hUp->GetNbinsX(),err);
     }
   }
-
-  // Set error bars (reflect statistical uncertainties)
-  // Several cases are distinguished depending on the type of data
-  // - 'Data'       : expect unweighted histogram, leave as it is
-  // - 'MC'         : sqrt(number of entries) = MC statistics
-  // - 'Prediction' : sqrt(number of entries) = control sample statistics
-  // See also DataSet::computeYield()
-  if( dataSet->type() == DataSet::MC || dataSet->type() == DataSet::Prediction ) {
-    for(int bin = 1; bin <= h->GetNbinsX(); ++bin) {
-      if( hUw->GetBinContent(bin) > 0. ) {
-	double scale = h->GetBinContent(bin)/hUw->GetBinContent(bin);
-	h->SetBinError(bin,scale*hUw->GetBinError(bin));
-      }
-    }
-  }
-
 
   // Create uncertainty band
   if( hDn->GetEntries() && hUp->GetEntries() ) {
@@ -751,7 +728,6 @@ void PlotBuilder::createDistribution1D(const DataSet *dataSet, const TString &va
   }
 
   // Delete temporary hists
-  delete hUw;
   delete hDn;
   delete hUp;
 }
@@ -803,7 +779,6 @@ void PlotBuilder::createDistributionRatio(const DataSet *dataSet, const TString 
   setGenericStyle(h,dataSet);
 
   // Create temporary histograms to store uncertainties
-  TH1* hUw = static_cast<TH1*>(h->Clone(name+"Er"));
   TH1* hDn = static_cast<TH1*>(h->Clone(name+"Dn"));
   TH1* hUp = static_cast<TH1*>(h->Clone(name+"Up"));
 
@@ -813,7 +788,6 @@ void PlotBuilder::createDistributionRatio(const DataSet *dataSet, const TString 
     double v2 = (*itd)->get(var2);
     if( v2 > 0. ) v1 /= v2;
     h->Fill(v1,(*itd)->weight());
-    hUw->Fill(v1);
     if( (*itd)->hasUnc() ) {
       hDn->Fill(v1,(*itd)->weightUncDn());
       hUp->Fill(v1,(*itd)->weightUncUp());
@@ -827,11 +801,6 @@ void PlotBuilder::createDistributionRatio(const DataSet *dataSet, const TString 
     h->SetBinContent(h->GetNbinsX(),val);
     h->SetBinError(h->GetNbinsX(),err);
 
-    val = hUw->GetBinContent(hUw->GetNbinsX()) + hUw->GetBinContent(hUw->GetNbinsX()+1);
-    err = sqrt( hUw->GetBinError(hUw->GetNbinsX())*hUw->GetBinError(hUw->GetNbinsX()) + hUw->GetBinError(hUw->GetNbinsX()+1)*hUw->GetBinError(hUw->GetNbinsX()+1) );
-    hUw->SetBinContent(hUw->GetNbinsX(),val);
-    hUw->SetBinError(hUw->GetNbinsX(),err);
-
     if( hDn->GetEntries() ) {
       val = hDn->GetBinContent(hDn->GetNbinsX()) + hDn->GetBinContent(hDn->GetNbinsX()+1);
       err = sqrt( hDn->GetBinError(hDn->GetNbinsX())*hDn->GetBinError(hDn->GetNbinsX()) + hDn->GetBinError(hDn->GetNbinsX()+1)*hDn->GetBinError(hDn->GetNbinsX()+1) );
@@ -843,21 +812,6 @@ void PlotBuilder::createDistributionRatio(const DataSet *dataSet, const TString 
       err = sqrt( hUp->GetBinError(hUp->GetNbinsX())*hUp->GetBinError(hUp->GetNbinsX()) + hUp->GetBinError(hUp->GetNbinsX()+1)*hUp->GetBinError(hUp->GetNbinsX()+1) );
       hUp->SetBinContent(hUp->GetNbinsX(),val);
       hUp->SetBinError(hUp->GetNbinsX(),err);
-    }
-  }
-
-  // Set error bars (reflect statistical uncertainties)
-  // Several cases are distinguished depending on the type of data
-  // - 'Data'       : expect unweighted histogram, leave as it is
-  // - 'MC'         : sqrt(number of entries) = MC statistics
-  // - 'Prediction' : sqrt(number of entries) = control sample statistics
-  // See also DataSet::computeYield()
-  if( dataSet->type() == DataSet::MC || dataSet->type() == DataSet::Prediction ) {
-    for(int bin = 1; bin <= h->GetNbinsX(); ++bin) {
-      if( hUw->GetBinContent(bin) > 0. ) {
-	double scale = h->GetBinContent(bin)/hUw->GetBinContent(bin);
-	h->SetBinError(bin,scale*hUw->GetBinError(bin));
-      }
     }
   }
 
@@ -885,7 +839,6 @@ void PlotBuilder::createDistributionRatio(const DataSet *dataSet, const TString 
   }
 
   // Delete temporary hists
-  delete hUw;
   delete hDn;
   delete hUp;
 }

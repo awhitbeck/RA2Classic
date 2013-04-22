@@ -1,10 +1,11 @@
-// $Id: EventInfoPrinter.h,v 1.4 2013/01/27 18:04:30 mschrode Exp $
+// $Id: EventInfoPrinter.h,v 1.5 2013/02/07 18:45:45 mschrode Exp $
 
 #ifndef EVENT_INFO_PRINTER_H
 #define EVENT_INFO_PRINTER_H
 
 #include <list>
 #include <map>
+#include <set>
 #include <vector>
 
 #include "Config.h"
@@ -24,13 +25,17 @@ private:
   const Config &cfg_;
 
   std::map< TString, unsigned int > selectionVariables_;
+  std::set<TString> printedSelections_;
   std::map< TString, std::vector<const Event*> > printedEvts_;
+  TString outFileName_;
+  TString latexSlidesName_;
 
   bool init(const TString &key);
   void selectEvents();
   void print() const;
   std::list<TString> listOfPrintedVariables() const;
   bool printAllEvents() const;
+  bool printSelection(const TString &uid) const;
 
   // To sort evts according to one of their quantities
   class EvtValPair {
@@ -48,6 +53,7 @@ private:
     const double val_;
   };
 
+  TString varNameNJets;
   TString varNameHT;
   TString varNameMHT;
   TString varNameRunNum;

@@ -1,4 +1,4 @@
-// $Id: EventInfoPrinter.cc,v 1.6 2013/01/28 17:56:54 mschrode Exp $
+// $Id: EventInfoPrinter.cc,v 1.7 2013/02/07 18:45:45 mschrode Exp $
 
 #include <algorithm>
 #include <fstream>
@@ -17,6 +17,7 @@ EventInfoPrinter::EventInfoPrinter(const Config &cfg)
 
   // Define names of special variables
   // This should be configurable
+  varNameNJets = "NJets";
   varNameHT = "HT";
   varNameMHT = "MHT";
   varNameRunNum = "RunNum";
@@ -25,6 +26,27 @@ EventInfoPrinter::EventInfoPrinter(const Config &cfg)
 
   // Init and run
   if( init("print event info") ) {
+    // Print setup
+    std::cout << "  - Writing event-provenance information to " << outFileName_ << std::endl;
+    std::cout << "     - Printing " << std::flush;
+    if( printAllEvents() ) {
+      std::cout << "all events " << std::endl;
+    } else {
+      for(std::map<TString,unsigned int>::const_iterator itSV = selectionVariables_.begin();
+	  itSV != selectionVariables_.end(); ++itSV) {
+	std::cout << "\n         the " << itSV->second << " events with highest " << itSV->first << std::flush;
+      }
+      std::cout << std::endl;
+    }
+    if( printedSelections_.size() > 0 ) {
+      std::cout << "       for selections" << std::flush;
+      for(std::set<TString>::const_iterator it = printedSelections_.begin(); it != printedSelections_.end(); ++it) {
+	std::cout << "\n         " << *it << std::flush;
+      }
+      std::cout << std::endl;
+    }
+    std::cout << "  - Creating LaTeX slides for event displays in " << latexSlidesName_ << std::endl;
+
     selectEvents();
     print();
   }
@@ -35,17 +57,27 @@ bool EventInfoPrinter::init(const TString &key) {
   std::vector<Config::Attributes> attrList = cfg_.listOfAttributes(key);
   for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
       it != attrList.end(); ++it) {
-    if( it->hasName("variable") ) {
-      TString variable = it->value("variable");
-      if( !Variable::exists(variable) ) {
-	std::cerr << "\n\nERROR in EventInfoPrinter::init(): variable '" << variable << "' does not exist" << std::endl;
-	exit(-1);
+    if( it->hasName("selections") || it->hasName("variable") ) {
+      if( it->hasName("selections") ) {
+	std::vector<TString> sels;
+	if( Config::split(it->value("selections"),",",sels) ) {
+	  for(std::vector<TString>::const_iterator it = sels.begin(); it != sels.end(); ++it) {
+	    printedSelections_.insert(*it);
+	  }
+	}
       }
-      int number = -1;
-      if( it->hasName("number") ) {
-	number = it->value("number").Atoi();
+      if( it->hasName("variable") ) {
+	TString variable = it->value("variable");
+	if( !Variable::exists(variable) ) {
+	  std::cerr << "\n\nERROR in EventInfoPrinter::init(): variable '" << variable << "' does not exist" << std::endl;
+	  exit(-1);
+	}
+	int number = -1;
+	if( it->hasName("number") ) {
+	  number = it->value("number").Atoi();
+	}
+	selectionVariables_[variable] = number;
       }
-      selectionVariables_[variable] = number;
     } else {
       std::cerr << "\n\nERROR in EventInfoPrinter::init(): wrong syntax" << std::endl;
       std::cerr << "  in line with key '" << key << "'" << std::endl;
@@ -53,6 +85,10 @@ bool EventInfoPrinter::init(const TString &key) {
       exit(-1);
     }
   }
+
+  // Output file
+  outFileName_ = Output::resultDir()+"/"+Output::id()+"_EventInfo.txt";
+  latexSlidesName_ = Output::resultDir()+"/"+Output::id()+"_EventDisplays.tex";
 
   return attrList.size() > 0;
 }
@@ -63,52 +99,54 @@ void EventInfoPrinter::selectEvents() {
   // !!!!!!!!!!!!!This should be treated more carefully: one set of selectionVariables_
   // per global selection
   for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
-    // Loop over all datasets with this global selection
-    DataSets selectedDataSets = DataSet::findAllWithSelection((*its)->uid());
-    for(DataSetIt itsd = selectedDataSets.begin(); itsd != selectedDataSets.end(); ++itsd) {
-      // Select events accoridng to specification
-      std::vector<const Event*> selectedEvts;
-      if( printAllEvents() ) {	// select all events to print info
-	for(EventIt itEvt = (*itsd)->evtsBegin(); itEvt != (*itsd)->evtsEnd(); ++itEvt) {
-	  selectedEvts.push_back(*itEvt);
-	}
-      } else {			// select n (as specified) events with highest value of selection variable
-	for(std::map<TString,unsigned int>::const_iterator itSV = selectionVariables_.begin();
-	    itSV != selectionVariables_.end(); ++itSV) {
-	
-	  std::vector<EvtValPair*> evtValPairs;
+    if( printSelection((*its)->uid()) ) {
+      // Loop over all datasets with this global selection
+      DataSets selectedDataSets = DataSet::findAllWithSelection((*its)->uid());
+      for(DataSetIt itsd = selectedDataSets.begin(); itsd != selectedDataSets.end(); ++itsd) {
+	// Select events accoridng to specification
+	std::vector<const Event*> selectedEvts;
+	if( printAllEvents() ) {	// select all events to print info
 	  for(EventIt itEvt = (*itsd)->evtsBegin(); itEvt != (*itsd)->evtsEnd(); ++itEvt) {
-	    evtValPairs.push_back(new EvtValPair(*itEvt,(*itEvt)->get(itSV->first)));
+	    selectedEvts.push_back(*itEvt);
 	  }
-	  // sort by size of variable's values
-	  std::sort(evtValPairs.begin(),evtValPairs.end(),EvtValPair::valueGreaterThan);
-	  // store n (as specified) events with largest value
-	  for(unsigned int n = 0; 
-	      n < std::min(itSV->second,static_cast<unsigned int>(evtValPairs.size())); ++n) {
-	    bool isNewEvt = true;
-	    for(std::vector<const Event*>::const_iterator it = selectedEvts.begin();
-		it != selectedEvts.end(); ++it) {
-	      if( (*it) == evtValPairs.at(n)->event() ) {
-		isNewEvt = false;
-		break;
-	      }
+	} else {			// select n (as specified) events with highest value of selection variable
+	  for(std::map<TString,unsigned int>::const_iterator itSV = selectionVariables_.begin();
+	      itSV != selectionVariables_.end(); ++itSV) {
+	
+	    std::vector<EvtValPair*> evtValPairs;
+	    for(EventIt itEvt = (*itsd)->evtsBegin(); itEvt != (*itsd)->evtsEnd(); ++itEvt) {
+	      evtValPairs.push_back(new EvtValPair(*itEvt,(*itEvt)->get(itSV->first)));
 	    }
-	    if( isNewEvt ) selectedEvts.push_back(evtValPairs.at(n)->event());
-	  }
-	  for(std::vector<EvtValPair*>::iterator it = evtValPairs.begin();
-	      it != evtValPairs.end(); ++it) {
-	    delete *it;
+	    // sort by size of variable's values
+	    std::sort(evtValPairs.begin(),evtValPairs.end(),EvtValPair::valueGreaterThan);
+	    // store n (as specified) events with largest value
+	    for(unsigned int n = 0; 
+		n < std::min(itSV->second,static_cast<unsigned int>(evtValPairs.size())); ++n) {
+	      bool isNewEvt = true;
+	      for(std::vector<const Event*>::const_iterator it = selectedEvts.begin();
+		  it != selectedEvts.end(); ++it) {
+		if( (*it) == evtValPairs.at(n)->event() ) {
+		  isNewEvt = false;
+		  break;
+		}
+	      }
+	      if( isNewEvt ) selectedEvts.push_back(evtValPairs.at(n)->event());
+	    }
+	    for(std::vector<EvtValPair*>::iterator it = evtValPairs.begin();
+		it != evtValPairs.end(); ++it) {
+	      delete *it;
+	    }
 	  }
 	}
-      }
-      // If event contains run-number, sort by it
-      if( Variable::exists("RunNum") ) {
-	std::sort(selectedEvts.begin(),selectedEvts.end(),EventInfoPrinter::greaterByRunNum);
-      }
-      // Store list of events
-      printedEvts_[(*itsd)->uid()] = selectedEvts;
+	// If event contains run-number, sort by it
+	if( Variable::exists("RunNum") ) {
+	  std::sort(selectedEvts.begin(),selectedEvts.end(),EventInfoPrinter::greaterByRunNum);
+	}
+	// Store list of events
+	printedEvts_[(*itsd)->uid()] = selectedEvts;
+      }	// End of loop over datasets
     }
-  }
+  } // End of loop over selections
 }
 
 
@@ -125,7 +163,7 @@ void EventInfoPrinter::print() const {
   }
 
   // Print file with detailed event info and some formatting
-  ofstream file(Output::resultDir()+"/"+Output::id()+"_EventInfo.txt");
+  ofstream file(outFileName_);
   // txt-style table
   for(std::map< TString, std::vector<const Event*> >::const_iterator it = printedEvts_.begin(); it != printedEvts_.end(); ++it) {
     file << separator1 << std::endl;
@@ -214,6 +252,32 @@ void EventInfoPrinter::print() const {
     }
     file.close();
   }
+
+
+  // LaTeX slides for event displays
+  ofstream texFile(latexSlidesName_);
+  for(std::map< TString, std::vector<const Event*> >::const_iterator it = printedEvts_.begin();
+      it != printedEvts_.end(); ++it) {
+    for(std::vector<const Event*>::const_iterator itEvt = it->second.begin();
+	itEvt != it->second.end(); ++itEvt) {
+      texFile << "% --------------------------------------------------" << std::endl;
+      texFile << "\\begin{frame}" << std::endl;
+      texFile << "\\frametitle{Event " << (*itEvt)->get(varNameRunNum) << ":" << (*itEvt)->get(varNameLumiBlockNum) << ":" << std::setprecision(15) << (*itEvt)->get(varNameEvtNum) << " (" << it->first << ")}" << std::endl; // (Name of dataset and selection)
+
+      texFile << "  \\begin{columns}" << std::endl;
+      texFile << "    \\begin{column}{0.55\\textwidth}" << std::endl;
+      texFile << "      \\centering" << std::endl;
+      texFile << "      \\includegraphics[width=\\textwidth]{figures/ID-" << (*itEvt)->get(varNameRunNum) << "_" << std::setprecision(15) << (*itEvt)->get(varNameEvtNum) << "_" << (*itEvt)->get(varNameLumiBlockNum) << "_RhoPhi.png}" << std::endl;
+      texFile << "    \\end{column}" << std::endl;
+      texFile << "    \\begin{column}{0.45\\textwidth}" << std::endl;
+      texFile << "      \\includegraphics[width=\\textwidth]{figures/ID-" << (*itEvt)->get(varNameRunNum) << "_" << std::setprecision(15) << (*itEvt)->get(varNameEvtNum) << "_" << (*itEvt)->get(varNameLumiBlockNum) << "_Lego.png}\\\\" << std::endl;
+      texFile << "      \\includegraphics[width=\\textwidth]{figures/ID-" << (*itEvt)->get(varNameRunNum) << "_" << std::setprecision(15) << (*itEvt)->get(varNameEvtNum) << "_" << (*itEvt)->get(varNameLumiBlockNum) << "_RhoZ.png}" << std::endl;
+      texFile << "    \\end{column}  " << std::endl;
+      texFile << "  \\end{columns}" << std::endl;
+      texFile << "\\end{frame}\n\n\n" << std::endl;
+    }
+  }
+  texFile.close();
 }
 
 
@@ -256,14 +320,25 @@ std::list<TString> EventInfoPrinter::listOfPrintedVariables() const {
 
 bool EventInfoPrinter::printAllEvents() const {
   bool printAll = false;
-  for(std::map<TString,unsigned int>::const_iterator itSV = selectionVariables_.begin(); itSV != selectionVariables_.end(); ++itSV) {
-    if( itSV->second == -1 ) {
-      printAll = true;
-      break;
+  if( selectionVariables_.size() == 0 ) {
+    printAll = true;
+  } else {
+    for(std::map<TString,unsigned int>::const_iterator itSV = selectionVariables_.begin(); itSV != selectionVariables_.end(); ++itSV) {
+      if( itSV->second == -1 ) {
+	printAll = true;
+	break;
+      }
     }
   }
 
   return printAll;
+}
+
+
+// Check if selection 'uid' is to be printed
+// If no selections are specified in the config, print all
+bool EventInfoPrinter::printSelection(const TString &uid) const {
+  return printedSelections_.size() == 0 ? true : printedSelections_.find(uid) != printedSelections_.end();
 }
 
 
