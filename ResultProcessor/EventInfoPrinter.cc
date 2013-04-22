@@ -1,4 +1,4 @@
-// $Id: EventInfoPrinter.cc,v 1.8 2013/04/22 13:07:39 mschrode Exp $
+// $Id: EventInfoPrinter.cc,v 1.9 2013/04/22 16:21:52 mschrode Exp $
 
 #include <algorithm>
 #include <fstream>
@@ -71,15 +71,14 @@ bool EventInfoPrinter::init(const TString &key) {
 	    EventInfoPrinter::runSortVar_ = varNameRunNum;
 	    break;
 	  }
+	} else {
+	  std::cerr << "\n\nERROR in EventInfoPrinter::init(): wrong definition of event-provenance variables" << std::endl;
+	  std::cerr << "  Please use the following syntax in the config file:" << std::endl;
+	  std::cerr << "  'print event info :: provenance variables: <VarNameRunNum> + <VarNameLumiBlockNum> + <VarNameEvtNum>'" << std::endl;
+	  exit(-1);
 	}
       }
     }
-  }
-  if( !provVarsDefined ) {
-    std::cerr << "\n\nERROR in EventInfoPrinter::init(): event-provenance variables not defined" << std::endl;
-    std::cerr << "  Please add the following information to the config file:" << std::endl;
-    std::cerr << "  'print event info :: provenance variables: <VarNameRunNum> + <VarNameLumiBlockNum> + <VarNameEvtNum>'" << std::endl;
-    exit(-1);
   }
 
 
@@ -138,7 +137,7 @@ bool EventInfoPrinter::init(const TString &key) {
   outFileName_ = Output::resultDir()+"/"+Output::id()+"_EventInfo.txt";
   latexSlidesName_ = Output::resultDir()+"/"+Output::id()+"_EventDisplays.tex";
 
-  return attrList.size() > 0;
+  return provVarsDefined && attrList.size() > 1;
 }
 
 

@@ -1,4 +1,4 @@
-// $Id: EventYieldPrinter.cc,v 1.12 2013/04/22 13:07:39 mschrode Exp $
+// $Id: EventYieldPrinter.cc,v 1.13 2013/04/22 16:21:34 mschrode Exp $
 
 #include <cmath>
 #include <cstdlib>
@@ -155,7 +155,7 @@ void EventYieldPrinter::prepareSummaryTable() {
 
 void EventYieldPrinter::printToScreen() const {
   // Print header
-  std::cout << "\n\n\n\n";
+  std::cout << "\n\n\n";
   for(unsigned int colIdx = 0; colIdx < summaryTable_.front().size(); ++colIdx) {
     std::cout << std::setw(summaryTableColw_.at(colIdx)) << summaryTable_.front().at(colIdx) << "|";
   }

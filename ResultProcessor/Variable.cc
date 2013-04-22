@@ -21,7 +21,7 @@ void Variable::checkIfIsInit() {
 
 void Variable::init(const Config &cfg, const TString &key) {
   if( !isInit_ ) {
-    std::cout << "Initializing variables...  " << std::flush;
+    std::cout << "  Initializing variables...  " << std::flush;
 
     validTypes_.insert("Float_t");
     validTypes_.insert("UShort_t");

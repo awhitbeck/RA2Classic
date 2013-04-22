@@ -10,7 +10,7 @@ OBJ     = Config.o DataSet.o Event.o EventBuilder.o EventInfoPrinter.o EventYiel
 
 run: $(OBJ)		
 	g++ $(OBJ) $(LFLAG) -o run
-	@echo -e 'Done.\n\n   Type "./run" and let Mr RA2 search for SUSY.\n\n'
+	@echo -e 'Done.\n\n   Type "./run config-file-name" and let MrRA2 amaze you.\n\n'
 
 Config.o: Config.h Config.cc
 	g++ $(CFLAG) -c  Config.cc

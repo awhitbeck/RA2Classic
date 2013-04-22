@@ -15,7 +15,12 @@ public:
   static TString analysisId() { return id_; }
   static TString defaultUncertaintyLabel() { return "syst. uncert."; }
 
+  static TString cvsRevision();
+  static TString cvsTag();
+
 private:
+  static TString CVSKeyWordRevision_;
+  static TString CVSKeyWordName_;
   static bool debug_;
   static TString lumi_;
   static TString id_;

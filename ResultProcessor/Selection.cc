@@ -22,7 +22,7 @@ void Selection::init(const Config &cfg, const TString key) {
   if( isInit_ ) {
     std::cerr << "WARNING: Selections already initialized. Skipping." << std::endl;
   } else {
-    std::cout << "Preparing selections...  " << std::flush;
+    std::cout << "  Preparing selections...  " << std::flush;
 
     // First, add dummy selection (for unselected datasets)
     SelectionSequence* sequence = new SelectionSequence("unselected");
@@ -235,11 +235,16 @@ Events Cut::apply(EventIt begin, EventIt end, const TString &dataSetLabel) const
 //  	  passed.push_back(*it);
 //  	}      
 //       } else {
-	double val = (*it)->get(var_);
-	if( varIsAbs_ ) val = std::abs(val);
-	if( val > min_ && val < max_ ) {
-	  passed.push_back(*it);
-	  //	}
+
+      // *** Hack for event-number filter
+      if( (*it)->get("RunNum") == 202469 && (*it)->get("EvtNum") == 406344043 ) continue;
+      if( (*it)->get("RunNum") == 207920 && (*it)->get("EvtNum") == 367385962 ) continue;
+
+      double val = (*it)->get(var_);
+      if( varIsAbs_ ) val = std::abs(val);
+      if( val > min_ && val < max_ ) {
+	passed.push_back(*it);
+	//	}
       }
     } else {
       passed.push_back(*it);

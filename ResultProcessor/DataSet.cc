@@ -103,7 +103,7 @@ void DataSet::init(const Config &cfg, const TString key) {
   if( isInit_ ) {
     std::cerr << "WARNING: Datasets already initialized. Skipping." << std::endl;
   } else {
-    std::cout << "Reading datasets and applying selections...  " << std::flush;
+    std::cout << "  Reading datasets and applying selections...  " << std::flush;
 
     std::vector<Config::Attributes> attrList = cfg.listOfAttributes(key);
     for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
@@ -216,6 +216,11 @@ void DataSet::init(const Config &cfg, const TString key) {
 	    dataSetUidMap_[selectedDataSet->uid()] = selectedDataSet;
 	  }
 	}
+
+	if( attrList.size() > 3 && it == attrList.begin()+2 ) {
+	  std::cout << "  wait for it...  " << std::flush;
+	}
+
       } else {
 	std::cerr << "\n\nERROR in DataSet::createDataSets(): wrong config syntax" << std::endl;
 	std::cerr << "  in line with key '" << key << "'" << std::endl;
