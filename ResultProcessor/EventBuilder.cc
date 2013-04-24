@@ -25,7 +25,7 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
   }
 
   // Setup vector with variables to be read from tree
-  std::vector<Float_t> varsDouble_t(Variable::nVars(),0.);
+  std::vector<Double_t> varsDouble_t(Variable::nVars(),0.);
   std::vector<Float_t> varsFloat_t(Variable::nVars(),0.);
   std::vector<Int_t> varsInt_t(Variable::nVars(),0);
   std::vector<UInt_t> varsUInt_t(Variable::nVars(),0);
