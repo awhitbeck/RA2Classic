@@ -25,11 +25,13 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
   }
 
   // Setup vector with variables to be read from tree
+  std::vector<Float_t> varsDouble_t(Variable::nVars(),0.);
   std::vector<Float_t> varsFloat_t(Variable::nVars(),0.);
   std::vector<Int_t> varsInt_t(Variable::nVars(),0);
   std::vector<UInt_t> varsUInt_t(Variable::nVars(),0);
   std::vector<UShort_t> varsUShort_t(Variable::nVars(),0);
   std::vector<UChar_t> varsUChar_t(Variable::nVars(),0);
+  unsigned int idxDouble_t = 0;
   unsigned int idxFloat_t = 0;
   unsigned int idxInt_t = 0;
   unsigned int idxUInt_t = 0;
@@ -85,6 +87,9 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
 	  tree->SetBranchAddress(*it,&varsUncUp.at(i));
 	}
       }
+    } else if( Variable::type(*it) == "Double_t" ) {
+      if( treeHasVar ) tree->SetBranchAddress(*it,&varsDouble_t.at(idxDouble_t));
+      ++idxDouble_t;
     } else if( Variable::type(*it) == "Int_t" ) {
       if( treeHasVar ) tree->SetBranchAddress(*it,&varsInt_t.at(idxInt_t));
       ++idxInt_t;
@@ -111,13 +116,17 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
 
     // Create new event and fill variables
     Event* evt = new Event(varWeight*scale);
+    idxDouble_t = 0;
     idxFloat_t = 0;
     idxInt_t = 0;
     idxUInt_t = 0;
     idxUShort_t = 0;
     idxUChar_t = 0;
     for(std::vector<TString>::const_iterator it = Variable::begin(); it != Variable::end(); ++it) {
-      if( Variable::type(*it) == "Float_t" ) {
+      if( Variable::type(*it) == "Double_t" ) {
+	evt->set(*it,varsDouble_t.at(idxDouble_t));
+	++idxDouble_t;
+      } else if( Variable::type(*it) == "Float_t" ) {
 	evt->set(*it,varsFloat_t.at(idxFloat_t));
 	++idxFloat_t;
       } else if( Variable::type(*it) == "Int_t" ) {
