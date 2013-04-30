@@ -1,7 +1,6 @@
 #include "Event.h"
 
 #include <cmath>
-#include <iostream>
 
 #include "Variable.h"
 

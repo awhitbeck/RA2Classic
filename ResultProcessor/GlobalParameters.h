@@ -14,6 +14,7 @@ public:
   static TString lumi() { return lumi_; }
   static TString analysisId() { return id_; }
   static TString defaultUncertaintyLabel() { return "syst. uncert."; }
+  static TString inputPath() { return inputPath_; }
 
   static TString cvsRevision();
   static TString cvsTag();
@@ -24,5 +25,6 @@ private:
   static bool debug_;
   static TString lumi_;
   static TString id_;
+  static TString inputPath_;
 };
 #endif

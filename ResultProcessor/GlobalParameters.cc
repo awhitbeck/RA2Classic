@@ -6,12 +6,13 @@
 
 
 // CVS Information; will be substituted by cvs
-TString GlobalParameters::CVSKeyWordRevision_ = "$Revision: 1.11 $";
+TString GlobalParameters::CVSKeyWordRevision_ = "$Revision: 1.6 $";
 TString GlobalParameters::CVSKeyWordName_ = "$Name:  $";
 
 bool GlobalParameters::debug_ = false;
 TString GlobalParameters::lumi_ = "";
 TString GlobalParameters::id_ = "";
+TString GlobalParameters::inputPath_ = "";
 
 void GlobalParameters::init(const Config &cfg, const TString &key) {
   std::cout << "  Setting global parameters...  " << std::flush;
@@ -21,6 +22,10 @@ void GlobalParameters::init(const Config &cfg, const TString &key) {
     if( it->hasName("debug") ) it->value("debug") == "true" ? debug_ = true : debug_ = false;
     if( it->hasName("id") ) id_ = it->value("id");
     if( it->hasName("lumi") ) lumi_ = it->value("lumi");
+    if( it->hasName("input path") ) {
+      inputPath_ = it->value("input path");
+      if( !(inputPath_.EndsWith("/")) ) inputPath_ += "/";
+    }
   }
   std::cout << "ok" << std::endl;
 

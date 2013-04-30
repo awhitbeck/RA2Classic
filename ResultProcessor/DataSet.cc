@@ -1,6 +1,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <vector>
 
 #include "DataSet.h"
 #include "EventBuilder.h"
@@ -111,10 +112,17 @@ void DataSet::init(const Config &cfg, const TString key) {
       if( it->nValues() >= 4 ) {
 	TString label = it->value("label");
 	TString type = it->value("type");
-	TString file = it->value("file");
+	std::vector<TString> files;
+	Config::split(it->value("file"),",",files);
+	if( GlobalParameters::inputPath() != "" ) { // Prepend global path
+	  std::vector<TString>::iterator fileIt = files.begin();
+	  for(; fileIt != files.end(); ++fileIt) {
+	    *fileIt = GlobalParameters::inputPath()+(*fileIt);
+	  }
+	}
 	TString tree = it->value("tree");
 	TString weight = "";
-	double scale = 1.;
+	std::vector<double> scales(files.size(),1.);
 	std::vector<TString> uncDn;
 	std::vector<TString> uncUp;
 	std::vector<TString> uncLabel;
@@ -127,12 +135,35 @@ void DataSet::init(const Config &cfg, const TString key) {
 	  }
 	}
 	if( it->hasName("scale") ) {
-	  if( !(it->value("scale")).IsFloat() ) {
-	    std::cerr << "\n\nERROR in DataSet::createDataSets(): wrong config syntax" << std::endl;
-	    std::cerr << "  when specifying the scale in line with key '" << key << "'" << std::endl;
-	    std::cerr << "  Syntax is '..., scale : expr, ...', where 'expr' is a float" << std::endl;
+	  std::vector<TString> scalesTmp;
+	  Config::split(it->value("scale"),",",scalesTmp);
+	  // Case 1: same scale factor for all input files
+	  if( scalesTmp.size() == 1 ) {
+	    for(unsigned int i = 1; i < files.size(); ++i) {
+	      scalesTmp.push_back(scalesTmp.at(0));
+	    }
 	  }
-	  scale = (it->value("scale")).Atof();
+	  // Check if number of scale factors equals number of
+	  // input files
+	  if( scalesTmp.size() != files.size() ) {
+	    std::cerr << "\n\nERROR in DataSet::createDataSets(): wrong number of scale factors specified" << std::endl;
+	    std::cerr << "  in line with key '" << key << "'" << std::endl;
+	    std::cerr << "  Either specify one scale factor, valid for all input files of this DataSet, or specify one scale factor per input file of this DataSet" << std::endl;
+	    std::cerr << "  Syntax is '...; scale : num; ...' or '...; scale : num1, num2, ..., num<n>', where 'num' is a float and <n> equals the number of input files" << std::endl;
+	    exit(-1);
+	  }
+	  // Convert scale factors into floats
+	  scales.clear();
+	  for(std::vector<TString>::iterator scaleIt = scalesTmp.begin();
+	      scaleIt != scalesTmp.end(); ++scaleIt) {
+	    if( !(*scaleIt).IsFloat() ) {
+	      std::cerr << "\n\nERROR in DataSet::createDataSets(): wrong config syntax" << std::endl;
+	      std::cerr << "  when specifying the scale factors in line with key '" << key << "'" << std::endl;
+	      std::cerr << "  Syntax is '...; scale : num; ...' or '...; scale : num1, num2, ..., num<n>', where 'num' is a float and <n> equals the number of input files" << std::endl;
+	      exit(-1);
+	    }
+	    scales.push_back((*scaleIt).Atof());
+	  }
 	}
 	// Optionally, parse uncertainties:
 	// Get all key-value pairs that contain the key 'uncertainty'
@@ -201,7 +232,7 @@ void DataSet::init(const Config &cfg, const TString key) {
 
 	// First, create basic (unselected) datasets and
 	// store it in global map of datasets
-	DataSet* basicDataSet = new DataSet(DataSet::toType(type),label,"unselected",file,tree,weight,uncDn,uncUp,uncLabel,scale);
+	DataSet* basicDataSet = new DataSet(DataSet::toType(type),label,"unselected",files,tree,weight,uncDn,uncUp,uncLabel,scales);
 	dataSetUidMap_[basicDataSet->uid()] = basicDataSet;
 
 	// From this one, create selected datasets
@@ -243,7 +274,7 @@ void DataSet::clear() {
 }
 
 
-DataSet::DataSet(Type type, const TString &label, const TString &selectionUid, const TString &fileName, const TString &treeName, const TString &weight, const std::vector<TString> &uncDn, const std::vector<TString> &uncUp, const std::vector<TString> &uncLabel, double scale)
+DataSet::DataSet(Type type, const TString &label, const TString &selectionUid, const std::vector<TString> &fileNames, const TString &treeName, const TString &weight, const std::vector<TString> &uncDn, const std::vector<TString> &uncUp, const std::vector<TString> &uncLabel, const std::vector<double> &scales)
   : hasMother_(false), type_(type), label_(label), selectionUid_(selectionUid) {
   if( GlobalParameters::debug() ) {
     std::cout << "DEBUG: Entering DataSet::DataSet()" << std::endl;
@@ -272,7 +303,12 @@ DataSet::DataSet(Type type, const TString &label, const TString &selectionUid, c
 
   // Read events from tree
   EventBuilder ebd;
-  evts_ = ebd(fileName,treeName,weight,uncDn,uncUp,uncLabel,scale);
+  std::vector<TString>::const_iterator fileIt = fileNames.begin();
+  std::vector<double>::const_iterator scaleIt = scales.begin();
+  for(; fileIt != fileNames.end(); ++fileIt, ++scaleIt) {
+    Events evts = ebd(*fileIt,treeName,weight,uncDn,uncUp,uncLabel,*scaleIt);
+    evts_.insert(evts_.end(),evts.begin(),evts.end());
+  }
 
   // Compute yield and uncertainties
   computeYield(uncLabel);

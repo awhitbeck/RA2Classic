@@ -4,8 +4,8 @@
 #include <iostream>
 #include <vector>
 
+#include "TChain.h"
 #include "TFile.h"
-#include "TTree.h"
 
 #include "EventBuilder.h"
 #include "Variable.h"
@@ -16,15 +16,12 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
   assert( uncDn.size() == uncLabel.size() );
 
   // Get tree from file
-  TFile file(fileName,"READ");
-  TTree* tree = 0;
-  file.GetObject(treeName,tree);
-  if( !tree ) {
-    std::cerr << "\n\nERROR in EventBuilder::operator(): no tree with name '" << treeName << "' in file '" << fileName << "'" << std::endl;
-    exit(-1);
-  }
+  TChain* chain = new TChain(treeName,treeName);
+  chain->Add(fileName);
 
-  // Setup vector with variables to be read from tree
+  std::cout << "File '" << fileName << "' with scale '" << scale << "'" << std::endl;
+
+  // Setup vector with variables to be read from chain
   std::vector<Double_t> varsDouble_t(Variable::nVars(),0.);
   std::vector<Float_t> varsFloat_t(Variable::nVars(),0.);
   std::vector<Int_t> varsInt_t(Variable::nVars(),0);
@@ -67,52 +64,50 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
   // Setup branches
   for(std::vector<TString>::const_iterator it = Variable::begin(); it != Variable::end(); ++it) {
     bool treeHasVar = true;
-    if( tree->GetListOfBranches()->FindObject(*it) == 0 ) {
+    if( chain->GetListOfBranches()->FindObject(*it) == 0 ) {
       treeHasVar = false;
       std::cerr << "\nWARNING in EventBuilder" << std::endl;
-      std::cerr << "  - TTree '" << treeName << "' in file '" << fileName << "' has no variable named '" << *it << "'" << std::endl;
+      std::cerr << "  - TTree '" << treeName << "' in file '" << chain->GetFile()->GetName() << "' has no variable named '" << *it << "'" << std::endl;
       std::cerr << "  - Using default value 0 instead" << std::endl;
     }
     if( Variable::type(*it) == "Float_t" ) {
-      if( treeHasVar ) tree->SetBranchAddress(*it,&varsFloat_t.at(idxFloat_t));
+      if( treeHasVar ) chain->SetBranchAddress(*it,&varsFloat_t.at(idxFloat_t));
       ++idxFloat_t;
       if( *it == weight && treeHasVar ) {
-	tree->SetBranchAddress(*it,&varWeight);
+	chain->SetBranchAddress(*it,&varWeight);
       }
       for(unsigned int i = 0; i < uncDn.size(); ++i) {
 	if( *it == uncDn.at(i) && treeHasVar ) {
-	  tree->SetBranchAddress(*it,&varsUncDn.at(i));
+	  chain->SetBranchAddress(*it,&varsUncDn.at(i));
 	}
 	if( *it == uncUp.at(i) && treeHasVar && !symUnc.at(i) ) {
-	  tree->SetBranchAddress(*it,&varsUncUp.at(i));
+	  chain->SetBranchAddress(*it,&varsUncUp.at(i));
 	}
       }
     } else if( Variable::type(*it) == "Double_t" ) {
-      if( treeHasVar ) tree->SetBranchAddress(*it,&varsDouble_t.at(idxDouble_t));
+      if( treeHasVar ) chain->SetBranchAddress(*it,&varsDouble_t.at(idxDouble_t));
       ++idxDouble_t;
     } else if( Variable::type(*it) == "Int_t" ) {
-      if( treeHasVar ) tree->SetBranchAddress(*it,&varsInt_t.at(idxInt_t));
+      if( treeHasVar ) chain->SetBranchAddress(*it,&varsInt_t.at(idxInt_t));
       ++idxInt_t;
     } else if( Variable::type(*it) == "UInt_t" ) {
-      if( treeHasVar ) tree->SetBranchAddress(*it,&varsUInt_t.at(idxUInt_t));
+      if( treeHasVar ) chain->SetBranchAddress(*it,&varsUInt_t.at(idxUInt_t));
       ++idxUInt_t;
     } else if( Variable::type(*it) == "UShort_t" ) {
-      if( treeHasVar ) tree->SetBranchAddress(*it,&varsUShort_t.at(idxUShort_t));
+      if( treeHasVar ) chain->SetBranchAddress(*it,&varsUShort_t.at(idxUShort_t));
       ++idxUShort_t;
     } else if( Variable::type(*it) == "UChar_t" ) {
-      if( treeHasVar ) tree->SetBranchAddress(*it,&varsUChar_t.at(idxUChar_t));
+      if( treeHasVar ) chain->SetBranchAddress(*it,&varsUChar_t.at(idxUChar_t));
       ++idxUChar_t;
     }
   }  
 
   // Loop over tree and build events
   Events evts;
-  for(int i = 0; i < tree->GetEntries(); ++i) {
-  //for(int i = 0; i < 10; ++i) {
-    //if( i%100 == 0 ) std::cout << "  " << i << std::endl;
+  for(int i = 0; i < chain->GetEntries(); ++i) {
 
     // Read variables of this entry
-    tree->GetEntry(i);
+    chain->GetEntry(i);
 
     // Create new event and fill variables
     Event* evt = new Event(varWeight*scale);
@@ -168,7 +163,7 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
     evts.push_back(evt);
   }
 
-  file.Close();
+  delete chain;
 
   return evts;
 }

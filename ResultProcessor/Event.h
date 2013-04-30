@@ -27,8 +27,7 @@ private:
 
   const double weight_;
 
-  //  std::map<TString,double> vars_; // Needs double precision for correct display of runnumber!!!
-  std::vector<double> vars_;
+  std::vector<double> vars_; // Needs double precision for correct display of runnumber!!!
   double relTotalUncDn_;
   double relTotalUncUp_;
   std::map<TString,double> relUncDn_;

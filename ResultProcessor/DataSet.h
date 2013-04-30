@@ -81,7 +81,7 @@ private:
   std::map<TString,double> systDn_;
   std::map<TString,double> systUp_;
 
-  DataSet(Type type, const TString &label, const TString &selection, const TString &fileName, const TString &treeName, const TString &weight, const std::vector<TString> &uncDn, const std::vector<TString> &uncUp, const std::vector<TString> &uncLabel, double scale);
+  DataSet(Type type, const TString &label, const TString &selection, const std::vector<TString> &fileNames, const TString &treeName, const TString &weight, const std::vector<TString> &uncDn, const std::vector<TString> &uncUp, const std::vector<TString> &uncLabel, const std::vector<double> &scales);
   DataSet(const DataSet *ds, const TString &selectionUid, const Events &evts);
   void computeYield(const std::vector<TString> &uncLabel);
 };
