@@ -19,8 +19,6 @@ Events EventBuilder::operator()(const TString &fileName, const TString &treeName
   TChain* chain = new TChain(treeName,treeName);
   chain->Add(fileName);
 
-  std::cout << "File '" << fileName << "' with scale '" << scale << "'" << std::endl;
-
   // Setup vector with variables to be read from chain
   std::vector<Double_t> varsDouble_t(Variable::nVars(),0.);
   std::vector<Float_t> varsFloat_t(Variable::nVars(),0.);
