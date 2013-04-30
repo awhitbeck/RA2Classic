@@ -9,7 +9,6 @@
 
 #include "Config.h"
 
-
 class Variable {
 public:
   static void checkIfIsInit();

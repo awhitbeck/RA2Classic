@@ -226,25 +226,10 @@ Events Cut::apply(EventIt begin, EventIt end, const TString &dataSetLabel) const
   // Loop over events and check if cut is passed
   for(EventIt it = begin; it != end; ++it) {
     if( applyCut ) {		// Check only if this cut is not a dummy and if it is applied to the current dataset
-      // *** Hack for Kristin ******
-//       if( var_ == "Jet1Eta" ) {
-// 	double dp1 = (*it)->get("DeltaPhi1");
-// 	double dp2 = (*it)->get("DeltaPhi2");
-// 	double dp3 = (*it)->get("DeltaPhi3");
-//  	if( dp1 < 0.5 || dp2 < 0.5 || dp3 < 0.3 ) {
-//  	  passed.push_back(*it);
-//  	}      
-//       } else {
-
-      // *** Hack for event-number filter
-      if( (*it)->get("RunNum") == 202469 && (*it)->get("EvtNum") == 406344043 ) continue;
-      if( (*it)->get("RunNum") == 207920 && (*it)->get("EvtNum") == 367385962 ) continue;
-
       double val = (*it)->get(var_);
       if( varIsAbs_ ) val = std::abs(val);
       if( val > min_ && val < max_ ) {
 	passed.push_back(*it);
-	//	}
       }
     } else {
       passed.push_back(*it);

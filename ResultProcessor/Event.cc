@@ -1,24 +1,38 @@
 #include "Event.h"
 
 #include <cmath>
+#include <iostream>
+
+#include "Variable.h"
 
 
-double Event::get(const TString &var) const {
-  double val = 0.;
-  std::map<TString,double>::const_iterator it = vars_.find(var);
-  if( it != vars_.end() ) val = it->second;
-    
-  return val;
+std::map<TString,unsigned int> Event::varIdx_;
+
+
+Event::Event()
+  : weight_(1.), relTotalUncDn_(0.), relTotalUncUp_(0.) {
+  init();
 }
-  
+
+Event::Event(double weight)
+  : weight_(weight), relTotalUncDn_(0.), relTotalUncUp_(0.) {
+  init();
+}
+
+void Event::init() {
+  Variable::checkIfIsInit();
+  if( varIdx_.size() == 0 ) {
+    for(std::vector<TString>::const_iterator it = Variable::begin();
+	it != Variable::end(); ++it) {
+      varIdx_[*it] = varIdx_.size()-1;
+    }
+  }
+  vars_ = std::vector<double>(varIdx_.size());
+}
+
 
 void Event::set(const TString &var, double val) {
-  std::map<TString,double>::iterator it = vars_.find(var);
-  if( it != vars_.end() ) {
-    it->second = val;
-  } else {
-    vars_[var] = val;
-  }
+  vars_.at(varIdx_.find(var)->second) = val;
 }
 
 

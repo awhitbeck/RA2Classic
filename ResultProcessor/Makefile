@@ -18,7 +18,7 @@ Config.o: Config.h Config.cc
 DataSet.o: DataSet.h DataSet.cc Config.h Event.h GlobalParameters.h Selection.h Variable.h
 	g++ $(CFLAG) -c  DataSet.cc
 
-Event.o: Event.h Event.cc
+Event.o: Event.h Event.cc Variable.h
 	g++ $(CFLAG) -c  Event.cc
 
 EventBuilder.o: EventBuilder.h EventBuilder.cc Event.h Variable.h

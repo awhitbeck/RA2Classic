@@ -10,11 +10,9 @@ class Event {
   friend class EventBuilder;
 
 public:
-  Event() : weight_(1.), relTotalUncDn_(0.), relTotalUncUp_(0.) {};
-  Event(double weight) : weight_(weight), relTotalUncDn_(0.), relTotalUncUp_(0.) {};
   ~Event() {};
 
-  double get(const TString &var) const;
+  double get(const TString &var) const { return vars_.at(varIdx_.find(var)->second); }
   double weight() const { return weight_; }
   bool hasUnc() const { return relUncDn_.size() > 0; }
   double weightUncDn() const { return weight()*(1.-relTotalUncDn()); };
@@ -25,14 +23,20 @@ public:
   double relUncUp(const TString &label) const;
   
 private:
+  static std::map<TString,unsigned int> varIdx_;
+
   const double weight_;
 
-  std::map<TString,double> vars_; // Needs double precision for correct display of runnumber!!!
+  //  std::map<TString,double> vars_; // Needs double precision for correct display of runnumber!!!
+  std::vector<double> vars_;
   double relTotalUncDn_;
   double relTotalUncUp_;
   std::map<TString,double> relUncDn_;
   std::map<TString,double> relUncUp_;
 
+  Event();
+  Event(double weight);
+  void init();
   void set(const TString &var, double val);
   void addRelUnc(double dn, double up, const TString &label = "label");
 };
