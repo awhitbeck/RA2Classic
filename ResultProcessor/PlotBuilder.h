@@ -56,7 +56,6 @@ private:
 
   static unsigned int count_;
 
-  const Config &cfg_;
   const unsigned int canSize_;
   Output &out_;
 
@@ -64,14 +63,14 @@ private:
   std::map<TString,int> colors_;
   std::map<TString,TString> dataSetLabelsInPlot_;
 
-  void run(const TString &key) const;
-  void setStyle(const TString &key);
+  void run(const Config &cfg, const TString &key) const;
+  void setStyle(const Config &cfg, const TString &key);
 
-  void plotSpectrum(const TString &var, const DataSet *dataSet, const HistParams &histParams) const;
-  void plotSpectrum2D(const TString &var1, const TString &var2, const DataSet *dataSet, const HistParams &histParams) const;
-  void plotSpectra(const TString &var, const DataSets &dataSets, const HistParams &histParams) const;
-  void plotComparisonOfNormedSpectra(const TString &var, const DataSets &dataSets, const HistParams &histParams) const;
-  void plotComparisonOfSpectra(const TString &var, const DataSets &dataSets1, const DataSets &dataSets2, const DataSets &signals, const HistParams &histParams) const;
+  void plotDistribution(const TString &var, const DataSet *dataSet, const HistParams &histParams) const;
+  void plotDistribution2D(const TString &var1, const TString &var2, const DataSet *dataSet, const HistParams &histParams) const;
+  void plotStackedDistributions(const TString &var, const DataSets &dataSets, const HistParams &histParams) const;
+  void plotComparedDistributions(const TString &var, const DataSets &dataSets, const HistParams &histParams) const;
+  void plotDataVsBkg(const TString &var, const DataSet *data, const DataSets &bkgs, const DataSets &signals, const HistParams &histParams) const;
   void createDistribution1D(const DataSet *dataSet, const TString &var, TH1* &h, TGraphAsymmErrors* &uncert, const HistParams &histParams) const;
   void createDistributionRatio(const DataSet *dataSet, const TString &var1, const TString &var2, TH1* &h, TGraphAsymmErrors* &uncert, const HistParams &histParams) const;
   void createDistribution2D(const DataSet *dataSet, const TString &var1, const TString &var2, TH2* &h, const HistParams &histParams) const;
@@ -80,7 +79,7 @@ private:
   void storeCanvas(TCanvas* can, const TString &var, const DataSet* dataSet) const;
   void storeCanvas(TCanvas* can, const TString &var, const TString &selection) const;
   void storeCanvas(TCanvas* can, const TString &var, const DataSets &dataSets) const;
-  void storeCanvas(TCanvas* can, const TString &var, const DataSets &dataSets1, const DataSets &dataSets2) const;
+  void storeCanvas(TCanvas* can, const TString &var, const DataSet* dataSet, const DataSets &dataSets) const;
 
   int color(const DataSet *dataSet) const;
   int markerStyle(const DataSet *dataSet) const;
@@ -94,6 +93,7 @@ private:
   TString lumiLabel() const;
   TString dataSetLabelInPlot(const DataSet* dataSet) const;
   TString dataSetTypeLabel(DataSet::Type type) const;
+  TString dataSetLegEntry(const TH1* h, const DataSet* ds) const;
   void setYRange(TH1* &h, double logMin = -1.) const;
 
   bool checkForUnderOverFlow(const TH1* h, const TString &var, const DataSet *dataSet) const;

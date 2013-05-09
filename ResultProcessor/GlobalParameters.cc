@@ -6,7 +6,7 @@
 
 
 // CVS Information; will be substituted by cvs
-TString GlobalParameters::CVSKeyWordRevision_ = "$Revision: 1.6 $";
+TString GlobalParameters::CVSKeyWordRevision_ = "$Revision: 1.7 $";
 TString GlobalParameters::CVSKeyWordName_ = "$Name:  $";
 
 bool GlobalParameters::debug_ = false;
@@ -16,7 +16,7 @@ TString GlobalParameters::inputPath_ = "";
 
 void GlobalParameters::init(const Config &cfg, const TString &key) {
   std::cout << "  Setting global parameters...  " << std::flush;
-  std::vector<Config::Attributes> attrList = cfg.listOfAttributes(key);
+  std::vector<Config::Attributes> attrList = cfg(key);
   for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
       it != attrList.end(); ++it) {
     if( it->hasName("debug") ) it->value("debug") == "true" ? debug_ = true : debug_ = false;

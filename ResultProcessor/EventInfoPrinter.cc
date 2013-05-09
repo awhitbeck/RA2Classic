@@ -1,4 +1,4 @@
-// $Id: EventInfoPrinter.cc,v 1.9 2013/04/22 16:21:52 mschrode Exp $
+// $Id: EventInfoPrinter.cc,v 1.10 2013/04/22 17:26:56 mschrode Exp $
 
 #include <algorithm>
 #include <fstream>
@@ -48,7 +48,7 @@ EventInfoPrinter::EventInfoPrinter(const Config &cfg)
 
 bool EventInfoPrinter::init(const TString &key) {
   // Get parameters
-  std::vector<Config::Attributes> attrList = cfg_.listOfAttributes(key);
+  std::vector<Config::Attributes> attrList = cfg_(key);
 
   // Required event-provenance information
   varNameRunNum = "";

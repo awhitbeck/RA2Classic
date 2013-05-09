@@ -106,7 +106,7 @@ void DataSet::init(const Config &cfg, const TString key) {
   } else {
     std::cout << "  Reading datasets and applying selections...  " << std::flush;
 
-    std::vector<Config::Attributes> attrList = cfg.listOfAttributes(key);
+    std::vector<Config::Attributes> attrList = cfg(key);
     for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
 	it != attrList.end(); ++it) {
       if( it->nValues() >= 4 ) {

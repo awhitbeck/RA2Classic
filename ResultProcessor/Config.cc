@@ -7,40 +7,75 @@
 #include "Config.h"
 
 
+// Constructor. Parses the configfile and stores the definitions.
+// They can be obtained using the 'operator()(key)' method.
+//
+// The config syntax is as follows:
+// - empty line: an empty line is ignored
+// - comment: a line starting with '#' is ignored
+// - definition: a line of the form '<key> :: <attributes>',
+//   where the attributes part is a semi-colon (';') separated
+//   list of <name> : <value> pairs. Keys can occour several
+//   times.
 // ----------------------------------------------------------------------------
-std::vector<Config::Attributes> Config::listOfAttributes(const TString &label) const {
-  std::vector<Config::Attributes> list;
+Config::Config(const TString &fileName) 
+  : fileName_(fileName), keyAndAttributesDelimiter_("::"), attributeNameAndValueDelimiter_(":") {
+
 
   // Open file for reading
   std::ifstream file(fileName_.Data());
   if( !file.is_open() ) {
-    std::cerr << "\n\nERROR in Config::listOfAttributes(): error opening file '" << fileName_ << "'\n";
+    std::cerr << "\n\nERROR error opening config-file '" << fileName_ << "'\n";
     exit(-1);
   }
 
+
   // Loop over lines and parse
+  unsigned int lineNum = 0;
   std::string line = "";
   while( !file.eof() ) {
+    ++lineNum;
     std::getline(file,line);
     if( !isComment(line) && line.size() ) {
-      // separate line into label and attribute list
-      std::string labelCand = "";
+      // separate line into key and attribute list
+      std::string key = "";
       std::string attrList;
-      if( split(line,labelAndAttributeListDelimiter_,labelCand,attrList) ) {
-	if( labelCand == label ) {
-	  list.push_back(getAttributes(attrList));
+      if( split(line,keyAndAttributesDelimiter_,key,attrList) ) {
+	TString tKey = key;
+	std::map< TString,std::vector<Attributes> >::iterator it = keyAttributesMap_.find(tKey);
+	if( it == keyAttributesMap_.end() ) {
+	  std::vector<Config::Attributes> attr;
+	  attr.push_back(getAttributes(attrList,lineNum));
+	  keyAttributesMap_[tKey] = attr;
+	} else {
+	  it->second.push_back(getAttributes(attrList,lineNum));
 	}
       }
     }
   }
 
-  return list;
+  file.close();
+}
+
+
+// Returns a vector of attribute (name-value pair) lists for
+// a given key. Each vector entry corresponds to one line
+// in the config file.
+// ----------------------------------------------------------------------------
+std::vector<Config::Attributes> Config::operator()(const TString &key) const {
+  std::map< TString,std::vector<Attributes> >::const_iterator it = keyAttributesMap_.find(key);
+  if( it != keyAttributesMap_.end() ) {
+    return it->second;
+  } else {
+    std::vector<Config::Attributes> list;
+    return list;
+  }
 }
 
 
 // ----------------------------------------------------------------------------
-Config::Attributes Config::getAttributes(const std::string &line) const {
-  Config::Attributes result;
+Config::Attributes Config::getAttributes(const std::string &line, unsigned int lineNum) const {
+  Config::Attributes result(lineNum);
   std::string str = line;
   while( str.find(";") != std::string::npos ) {
     // Comma-separated list of attributes

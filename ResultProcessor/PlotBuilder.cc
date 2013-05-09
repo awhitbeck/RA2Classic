@@ -19,9 +19,9 @@ unsigned int PlotBuilder::count_ = 0;
 
 
 PlotBuilder::PlotBuilder(const Config &cfg, Output &out)
-  : cfg_(cfg), canSize_(500), out_(out) {
-  setStyle("plot style");
-  run("plot");
+  : canSize_(500), out_(out) {
+  setStyle(cfg,"plot style");
+  run(cfg,"plot");
 }
 
 
@@ -30,9 +30,9 @@ PlotBuilder::~PlotBuilder() {
 }
 
 
-void PlotBuilder::setStyle(const TString &key) {
+void PlotBuilder::setStyle(const Config &cfg, const TString &key) {
   RA2PlottingStyle::init();
-  std::vector<Config::Attributes> attrList = cfg_.listOfAttributes(key);
+  std::vector<Config::Attributes> attrList = cfg(key);
   for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
       it != attrList.end(); ++it) {
     if( it->hasName("dataset") ) {
@@ -41,7 +41,7 @@ void PlotBuilder::setStyle(const TString &key) {
 	markers_[dataSetLabel] = (it->value("marker")).Atoi();
       }
       if( it->hasName("color") ) {
-	colors_[dataSetLabel] = cfg_.color(it->value("color"));
+	colors_[dataSetLabel] = cfg.color(it->value("color"));
       }
       if( it->hasName("plot label") ) {
 	dataSetLabelsInPlot_[dataSetLabel] = it->value("plot label");
@@ -50,19 +50,25 @@ void PlotBuilder::setStyle(const TString &key) {
   }
 }
 
-void PlotBuilder::run(const TString &key) const {
+void PlotBuilder::run(const Config &cfg, const TString &key) const {
   std::cout << "  - Creating control plots" << std::endl;
 
-  std::vector<Config::Attributes> attrList = cfg_.listOfAttributes(key);
+  //// Loop over the config lines
+  std::vector<Config::Attributes> attrList = cfg(key);
   for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
       it != attrList.end(); ++it) {
+
     if( it->hasName("variable") && it->hasName("histogram") ) {
-      // Parse variables and plot type
-      TString plotType = "1D";
+      //// Possible plot types
+      TString plotDim  = "1D";
+      TString plotType = "SingleDistribution";
+
+
+      //// Parse variables
       std::vector<TString> variables;
       if( it->value("variable").Contains(" vs ") ) {
 	Config::split(it->value("variable")," vs ",variables);
-	plotType = "2D";
+	plotDim = "2D";
       } else {
 	variables.push_back(it->value("variable"));
       }
@@ -77,12 +83,30 @@ void PlotBuilder::run(const TString &key) const {
 	std::cerr << "\n\nERROR in PlotBuilder::run(): no plot type supports more than two variables" << std::endl;
 	exit(-1);
       }
+
+
+      //// Parse histogram style
       HistParams histParams(it->value("histogram"));
-      
-      // +++ Plot type: Single spectrum or stack for all selections
+
+
+      //// Make plots
+      // Specified datasets; defines the type of plot
       if( it->hasName("dataset") ) {
+	if( it->value("dataset").Contains(",") )      plotType = "ComparedDistributions";
+	else if( it->value("dataset").Contains("+") ) plotType = "StackedDistributions";
+	else                                          plotType = "SingleDistribution";
+
+	// Read dataset(s)
 	std::vector<TString> dataSetLabels;
-	Config::split(it->value("dataset"),"+",dataSetLabels); // Possibly stacked dataset
+	if( plotType == "ComparedDistributions" ) {
+	  Config::split(it->value("dataset"),",",dataSetLabels);
+	} else if( plotType == "StackedDistributions" ) {
+	  Config::split(it->value("dataset"),"+",dataSetLabels);
+	} else {
+	  dataSetLabels.push_back(it->value("dataset"));
+	}
+
+	// Check whether datasets exist
 	for(std::vector<TString>::const_iterator itd = dataSetLabels.begin();
 	    itd != dataSetLabels.end(); ++itd) {
  	  if( !DataSet::labelExists(*itd) ) {
@@ -90,67 +114,47 @@ void PlotBuilder::run(const TString &key) const {
  	    exit(-1);
  	  }
 	}
-	// For each selection, find the datasets to be compared
-	for(SelectionIt its = Selection::begin();
-	    its != Selection::end(); ++its) {
+
+	// For each selection, get the datasets make the plots
+	for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
 	  DataSets dataSets;
 	  for(std::vector<TString>::const_iterator itd = dataSetLabels.begin();
 	      itd != dataSetLabels.end(); ++itd) {
 	    dataSets.push_back(DataSet::find(*itd,*its));
 	  }
-	  if( plotType == "1D" ) {
-	    if( dataSets.size() == 1 ) {
-	      plotSpectrum(variables.front(),dataSets.front(),histParams);
-	    } else {
-	      plotSpectra(variables.front(),dataSets,histParams);
+	  if( plotDim == "1D" ) {
+	    if( plotType == "SingleDistribution" ) {
+	      plotDistribution(variables.front(),dataSets.front(),histParams);
+	    } else if( plotType == "StackedDistributions" ) {
+	      plotStackedDistributions(variables.front(),dataSets,histParams);
+	    } else if( plotType == "ComparedDistributions" ) {
+	      plotComparedDistributions(variables.front(),dataSets,histParams);
 	    }
-	  } else if( plotType == "2D" ) {
-	    plotSpectrum2D(variables.at(1),variables.at(0),dataSets.front(),histParams);
+	  } else if( plotDim == "2D" ) {
+	    plotDistribution2D(variables.at(1),variables.at(0),dataSets.front(),histParams);
 	  }
 	}
-      }
-      // +++ Plot type: Comparison of several datasets (normalised histograms) for all selections
-      else if( it->hasName("datasets") ) {
-	std::vector<TString> dataSetLabels;
-	Config::split(it->value("datasets"),",",dataSetLabels);
-	for(std::vector<TString>::const_iterator itd = dataSetLabels.begin();
-	    itd != dataSetLabels.end(); ++itd) {
- 	  if( !DataSet::labelExists(*itd) ) {
- 	    std::cerr << "\n\nERROR in PlotBuilder::run(): dataset '" << *itd << "' does not exist" << std::endl;
- 	    exit(-1);
- 	  }
-	}
-	// For each selection, find the datasets to be compared
-	for(SelectionIt its = Selection::begin();
-	    its != Selection::end(); ++its) {
-	  DataSets dataSets;
-	  for(std::vector<TString>::const_iterator itd = dataSetLabels.begin();
-	      itd != dataSetLabels.end(); ++itd) {
-	    dataSets.push_back(DataSet::find(*itd,*its));
-	  }
-	  plotComparisonOfNormedSpectra(variables.front(),dataSets,histParams);
-	}
-      }
-      // +++ Plot type: Comparison of two (stacked) datasets for all selections plus optional signals
-      else if( it->hasName("dataset1") && it->hasName("dataset2") ) {
-	// Read names of (stacked) datasets
-	std::vector<TString> dataSetLabels1;
-	std::vector<TString> dataSetLabels2;
+
+
+      } else if( it->hasName("data") && it->hasName("background") ) {
+	plotType = "DataVsBackground";
+      
+	// Read dataset names
+	TString dataLabel = it->value("data");
+	std::vector<TString> bkgLabels;
 	std::vector<TString> signalLabels;
-	Config::split(it->value("dataset1"),"+",dataSetLabels1);
-	Config::split(it->value("dataset2"),"+",dataSetLabels2);
+	Config::split(it->value("background"),"+",bkgLabels);
 	if( it->hasName("signals") ) {
 	  Config::split(it->value("signals"),",",signalLabels);
 	}
-	for(std::vector<TString>::const_iterator itd = dataSetLabels1.begin();
-	    itd != dataSetLabels1.end(); ++itd) {
- 	  if( !DataSet::labelExists(*itd) ) {
- 	    std::cerr << "\n\nERROR in PlotBuilder::run(): dataset '" << *itd << "' does not exist" << std::endl;
- 	    exit(-1);
- 	  }
+
+	// Check whether datasets exist
+	if( !DataSet::labelExists(dataLabel) ) {
+	  std::cerr << "\n\nERROR in PlotBuilder::run(): dataset '" << dataLabel << "' does not exist" << std::endl;
+	  exit(-1);
 	}
-	for(std::vector<TString>::const_iterator itd = dataSetLabels2.begin();
-	    itd != dataSetLabels2.end(); ++itd) {
+	for(std::vector<TString>::const_iterator itd = bkgLabels.begin();
+	    itd != bkgLabels.end(); ++itd) {
  	  if( !DataSet::labelExists(*itd) ) {
  	    std::cerr << "\n\nERROR in PlotBuilder::run(): dataset '" << *itd << "' does not exist" << std::endl;
  	    exit(-1);
@@ -163,39 +167,35 @@ void PlotBuilder::run(const TString &key) const {
  	    exit(-1);
  	  }
 	}
-	// For each selection, find the datasets to be compared
-	for(SelectionIt its = Selection::begin();
-	    its != Selection::end(); ++its) {
-	  DataSets dataSets1;
-	  for(std::vector<TString>::const_iterator itd = dataSetLabels1.begin();
-	      itd != dataSetLabels1.end(); ++itd) {
-	    dataSets1.push_back(DataSet::find(*itd,*its));
-	  }
-	  DataSets dataSets2;
-	  for(std::vector<TString>::const_iterator itd = dataSetLabels2.begin();
-	      itd != dataSetLabels2.end(); ++itd) {
-	    dataSets2.push_back(DataSet::find(*itd,*its));
+	
+	// For each selection, plot data vs bkg
+	for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
+	  const DataSet* data = DataSet::find(dataLabel,*its);
+	  DataSets bkgs;
+	  for(std::vector<TString>::const_iterator itd = bkgLabels.begin();
+	      itd != bkgLabels.end(); ++itd) {
+	    bkgs.push_back(DataSet::find(*itd,*its));
 	  }
 	  DataSets signals;
 	  for(std::vector<TString>::const_iterator itd = signalLabels.begin();
 	      itd != signalLabels.end(); ++itd) {
 	    signals.push_back(DataSet::find(*itd,*its));
 	  }
-	  plotComparisonOfSpectra(variables.front(),dataSets1,dataSets2,signals,histParams);
+	  plotDataVsBkg(variables.front(),data,bkgs,signals,histParams);
 	}
-
       }
     } else {
+      // no 'plot' or 'histogram' definitions
       std::cerr << "\n\nERROR in PlotBuilder::run(): wrong syntax" << std::endl;
       std::cerr << "  in line with key '" << key << "'" << std::endl;
-      std::cerr << "  in config file '" << cfg_.fileName() << "'" << std::endl;
+      std::cerr << "  in config file '" << cfg.fileName() << "'" << std::endl;
       exit(-1);
     }
-  }
+  } // End of loop over config lines
 }
 
 
-void PlotBuilder::plotSpectrum(const TString &var, const DataSet *dataSet, const HistParams &histParams) const {
+void PlotBuilder::plotDistribution(const TString &var, const DataSet *dataSet, const HistParams &histParams) const {
   TH1* h = 0;
   TGraphAsymmErrors* u = 0;
   createDistribution1D(dataSet,var,h,u,histParams);
@@ -228,9 +228,7 @@ void PlotBuilder::plotSpectrum(const TString &var, const DataSet *dataSet, const
       u->Draw("E2same");
     }
   }
-  char info[200];
-  sprintf(info,"%s, %s (%.1f)",dataSet->selectionUid().Data(),dataSetLabelInPlot(dataSet).Data(),h->Integral(1,h->GetNbinsX()));
-  TPaveText* title = header(true,info);
+  TPaveText* title = header(true,dataSetLabelInPlot(dataSet)+",  "+dataSet->selectionUid());
   title->Draw("same");
   if( histParams.logx() ) can->SetLogx();
   if( histParams.logy() ) can->SetLogy();
@@ -244,7 +242,7 @@ void PlotBuilder::plotSpectrum(const TString &var, const DataSet *dataSet, const
 }
 
 
-void PlotBuilder::plotSpectrum2D(const TString &var1, const TString &var2, const DataSet *dataSet, const HistParams &histParams) const {
+void PlotBuilder::plotDistribution2D(const TString &var1, const TString &var2, const DataSet *dataSet, const HistParams &histParams) const {
   TH2* h = 0;
   createDistribution2D(dataSet,var1,var2,h,histParams);
 
@@ -254,9 +252,7 @@ void PlotBuilder::plotSpectrum2D(const TString &var1, const TString &var2, const
   can->SetTopMargin(can->GetTopMargin()+0.03);
   //can->SetWindowSize(canSize_+(canSize_-can->GetWw()),canSize_+(canSize_-can->GetWh()));
   h->Draw("COLZ");
-  char info[200];
-  sprintf(info,"%s, %s (%.1f)",dataSet->selectionUid().Data(),dataSetLabelInPlot(dataSet).Data(),h->Integral(1,h->GetNbinsX()));
-  TPaveText* title = header(true,info);
+  TPaveText* title = header(true,dataSetLabelInPlot(dataSet)+",  "+dataSet->selectionUid());
   title->Draw("same");
   if( histParams.logx() ) can->SetLogx();
   if( histParams.logy() ) can->SetLogy();
@@ -322,7 +318,7 @@ void PlotBuilder::plotSpectrum2D(const TString &var1, const TString &var2, const
 // }
 
 
-void PlotBuilder::plotComparisonOfNormedSpectra(const TString &var, const DataSets &dataSets, const HistParams &histParams) const {
+void PlotBuilder::plotComparedDistributions(const TString &var, const DataSets &dataSets, const HistParams &histParams) const {
   std::vector<TH1*> hists;
   TLegend* leg = legend(dataSets.size());
   // Loop over datasets and create distributions
@@ -381,7 +377,7 @@ void PlotBuilder::plotComparisonOfNormedSpectra(const TString &var, const DataSe
 
 
 // Plot stacked datasets
-void PlotBuilder::plotSpectra(const TString &var, const DataSets &dataSets, const HistParams &histParams) const {
+void PlotBuilder::plotStackedDistributions(const TString &var, const DataSets &dataSets, const HistParams &histParams) const {
   std::vector<TH1*> hists;
   std::vector<TString> legEntries;
   TGraphAsymmErrors* unc = 0;
@@ -425,45 +421,55 @@ void PlotBuilder::plotSpectra(const TString &var, const DataSets &dataSets, cons
 
 
 
-void PlotBuilder::plotComparisonOfSpectra(const TString &var, const DataSets &dataSets1, const DataSets &dataSets2, const DataSets &signals, const HistParams &histParams) const {
-  std::vector<TH1*> hists1;
-  std::vector<TString> legEntries1;
-  TGraphAsymmErrors* unc1 = 0;
-  createStack1D(dataSets1,var,hists1,legEntries1,unc1,histParams);
-  std::vector<TH1*> hists2;
-  std::vector<TString> legEntries2;
-  TGraphAsymmErrors* unc2 = 0;
-  createStack1D(dataSets2,var,hists2,legEntries2,unc2,histParams);
-  std::vector<TH1*> histsSig;
-  std::vector<TString> legEntriesSig;
+void PlotBuilder::plotDataVsBkg(const TString &var, const DataSet *data, const DataSets &bkgs, const DataSets &signals, const HistParams &histParams) const {
+  
+  //// Create the data distribution
+
+  // Fill distribution
+  TH1* hData = 0;
+  TGraphAsymmErrors* u = 0;
+  createDistribution1D(data,var,hData,u,histParams);
+  if( u ) delete u;
+  TString legEntryData = dataSetLegEntry(hData,data);
+
+  // Under-/Overflow warning
+  checkForUnderOverFlow(hData,var,data);
+
+  // We want a data-vs-bkg like plot. Therefore, make
+  // sure that markers are set, even if data is of
+  // type DataSet::MC or DataSet::Prediction, e.g. for 
+  // closure tests
+  setMarkerStyle(hData,data);
+
+
+  //// Create the background stack
+  std::vector<TH1*> stack;
+  std::vector<TString> legEntriesBkgs;
+  TGraphAsymmErrors* uncBkg = 0;
+  createStack1D(bkgs,var,stack,legEntriesBkgs,uncBkg,histParams);
+
+
+  //// Create the signal distributions
+  std::vector<TH1*> hSigs;
+  std::vector<TString> legEntriesSigs;
   for(DataSetIt itd = signals.begin();
       itd != signals.end(); ++itd) {
     TH1* h = 0;
     TGraphAsymmErrors* u = 0;
     createDistribution1D(*itd,var,h,u,histParams);
-    histsSig.push_back(h);
+    hSigs.push_back(h);
     if( u ) delete u;
-    char entry[50];
-    sprintf(entry," %s (%.1f)",dataSetLabelInPlot(*itd).Data(),h->Integral(1,h->GetNbinsX()));
-    legEntriesSig.push_back(entry);
+    legEntriesSigs.push_back(dataSetLegEntry(h,*itd));
   }
 
-  TCanvas* can = new TCanvas("can","",canSize_,canSize_);
-  can->SetBottomMargin(0.2 + 0.8*can->GetBottomMargin()-0.2*can->GetTopMargin());
-  can->cd();
-  TPad *ratioPad = new TPad("bpad","",0,0,1,1);
-  ratioPad->SetTopMargin(0.8 - 0.8*ratioPad->GetBottomMargin()+0.2*ratioPad->GetTopMargin());
-  ratioPad->SetFillStyle(0);
-  ratioPad->SetFrameFillColor(10);
-  ratioPad->SetFrameBorderMode(0);
 
-  // Ratio plot
-  TH1 *hRatio = 0;
-  TH1 *hRatioFrame = static_cast<TH1*>(hists1.front()->Clone("RatioFrame"));
+  //// Create the ratio plot (data/bkg)
+  // ratio frame
+  TH1 *hRatioFrame = static_cast<TH1*>(hData->Clone("RatioFrame"));
   for(int xBin = 1; xBin <= hRatioFrame->GetNbinsX(); ++xBin) {
     hRatioFrame->SetBinContent(xBin,1.);
   }
-  hRatioFrame->GetXaxis()->SetTitle(hists1.front()->GetXaxis()->GetTitle());
+  hRatioFrame->GetXaxis()->SetTitle(hData->GetXaxis()->GetTitle());
   hRatioFrame->GetYaxis()->SetRangeUser(0.55,1.95);
   hRatioFrame->SetLineStyle(2);
   hRatioFrame->SetLineColor(kBlack);
@@ -474,142 +480,33 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const DataSets &da
   hRatioFrame->GetXaxis()->SetLabelSize(gStyle->GetLabelSize("X"));
   hRatioFrame->GetYaxis()->CenterTitle();
   hRatioFrame->GetYaxis()->SetTitleOffset(0.9*hRatioFrame->GetYaxis()->GetTitleOffset());
-  for(std::vector<TH1*>::iterator it = hists1.begin();
-      it != hists1.end(); ++it) {
+
+  // Adapt the top histograms
+  hData->GetXaxis()->SetLabelSize(0);
+  hData->GetXaxis()->SetTitle("");
+  hData->GetYaxis()->SetTickLength(gStyle->GetTickLength("Y")/0.8);
+  for(std::vector<TH1*>::iterator it = stack.begin();
+      it != stack.end(); ++it) {
     (*it)->GetXaxis()->SetLabelSize(0);
     (*it)->GetXaxis()->SetTitle("");
     (*it)->GetYaxis()->SetTickLength(gStyle->GetTickLength("Y")/0.8);
   }
-  for(std::vector<TH1*>::iterator it = hists2.begin();
-      it != hists2.end(); ++it) {
+  for(std::vector<TH1*>::iterator it = hSigs.begin();
+      it != hSigs.end(); ++it) {
     (*it)->GetXaxis()->SetLabelSize(0);
     (*it)->GetXaxis()->SetTitle("");
     (*it)->GetYaxis()->SetTickLength(gStyle->GetTickLength("Y")/0.8);
   }
 
-  TLegend* leg = legend(hists1.size()+hists2.size());
-  TPaveText* title = 0;
-  TString ratioYTitle = "";
+  // Fill the ratio plot
+  TH1 *hRatio = static_cast<TH1*>(hData->Clone("Ratio"));
+  hRatio->Divide(stack.front());
+  hRatioFrame->GetYaxis()->SetTitle("#frac{"+dataSetTypeLabel(data->type())+"}{"+dataSetTypeLabel(bkgs.front()->type())+"}");
 
-  // Decide which hist is plotted data-like (dots, on top)
-  // and which hist is plotted mc-like (filled, below)
-  std::vector<TH1*>* histsData = 0;
-  std::vector<TH1*>* histsMC = 0;
-  std::vector<TString>* legEntriesData = 0;
-  std::vector<TString>* legEntriesMC = 0;
-  TGraphAsymmErrors* uncData = 0;
-  TGraphAsymmErrors* uncMC = 0;
-  DataSet::Type type1 = dataSets1.front()->type();
-  DataSet::Type type2 = dataSets2.front()->type();
-  if( (type1 == DataSet::Data && type2 == DataSet::MC) ||
-      (type1 == DataSet::Data && type2 == DataSet::Prediction) ||
-      (type1 == DataSet::Prediction && type2 == DataSet::MC)      ) {
-    histsData      = &hists1; 
-    histsMC        = &hists2; 
-    legEntriesData = &legEntries1;
-    legEntriesMC   = &legEntries2;
-    uncData        = unc1;
-    uncMC          = unc2;
-    if( type1 == DataSet::Prediction && type2 == DataSet::MC ) {
-      for(std::vector<TH1*>::iterator it = hists1.begin();
-	  it != hists1.end(); ++it) {
-	setMarkerStyle(*it,dataSets1.front());
-      }
-      title        = header(false,dataSets1.front()->selectionUid());
-    } else {
-      title        = header(true,dataSets1.front()->selectionUid());
-    }
-    ratioYTitle    = "#frac{"+dataSetTypeLabel(type1)+"}{"+dataSetTypeLabel(type2)+"}";
-  } else if( (type2 == DataSet::Data && type1 == DataSet::MC) ||
-	     (type2 == DataSet::Data && type1 == DataSet::Prediction) ||
-	     (type2 == DataSet::Prediction && type1 == DataSet::MC)      ) {
-    histsData      = &hists2; 
-    histsMC        = &hists1; 
-    legEntriesData = &legEntries2;
-    legEntriesMC   = &legEntries1;
-    uncData        = unc2;
-    uncMC          = unc1;
-    if( type2 == DataSet::Prediction && type1 == DataSet::MC ) {
-      for(std::vector<TH1*>::iterator it = hists2.begin();
-	  it != hists2.end(); ++it) {
-	setMarkerStyle(*it,dataSets2.front());
-      }
-      title        = header(false,dataSets1.front()->selectionUid());
-    } else {
-      title        = header(true,dataSets1.front()->selectionUid());
-    }
-    ratioYTitle    = "#frac{"+dataSetTypeLabel(type2)+"}{"+dataSetTypeLabel(type1)+"}";
-  } else if( type1 == DataSet::MC && type2 == DataSet::MC ) {
-    for(std::vector<TH1*>::iterator it = hists1.begin();
-	it != hists1.end(); ++it) {
-      setMarkerStyle(*it,dataSets1.front());
-    }
-    histsData      = &hists1; 
-    histsMC        = &hists2; 
-    uncData        = unc1;
-    uncMC          = unc2;
-    legEntriesData = &legEntries1;
-    legEntriesMC   = &legEntries2;
-    title          = header(false,dataSets1.front()->selectionUid());
-    ratioYTitle    = "#frac{"+dataSetTypeLabel(type1)+"}{"+dataSetTypeLabel(type2)+"}";
-  } else {
-    histsData      = &hists1; 
-    histsMC        = &hists2; 
-    uncData        = unc1;
-    uncMC          = unc2;
-    legEntriesData = &legEntries1;
-    legEntriesMC   = &legEntries2;
-    title          = header(false,dataSets1.front()->selectionUid());
-    ratioYTitle    = "#frac{"+dataSetTypeLabel(type1)+"}{"+dataSetTypeLabel(type2)+"}";
-  }
-
-  // Draw
-  can->cd();
-  setYRange(histsMC->front(),histParams.logy()?3E-1:-1.);
-  histsMC->front()->Draw("HISTE");
-  for(std::vector<TH1*>::iterator it = histsMC->begin()+1;
-      it != histsMC->end(); ++it) {
-    (*it)->Draw("HISTsame");
-  }
-  // Plot only MC uncertainty band
-  if( uncMC ) uncMC->Draw("E2same");
-  // Plot signal
-  for(std::vector<TH1*>::iterator it = histsSig.begin();
-      it != histsSig.end(); ++it) {
-    (*it)->Draw("HISTsame");
-  }
-  // Plots data
-  for(std::vector<TH1*>::iterator it = histsData->begin();
-      it != histsData->end(); ++it) {
-    (*it)->Draw("PEsame");
-  }
-  // Add legend entries (first data, then MC, then signal)
-  std::vector<TString>::const_iterator itL = legEntriesData->begin();
-  for(std::vector<TH1*>::iterator itH = histsData->begin();
-      itH != histsData->end(); ++itH,++itL) {
-    leg->AddEntry(*itH,*itL,"P");
-  }
-  itL = legEntriesMC->begin();
-  for(std::vector<TH1*>::iterator itH = histsMC->begin();
-      itH != histsMC->end(); ++itH,++itL) {
-    leg->AddEntry(*itH,*itL,"F");
-  }
-  itL = legEntriesSig.begin();
-  for(std::vector<TH1*>::iterator itH = histsSig.begin();
-      itH != histsSig.end(); ++itH,++itL) {
-    leg->AddEntry(*itH,*itL,"L");
-  }
-  gPad->RedrawAxis();
-  // Add ratio plot (data/MC)
-  ratioPad->Draw();
-  ratioPad->cd();
-  hRatio = static_cast<TH1*>(histsData->front()->Clone("Ratio"));
-  hRatio->Divide(histsMC->front());
-  hRatioFrame->GetYaxis()->SetTitle(ratioYTitle);
-  hRatioFrame->Draw("HIST");
+  // Create the error band
   TGraphAsymmErrors* uncRatio = 0;
-  if( uncMC ) {
-    uncRatio = static_cast<TGraphAsymmErrors*>(uncMC->Clone());
+  if( uncBkg ) {
+    uncRatio = static_cast<TGraphAsymmErrors*>(uncBkg->Clone());
     for(unsigned int i = 0; i < uncRatio->GetN(); ++i) {
       double denom  = uncRatio->GetY()[i];
       if( denom > 0. ) {
@@ -618,6 +515,59 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const DataSets &da
 	uncRatio->GetEYhigh()[i] = uncRatio->GetEYhigh()[i]/denom;
       }
     }
+  }
+
+
+  //// Legend and labels
+  TLegend* leg = legend(1+stack.size()+hSigs.size());
+  TPaveText* title = header((data->type()==DataSet::Data ? true : false),data->selectionUid());	// show lumi only if data plot is of type DataSet::Data
+  leg->AddEntry(hData,legEntryData,"P");
+  std::vector<TString>::const_iterator itL = legEntriesBkgs.begin();
+  for(std::vector<TH1*>::const_iterator itH = stack.begin();
+      itH != stack.end(); ++itH,++itL) {
+    leg->AddEntry(*itH,*itL,"F");
+  }
+  itL = legEntriesSigs.begin();
+  for(std::vector<TH1*>::const_iterator itH = hSigs.begin();
+      itH != hSigs.end(); ++itH,++itL) {
+    leg->AddEntry(*itH,*itL,"L");
+  }
+
+
+  //// Canvases and pads
+  TCanvas* can = new TCanvas("can","",canSize_,canSize_);
+  can->SetBottomMargin(0.2 + 0.8*can->GetBottomMargin()-0.2*can->GetTopMargin());
+  can->cd();
+  TPad *ratioPad = new TPad("bpad","",0,0,1,1);
+  ratioPad->SetTopMargin(0.8 - 0.8*ratioPad->GetBottomMargin()+0.2*ratioPad->GetTopMargin());
+  ratioPad->SetFillStyle(0);
+  ratioPad->SetFrameFillColor(10);
+  ratioPad->SetFrameBorderMode(0);
+
+
+  //// Draw everything
+  can->cd();
+  setYRange(stack.front(),histParams.logy()?3E-1:-1.);
+  stack.front()->Draw("HISTE");
+  for(std::vector<TH1*>::iterator it = stack.begin()+1;
+      it != stack.end(); ++it) {
+    (*it)->Draw("HISTsame");
+  }
+  // Plot bkg uncertainty band
+  if( uncBkg ) uncBkg->Draw("E2same");
+  // Plot signals
+  for(std::vector<TH1*>::iterator it = hSigs.begin();
+      it != hSigs.end(); ++it) {
+    (*it)->Draw("HISTsame");
+  }
+  // Plot data
+  hData->Draw("PEsame");
+  gPad->RedrawAxis();
+  // Plot ratio plot
+  ratioPad->Draw();
+  ratioPad->cd();
+  hRatioFrame->Draw("HIST");
+  if( uncRatio ) {
     uncRatio->Draw("E2same");
   }
   hRatio->Draw("PEsame");
@@ -626,22 +576,20 @@ void PlotBuilder::plotComparisonOfSpectra(const TString &var, const DataSets &da
   gPad->RedrawAxis();
   if( histParams.logx() ) can->SetLogx();
   if( histParams.logy() ) can->SetLogy();
-  storeCanvas(can,var,dataSets1,dataSets2);
+  storeCanvas(can,var,data,bkgs);
 
-  for(std::vector<TH1*>::iterator it = hists1.begin();
-      it != hists1.end(); ++it) {
+
+  //// Clean up
+  delete hData;
+  for(std::vector<TH1*>::iterator it = stack.begin();
+      it != stack.end(); ++it) {
     delete *it;
   }
-  for(std::vector<TH1*>::iterator it = hists2.begin();
-      it != hists2.end(); ++it) {
+  for(std::vector<TH1*>::iterator it = hSigs.begin();
+      it != hSigs.end(); ++it) {
     delete *it;
   }
-  for(std::vector<TH1*>::iterator it = histsSig.begin();
-      it != histsSig.end(); ++it) {
-    delete *it;
-  }
-  if( unc1 ) delete unc1;
-  if( unc2 ) delete unc2;
+  if( uncBkg ) delete uncBkg;
   if( uncRatio ) delete uncRatio;
   delete leg;
   delete title;
@@ -870,9 +818,7 @@ void PlotBuilder::createStack1D(const DataSets &dataSets, const TString &var, st
       }
     }
     setGenericStyle(h,*itd);
-    char entry[50];
-    sprintf(entry," %s (%.1f)",dataSetLabelInPlot(*itd).Data(),h->Integral(1,h->GetNbinsX()));
-    legEntries.push_back(entry);
+    legEntries.push_back(dataSetLegEntry(h,*itd));
     
     // Add histogram to all previous histograms
     for(std::vector<TH1*>::iterator itH = hists.begin();
@@ -901,16 +847,14 @@ void PlotBuilder::storeCanvas(TCanvas* can, const TString &var, const DataSets &
     out_.addPlot(can,var,dataSetLabels,dataSets.front()->selectionUid());
   }
 
-void PlotBuilder::storeCanvas(TCanvas* can, const TString &var, const DataSets &dataSets1, const DataSets &dataSets2) const {
+void PlotBuilder::storeCanvas(TCanvas* can, const TString &var, const DataSet *dataSet, const DataSets &dataSets) const {
     std::vector<TString> dataSetLabels1;
-    for(DataSetIt itd = dataSets1.begin(); itd != dataSets1.end(); ++itd) {
-      dataSetLabels1.push_back((*itd)->label());
-    }
+    dataSetLabels1.push_back(dataSet->label());
     std::vector<TString> dataSetLabels2;
-    for(DataSetIt itd = dataSets2.begin(); itd != dataSets2.end(); ++itd) {
+    for(DataSetIt itd = dataSets.begin(); itd != dataSets.end(); ++itd) {
       dataSetLabels2.push_back((*itd)->label());
     }
-    out_.addPlot(can,var,dataSetLabels1,dataSetLabels2,dataSets1.front()->selectionUid());
+    out_.addPlot(can,var,dataSetLabels1,dataSetLabels2,dataSet->selectionUid());
   }
 
 
@@ -1082,6 +1026,18 @@ TString PlotBuilder::dataSetTypeLabel(DataSet::Type type) const {
   else if( type == DataSet::Signal )     label = "Signal";
 
   return label;
+}
+
+
+TString PlotBuilder::dataSetLegEntry(const TH1* h, const DataSet* ds) const {
+  char entry[100];
+  if( ds->type() == DataSet::Data ) {
+    sprintf(entry," %s (%.0f)",dataSetLabelInPlot(ds).Data(),h->Integral(1,h->GetNbinsX()));
+  } else {
+    sprintf(entry," %s (%.1f)",dataSetLabelInPlot(ds).Data(),h->Integral(1,h->GetNbinsX()));
+  }
+
+  return entry;
 }
 
 

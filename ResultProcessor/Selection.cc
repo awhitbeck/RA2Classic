@@ -29,7 +29,7 @@ void Selection::init(const Config &cfg, const TString key) {
     sequence->add(new Cut());
     
     // Then, read defined selections from config
-    std::vector<Config::Attributes> attrList = cfg.listOfAttributes(key);
+    std::vector<Config::Attributes> attrList = cfg(key);
     for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
 	it != attrList.end(); ++it) {
       if( it->hasName("label") && it->hasName("cuts") ) {

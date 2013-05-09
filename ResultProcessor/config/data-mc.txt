@@ -1,7 +1,9 @@
 # This is an example configuration file
 #
-# The general syntax is '[key] :: [label: value]; [label: value]; ...'
-# Lines starting with an '#' are ignored
+# The general syntax is '<key> :: <name>: <value>[; <name>: <value>; ...]'.
+# The following characters are used as separators and may in general not be
+# used in keys, names, and values: '+', ',', ':', ';'. Spaces should be safe.
+# Lines starting with an '#' and empty lines are ignored.
 #
 # The file runs on any ROOT tree produced with RA2Classic/TreeMaker
 # which needs to be specified below at 'file: ...'
@@ -9,7 +11,8 @@
 
 # Specify global parameters
 global :: id: RA2_535-ABCD
-global :: lumi: 19.47
+global :: lumi: 19.5
+global :: input path: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4
 
 
 # Specify the variables that are read from the ntuple and their type
@@ -32,24 +35,26 @@ event content :: name: DeltaPhi3; type: Float_t; label: #Delta#Phi_{3}
 event content :: name: Weight; type: Float_t
 
 
+
 # Specify the data source and label the type of data
 
 ## 535 V4
-#dataset :: label: Data; type: data; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4/RA2Ntuple_Run2012-ABReReco_HTMHTCuts.root; tree: RA2TreeMaker/RA2PreSelection
-dataset :: label: Data; type: data; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4/RA2Ntuple_Run2012-ABCv1ReReco-Cv2DPromptReco_HTMHTCuts.root; tree: RA2TreeMaker/RA2PreSelection;
+dataset :: label: Data; type: data; file: RA2Ntuple_Run2012-ABCv1ReReco-Cv2DPromptReco_V4.root; tree: RA2TreeMaker/RA2PreSelection;
 
-dataset :: label: TTbar; type: mc; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4/RA2Ntuple_TTJets_SemiFullLeptMGDecays_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A_ext-v1.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
+dataset :: label: TTbar; type: mc; file: RA2Ntuple_TTJets_SemiFullLeptMGDecays_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A_ext-v1_V4.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
 
-dataset :: label: ZJets; type: mc; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4/RA2Ntuple_ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
+dataset :: label: ZJets; type: mc; file: RA2Ntuple_ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1_V4.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
 
-dataset :: label: WJets; type: mc; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4/RA2Ntuple_WJetsToLNu_HT-400ToInf_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
+dataset :: label: WJets; type: mc; file: RA2Ntuple_WJetsToLNu_HT-400ToInf_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1_V4.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
 
-dataset :: label: QCD; type: mc; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4/RA2Ntuple_QCD_HT250-Inf_TuneZ2star_8TeV-madgraph-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
+dataset :: label: QCD; type: mc; file: RA2Ntuple_QCD_HT250-Inf_TuneZ2star_8TeV-madgraph-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1_V4.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
+
 
 
 
 # Specify the event selection
 selection :: label: baseline; cuts: DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + HT > 500 + MHT > 200 + NJets > 2
+#  +  Filter_HBHENoiseFilterRA2>0 + Filter_beamHaloFilter>0 + Filter_trackingFailureFilter>0 + Filter_inconsistentMuons>0 + Filter_greedyMuons>0 + Filter_ra2EcalTPFilter>0 + Filter_ra2EcalBEFilter>0 + Filter_hcalLaserEventFilter>0 + Filter_ecalLaserCorrFilter>0 + Filter_eeBadScFilter>0 + Filter_PBNRFilter>0 + Filter_HCALLaserEvtFilterList2012>0 + Filter_manystripclus53X<1 + Filter_toomanystripclus53X<1 + Filter_logErrorTooManyClusters<1 + Filter_RA2HONoiseFilter>0
 selection :: label: baseline + N_{jets} 3-5; cuts: baseline + NJets > 2 + NJets < 6
 selection :: label: baseline + N_{jets} 6-7; cuts: baseline + NJets > 5 + NJets < 8
 selection :: label: baseline + N_{jets} > 7; cuts: baseline + NJets > 7
@@ -61,39 +66,39 @@ plot style :: dataset: TTbar; plot label: t#bar{t}; color: kRed+1
 plot style :: dataset: QCD; plot label: QCD; color: kRed+3
 plot style :: dataset: ZJets; plot label: Z#rightarrow#nu#bar{#nu}+Jets; color: kYellow
 plot style :: dataset: WJets; plot label: W#rightarrowl#nu+Jets; color: kGreen+1
-plot style :: dataset: TTbarPred; plot label: t#bar{t}_{pred}; color: kBlack
 
 # Plot a single spectrum
 plot :: variable: HT; dataset: Data; histogram: 45, 500, 5000, logy
 plot :: variable: MHT; dataset: Data; histogram:  36, 200, 2000, logy
 
+# Plot stack of several datasets
+plot :: variable: HT; dataset: QCD + TTbar + ZJets + WJets; histogram: 45, 500, 5000, logy
+plot :: variable: NJets; dataset: QCD + TTbar + ZJets + WJets; histogram: 10, 2.5, 12.5, logy
+
 # 2D plots
 plot :: variable: MHT vs HT; dataset: Data; histogram: 45, 500, 5000, 36, 200, 2000, logz
 
-# Compare spectra of several datasets
-#plot :: variable: NVtx; datasets: Data, QCD, TTbar, WJets, ZJets; histogram: 50, 0, 50, norm
+# Compare spectra of several dataset
+plot :: variable: NVtx; dataset: Data, QCD, TTbar, WJets, ZJets; histogram: 50, 0, 50, norm
 
-# Plot stack of several datasets
-#plot :: variable: HT; dataset: QCD + TTbar + ZJets + WJets; histogram: 45, 500, 5000, logy
-
-
-# Plot the spectrum of 'dataset1' in comparison to 'dataset2' (including ratio plots)
+# Plot the spectrum of 'data' in comparison to 'background' (including ratio plots)
 # The spectra of different datasets can be stacked using '+'
-#plot :: variable: HT; dataset1: Data; dataset2: QCD + TTbar + ZJets + WJets; histogram: 45, 500, 5000, logy
-#plot :: variable: MHT; dataset1: Data; dataset2: QCD + TTbar + ZJets + WJets; histogram: 26, 200, 1500, logy
-#plot :: variable: NJets; dataset1: Data; dataset2: QCD + TTbar + ZJets + WJets; histogram: 20, -0.5, 19.5, logy
-#plot :: variable: Jet1Pt; dataset1: Data; dataset2: QCD + TTbar + ZJets + WJets; histogram: 37, 0, 1850, logy
-#plot :: variable: Jet2Pt; dataset1: Data; dataset2: QCD + TTbar + ZJets + WJets; histogram: 37, 0, 1850, logy
-#plot :: variable: Jet3Pt; dataset1: Data; dataset2: QCD + TTbar + ZJets + WJets; histogram: 37, 0, 1850, logy
-#plot :: variable: Jet1Eta; dataset1: Data; dataset2: QCD + TTbar + ZJets + WJets; histogram: 20, -5, 5
-#plot :: variable: Jet2Eta; dataset1: Data; dataset2: QCD + TTbar + ZJets + WJets; histogram: 20, -5, 5
-#plot :: variable: Jet3Eta; dataset1: Data; dataset2: QCD + TTbar + ZJets + WJets; histogram: 20, -5, 5
-#plot :: variable: DeltaPhi1; dataset1: Data; dataset2: QCD + TTbar + ZJets + WJets; histogram: 15, 0.3, 3.3
-#plot :: variable: DeltaPhi2; dataset1: Data; dataset2: QCD + TTbar + ZJets + WJets; histogram: 15, 0.3, 3.3
-#plot :: variable: DeltaPhi3; dataset1: Data; dataset2: QCD + TTbar + ZJets + WJets; histogram: 15, 0.3, 3.3
+plot :: variable: HT; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 35, 500, 4000, logy
+plot :: variable: MHT; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 26, 200, 1500, logy
+plot :: variable: NJets; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 20, -0.5, 19.5, logy
+plot :: variable: Jet1Pt; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 37, 0, 1850, logy
+plot :: variable: Jet2Pt; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 37, 0, 1850, logy
+plot :: variable: Jet3Pt; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 37, 0, 1850, logy
+plot :: variable: Jet1Eta; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 20, -5, 5
+plot :: variable: Jet2Eta; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 20, -5, 5
+plot :: variable: Jet3Eta; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 20, -5, 5
+plot :: variable: DeltaPhi1; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 15, 0.3, 3.3
+plot :: variable: DeltaPhi2; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 15, 0.3, 3.3
+plot :: variable: DeltaPhi3; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 15, 0.3, 3.3
 
 
-# Print event information for 'number' events with largest 
-# value of 'variable'
-#print event info :: variable: HT; number: 25
-#print event info :: variable: MHT; number: 25
+# Print event information for 50 events with largest HT
+# and all events for selections 'baseline + N_{jets} > 7'
+#print event info :: provenance variables: RunNum + LumiBlockNum + EvtNum
+#print event info :: highest: HT, 50
+#print event info :: selections: baseline + N_{jets} > 7

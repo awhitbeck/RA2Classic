@@ -1,4 +1,4 @@
-// $Id: MrRA2.cc,v 1.11 2013/04/22 16:27:33 mschrode Exp $
+// $Id: MrRA2.cc,v 1.12 2013/04/22 17:26:56 mschrode Exp $
 
 #include <cstdlib>
 #include <iomanip>
@@ -6,7 +6,6 @@
 
 #include "TError.h"
 
-#include "Config.h"
 #include "DataSet.h"
 #include "EventInfoPrinter.h"
 #include "GlobalParameters.h"
@@ -49,6 +48,7 @@ MrRA2::MrRA2(const TString& configFileName) {
   std::cout << "Initializing MrRA2" << std::endl;
   gErrorIgnoreLevel = 1001;
   Config cfg(configFileName);
+  checkForLatestSyntax(cfg);
   GlobalParameters::init(cfg,"global");
   Variable::init(cfg,"event content");
   Selection::init(cfg,"selection");
@@ -98,3 +98,36 @@ MrRA2::~MrRA2() {
   Selection::clear();
 }
 
+
+void MrRA2::checkForLatestSyntax(const Config &cfg) const {
+  // 2013.05.09: New syntax for plots
+  std::vector<Config::Attributes> attrList = cfg("plot");
+  for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
+      it != attrList.end(); ++it) {
+
+    if( it->hasName("datasets") || ( it->hasName("dataset1") && it->hasName("dataset2") ) ) {
+      std::cerr << "\n\n\nDear user (Hallo Arne...)!\n" << std::endl;
+      std::cerr << "With the current version of MrRA2, the config-syntax has been changed" << std::endl;
+      std::cerr << "towards greater readability and more convenience! The old syntax you" << std::endl;
+      std::cerr << "are using in your config-file is not supported anymore. Please change" << std::endl;
+      std::cerr << "it as follows:\n" << std::endl;
+      std::cerr << "1) 'Data vs Bkg' plots" << std::endl;
+      std::cerr << "   old syntax: 'plot :: variable: <var>; dataset1: <name[+name+...]>; dataset2: <name[+name+...]>; [signal: <name[,name,...]>;] histogram:...' " << std::endl;
+      std::cerr << "   new syntax: 'plot :: variable: <var>; data: <name>; background: <name[+name+...]>; [signal: <name[,name,...]>;] histogram:...' " << std::endl;
+      std::cerr << "                                          -^-    -^-       -^-" << std::endl;
+      std::cerr << "" << std::endl;
+      std::cerr << "2) 'Comparison of spectra' plots" << std::endl;
+      std::cerr << "   old syntax: 'plot :: variable: <var>; datasets: <name[,name,...]>; histogram:...' " << std::endl;
+      std::cerr << "   new syntax: 'plot :: variable: <var>; dataset: <name[,name,...]>; histogram:...' " << std::endl;
+      std::cerr << "                                               -^-" << std::endl;
+      std::cerr << "" << std::endl;
+      std::cerr << "" << std::endl;
+      std::cerr << "To repair your config file, you can probably (no guarantee!!) simply type:" << std::endl;
+      std::cerr << "> sed -i 's/dataset1/data/g' <config-file>" << std::endl;
+      std::cerr << "> sed -i 's/dataset2/background/g' <config-file>" << std::endl;
+      std::cerr << "> sed -i 's/datasets/dataset/g' <config-file>" << std::endl;
+      std::cerr << "\n\n" << std::endl;
+      exit(-1);
+    }
+  }
+}
