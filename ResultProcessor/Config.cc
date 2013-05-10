@@ -198,10 +198,12 @@ void Config::trim(std::string &str) {
 // ----------------------------------------------------------------------------
 int Config::color(const TString &cfg) {
   int color = 1;
-  if( cfg.Contains("k") ) {	// Expect mnemonic
+  TString cfgLow = cfg;
+  cfgLow.ToLower();
+  if( cfgLow.Contains("k") ) {	// Expect mnemonic
     std::string kSth;
     int modifier = 0;
-    std::string str(cfg.Data());
+    std::string str(cfgLow.Data());
     std::string modifierStr;
     if( split(str,"+",kSth,modifierStr) ) {
       TString tmp(modifierStr);
@@ -210,18 +212,18 @@ int Config::color(const TString &cfg) {
       TString tmp(modifierStr);
       modifier = -1*(tmp.Atoi());
     }
-    if( kSth == "kYellow" ) color = kYellow+modifier;
-    else if( kSth == "kOrange" ) color = kOrange+modifier;
-    else if( kSth == "kRed" ) color = kRed+modifier;
-    else if( kSth == "kPink" ) color = kPink+modifier;
-    else if( kSth == "kMagenta" ) color = kMagenta+modifier;
-    else if( kSth == "kViolet" ) color = kViolet+modifier;
-    else if( kSth == "kBlue" ) color = kBlue+modifier;
-    else if( kSth == "kAzure" ) color = kAzure+modifier;
-    else if( kSth == "kCyan" ) color = kCyan+modifier;
-    else if( kSth == "kTeal" ) color = kTeal+modifier;
-    else if( kSth == "kGreen" ) color = kGreen+modifier;
-    else if( kSth == "kSpring" ) color = kSpring+modifier;
+    if( kSth == "kyellow" ) color = kYellow+modifier;
+    else if( kSth == "korange" ) color = kOrange+modifier;
+    else if( kSth == "kred" ) color = kRed+modifier;
+    else if( kSth == "kpink" ) color = kPink+modifier;
+    else if( kSth == "kmagenta" ) color = kMagenta+modifier;
+    else if( kSth == "kviolet" ) color = kViolet+modifier;
+    else if( kSth == "kblue" ) color = kBlue+modifier;
+    else if( kSth == "kazure" ) color = kAzure+modifier;
+    else if( kSth == "kcyan" ) color = kCyan+modifier;
+    else if( kSth == "kteal" ) color = kTeal+modifier;
+    else if( kSth == "kgreen" ) color = kGreen+modifier;
+    else if( kSth == "kspring" ) color = kSpring+modifier;
   } else {			// Expect integer
     color = cfg.Atoi();
   }
@@ -232,8 +234,56 @@ int Config::color(const TString &cfg) {
 
 TString Config::Attributes::value(const TString &name) const {
   TString val = "";
-  std::map<TString,TString>::const_iterator it = values_.find(name);
-  if( it != values_.end() ) val = it->second;
+  std::map<TString,Value>::const_iterator it = values_.find(name);
+  if( it != values_.end() ) val = it->second.value();
+
+  return val;
+}
+
+bool Config::Attributes::isBoolean(const TString &name) const {
+  bool res = false;
+  std::map<TString,Value>::const_iterator it = values_.find(name);
+  if( it != values_.end() ) res = it->second.isBoolean();
+
+  return res;
+}
+
+bool Config::Attributes::valueBoolean(const TString &name) const {
+  bool val = "";
+  std::map<TString,Value>::const_iterator it = values_.find(name);
+  if( it != values_.end() ) val = it->second.valueBoolean();
+
+  return val;
+}
+
+bool Config::Attributes::isInteger(const TString &name) const {
+  bool res = false;
+  std::map<TString,Value>::const_iterator it = values_.find(name);
+  if( it != values_.end() ) res = it->second.isInteger();
+
+  return res;
+}
+
+int Config::Attributes::valueInteger(const TString &name) const {
+  int val = 999999;
+  std::map<TString,Value>::const_iterator it = values_.find(name);
+  if( it != values_.end() ) val = it->second.valueInteger();
+
+  return val;
+}
+
+bool Config::Attributes::isDouble(const TString &name) const {
+  bool res = false;
+  std::map<TString,Value>::const_iterator it = values_.find(name);
+  if( it != values_.end() ) res = it->second.isDouble();
+
+  return res;
+}
+
+double Config::Attributes::valueDouble(const TString &name) const {
+  double val = 999999.;
+  std::map<TString,Value>::const_iterator it = values_.find(name);
+  if( it != values_.end() ) val = it->second.valueDouble();
 
   return val;
 }
@@ -242,7 +292,7 @@ TString Config::Attributes::value(const TString &name) const {
 std::vector<TString> Config::Attributes::listOfNames() const {
   std::vector<TString> list(values_.size());
   unsigned int i = 0;
-  for(std::map<TString,TString>::const_iterator it = values_.begin();
+  for(std::map<TString,Value>::const_iterator it = values_.begin();
       it != values_.end(); ++it,++i) {
     list.at(i) = it->first;
   }
@@ -253,7 +303,7 @@ std::vector<TString> Config::Attributes::listOfNames() const {
 
 std::vector<TString> Config::Attributes::listOfNames(const TString &containedStr) const {
   std::vector<TString> list;
-  for(std::map<TString,TString>::const_iterator it = values_.begin();
+  for(std::map<TString,Value>::const_iterator it = values_.begin();
       it != values_.end(); ++it) {
     if( (it->first).Contains(containedStr) ) {
       list.push_back(it->first);
@@ -261,4 +311,39 @@ std::vector<TString> Config::Attributes::listOfNames(const TString &containedStr
   }
 
   return list;
+}
+
+
+
+Config::Attributes::Value::Value()
+  : value_(""), isBoolean_(false), valueBoolean_(false), isInteger_(false), isDouble_(false) {};
+
+
+Config::Attributes::Value::Value(const TString &value)
+  : value_(value) {
+
+  isBoolean_ = false;
+  isInteger_ = false;
+  isDouble_  = false;
+
+  valueBoolean_ = false;
+  if( value_.IsAlpha() ) {
+    TString low = value_;
+    low.ToLower();
+    if( low == "true" || low == "ktrue" ) {
+      isBoolean_ = true;
+      valueBoolean_ = true;
+    } else if( low == "false" || low == "kfalse" ) {
+      isBoolean_ = true;
+      valueBoolean_ = false;      
+    }
+  }
+
+  if( !isBoolean_ ) {
+    if( value_.IsDigit() ) {
+      isInteger_ = true;
+    } else if( value_.IsFloat() ) {
+      isDouble_ = true;
+    }
+  }
 }

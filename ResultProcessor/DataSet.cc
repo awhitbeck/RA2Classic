@@ -79,6 +79,7 @@ DataSet::Type DataSet::toType(const TString &type) {
   if( type == "Data" || type == "data" ) result = Data;
   else if( type == "MC" || type == "mc" ) result = MC;
   else if( type == "Prediction" || type == "prediction" ) result = Prediction;
+  else if( type == "MCPrediction" || type == "mcprediction" ) result = MCPrediction;
   else if( type == "Signal" || type == "signal" ) result = Signal;
   else {
     std::cerr << "\n\nERROR in DataSet::toType(): type '" << type << "' does not exist" << std::endl;
@@ -94,6 +95,7 @@ TString DataSet::toString(Type type) {
   if( type == Data ) result = "data";
   else if( type == MC ) result = "MC";
   else if( type == Prediction ) result = "prediction";
+  else if( type == MCPrediction ) result = "MC prediction";
   else if( type == Signal ) result = "signal";
 
   return result;
@@ -413,14 +415,15 @@ void DataSet::computeYield(const std::vector<TString> &uncLabel) {
 
   // Set statistical uncertainty, depending on dataset type
   // Several cases are distinguished depending on the type of data
-  // - 'Data'       : sqrt(number of events)
-  // - 'MC'         : sqrt( sum weight^2 ) = MC statistics
-  // - 'Prediction' : sqrt( sum weight^2 ) = control sample statistics
-  // See also PlotBuilder::createDistribution
-  if( type() == MC || type() == Prediction ) {
-    stat_ = sqrt( stat_ );
-  } else {			// Data
+  // - 'Data'        : sqrt(number of events)
+  // - 'MC'          : sqrt( sum weight^2 ) = MC statistics
+  // - 'MCPrediction': sqrt( sum weight^2 ) = MC statistics
+  // - 'Signal'      : sqrt( sum weight^2 ) = MC statistics
+  // - 'Prediction'  : sqrt( sum weight^2 ) = control sample statistics
+  if( type() == Data ) {
     stat_ = sqrt(yield_);
+  } else {
+    stat_ = sqrt(stat_);
   }
 
   if( GlobalParameters::debug() ) {

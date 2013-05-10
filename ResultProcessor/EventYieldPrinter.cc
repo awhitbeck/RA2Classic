@@ -1,4 +1,4 @@
-// $Id: EventYieldPrinter.cc,v 1.13 2013/04/22 16:21:34 mschrode Exp $
+// $Id: EventYieldPrinter.cc,v 1.14 2013/04/22 17:26:56 mschrode Exp $
 
 #include <cmath>
 #include <cstdlib>
@@ -38,6 +38,7 @@ void EventYieldPrinter::prepareSummaryTable() {
   printedTypes.push_back(DataSet::Data);
   printedTypes.push_back(DataSet::MC);
   printedTypes.push_back(DataSet::Prediction);
+  printedTypes.push_back(DataSet::MCPrediction);
   printedTypes.push_back(DataSet::Signal);
   std::vector<bool> printTotalYield(printedTypes.size(),false);
 
@@ -77,21 +78,21 @@ void EventYieldPrinter::prepareSummaryTable() {
 	if( (*itsd)->type() == printedTypes.at(typeIdx) ) {
 	  TString tableCell = " ";
 	  if( printedTypes.at(typeIdx) == DataSet::Data ) {
-	    sprintf(yield,"%.0f",(*itsd)->yield());
+	    sprintf(yield,"%.0lf",(*itsd)->yield());
 	    totYield += (*itsd)->yield();
 	    tableCell += yield;
 	  } else {
-	    sprintf(yield,"%.1f",(*itsd)->yield());
+	    sprintf(yield,"%.l1f",(*itsd)->yield());
 	    totYield += (*itsd)->yield();
-	    sprintf(stat,"%.1f",(*itsd)->stat());
+	    sprintf(stat,"%.1lf",(*itsd)->stat());
 	    totStat += std::sqrt( (*itsd)->stat()*(*itsd)->stat() + totStat*totStat );
 	    tableCell += yield;
 	    tableCell += " +/- ";
 	    tableCell += stat;
 	    if( (*itsd)->hasSyst() ) {
-	      sprintf(systDn,"%.1f",(*itsd)->totSystDn());
+	      sprintf(systDn,"%.1lf",(*itsd)->totSystDn());
 	      totSystDn += std::sqrt( (*itsd)->totSystDn()*(*itsd)->totSystDn() + totSystDn*totSystDn );
-	      sprintf(systUp,"%.1f",(*itsd)->totSystUp());
+	      sprintf(systUp,"%.1lf",(*itsd)->totSystUp());
 	      totSystUp += std::sqrt( (*itsd)->totSystUp()*(*itsd)->totSystUp() + totSystUp*totSystUp );
 	      tableCell += " +";
 	      tableCell += systUp;
@@ -106,13 +107,13 @@ void EventYieldPrinter::prepareSummaryTable() {
       if( printTotalYield.at(typeIdx) ) {
 	TString tableCell = " ";
 	if( printedTypes.at(typeIdx) == DataSet::Data ) {
-	  sprintf(yield,"%.1f",totYield);
+	  sprintf(yield,"%.1lf",totYield);
 	  tableCell += yield;
 	} else {
-	  sprintf(yield,"%.1f",totYield);
-	  sprintf(stat,"%.1f",totStat);
-	  sprintf(systDn,"%.1f",totSystDn);
-	  sprintf(systUp,"%.1f",totSystUp);
+	  sprintf(yield,"%.1lf",totYield);
+	  sprintf(stat,"%.1lf",totStat);
+	  sprintf(systDn,"%.1lf",totSystDn);
+	  sprintf(systUp,"%.1lf",totSystUp);
 	  tableCell += yield;
 	  tableCell += " +/- ";
 	  tableCell += stat;
@@ -257,18 +258,18 @@ void EventYieldPrinter::printToLaTeX(const TString &outFileName) const {
       char stat[50];
       char systDn[50];
       char systUp[50];
-      sprintf(yield,"%.1f",selectedDataSet->yield());
-      sprintf(stat,"%.1f",selectedDataSet->stat());
-      sprintf(systDn,"%.1f",selectedDataSet->totSystDn());
-      sprintf(systUp,"%.1f",selectedDataSet->totSystUp());
+      sprintf(yield,"%.1lf",selectedDataSet->yield());
+      sprintf(stat,"%.1lf",selectedDataSet->stat());
+      sprintf(systDn,"%.1lf",selectedDataSet->totSystDn());
+      sprintf(systUp,"%.1lf",selectedDataSet->totSystUp());
       file << " & " << yield << " & " << stat;
       file << " & ${}^{+" << systUp << "}_{-" << systDn << "}$";
       if( (*itd)->nSyst() > 1 ) {
 	for(std::vector<TString>::const_iterator systIt = (*itd)->systLabelsBegin();
 	    systIt != (*itd)->systLabelsEnd(); ++systIt) {
 	  if( selectedDataSet->yield() > 0. ) {
-	    sprintf(systDn,"%.1f",100.*selectedDataSet->systDn(*systIt)/selectedDataSet->yield());
-	    sprintf(systUp,"%.1f",100.*selectedDataSet->systUp(*systIt)/selectedDataSet->yield());
+	    sprintf(systDn,"%.1lf",100.*selectedDataSet->systDn(*systIt)/selectedDataSet->yield());
+	    sprintf(systUp,"%.1lf",100.*selectedDataSet->systUp(*systIt)/selectedDataSet->yield());
 	    file << " & ${}^{+" << systUp << "}_{-" << systDn << "}$";	  
 	  }
 	}

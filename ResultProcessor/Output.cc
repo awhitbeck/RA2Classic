@@ -120,7 +120,8 @@ void Output::addPlot(TCanvas* can, const TString &var, const std::vector<TString
 void Output::storeCanvas(TCanvas* can, const TString &selection, const TString &plotName) {
   can->SetName(plotName);
   can->SetTitle(plotName);
-  can->SaveAs(resultDir()+"/"+dir(selection)+"/"+plotName+".eps","eps");
+  if( GlobalParameters::outputEPS() ) can->SaveAs(resultDir()+"/"+dir(selection)+"/"+plotName+".eps","eps");
+  if( GlobalParameters::outputPNG() ) can->SaveAs(resultDir()+"/"+dir(selection)+"/"+plotName+".png");
 }
  
 

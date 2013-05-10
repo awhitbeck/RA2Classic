@@ -16,18 +16,46 @@ public:
   public:
     Attributes(unsigned int lineNumber) : lineNum_(lineNumber) {};
 
+    unsigned int lineNumber() const { return lineNum_; }
     bool hasName(const TString &name) const { return values_.find(name) != values_.end(); }
-    TString value(const TString &name) const;
-    unsigned int nValues() const { return values_.size(); }
     std::vector<TString> listOfNames() const;
     std::vector<TString> listOfNames(const TString &containedStr) const;
-    unsigned int lineNumber() const { return lineNum_; }
+    TString value(const TString &name) const;
+    bool isBoolean(const TString &name) const;
+    bool valueBoolean(const TString &name) const;
+    bool isInteger(const TString &name) const;
+    int valueInteger(const TString &name) const;
+    bool isDouble(const TString &name) const;
+    double valueDouble(const TString &name) const;
+    unsigned int nValues() const { return values_.size(); }
 
   private:
-    unsigned int lineNum_;
-    std::map<TString,TString> values_;
+    class Value {
+    public:
+      Value();
+      Value(const TString &value);
 
-    void add(const TString &name, const TString &value) { values_[name] = value; }
+      TString value() const { return value_; }
+      bool isBoolean() const { return isBoolean_; }
+      bool valueBoolean() const { return valueBoolean_; }
+      bool isInteger() const { return isInteger_; }
+      int valueInteger() const { return isInteger() ? value_.Atoi() : 999999; }
+      bool isDouble() const { return isDouble_; }
+      double valueDouble() const { return isDouble() ? value_.Atof() : 999999.; }
+      
+      
+    private:
+      TString value_;
+      bool isBoolean_;
+      bool valueBoolean_;
+      bool isInteger_;
+      bool isDouble_;
+    };
+
+    unsigned int lineNum_;
+    std::map<TString,Value> values_;
+
+    void add(const TString &name, const TString &value) { values_[name] = Value(value); }
   };
 
 

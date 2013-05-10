@@ -12,7 +12,9 @@
 # Specify global parameters
 global :: id: RA2_535-ABCD
 global :: lumi: 19.5
+global :: publication status: preliminary
 global :: input path: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4
+global :: output formats: eps, png
 
 
 # Specify the variables that are read from the ntuple and their type

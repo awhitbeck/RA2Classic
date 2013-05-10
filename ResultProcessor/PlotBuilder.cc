@@ -211,11 +211,8 @@ void PlotBuilder::plotDistribution(const TString &var, const DataSet *dataSet, c
       u->Draw("E2same");
       h->Draw("PEsame");
     }
-  } else if( dataSet->type() == DataSet::Prediction ) {
-    h->SetLineColor(kBlack);
-    h->SetLineStyle(1);
-    h->SetLineWidth(1);
-    h->Draw("HISTE");
+  } else if( dataSet->type() == DataSet::Signal ) {
+    h->Draw("HIST");
     if( u ) {
       u->Draw("E2same");
     }
@@ -223,12 +220,12 @@ void PlotBuilder::plotDistribution(const TString &var, const DataSet *dataSet, c
     h->SetLineColor(kBlack);
     h->SetLineStyle(1);
     h->SetLineWidth(1);
-    h->Draw("HIST");
+    h->Draw("HISTE");
     if( u ) {
       u->Draw("E2same");
     }
   }
-  TPaveText* title = header(true,dataSetLabelInPlot(dataSet)+",  "+dataSet->selectionUid());
+  TPaveText* title = header(dataSet,true,dataSetLabelInPlot(dataSet)+",  "+dataSet->selectionUid());
   title->Draw("same");
   if( histParams.logx() ) can->SetLogx();
   if( histParams.logy() ) can->SetLogy();
@@ -252,7 +249,7 @@ void PlotBuilder::plotDistribution2D(const TString &var1, const TString &var2, c
   can->SetTopMargin(can->GetTopMargin()+0.03);
   //can->SetWindowSize(canSize_+(canSize_-can->GetWw()),canSize_+(canSize_-can->GetWh()));
   h->Draw("COLZ");
-  TPaveText* title = header(true,dataSetLabelInPlot(dataSet)+",  "+dataSet->selectionUid());
+  TPaveText* title = header(dataSet,true,dataSetLabelInPlot(dataSet)+",  "+dataSet->selectionUid());
   title->Draw("same");
   if( histParams.logx() ) can->SetLogx();
   if( histParams.logy() ) can->SetLogy();
@@ -264,58 +261,6 @@ void PlotBuilder::plotDistribution2D(const TString &var1, const TString &var2, c
   delete h;
   delete can;
 }
-
-
-// void PlotBuilder::plotRatioSpectrum(const TString &var1, const TString &var2, const DataSet *dataSet, const HistParams &histParams) const {
-//   TH1* h = 0;
-//   TGraphAsymmErrors* u = 0;
-//   createDistributionRatio(dataSet,var1,var2,h,u,histParams);
-
-//   // Under-/Overflow warning
-//   checkForUnderOverFlow(h,var,dataSet);
-
-//   TCanvas *can = new TCanvas("can","",canSize_,canSize_);
-//   //can->SetWindowSize(canSize_+(canSize_-can->GetWw()),canSize_+(canSize_-can->GetWh()));
-//   if( dataSet->type() == DataSet::Data ) {
-//     h->Draw("PE");
-//     if( u ) {
-//       u->Draw("E2same");
-//       h->Draw("PEsame");
-//     }
-//   } else if( dataSet->type() == DataSet::Prediction ) {
-//     h->SetLineColor(kBlack);
-//     h->SetLineStyle(1);
-//     h->SetLineWidth(1);
-//     h->Draw("HISTE");
-//     if( u ) {
-//       u->Draw("E2same");
-//     }
-//   } else {
-//     h->SetLineColor(kBlack);
-//     h->SetLineStyle(1);
-//     h->SetLineWidth(1);
-//     h->Draw("HIST");
-//     if( u ) {
-//       u->Draw("E2same");
-//     }
-//   }
-//   char info[200];
-//   sprintf(info,"%s, %s (%.1f)",dataSet->selectionUid().Data(),dataSetLabelInPlot(dataSet).Data(),h->Integral(1,h->GetNbinsX()));
-// //   TString info = dataSet->selectionUid()+",  "+dataSetLabelInPlot(dataSet)+" (";
-// //   info += static_cast<int>(h->Integral(1,h->GetNbinsX()));
-// //   info += ")";
-//   TPaveText* title = header(true,info);
-//   title->Draw("same");
-//   if( histParams.logx() ) can->SetLogx();
-//   if( histParams.logy() ) can->SetLogy();
-//   gPad->RedrawAxis();
-//   storeCanvas(can,var,dataSet);
-
-//   delete title;
-//   delete h;
-//   if( u ) delete u;
-//   delete can;
-// }
 
 
 void PlotBuilder::plotComparedDistributions(const TString &var, const DataSets &dataSets, const HistParams &histParams) const {
@@ -358,7 +303,7 @@ void PlotBuilder::plotComparedDistributions(const TString &var, const DataSets &
       hists.at(i)->Draw("HISTsame");
     }
   }
-  TPaveText* title = header(false,dataSets.front()->selectionUid());
+  TPaveText* title = header(dataSets,false,dataSets.front()->selectionUid());
   title->Draw("same");
   leg->Draw("same");
   gPad->RedrawAxis();
@@ -389,7 +334,8 @@ void PlotBuilder::plotStackedDistributions(const TString &var, const DataSets &d
       itH != hists.end(); ++itH,++itL) {
     leg->AddEntry(*itH,*itL,"F");
   }
-  TPaveText* title = header(true,dataSets.front()->selectionUid());
+  bool onlySimulatedDataSets = true;
+  TPaveText* title = header(dataSets,true,dataSets.front()->selectionUid());
 
   // Draw
   TCanvas* can = new TCanvas("can","",canSize_,canSize_);
@@ -437,9 +383,11 @@ void PlotBuilder::plotDataVsBkg(const TString &var, const DataSet *data, const D
 
   // We want a data-vs-bkg like plot. Therefore, make
   // sure that markers are set, even if data is of
-  // type DataSet::MC or DataSet::Prediction, e.g. for 
+  // type DataSet::MC or DataSet::MCPrediction, e.g. for 
   // closure tests
   setMarkerStyle(hData,data);
+
+  bool simulationOnlyPlot = data->isSimulated();
 
 
   //// Create the background stack
@@ -447,6 +395,14 @@ void PlotBuilder::plotDataVsBkg(const TString &var, const DataSet *data, const D
   std::vector<TString> legEntriesBkgs;
   TGraphAsymmErrors* uncBkg = 0;
   createStack1D(bkgs,var,stack,legEntriesBkgs,uncBkg,histParams);
+  if( simulationOnlyPlot ) {
+    for(DataSetIt itd = bkgs.begin(); itd != bkgs.end(); ++itd) {
+      if( !( (*itd)->isSimulated() ) ) {
+	simulationOnlyPlot = false;
+	break;
+      }
+    }
+  }
 
 
   //// Create the signal distributions
@@ -460,6 +416,11 @@ void PlotBuilder::plotDataVsBkg(const TString &var, const DataSet *data, const D
     hSigs.push_back(h);
     if( u ) delete u;
     legEntriesSigs.push_back(dataSetLegEntry(h,*itd));
+    if( simulationOnlyPlot ) {
+      if( !( (*itd)->isSimulated() ) ) {
+	simulationOnlyPlot = false;
+      }
+    }
   }
 
 
@@ -520,7 +481,7 @@ void PlotBuilder::plotDataVsBkg(const TString &var, const DataSet *data, const D
 
   //// Legend and labels
   TLegend* leg = legend(1+stack.size()+hSigs.size());
-  TPaveText* title = header((data->type()==DataSet::Data ? true : false),data->selectionUid());	// show lumi only if data plot is of type DataSet::Data
+  TPaveText* title = header(simulationOnlyPlot,(data->type()==DataSet::Data ? true : false),data->selectionUid());	// show lumi only if data plot is of type DataSet::Data
   leg->AddEntry(hData,legEntryData,"P");
   std::vector<TString>::const_iterator itL = legEntriesBkgs.begin();
   for(std::vector<TH1*>::const_iterator itH = stack.begin();
@@ -951,7 +912,7 @@ void PlotBuilder::setMarkerStyle(TH1* h, const DataSet *dataSet) const {
 void PlotBuilder::setGenericStyle(TH1* h, const DataSet *dataSet) const {
   if( dataSet->type() == DataSet::Data ) {
     setMarkerStyle(h,dataSet);
-  } else if( dataSet->type() == DataSet::MC || dataSet->type() == DataSet::Prediction ) {
+  } else if( dataSet->type() == DataSet::MC || dataSet->type() == DataSet::Prediction || dataSet->type() == DataSet::MCPrediction ) {
     int c = color(dataSet);
     h->SetMarkerStyle(0);
     h->SetMarkerColor(c);
@@ -967,7 +928,52 @@ void PlotBuilder::setGenericStyle(TH1* h, const DataSet *dataSet) const {
 }
 
 
-TPaveText* PlotBuilder::header(bool showLumi, const TString &info) const {
+TPaveText* PlotBuilder::header(const DataSet* ds, bool showLumi, const TString &info) const {
+  return header(ds->isSimulated(),showLumi,info);
+}
+
+TPaveText* PlotBuilder::header(const DataSets &ds, bool isSimulation, bool showLumi, const TString &info) const {
+  bool simulationOnly = true;
+  for(DataSetIt itd = ds.begin(); itd != ds.end(); ++itd) {
+    if( !( (*itd)->isSimulated() ) ) {
+      simulationOnly = false;
+      break;
+    }
+  }
+  
+  return header(simulationOnly,showLumi,info);
+}
+
+TPaveText* PlotBuilder::header(bool isSimulation, bool showLumi, const TString &info) const {
+  TString line = "";
+  double txtSize = 0.05;
+  if( GlobalParameters::publicationStatus() == GlobalParameters::Preliminary ) {
+    if( isSimulation ) {
+      line = "CMS Simulation";
+    } else {
+      line = "CMS Preliminary,  "+lumiLabel();
+    }
+    txtSize = 0.04;
+  } else if( GlobalParameters::publicationStatus() == GlobalParameters::Public ) {
+    if( isSimulation ) {
+      line = "CMS Simulation";
+    } else {
+      line = "CMS,  "+lumiLabel();
+    }
+    txtSize = 0.04;
+  } else {
+    if( isSimulation ) {
+      line = "Simulation";
+    }
+    else if( showLumi ) {
+      if( line.Length() ) line += ",  ";
+      line += lumiLabel();
+    }
+  }
+  if( line.Length() ) line += ",  ";
+  line += "8 TeV";
+  if( info.Length() ) line += ",  "+info;
+
   double x0 = gStyle->GetPadLeftMargin();
   double x1 = 1.-gStyle->GetPadRightMargin();
   double y0 = 1.-gStyle->GetPadTopMargin();
@@ -977,9 +983,9 @@ TPaveText* PlotBuilder::header(bool showLumi, const TString &info) const {
   txt->SetFillColor(0);
   txt->SetTextFont(42);
   txt->SetTextAlign(12);
-  txt->SetTextSize(0.05);
+  txt->SetTextSize(txtSize);
   txt->SetMargin(0.);
-  txt->AddText("8 TeV"+(showLumi ? ",  "+lumiLabel() : "" )+(info != "" ? ",  "+info : ""));
+  txt->AddText(line);
   
   return txt;
 }
@@ -1020,10 +1026,11 @@ TString PlotBuilder::dataSetLabelInPlot(const DataSet* dataSet) const {
 
 TString PlotBuilder::dataSetTypeLabel(DataSet::Type type) const {
   TString label = "";
-  if( type == DataSet::Data )            label = "Data";
-  else if( type == DataSet::MC )         label = "Sim.";
-  else if( type == DataSet::Prediction ) label = "Pred.";
-  else if( type == DataSet::Signal )     label = "Signal";
+  if( type == DataSet::Data )              label = "Data";
+  else if( type == DataSet::MC )           label = "Sim.";
+  else if( type == DataSet::Prediction )   label = "Pred.";
+  else if( type == DataSet::MCPrediction ) label = "Pred.";
+  else if( type == DataSet::Signal )       label = "Signal";
 
   return label;
 }
@@ -1032,9 +1039,9 @@ TString PlotBuilder::dataSetTypeLabel(DataSet::Type type) const {
 TString PlotBuilder::dataSetLegEntry(const TH1* h, const DataSet* ds) const {
   char entry[100];
   if( ds->type() == DataSet::Data ) {
-    sprintf(entry," %s (%.0f)",dataSetLabelInPlot(ds).Data(),h->Integral(1,h->GetNbinsX()));
+    sprintf(entry," %s (%.0lf)",dataSetLabelInPlot(ds).Data(),h->Integral(1,h->GetNbinsX()));
   } else {
-    sprintf(entry," %s (%.1f)",dataSetLabelInPlot(ds).Data(),h->Integral(1,h->GetNbinsX()));
+    sprintf(entry," %s (%.1lf)",dataSetLabelInPlot(ds).Data(),h->Integral(1,h->GetNbinsX()));
   }
 
   return entry;

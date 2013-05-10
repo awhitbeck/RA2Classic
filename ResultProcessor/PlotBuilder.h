@@ -88,7 +88,9 @@ private:
   void setXTitle(TH1* h, const TString &var) const;
   void setXTitle(TH1* h, const TString &var1, const TString &var2) const;
   void setYTitle(TH1* h, const TString &var) const;
-  TPaveText* header(bool showLumi, const TString &info = "") const;
+  TPaveText* header(const DataSet* ds, bool showLumi, const TString &info = "") const;
+  TPaveText* header(const DataSets &ds, bool isSimulation, bool showLumi, const TString &info = "") const;
+  TPaveText* header(bool isSimulation, bool showLumi, const TString &info = "") const;
   TLegend* legend(unsigned int nEntries) const;
   TString lumiLabel() const;
   TString dataSetLabelInPlot(const DataSet* dataSet) const;

@@ -19,7 +19,7 @@ typedef std::map<TString,const DataSet*>::const_iterator DataSetUidIt;
 
 class DataSet {
 public:
-  enum Type { Data, MC, Prediction, Signal };
+  enum Type { Data, MC, MCPrediction, Prediction, Signal };
 
   static TString uid(const TString &label, const TString &selectionUid);
   static TString uid(const TString &label, const Selection* selection);
@@ -42,9 +42,10 @@ public:
   virtual ~DataSet();
 
   TString uid() const { return uid(label(),selectionUid()); }
-  Type type() const { return type_; }
   TString label() const { return label_; }
   TString selectionUid() const { return selectionUid_; }
+  Type type() const { return type_; }
+  bool isSimulated() const { return !( type() == Data || type() == Prediction ); }
 
   EventIt evtsBegin() const { return evts_.begin(); }
   EventIt evtsEnd() const { return evts_.end(); }
