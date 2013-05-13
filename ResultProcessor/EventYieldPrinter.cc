@@ -1,4 +1,4 @@
-// $Id: EventYieldPrinter.cc,v 1.14 2013/04/22 17:26:56 mschrode Exp $
+// $Id: EventYieldPrinter.cc,v 1.15 2013/05/10 17:49:50 mschrode Exp $
 
 #include <cmath>
 #include <cstdlib>
@@ -82,7 +82,7 @@ void EventYieldPrinter::prepareSummaryTable() {
 	    totYield += (*itsd)->yield();
 	    tableCell += yield;
 	  } else {
-	    sprintf(yield,"%.l1f",(*itsd)->yield());
+	    sprintf(yield,"%.1lf",(*itsd)->yield());
 	    totYield += (*itsd)->yield();
 	    sprintf(stat,"%.1lf",(*itsd)->stat());
 	    totStat += std::sqrt( (*itsd)->stat()*(*itsd)->stat() + totStat*totStat );
