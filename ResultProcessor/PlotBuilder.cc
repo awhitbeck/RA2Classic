@@ -953,7 +953,7 @@ TPaveText* PlotBuilder::header(bool isSimulation, bool showLumi, const TString &
     } else {
       line = "CMS Preliminary,  "+lumiLabel();
     }
-    txtSize = 0.04;
+    txtSize = 0.038;
   } else if( GlobalParameters::publicationStatus() == GlobalParameters::Public ) {
     if( isSimulation ) {
       line = "CMS Simulation";

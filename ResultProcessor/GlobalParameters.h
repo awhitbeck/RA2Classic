@@ -20,6 +20,7 @@ public:
   static TString inputPath() { return inputPath_; }
   static bool outputEPS() { return outputEPS_; }
   static bool outputPNG() { return outputPNG_; }
+  static bool outputPDF() { return outputPDF_; }
 
   static TString cvsRevision();
   static TString cvsTag();
@@ -34,5 +35,6 @@ private:
   static TString inputPath_;
   static bool outputEPS_;
   static bool outputPNG_;
+  static bool outputPDF_;
 };
 #endif

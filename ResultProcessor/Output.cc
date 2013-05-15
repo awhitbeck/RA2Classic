@@ -121,6 +121,7 @@ void Output::storeCanvas(TCanvas* can, const TString &selection, const TString &
   can->SetName(plotName);
   can->SetTitle(plotName);
   if( GlobalParameters::outputEPS() ) can->SaveAs(resultDir()+"/"+dir(selection)+"/"+plotName+".eps","eps");
+  if( GlobalParameters::outputPDF() ) can->SaveAs(resultDir()+"/"+dir(selection)+"/"+plotName+".pdf");
   if( GlobalParameters::outputPNG() ) can->SaveAs(resultDir()+"/"+dir(selection)+"/"+plotName+".png");
 }
  

@@ -6,7 +6,7 @@
 
 
 // CVS Information; will be substituted by cvs
-TString GlobalParameters::CVSKeyWordRevision_ = "$Revision: 1.8 $";
+TString GlobalParameters::CVSKeyWordRevision_ = "$Revision: 1.9 $";
 TString GlobalParameters::CVSKeyWordName_ = "$Name:  $";
 
 bool GlobalParameters::debug_ = false;
@@ -16,6 +16,7 @@ TString GlobalParameters::id_ = "";
 TString GlobalParameters::inputPath_ = "";
 bool GlobalParameters::outputEPS_ = false;
 bool GlobalParameters::outputPNG_ = false;
+bool GlobalParameters::outputPDF_ = true;
 
 
 void GlobalParameters::init(const Config &cfg, const TString &key) {
@@ -23,7 +24,7 @@ void GlobalParameters::init(const Config &cfg, const TString &key) {
   std::vector<Config::Attributes> attrList = cfg(key);
   for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
       it != attrList.end(); ++it) {
-    if( it->hasName("debug") ) it->isBoolean("debug") ? debug_ = it->valueBoolean("debug") : debug_ = false;
+    if( it->hasName("debug") ) debug_ = it->isBoolean("debug") ? debug_ = it->valueBoolean("debug") : debug_ = false;
     if( it->hasName("id") ) id_ = it->value("id");
     if( it->hasName("lumi") ) lumi_ = it->value("lumi");
     if( it->hasName("input path") ) {
@@ -40,6 +41,7 @@ void GlobalParameters::init(const Config &cfg, const TString &key) {
 	format.ReplaceAll(".",""); 
 	if(      format == "eps" ) outputEPS_ = true;
 	else if( format == "png" ) outputPNG_ = true;
+	else if( format == "pdf" ) outputPDF_ = true;
 	else {
 	  std::cerr << "    \nWARNING: unknown or unsupported output format '" << *itf << "' defined in line " << it->lineNumber() << std::endl;
 	  std::cerr << "    Will be ignored" << std::endl;
