@@ -6,7 +6,7 @@
 
 
 // CVS Information; will be substituted by cvs
-TString GlobalParameters::CVSKeyWordRevision_ = "$Revision: 1.9 $";
+TString GlobalParameters::CVSKeyWordRevision_ = "$Revision: 1.10 $";
 TString GlobalParameters::CVSKeyWordName_ = "$Name:  $";
 
 bool GlobalParameters::debug_ = false;
@@ -63,7 +63,7 @@ void GlobalParameters::init(const Config &cfg, const TString &key) {
   }
 
   // Check values
-  if( !outputEPS() && !outputPNG() ) outputEPS_ = true;	// Make eps default output format
+  if( !outputEPS() && !outputPNG() && !outputPDF() ) outputPDF_ = true;	// Make pdf default output format
 
   std::cout << "ok" << std::endl;
 

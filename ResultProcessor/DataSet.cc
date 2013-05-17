@@ -232,24 +232,12 @@ void DataSet::init(const Config &cfg, const TString key) {
 	  }
 	}
 
-	// First, create basic (unselected) datasets and
+	// Create basic (unselected) dataset and
 	// store it in global map of datasets
-	DataSet* basicDataSet = new DataSet(DataSet::toType(type),label,"unselected",files,tree,weight,uncDn,uncUp,uncLabel,scales);
+	DataSet* basicDataSet = new DataSet(DataSet::toType(type),label,files,tree,weight,uncDn,uncUp,uncLabel,scales);
 	dataSetUidMap_[basicDataSet->uid()] = basicDataSet;
 
-	// From this one, create selected datasets
-	for(SelectionIt selIt = Selection::begin();
-	    selIt != Selection::end(); ++selIt) {
-	  if( (*selIt)->uid() != "unselected" ) {
-	    // Select events from basic dataset
-	    Events selectedEvts = (*selIt)->apply(basicDataSet->evtsBegin(),basicDataSet->evtsEnd(),basicDataSet->label());
-	    // Create selected dataset and store it
-	    // in global map of datasets
-	    DataSet* selectedDataSet = new DataSet(basicDataSet,(*selIt)->uid(),selectedEvts);
-	    dataSetUidMap_[selectedDataSet->uid()] = selectedDataSet;
-	  }
-	}
-
+	// Fancy output
 	if( attrList.size() > 3 && it == attrList.begin()+2 ) {
 	  std::cout << "  wait for it...  " << std::flush;
 	}
@@ -276,16 +264,16 @@ void DataSet::clear() {
 }
 
 
-DataSet::DataSet(Type type, const TString &label, const TString &selectionUid, const std::vector<TString> &fileNames, const TString &treeName, const TString &weight, const std::vector<TString> &uncDn, const std::vector<TString> &uncUp, const std::vector<TString> &uncLabel, const std::vector<double> &scales)
-  : hasMother_(false), type_(type), label_(label), selectionUid_(selectionUid) {
+DataSet::DataSet(Type type, const TString &label, const std::vector<TString> &fileNames, const TString &treeName, const TString &weight, const std::vector<TString> &uncDn, const std::vector<TString> &uncUp, const std::vector<TString> &uncLabel, const std::vector<double> &scales)
+  : hasMother_(false), type_(type), label_(label), selectionUid_("unselected") {
   if( GlobalParameters::debug() ) {
     std::cout << "DEBUG: Entering DataSet::DataSet()" << std::endl;
-    std::cout << "       Creating DataSet '" << label << "' for selection '" << selectionUid << "'" << std::endl;
+    std::cout << "       Creating DataSet '" << label << "'" << std::endl;
   }
 
   // Sanity checks
   if( uidExists(uid()) ) {
-    std::cerr << "\n\nERROR in DataSet::DataSet(): a dataset with label '" << label << "' and selection '" << selectionUid << "' already exists.\n\n\n" << std::endl;
+    std::cerr << "\n\nERROR in DataSet::DataSet(): a dataset with label '" << label << "' already exists.\n\n\n" << std::endl;
     exit(-1);
   }
 
@@ -315,6 +303,19 @@ DataSet::DataSet(Type type, const TString &label, const TString &selectionUid, c
   // Compute yield and uncertainties
   computeYield(uncLabel);
 
+  // Create selected datasets
+  for(SelectionIt selIt = Selection::begin();
+      selIt != Selection::end(); ++selIt) {
+
+    if( (*selIt)->uid() != "unselected" ) {
+      // Create selected dataset and store it
+      // in global map of datasets
+      DataSet* selectedDataSet = new DataSet(this,(*selIt)->uid(),applySelection(*selIt));
+      dataSetUidMap_[selectedDataSet->uid()] = selectedDataSet;
+    }
+  }
+
+
   if( GlobalParameters::debug() ) {
     std::cout << "DEBUG: Leaving DataSet::DataSet()" << std::endl;
   }
@@ -324,7 +325,7 @@ DataSet::DataSet(Type type, const TString &label, const TString &selectionUid, c
 DataSet::DataSet(const DataSet *ds, const TString &selectionUid, const Events &evts)
   : hasMother_(true), type_(ds->type()), label_(ds->label()), selectionUid_(selectionUid) {
   if( uidExists(uid()) ) {
-    std::cerr << "\n\nERROR in DataSet::DataSet(): a dataset with label '" << label_ << "' and selection '" << selectionUid << "' already exists." << std::endl;
+    std::cerr << "\n\nERROR in DataSet::DataSet(): a dataset with label '" << label_ << "' and selection '" << selectionUid_ << "' already exists." << std::endl;
     exit(-1);
   }
 
@@ -430,6 +431,19 @@ void DataSet::computeYield(const std::vector<TString> &uncLabel) {
     std::cout << "DEBUG: Leaving DataSet::computeYield()" << std::endl;
   }
 }
+
+
+// ---------------------------------------------------------------
+Events DataSet::applySelection(const Selection* sel) const {
+  Events passed;
+  for(EventIt it = evtsBegin(); it != evtsEnd(); ++it) {
+    if( sel->passes(*it,label()) ) passed.push_back(*it);
+  }
+
+  return passed;
+}
+
+
 
 
 double DataSet::systDn(const TString &label) const {

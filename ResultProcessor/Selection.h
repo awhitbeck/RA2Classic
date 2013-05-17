@@ -1,13 +1,13 @@
 #ifndef SELECTION_H
 #define SELECTION_H
 
-#include <map>
 #include <vector>
 
 #include "TString.h"
 
 #include "Config.h"
 #include "Event.h"
+#include "Filter.h"
 
 
 class Selection;
@@ -25,60 +25,19 @@ public:
   static unsigned int maxLabelLength();
   static void clear();
 
+  Selection(const TString &uid, const Filter* filter) : uid_(uid), filter_(filter) {};
 
-  Selection() {};
-  virtual ~Selection() {};
-
-  virtual TString uid() const = 0;
-  virtual void print() const = 0;
-  virtual Events apply(EventIt begin, EventIt end, const TString &dataSetLabel) const = 0;
-
-protected:
-  static std::vector<Selection*> garbageCollection_;
+  const Filter* filter() const { return filter_; }
+  bool passes(const Event* evt, const TString &dataSetLabel) const { filter_->passes(evt,dataSetLabel); }
+  void print() const;
+  TString uid() const { return uid_; }
 
 
 private:
   static Selections selections_;
   static bool isInit_;
-};
 
-
-class Cut : public Selection {
-public:
-  Cut();
-  Cut(const TString &cut);
-
-  TString uid() const { return "Cut: "+cut_; }
-  void print() const;
-  Events apply(EventIt begin, EventIt end, const TString &dataSetLabel) const;
-
-
-private:
-  const bool isDummy_;
-
-  TString cut_;
-  TString var_;
-  bool varIsAbs_;
-  double min_;
-  double max_;
-  std::vector<TString> appliedToDataSets_;
-};
-
-
-class SelectionSequence : public Selection {
-public:
-  SelectionSequence(const TString &uid);
-
-  void add(const Selection* sel) { sels_.push_back(sel); }
-
-  TString uid() const { return uid_; }
-  void print() const;
-  Events apply(EventIt begin, EventIt end, const TString &dataSetLabel) const;
-  
-
-private:
   const TString uid_;
-  
-  std::vector<const Selection*> sels_;
+  const Filter* filter_;
 };
 #endif

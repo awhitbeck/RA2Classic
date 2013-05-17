@@ -115,7 +115,7 @@ void PlotBuilder::run(const Config &cfg, const TString &key) const {
  	  }
 	}
 
-	// For each selection, get the datasets make the plots
+	// For each selection, get the datasets and make the plots
 	for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
 	  DataSets dataSets;
 	  for(std::vector<TString>::const_iterator itd = dataSetLabels.begin();

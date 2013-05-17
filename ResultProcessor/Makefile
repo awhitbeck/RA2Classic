@@ -4,7 +4,7 @@ ROOTCFLAGS = $(shell root-config --cflags)
 CFLAG      = -I $(ROOTCFLAGS)
 LFLAG      = $(ROOTLIBS)
 
-OBJ     = Config.o DataSet.o Event.o EventBuilder.o EventInfoPrinter.o EventYieldPrinter.o GlobalParameters.o MrRA2.o Output.o PlotBuilder.o Selection.o Variable.o
+OBJ     = Config.o DataSet.o Event.o EventBuilder.o EventInfoPrinter.o EventYieldPrinter.o Filter.o GlobalParameters.o MrRA2.o Output.o PlotBuilder.o Selection.o Variable.o
 
 
 
@@ -20,6 +20,9 @@ DataSet.o: DataSet.h DataSet.cc Config.h Event.h GlobalParameters.h Selection.h 
 
 Event.o: Event.h Event.cc Variable.h
 	g++ $(CFLAG) -c  Event.cc
+
+Filter.o: Filter.h Filter.cc Config.h Event.h GlobalParameters.h Selection.h Variable.h
+	g++ $(CFLAG) -c  Filter.cc
 
 EventBuilder.o: EventBuilder.h EventBuilder.cc Event.h Variable.h
 	g++ $(CFLAG) -c  EventBuilder.cc
@@ -42,7 +45,7 @@ Output.o: Output.h Output.cc GlobalParameters.h
 PlotBuilder.o: PlotBuilder.h PlotBuilder.cc DataSet.h Variable.h Config.h GlobalParameters.h Event.h Output.h Selection.h ../AdditionalInputFiles/RA2PlottingStyle.h
 	g++ $(CFLAG) -c  PlotBuilder.cc
 
-Selection.o: Selection.h Selection.cc Config.h Event.h Variable.h
+Selection.o: Selection.h Selection.cc Config.h Event.h Filter.h
 	g++ $(CFLAG) -c  Selection.cc
 
 Variable.o: Variable.h Variable.cc Config.h

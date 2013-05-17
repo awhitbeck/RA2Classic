@@ -10,11 +10,12 @@
 
 
 # Specify global parameters
-global :: id: RA2_535-ABCD
-global :: lumi: 19.5
+global :: debug: false
+global :: id: SUS-13-012-Preliminary
+global :: lumi: 19.47
 global :: publication status: preliminary
 global :: input path: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4
-global :: output formats: eps, png
+global :: output formats: pdf, png
 
 
 # Specify the variables that are read from the ntuple and their type
@@ -55,12 +56,12 @@ dataset :: label: QCD; type: mc; file: RA2Ntuple_QCD_HT250-Inf_TuneZ2star_8TeV-m
 
 
 # Specify the event selection
-selection :: label: baseline; cuts: DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + HT > 500 + MHT > 200 + NJets > 2
-#  +  Filter_HBHENoiseFilterRA2>0 + Filter_beamHaloFilter>0 + Filter_trackingFailureFilter>0 + Filter_inconsistentMuons>0 + Filter_greedyMuons>0 + Filter_ra2EcalTPFilter>0 + Filter_ra2EcalBEFilter>0 + Filter_hcalLaserEventFilter>0 + Filter_ecalLaserCorrFilter>0 + Filter_eeBadScFilter>0 + Filter_PBNRFilter>0 + Filter_HCALLaserEvtFilterList2012>0 + Filter_manystripclus53X<1 + Filter_toomanystripclus53X<1 + Filter_logErrorTooManyClusters<1 + Filter_RA2HONoiseFilter>0
-selection :: label: baseline + N_{jets} 3-5; cuts: baseline + NJets > 2 + NJets < 6
-selection :: label: baseline + N_{jets} 6-7; cuts: baseline + NJets > 5 + NJets < 8
-selection :: label: baseline + N_{jets} > 7; cuts: baseline + NJets > 7
-#selection :: label: reduced baseline; cuts: HT > 500 + MHT > 200 + NJets > 2
+
+selection :: label: baseline; cuts: DeltaPhi1 > 0.5 && DeltaPhi2 > 0.5 && DeltaPhi3 > 0.3 && HT > 500 && MHT > 200 && NJets > 2
+selection :: label: 3 #leq N_{jets} #leq 5; cuts: baseline && NJets > 2 && NJets < 6
+selection :: label: 6 #leq N_{jets} #leq 7; cuts: baseline && NJets > 5 && NJets < 8
+selection :: label: N_{jets} > 7; cuts: baseline && NJets > 7
+
 
 # Specify what variables to plot and some style settings
 plot style :: dataset: Data; plot label: Data; marker: 20; color: 1

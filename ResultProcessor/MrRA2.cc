@@ -1,4 +1,4 @@
-// $Id: MrRA2.cc,v 1.12 2013/04/22 17:26:56 mschrode Exp $
+// $Id: MrRA2.cc,v 1.13 2013/05/09 20:14:55 mschrode Exp $
 
 #include <cstdlib>
 #include <iomanip>
@@ -65,8 +65,7 @@ MrRA2::MrRA2(const TString& configFileName) {
 
   std::cout << "\nThe following selections are defined:" << std::endl;
   for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
-    std::cout << "  Selection '" << (*its)->uid() << "'" << std::endl;
-    (*its)->print();
+    if( (*its)->uid() != "unselected" ) (*its)->print();
   }
   std::cout << "\n";
 
