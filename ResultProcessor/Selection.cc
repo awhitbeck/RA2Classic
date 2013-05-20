@@ -9,6 +9,7 @@
 
 std::vector<Selection*> Selection::selections_; // Collection of selections to be returned
 bool Selection::isInit_ = false;
+bool Selection::printFilterTree_ = false;
 
 
 // Create different selections as specified in a config file
@@ -42,6 +43,14 @@ void Selection::init(const Config &cfg, const TString key) {
 	// Add this selection to the list of full selections
 	selections_.push_back(new Selection(it->value("label"),filter));
 
+      } else if( it->hasName("print") ) {
+	if( it->isBoolean("print") ) {
+	  printFilterTree_ = it->valueBoolean("print");
+	} else {
+	  std::cerr << "\n\nWARNING: Undefined print-out status in line " << it->lineNumber() << std::endl;
+	  std::cerr << "  Expect 'print: true' or 'print: false'" << std::endl;
+	  std::cerr << "  Using default 'false'" << std::endl;
+	}
       } else {
 	std::cerr << "\n\nERROR: Wrong syntax when defining selection in line " << it->lineNumber() << std::endl;
 	std::cerr << "  Expect selections to be defined as" << std::endl;
@@ -80,6 +89,7 @@ unsigned int Selection::maxLabelLength() {
 
 // ---------------------------------------------------------------
 void Selection::print() const {
-  std::cout << "\n  Selection '" << uid() << "'" << std::endl;
-  std::cout << filter_->printOut() << std::endl;
+  if( printFilterTree_ ) std::cout << std::endl;
+  std::cout << "  Selection '" << uid() << "'" << std::endl;
+  if( printFilterTree_ ) std::cout << filter_->printOut() << std::endl;
 }

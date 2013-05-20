@@ -38,6 +38,8 @@ private:
   static void checkForDanglingOperators(const TString &expr, unsigned int lineNum);
   static void checkForMismatchingParentheses(const TString &expr, unsigned int lineNum);
   static void checkForInvalidBooleanOperators(const TString &expr, unsigned int lineNum);
+  static bool isNegated(TString &expr);
+  static bool isSplit(const TString &expr, TString &expr1, TString &expr2, TString &op);
 };
 
 

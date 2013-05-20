@@ -36,6 +36,7 @@ public:
 private:
   static Selections selections_;
   static bool isInit_;
+  static bool printFilterTree_;
 
   const TString uid_;
   const Filter* filter_;

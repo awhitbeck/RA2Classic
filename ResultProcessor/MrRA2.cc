@@ -1,4 +1,4 @@
-// $Id: MrRA2.cc,v 1.13 2013/05/09 20:14:55 mschrode Exp $
+// $Id: MrRA2.cc,v 1.14 2013/05/17 15:05:19 mschrode Exp $
 
 #include <cstdlib>
 #include <iomanip>
@@ -50,7 +50,7 @@ MrRA2::MrRA2(const TString& configFileName) {
   Config cfg(configFileName);
   checkForLatestSyntax(cfg);
   GlobalParameters::init(cfg,"global");
-  Variable::init(cfg,"event content");
+  Variable::init(cfg,"variable");
   Selection::init(cfg,"selection");
   DataSet::init(cfg,"dataset");
   std::cout << "\n\n\n";
@@ -120,6 +120,8 @@ void MrRA2::checkForLatestSyntax(const Config &cfg) const {
       std::cerr << "   new syntax: 'plot :: variable: <var>; dataset: <name[,name,...]>; histogram:...' " << std::endl;
       std::cerr << "                                               -^-" << std::endl;
       std::cerr << "" << std::endl;
+      std::cerr << "You can find an example config file in config/example.txt" << std::endl;
+      std::cerr << "" << std::endl;      
       std::cerr << "" << std::endl;
       std::cerr << "To repair your config file, you can probably (no guarantee!!) simply type:" << std::endl;
       std::cerr << "> sed -i 's/dataset1/data/g' <config-file>" << std::endl;
@@ -128,5 +130,23 @@ void MrRA2::checkForLatestSyntax(const Config &cfg) const {
       std::cerr << "\n\n" << std::endl;
       exit(-1);
     }
+  }
+
+
+  // 2013.05.20: New syntax for variables
+  attrList = cfg("event content");
+  if( !attrList.empty() ) {
+    std::cerr << "With the current version of MrRA2, the config-syntax has been changed." << std::endl;
+    std::cerr << "The old syntax you are using is not supported anymore. Please change" << std::endl;
+    std::cerr << "it as follows:\n" << std::endl;
+    std::cerr << "'event content' --> 'variable'" << std::endl;
+    std::cerr << "" << std::endl;
+    std::cerr << "You can find an example config file in config/example.txt" << std::endl;
+    std::cerr << "" << std::endl;      
+    std::cerr << "" << std::endl;
+    std::cerr << "To repair your config file, you can probably (no guarantee!!) simply type:" << std::endl;
+    std::cerr << "> sed -i 's/event content/variable/g' <config-file>" << std::endl;
+    std::cerr << "\n\n" << std::endl;
+    exit(-1);
   }
 }

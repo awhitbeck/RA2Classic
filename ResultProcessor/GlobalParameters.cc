@@ -6,17 +6,17 @@
 
 
 // CVS Information; will be substituted by cvs
-TString GlobalParameters::CVSKeyWordRevision_ = "$Revision: 1.10 $";
+TString GlobalParameters::CVSKeyWordRevision_ = "$Revision: 1.11 $";
 TString GlobalParameters::CVSKeyWordName_ = "$Name:  $";
 
 bool GlobalParameters::debug_ = false;
 TString GlobalParameters::lumi_ = "";
 GlobalParameters::PublicationStatus GlobalParameters::publicationStatus_ = GlobalParameters::Internal;
-TString GlobalParameters::id_ = "";
+TString GlobalParameters::id_ = "Plot";
 TString GlobalParameters::inputPath_ = "";
 bool GlobalParameters::outputEPS_ = false;
 bool GlobalParameters::outputPNG_ = false;
-bool GlobalParameters::outputPDF_ = true;
+bool GlobalParameters::outputPDF_ = false;
 
 
 void GlobalParameters::init(const Config &cfg, const TString &key) {

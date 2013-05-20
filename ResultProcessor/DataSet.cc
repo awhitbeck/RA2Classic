@@ -111,11 +111,11 @@ void DataSet::init(const Config &cfg, const TString key) {
     std::vector<Config::Attributes> attrList = cfg(key);
     for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
 	it != attrList.end(); ++it) {
-      if( it->nValues() >= 4 ) {
+      if( it->hasName("label") && it->hasName("type") && it->hasName("files") && it->hasName("tree") ) {
 	TString label = it->value("label");
 	TString type = it->value("type");
 	std::vector<TString> files;
-	Config::split(it->value("file"),",",files);
+	Config::split(it->value("files"),",",files);
 	if( GlobalParameters::inputPath() != "" ) { // Prepend global path
 	  std::vector<TString>::iterator fileIt = files.begin();
 	  for(; fileIt != files.end(); ++fileIt) {
@@ -136,9 +136,9 @@ void DataSet::init(const Config &cfg, const TString key) {
 	    std::cerr << "  Syntax is '..., weight : expr, ...', where 'expr' is either a float or an existing variable" << std::endl;
 	  }
 	}
-	if( it->hasName("scale") ) {
+	if( it->hasName("scales") ) {
 	  std::vector<TString> scalesTmp;
-	  Config::split(it->value("scale"),",",scalesTmp);
+	  Config::split(it->value("scales"),",",scalesTmp);
 	  // Case 1: same scale factor for all input files
 	  if( scalesTmp.size() == 1 ) {
 	    for(unsigned int i = 1; i < files.size(); ++i) {
@@ -246,7 +246,7 @@ void DataSet::init(const Config &cfg, const TString key) {
 	std::cerr << "\n\nERROR in DataSet::createDataSets(): wrong config syntax" << std::endl;
 	std::cerr << "  in line with key '" << key << "'" << std::endl;
 	std::cerr << "  in config file '" << cfg.fileName() << "'." << std::endl;
-	std::cerr << "  Syntax is '" << key << " : label [label], type [type], file [fileName], tree [treeName], weight <weight_expr>'" << std::endl;
+	std::cerr << "  Syntax is '" << key << " : label [label], type [type], files [fileName], tree [treeName], weight <weight_expr>'" << std::endl;
 	exit(-1);
       }
     }

@@ -41,73 +41,37 @@ const Filter* Filter::create(const TString &expr, const std::vector<TString> &da
     TString cfg = cleanExpression(expr);
     if( GlobalParameters::debug() ) std::cout << "  Cleaned expr: '" << cfg << "'" << std::endl;
 
-    // Start expression with a negation?
-    bool startsWithNOT = false;
-    if( cfg(0) == '!' ) {
-      startsWithNOT = true;
-      cfg = cfg(1,cfg.Length()-1);
-    }
-  
-    unsigned int nOpenBrackets = 0;
-    unsigned int pos = 0;
-    for(; pos < cfg.Length(); ++pos) {
-      // Check for expressions in brackets
-      if( cfg(pos) == '(' ) {
-	++nOpenBrackets;
-      } else if( cfg(pos) == ')' ) {
-	if( nOpenBrackets > 0 ) {
-	  --nOpenBrackets;
+    // Check if whole expression is negated
+    if( isNegated(cfg) ) {
+      if( GlobalParameters::debug() ) std::cout << "  Negated expression: remember NOT" << std::endl;
+      filter = new FilterNOT(create(cfg,dataSetLabels,lineNum,false,""));
+    } else {
+
+      // Possibly, split expression
+      TString expr1 = "";
+      TString expr2 = "";
+      TString op = "";
+      if( isSplit(cfg,expr1,expr2,op) ) {
+	const Filter* filter1 = create(expr1,dataSetLabels,lineNum,false,"");
+	const Filter* filter2 = create(expr2,dataSetLabels,lineNum,false,"");
+	if( op == "AND" ) {
+	  filter = new FilterAND(filter1,filter2);
+	} else if( op == "OR" ) {
+	  filter = new FilterOR(filter1,filter2);
 	}
-      }
-      // If no bracketed expression, check for boolean operators
-      if( nOpenBrackets == 0 ) {
-	if( cfg(pos) == '&' ) { // Case: two expressions, AND
-	  if( cfg(pos+1) == '&' ) {
-	    TString expr1 = cfg(0,pos);
-	    pos = pos+2;
-	    TString expr2 = cfg(pos,cfg.Length()-pos);
-	    if( GlobalParameters::debug() ) std::cout << "  Split into: '" << expr1 << "'  &&  '" << expr2 << "'" << std::flush;
-	    if( startsWithNOT ) std::cout << " (remember NOT)" << std::flush;
-	    std::cout << std::endl;
-	    const Filter* filter1 = create(expr1,dataSetLabels,lineNum,false,"");
-	    const Filter* filter2 = create(expr2,dataSetLabels,lineNum,false,"");
-	    if( startsWithNOT ) filter = new FilterAND(new FilterNOT(filter1),filter2);
-	    else filter = new FilterAND(filter1,filter2);
+      } else {
+	// Loop over previously defined selections
+	// and check whether cfg corresponds to one of their labels
+	for(SelectionIt itS = Selection::begin(); itS != Selection::end(); ++itS) {
+	  if( (*itS)->uid() == cfg ) { // A selection with this name exists; reuse it
+	    if( GlobalParameters::debug() ) std::cout << "    Reusing selection '" << cfg << "'" << std::endl;
+	    filter = (*itS)->filter();
+	    break;
 	  }
-	  break;
 	}
-	if( cfg(pos) == '|' ) { // Case: two expressions, OR
-	  if( cfg(pos+1) == '|' ) {
-	    TString expr1 = cfg(0,pos);
-	    pos = pos+2;
-	    TString expr2 = cfg(pos,cfg.Length()-pos);
-	    if( GlobalParameters::debug() ) std::cout << "  Split into: '" << expr1 << "'  ||  '" << expr2 << "'" << std::flush;
-	    if( startsWithNOT ) std::cout << " (remember NOT)" << std::flush;
-	    std::cout << std::endl;
-	    const Filter* filter1 = create(expr1,dataSetLabels,lineNum,false,"");
-	    const Filter* filter2 = create(expr2,dataSetLabels,lineNum,false,"");
-	    if( startsWithNOT ) filter = new FilterOR(new FilterNOT(filter1),filter2);
-	    else filter = new FilterOR(filter1,filter2);
-	  }
-	  break;
+	if( filter == 0 ) {
+	  filter = Cut::create(cfg,lineNum);
 	}
-      }
-    }
-  
-    if( pos == cfg.Length() ) {
-      // Loop over previously defined selections
-      // and check whether cfg corresponds to one of their labels
-      for(SelectionIt itS = Selection::begin(); itS != Selection::end(); ++itS) {
-	if( (*itS)->uid() == cfg ) { // A selection with this name exists; reuse it
-	  if( GlobalParameters::debug() ) std::cout << "    Reusing selection '" << cfg << "'" << std::endl;
-	  if( startsWithNOT ) filter = new FilterNOT((*itS)->filter());
-	  else filter = (*itS)->filter();
-	  break;
-	}
-      }
-      if( filter == 0 ) {
-	if( startsWithNOT ) filter = new FilterNOT(Cut::create(cfg,lineNum));
-	else filter = Cut::create(cfg,lineNum);
       }
     }
   }
@@ -222,6 +186,91 @@ void Filter::checkForInvalidBooleanOperators(const TString &expr, unsigned int l
     exit(-1);
   }
 }
+
+
+// ---------------------------------------------------------------
+bool Filter::isNegated(TString &expr) {
+  bool isNOT = false;
+  if( expr(0) == '!' ) {
+    if( expr.Contains("&&") || expr.Contains("||") ) { // It's not a simple cut; check if NOT refers to the whole, composite expression, i.e. if expr is !(..)
+      if( expr(1) == '(' && expr(expr.Length()-1) == ')' ) {
+	unsigned int nOpenBrackets = 1;
+	bool bracketsClosedBeforeEndOfExpr = false;
+	for(unsigned int pos = 2; pos < expr.Length()-1; ++pos) {
+	  if( expr(pos) == '(' ) {
+	    ++nOpenBrackets;
+	  } else if( expr(pos) == ')' ) {
+	    --nOpenBrackets;
+	  }
+	  if( nOpenBrackets == 0 ) { // !( does not span the whole expression
+	    bracketsClosedBeforeEndOfExpr = true;
+	    break;
+	  }
+	}
+	if( !bracketsClosedBeforeEndOfExpr ) {
+	  isNOT = true;
+	  expr = expr(1,expr.Length()-1); // Remove '!'
+	  expr = cleanExpression(expr); // Expression is enclosed in parentheses	    
+	}
+      } 
+    } else {			// It's a sinlge cut, and it's negated
+      isNOT = true;
+      expr = expr(1,expr.Length()-1); // Remove '!'
+      expr = cleanExpression(expr); // Expression might possibly be enclosed in parentheses
+    }
+  }
+
+  return isNOT;
+}
+
+
+// ---------------------------------------------------------------
+bool Filter::isSplit(const TString &expr, TString &expr1, TString &expr2, TString &op) {
+  bool split = false;
+  unsigned int nOpenBrackets = 0;
+  for(unsigned int pos = 0; pos < expr.Length(); ++pos) {
+    // Check for expressions in brackets
+    if( expr(pos) == '(' ) {
+      ++nOpenBrackets;
+    } else if( expr(pos) == ')' ) {
+      if( nOpenBrackets > 0 ) {
+	--nOpenBrackets;
+      }
+    }
+    // If no bracketed expression, check for boolean operators
+    if( nOpenBrackets == 0 ) {
+      if( expr(pos) == '&' ) { // Case: two expressions, AND
+	if( expr(pos+1) == '&' ) {
+	  split = true;
+	  op = "AND";
+	  expr1 = expr(0,pos);
+	  pos = pos+2;
+	  expr2 = expr(pos,expr.Length()-pos);
+	  if( GlobalParameters::debug() ) {
+	    std::cout << "  Split into: '" << expr1 << "'  &&  '" << expr2 << "'" << std::endl;
+	  }
+	}
+	break;
+      }
+      if( expr(pos) == '|' ) { // Case: two expressions, OR
+	if( expr(pos+1) == '|' ) {
+	  split = true;
+	  op = "OR";
+	  expr1 = expr(0,pos);
+	  pos = pos+2;
+	  expr2 = expr(pos,expr.Length()-pos);
+	  if( GlobalParameters::debug() ) {
+	    std::cout << "  Split into: '" << expr1 << "'  ||  '" << expr2 << "'" << std::endl;
+	  }
+	}
+	break;
+      }
+    }
+  }
+
+  return split;
+}
+
 
 
 // Use this method to delete all existing selections
@@ -390,7 +439,7 @@ CutEqual::CutEqual(const TString &var, double val)
   uid_ = var_+" == ";
   uid_ += val_;
 
-  std::cout << " (CutEqual)" << std::endl;
+  if( GlobalParameters::debug() ) std::cout << " (CutEqual)" << std::endl;
 }
 
 
@@ -402,7 +451,7 @@ CutNotEqual::CutNotEqual(const TString &var, double val)
   uid_ = var_+" != ";
   uid_ += val_;
 
-  std::cout << " (CutNotEqual)" << std::endl;
+  if( GlobalParameters::debug() ) std::cout << " (CutNotEqual)" << std::endl;
 }
 
 
@@ -417,7 +466,7 @@ CutLessThanLessThan::CutLessThanLessThan(double val1, const TString &var, double
   uid_ += " < "+var_+" < ";
   uid_ += val2_;
 
-  std::cout << " (CutLessThanLessThan)" << std::endl;
+  if( GlobalParameters::debug() ) std::cout << " (CutLessThanLessThan)" << std::endl;
 }
 
 
@@ -441,7 +490,7 @@ CutLessEqualThanLessEqualThan::CutLessEqualThanLessEqualThan(double val1, const 
   uid_ += " <= "+var_+" <= ";
   uid_ += val2_;
 
-  std::cout << " (CutLessEqualThanLessEqualThan)" << std::endl;
+  if( GlobalParameters::debug() ) std::cout << " (CutLessEqualThanLessEqualThan)" << std::endl;
 }
 
 
