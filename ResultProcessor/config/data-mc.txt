@@ -42,15 +42,15 @@ variable :: name: Weight; type: Float_t
 # Specify the data source and label the type of data
 
 ## 535 V4
-dataset :: label: Data; type: data; file: RA2Ntuple_Run2012-ABCv1ReReco-Cv2DPromptReco_V4.root; tree: RA2TreeMaker/RA2PreSelection;
+dataset :: label: Data; type: data; files: RA2Ntuple_Run2012-ABCv1ReReco-Cv2DPromptReco_V4.root; tree: RA2TreeMaker/RA2PreSelection;
 
-dataset :: label: TTbar; type: mc; file: RA2Ntuple_TTJets_SemiFullLeptMGDecays_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A_ext-v1_V4.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
+dataset :: label: TTbar; type: mc; files: RA2Ntuple_TTJets_SemiFullLeptMGDecays_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A_ext-v1_V4.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
 
-dataset :: label: ZJets; type: mc; file: RA2Ntuple_ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1_V4.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
+dataset :: label: ZJets; type: mc; files: RA2Ntuple_ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1_V4.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
 
-dataset :: label: WJets; type: mc; file: RA2Ntuple_WJetsToLNu_HT-400ToInf_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1_V4.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
+dataset :: label: WJets; type: mc; files: RA2Ntuple_WJetsToLNu_HT-400ToInf_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1_V4.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
 
-dataset :: label: QCD; type: mc; file: RA2Ntuple_QCD_HT250-Inf_TuneZ2star_8TeV-madgraph-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1_V4.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
+dataset :: label: QCD; type: mc; files: RA2Ntuple_QCD_HT250-Inf_TuneZ2star_8TeV-madgraph-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1_V4.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
 
 
 

@@ -13,16 +13,17 @@ event content :: name: DeltaPhi3; type: Float_t; label: #Delta#Phi_{3}
 event content :: name: Weight; type: Float_t
 
 
+
 # Specify the data source and label the type of data
-#dataset :: label: Data; type: data; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4/RA2Ntuple_Run2012-ABCv1ReReco-Cv2DPromptReco_HTMHTCuts.root; tree: RA2TreeMaker/RA2PreSelection;
+#dataset :: label: Data; type: data; files: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4/RA2Ntuple_Run2012-ABCv1ReReco-Cv2DPromptReco_V4_HLTSel.root; tree: RA2TreeMaker/RA2PreSelection;
 
-dataset :: label: TTbar; type: mc; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4__old/RA2Ntuple_TTJets_SemiFullLeptMGDecays_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A_ext-v1.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
+dataset :: label: TTbar; type: mc; files: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4/RA2Ntuple_TTJets_SemiFullLeptMGDecays_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A_ext-v1_V4.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
 
-dataset :: label: ZJets; type: mc; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4/RA2Ntuple_ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1_V4.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
+dataset :: label: ZJets; type: mc; files: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4/RA2Ntuple_ZJetsToNuNu_400_HT_inf_TuneZ2Star_8TeV_madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1_V4.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
 
-dataset :: label: WJets; type: mc; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4/RA2Ntuple_WJetsToLNu_HT-400ToInf_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1_V4.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
+dataset :: label: WJets; type: mc; files: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4/RA2Ntuple_WJetsToLNu_HT-400ToInf_8TeV-madgraph_Summer12_DR53X-PU_S10_START53_V7A-v1_V4.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
 
-dataset :: label: QCD; type: mc; file: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4__old/RA2Ntuple_QCD_HT250-Inf_TuneZ2star_8TeV-madgraph-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
+dataset :: label: QCD; type: mc; files: /scratch/hh/dust/naf/cms/user/mschrode/RA2/ntuple/535_V4/RA2Ntuple_QCD_HT250-Inf_TuneZ2star_8TeV-madgraph-pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1_V4.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
 
 
 selection :: label: NJet_3-5__HT_0500-0800__MHT_200-300;    cuts: DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + 2 < NJets < 6   + 500 < HT < 800   + 200 < MHT < 300
@@ -77,6 +78,9 @@ selection :: label: NJet_8-Inf__HT_1000-1250__MHT_200-Inf;    cuts: DeltaPhi1 > 
 selection :: label: NJet_8-Inf__HT_1250-1500__MHT_200-Inf;    cuts: DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + NJets > 7   + 1250 < HT < 1500 + 200 < MHT < 9999
 
 selection :: label: NJet_8-Inf__HT_1500-Inf__MHT_200-Inf;     cuts: DeltaPhi1 > 0.5 + DeltaPhi2 > 0.5 + DeltaPhi3 > 0.3 + NJets > 7   + HT > 1500        + 200 < MHT < 9999
+
+
+
 
 
 #plot :: variable: HT; dataset: Data; histogram: 25, 500, 3000, log

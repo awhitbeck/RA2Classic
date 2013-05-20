@@ -1,4 +1,4 @@
-// $Id: MrRA2.cc,v 1.14 2013/05/17 15:05:19 mschrode Exp $
+// $Id: MrRA2.cc,v 1.15 2013/05/20 16:37:35 mschrode Exp $
 
 #include <cstdlib>
 #include <iomanip>
@@ -137,9 +137,9 @@ void MrRA2::checkForLatestSyntax(const Config &cfg) const {
   attrList = cfg("event content");
   if( !attrList.empty() ) {
     std::cerr << "With the current version of MrRA2, the config-syntax has been changed." << std::endl;
-    std::cerr << "The old syntax you are using is not supported anymore. Please change" << std::endl;
-    std::cerr << "it as follows:\n" << std::endl;
-    std::cerr << "'event content' --> 'variable'" << std::endl;
+    std::cerr << "The old syntax you are using is not supported anymore. Please apply the" << std::endl;
+    std::cerr << "following changes:" << std::endl;
+    std::cerr << "\n 'event content' --> 'variable'" << std::endl;
     std::cerr << "" << std::endl;
     std::cerr << "You can find an example config file in config/example.txt" << std::endl;
     std::cerr << "" << std::endl;      
@@ -148,5 +148,25 @@ void MrRA2::checkForLatestSyntax(const Config &cfg) const {
     std::cerr << "> sed -i 's/event content/variable/g' <config-file>" << std::endl;
     std::cerr << "\n\n" << std::endl;
     exit(-1);
+  }
+
+  // 2013.05.20: New syntax for file names
+  attrList = cfg("dataset");
+  for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
+      it != attrList.end(); ++it) {
+    if( it->hasName("file") ) {
+      std::cerr << "With the current version of MrRA2, the config-syntax has been changed." << std::endl;
+      std::cerr << "The old syntax you are using is not supported anymore. Please apply the" << std::endl;
+      std::cerr << "following changes:" << std::endl;
+      std::cerr << "\n in the 'dataset' section: 'file' --> 'files'" << std::endl;
+      std::cerr << "" << std::endl;
+      std::cerr << "You can find an example config file in config/example.txt" << std::endl;
+      std::cerr << "" << std::endl;      
+      std::cerr << "" << std::endl;
+      std::cerr << "To repair your config file, you can probably (no guarantee!!) simply type:" << std::endl;
+      std::cerr << "> sed -i '/dataset/ s=file=files=' <config-file>" << std::endl;
+      std::cerr << "\n\n" << std::endl;
+      exit(-1);
+    }
   }
 }

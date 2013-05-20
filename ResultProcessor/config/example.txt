@@ -1,4 +1,4 @@
-# $Id: $
+# $Id: example.txt,v 1.3 2013/05/20 16:37:35 mschrode Exp $
 #
 ### Example config file
 #
@@ -19,7 +19,6 @@
 # It has been developed, though, for application in a SUSY search (RA2), which
 # is reflected in the plotting options.
 
-global:: debug: true
 
 
 ### Global parameters
@@ -40,6 +39,7 @@ global :: id: Example
 # Comma-separated list of output formats. The supported formats are
 # pdf, png, and eps. Default is pdf.
 global :: output formats: pdf, png
+
 
 
 ### Variables
@@ -107,16 +107,10 @@ variable :: name: Weight; type: Float_t
 #           files of this dataset or n scales, where n equals the number of files in this dataset
 #           and the i-th scale factor is applied to the events in the i-th file.  
 dataset :: label: Data; type: data; files: Example_Data_All.root; tree: RA2TreeMaker/RA2PreSelection;
-
 dataset :: label: TTbar; type: mc; files: Example_TTJets.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
-
 dataset :: label: QCD; type: mc; files: Example_QCD_1.root, Example_QCD_2.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
-
 dataset :: label: ZJets; type: mc; files: Example_ZJets.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
-
 dataset :: label: WJets; type: mc; files: Example_WJets.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
-
-
 
 
 
@@ -155,29 +149,70 @@ selection :: print: true
 
 
 
-# Specify what variables to plot and some style settings
-plot style :: dataset: Data; plot label: Data; marker: 20; color: 1
-plot style :: dataset: TTbar; plot label: t#bar{t}; color: kRed+1
-plot style :: dataset: QCD; plot label: QCD; color: kRed+3
-plot style :: dataset: ZJets; plot label: Z#rightarrow#nu#bar{#nu}+Jets; color: kYellow
-plot style :: dataset: WJets; plot label: W#rightarrowl#nu+Jets; color: kGreen+1
-
-# Plot a single spectrum
+### Plots
+# Various different plot types are implemented to plot distributions of the
+# defined variables. Each line defines a new plot. Each plot is produced for all
+# defined selections.
+#
+# The following applies to all plot types:
+# - Each plot definition requires a name 'histogram' that defines the histogram's
+#   dimensions and options such as logarithmic scales or normed distributions. The
+#   syntax is derived from the TH1 constructors and is either
+#   - 'histogram: <NBins>, <Min>, <Max>, [logx,logy,norm]' or
+#   - 'histogram: <NBinsX>, <XMin>, <XMax>, <NBinsY>, <YMin>, <YMax>, [logx,logy,logz,norm]'
+#   for 1D or 2D histograms, respectively, where the first 3 or 6 values, respectively, 
+#   define the binning and are mandatory. The additional values are optional and, if given
+#   set log scales and normalised (to area 1) histograms.
+# - The datasets to be plotted are given as
+#   - single label: plots the distribution only for this dataset.
+#   - ','-separated list of labels: plots the distributions of all listed datasets 
+#                   superimposed (TH1::Draw() option "same").
+#   - '+'-separated list of labels: plots the distributions of all listed datasets
+#                   as a stack (similar to THStack).
+#
+# There are different plot types as explained in the following. They take different
+# additional names.
+#
+# A single distribution (1D histogram) of one variable.
+# - variable: the plotted variable
+# - dataset: label of the dataset for which the distribution is plotted
+# The mandatory names (in addition to 'histogram' as explained above) are
 plot :: variable: HT; dataset: Data; histogram: 45, 500, 5000, logy
 plot :: variable: MHT; dataset: Data; histogram:  36, 200, 2000, logy
-
-# Plot stack of several datasets
+plot :: variable: HT; dataset: TTbar; histogram: 45, 500, 5000, logy
+#
+# Stacked distributions (1D histograms) of several datasets.
+# The mandatory names (in addition to 'histogram' as explained above) are
+# - variable: the plotted variable
+# - dataset: list of dataset labels, separated by '+' for which the 
+#            distributions are plotted and stacked.
 plot :: variable: HT; dataset: QCD + TTbar + ZJets + WJets; histogram: 45, 500, 5000, logy
 plot :: variable: NJets; dataset: QCD + TTbar + ZJets + WJets; histogram: 10, 2.5, 12.5, logy
-
-# 2D plots
+plot :: variable: NVtx; dataset: QCD + TTbar + WJets + ZJets; histogram: 50, 0, 50
+#
+# A 2D distribution.
+# The mandatory names (in addition to 'histogram' as explained above) are
+# - variable: the plotted variables, separated by ' vs ', as 'Y vs X'
+# - dataset: label of the dataset for which the distribution is plotted
 plot :: variable: MHT vs HT; dataset: Data; histogram: 45, 500, 5000, 36, 200, 2000, logz
-
-# Compare spectra of several dataset
+#
+# Superimposed distributions of one variable for several datasets.
+# The mandatory names (in addition to 'histogram' as explained above) are
+# - variable: the plotted variable
+# - dataset: comma-separated list of dataset labels 
 plot :: variable: NVtx; dataset: Data, QCD, TTbar, WJets, ZJets; histogram: 50, 0, 50, norm
-
-# Plot the spectrum of 'data' in comparison to 'background' (including ratio plots)
-# The spectra of different datasets can be stacked using '+'
+#
+# "Data-vs-background" plot of one variable. A single distribution from one dataset
+# (that would be the data in a data-vs-bkg plot) is compared to the stack of several
+# distributions from several datasets (that would be the background processes). A ratio plot
+# is drawn at the bottom of the canvas. Optionally, several single distributions can be
+# superimposed (which can be used to display possible signal processes).
+# The mandatory names (in addition to 'histogram' as explained above) are
+# - variable: the plotted variable
+# - data: label of the data-like dataset
+# - background: '+'-separated list of the background-like datasets
+# Optional names are
+# - signal: comma-separated list of signal-like datasets
 plot :: variable: HT; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 35, 500, 4000, logy
 plot :: variable: MHT; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 26, 200, 1500, logy
 plot :: variable: NJets; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 20, -0.5, 19.5, logy
@@ -192,8 +227,23 @@ plot :: variable: DeltaPhi2; data: Data; background: QCD + TTbar + ZJets + WJets
 plot :: variable: DeltaPhi3; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 15, 0.3, 3.3
 
 
-# Print event information for 50 events with largest HT
-# and all events for selections 'baseline + N_{jets} > 7'
-#print event info :: provenance variables: RunNum + LumiBlockNum + EvtNum
-#print event info :: highest: HT, 50
-#print event info :: selections: baseline + N_{jets} > 7
+
+### Optional: dataset-specific plotting styles
+# Each line defines the settings for one dataset
+#
+# If specified, there is one mandatory name
+# - dataset: dataset label
+# 
+# Then, there are several optional names defining style parameters:
+# - plot label: dataset label to be used in the plot legends. This is intended for
+#               complicated labels, e.g. Z#rightarrow#nu#bar{#nu} that you don't
+#               want to have to type several times in this config file. TLatex-style
+#               syntax is understood.
+# - marker: TMarker style for the plot markers - an integer
+# - color: color index for the marker, line, and fill colors. Can be an integer or
+#          the TColor mnemonics, e.g. 'kRed'.
+plot style :: dataset: Data; plot label: Data; marker: 20; color: 1
+plot style :: dataset: TTbar; plot label: t#bar{t}; color: kRed+1
+plot style :: dataset: QCD; plot label: QCD; color: kRed+3
+plot style :: dataset: ZJets; plot label: Z#rightarrow#nu#bar{#nu}+Jets; color: kYellow
+plot style :: dataset: WJets; plot label: W#rightarrowl#nu+Jets; color: kGreen+1
