@@ -57,15 +57,10 @@ private:
   static unsigned int count_;
 
   const unsigned int canSize_;
+
   Output &out_;
 
-  std::map<TString,int> markers_;
-  std::map<TString,int> colors_;
-  std::map<TString,TString> dataSetLabelsInPlot_;
-
   void run(const Config &cfg, const TString &key) const;
-  void setStyle(const Config &cfg, const TString &key);
-
   void plotDistribution(const TString &var, const DataSet *dataSet, const HistParams &histParams) const;
   void plotDistribution2D(const TString &var1, const TString &var2, const DataSet *dataSet, const HistParams &histParams) const;
   void plotStackedDistributions(const TString &var, const DataSets &dataSets, const HistParams &histParams) const;
@@ -93,8 +88,6 @@ private:
   TPaveText* header(bool isSimulation, bool showLumi, const TString &info = "") const;
   TLegend* legend(unsigned int nEntries) const;
   TString lumiLabel() const;
-  TString dataSetLabelInPlot(const DataSet* dataSet) const;
-  TString dataSetTypeLabel(DataSet::Type type) const;
   TString dataSetLegEntry(const TH1* h, const DataSet* ds) const;
   void setYRange(TH1* &h, double logMin = -1.) const;
 

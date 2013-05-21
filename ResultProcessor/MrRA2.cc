@@ -1,4 +1,4 @@
-// $Id: MrRA2.cc,v 1.15 2013/05/20 16:37:35 mschrode Exp $
+// $Id: MrRA2.cc,v 1.16 2013/05/20 21:06:05 mschrode Exp $
 
 #include <cstdlib>
 #include <iomanip>
@@ -14,6 +14,7 @@
 #include "Output.h"
 #include "PlotBuilder.h"
 #include "Selection.h"
+#include "Style.h"
 #include "Variable.h"
 
 
@@ -50,6 +51,7 @@ MrRA2::MrRA2(const TString& configFileName) {
   Config cfg(configFileName);
   checkForLatestSyntax(cfg);
   GlobalParameters::init(cfg,"global");
+  Style::init(cfg,"style");
   Variable::init(cfg,"variable");
   Selection::init(cfg,"selection");
   DataSet::init(cfg,"dataset");

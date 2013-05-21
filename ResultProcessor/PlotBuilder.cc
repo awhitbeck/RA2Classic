@@ -10,6 +10,7 @@
 #include "GlobalParameters.h"
 #include "PlotBuilder.h"
 #include "Selection.h"
+#include "Style.h"
 #include "Variable.h"
 
 #include "../AdditionalInputFiles/RA2PlottingStyle.h"
@@ -20,7 +21,7 @@ unsigned int PlotBuilder::count_ = 0;
 
 PlotBuilder::PlotBuilder(const Config &cfg, Output &out)
   : canSize_(500), out_(out) {
-  setStyle(cfg,"plot style");
+  RA2PlottingStyle::init();
   run(cfg,"plot");
 }
 
@@ -29,26 +30,6 @@ PlotBuilder::~PlotBuilder() {
   
 }
 
-
-void PlotBuilder::setStyle(const Config &cfg, const TString &key) {
-  RA2PlottingStyle::init();
-  std::vector<Config::Attributes> attrList = cfg(key);
-  for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
-      it != attrList.end(); ++it) {
-    if( it->hasName("dataset") ) {
-      TString dataSetLabel = it->value("dataset");
-      if( it->hasName("marker") ) {
-	markers_[dataSetLabel] = (it->value("marker")).Atoi();
-      }
-      if( it->hasName("color") ) {
-	colors_[dataSetLabel] = cfg.color(it->value("color"));
-      }
-      if( it->hasName("plot label") ) {
-	dataSetLabelsInPlot_[dataSetLabel] = it->value("plot label");
-      }
-    }
-  }
-}
 
 void PlotBuilder::run(const Config &cfg, const TString &key) const {
   std::cout << "  - Creating control plots" << std::endl;
@@ -225,7 +206,7 @@ void PlotBuilder::plotDistribution(const TString &var, const DataSet *dataSet, c
       u->Draw("E2same");
     }
   }
-  TPaveText* title = header(dataSet,true,dataSetLabelInPlot(dataSet)+",  "+dataSet->selectionUid());
+  TPaveText* title = header(dataSet,true,Style::tlatexLabel(dataSet)+",  "+Style::tlatexLabel(dataSet->selectionUid()));
   title->Draw("same");
   if( histParams.logx() ) can->SetLogx();
   if( histParams.logy() ) can->SetLogy();
@@ -249,7 +230,7 @@ void PlotBuilder::plotDistribution2D(const TString &var1, const TString &var2, c
   can->SetTopMargin(can->GetTopMargin()+0.03);
   //can->SetWindowSize(canSize_+(canSize_-can->GetWw()),canSize_+(canSize_-can->GetWh()));
   h->Draw("COLZ");
-  TPaveText* title = header(dataSet,true,dataSetLabelInPlot(dataSet)+",  "+dataSet->selectionUid());
+  TPaveText* title = header(dataSet,true,Style::tlatexLabel(dataSet)+",  "+Style::tlatexLabel(dataSet->selectionUid()));
   title->Draw("same");
   if( histParams.logx() ) can->SetLogx();
   if( histParams.logy() ) can->SetLogy();
@@ -281,9 +262,9 @@ void PlotBuilder::plotComparedDistributions(const TString &var, const DataSets &
       h->SetLineColor(h->GetFillColor());
       h->SetLineWidth(3);
       h->SetFillStyle(0);
-      leg->AddEntry(h," "+dataSetLabelInPlot(*itd),"L");
+      leg->AddEntry(h," "+Style::tlatexLabel(*itd),"L");
     } else {
-      leg->AddEntry(h," "+dataSetLabelInPlot(*itd),"P");
+      leg->AddEntry(h," "+Style::tlatexLabel(*itd),"P");
     }
     if( histParams.norm() ) setYRange(h,histParams.logy()?3E-6:-1.);
     else setYRange(h,histParams.logy()?3E-1:-1.);
@@ -303,7 +284,7 @@ void PlotBuilder::plotComparedDistributions(const TString &var, const DataSets &
       hists.at(i)->Draw("HISTsame");
     }
   }
-  TPaveText* title = header(dataSets,false,dataSets.front()->selectionUid());
+  TPaveText* title = header(dataSets,false,Style::tlatexLabel(dataSets.front()->selectionUid()));
   title->Draw("same");
   leg->Draw("same");
   gPad->RedrawAxis();
@@ -335,7 +316,7 @@ void PlotBuilder::plotStackedDistributions(const TString &var, const DataSets &d
     leg->AddEntry(*itH,*itL,"F");
   }
   bool onlySimulatedDataSets = true;
-  TPaveText* title = header(dataSets,true,dataSets.front()->selectionUid());
+  TPaveText* title = header(dataSets,true,Style::tlatexLabel(dataSets.front()->selectionUid()));
 
   // Draw
   TCanvas* can = new TCanvas("can","",canSize_,canSize_);
@@ -462,7 +443,7 @@ void PlotBuilder::plotDataVsBkg(const TString &var, const DataSet *data, const D
   // Fill the ratio plot
   TH1 *hRatio = static_cast<TH1*>(hData->Clone("Ratio"));
   hRatio->Divide(stack.front());
-  hRatioFrame->GetYaxis()->SetTitle("#frac{"+dataSetTypeLabel(data->type())+"}{"+dataSetTypeLabel(bkgs.front()->type())+"}");
+  hRatioFrame->GetYaxis()->SetTitle("#frac{"+Style::tlatexType(data)+"}{"+Style::tlatexType(bkgs.front())+"}");
 
   // Create the error band
   TGraphAsymmErrors* uncRatio = 0;
@@ -481,7 +462,7 @@ void PlotBuilder::plotDataVsBkg(const TString &var, const DataSet *data, const D
 
   //// Legend and labels
   TLegend* leg = legend(1+stack.size()+hSigs.size());
-  TPaveText* title = header(simulationOnlyPlot,(data->type()==DataSet::Data ? true : false),data->selectionUid());	// show lumi only if data plot is of type DataSet::Data
+  TPaveText* title = header(simulationOnlyPlot,(data->type()==DataSet::Data ? true : false),Style::tlatexLabel(data->selectionUid()));	// show lumi only if data plot is of type DataSet::Data
   leg->AddEntry(hData,legEntryData,"P");
   std::vector<TString>::const_iterator itL = legEntriesBkgs.begin();
   for(std::vector<TH1*>::const_iterator itH = stack.begin();
@@ -869,15 +850,13 @@ void PlotBuilder::setYTitle(TH1* h, const TString &var) const {
 
 
 int PlotBuilder::color(const DataSet *dataSet) const {
-  // Default color
-  int color = kGray;
-  // Specified colors
-  if( colors_.find(dataSet->label()) != colors_.end() ) {
-    color = colors_.find(dataSet->label())->second;
-  } else {
-    // More specific default colors
+  // Userdefined color
+  int color = Style::color(dataSet);
+  if( color < 0 ) {    // Default colors
     if( dataSet->type() == DataSet::Data ) {
       color = kBlack;
+    } else {
+      color = kGray;
     }
   }
 
@@ -886,13 +865,10 @@ int PlotBuilder::color(const DataSet *dataSet) const {
 
 
 int PlotBuilder::markerStyle(const DataSet *dataSet) const {
-  // Default style
-  int style = 21;
-  // Specified styles
-  if( markers_.find(dataSet->label()) != markers_.end() ) {
-    style = markers_.find(dataSet->label())->second;
-  } else {
-    // More specific default styles
+  // Userdefined style
+  int style = Style::markerStyle(dataSet);
+  if( style < 0 ) {
+    // Default styles
     if( dataSet->type() == DataSet::Data ) {
       style = 21;
     }
@@ -994,7 +970,10 @@ TPaveText* PlotBuilder::header(bool isSimulation, bool showLumi, const TString &
 TLegend* PlotBuilder::legend(unsigned int nEntries) const {
   double lineHeight = 0.06;
   double margin = 0.02;
-  double x0 = 0.45;
+  double x0 = 0.6;
+  if( Style::plotYields() ) {
+    x0 = 0.45;
+  }
   double x1 = 1.-gStyle->GetPadRightMargin()-margin;
   double y1 = 1.-gStyle->GetPadTopMargin()-margin;
   double y0 = y1-nEntries*lineHeight;
@@ -1015,33 +994,18 @@ TString PlotBuilder::lumiLabel() const {
 }
 
 
-TString PlotBuilder::dataSetLabelInPlot(const DataSet* dataSet) const {
-  TString dataSetLabelInPlot = dataSet->label();
-  std::map<TString,TString>::const_iterator it = dataSetLabelsInPlot_.find(dataSet->label());
-  if( it != dataSetLabelsInPlot_.end() ) dataSetLabelInPlot = it->second;
-
-  return dataSetLabelInPlot;
-}
-
-
-TString PlotBuilder::dataSetTypeLabel(DataSet::Type type) const {
-  TString label = "";
-  if( type == DataSet::Data )              label = "Data";
-  else if( type == DataSet::MC )           label = "Sim.";
-  else if( type == DataSet::Prediction )   label = "Pred.";
-  else if( type == DataSet::MCPrediction ) label = "Pred.";
-  else if( type == DataSet::Signal )       label = "Signal";
-
-  return label;
-}
-
-
 TString PlotBuilder::dataSetLegEntry(const TH1* h, const DataSet* ds) const {
   char entry[100];
-  if( ds->type() == DataSet::Data ) {
-    sprintf(entry," %s (%.0lf)",dataSetLabelInPlot(ds).Data(),h->Integral(1,h->GetNbinsX()));
+  TString label = Style::tlatexLabel(ds).Data();
+  if( Style::plotYields() ) {
+    double entries = h->Integral(1,h->GetNbinsX());
+    if( ds->type() == DataSet::Data ) {
+      sprintf(entry," %s (%.0lf)",label.Data(),entries);
+    } else {
+      sprintf(entry," %s (%.1lf)",label.Data(),entries);
+    }
   } else {
-    sprintf(entry," %s (%.1lf)",dataSetLabelInPlot(ds).Data(),h->Integral(1,h->GetNbinsX()));
+    sprintf(entry," %s",label.Data());
   }
 
   return entry;
@@ -1056,7 +1020,7 @@ void PlotBuilder::setYRange(TH1* &h, double logMin) const {
 
   double relHistHeight = 1. - (gStyle->GetPadTopMargin() + gStyle->GetPadBottomMargin() );
   if( log ) {
-    max = min * std::pow(max/min,1./relHistHeight);
+    max = min * std::pow(max/min,0.9/relHistHeight);
   } else {
     relHistHeight -= 0.3;
     max = (max-min)/relHistHeight + min;

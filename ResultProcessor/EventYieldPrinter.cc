@@ -1,4 +1,4 @@
-// $Id: EventYieldPrinter.cc,v 1.15 2013/05/10 17:49:50 mschrode Exp $
+// $Id: EventYieldPrinter.cc,v 1.16 2013/05/13 12:28:22 mschrode Exp $
 
 #include <cmath>
 #include <cstdlib>
@@ -12,6 +12,7 @@
 #include "EventYieldPrinter.h"
 #include "Output.h"
 #include "Selection.h"
+#include "Style.h"
 
 
 
@@ -44,26 +45,33 @@ void EventYieldPrinter::prepareSummaryTable() {
 
   // Header row
   std::vector<TString> tableRow;
+  std::vector<TString> tableRowLatex;
   tableRow.push_back(" Selection ");
+  tableRowLatex.push_back(" Selection ");
   for(unsigned int typeIdx = 0; typeIdx < printedTypes.size(); ++typeIdx) {
     unsigned int nDataSetsOfThisType = 0;
     for(DataSetIt itd = inputDataSets_.begin(); itd != inputDataSets_.end(); ++itd) {
       if( (*itd)->type() == printedTypes.at(typeIdx) ) {
 	tableRow.push_back((" "+(*itd)->label()+" "));
+	tableRowLatex.push_back((" "+Style::tlatexLabel(*itd)+" "));
 	++nDataSetsOfThisType;
       }
     }
     if( nDataSetsOfThisType > 1 ) {
       printTotalYield.at(typeIdx) = true;
       tableRow.push_back((" Total "+DataSet::toString(printedTypes.at(typeIdx))+" "));
+      tableRowLatex.push_back((" Total "+DataSet::toString(printedTypes.at(typeIdx))+" "));
     }
   }
   summaryTable_.push_back(tableRow);
+  summaryTableLatex_.push_back(tableRowLatex);
 
   // One row per selection
   for(SelectionIt its = Selection::begin(); its != Selection::end(); ++its) {
     tableRow.clear();
     tableRow.push_back((" "+(*its)->uid()+" "));
+    tableRowLatex.clear();
+    tableRowLatex.push_back((" "+Style::tlatexLabel((*its)->uid())+" "));
     DataSets selectedDataSets = DataSet::findAllWithSelection((*its)->uid());
     char yield[50];
     char stat[50];
@@ -102,6 +110,7 @@ void EventYieldPrinter::prepareSummaryTable() {
 	  }
 	  tableCell += " ";
 	  tableRow.push_back(tableCell);
+	  tableRowLatex.push_back(tableCell);
 	}
       }
       if( printTotalYield.at(typeIdx) ) {
@@ -126,9 +135,11 @@ void EventYieldPrinter::prepareSummaryTable() {
 	}
 	tableCell += " ";
 	tableRow.push_back(tableCell);
+	tableRowLatex.push_back(tableCell);
       }
     }
     summaryTable_.push_back(tableRow);
+    summaryTableLatex_.push_back(tableRowLatex);
   }
 
   // Sanity check
@@ -137,6 +148,13 @@ void EventYieldPrinter::prepareSummaryTable() {
       itr != summaryTable_.end(); ++itr) { // Loop over rows
     if( itr->size() != nCols ) {
       std::cerr << "ERROR in EventYieldPrinter when building summary table" << std::endl;
+      exit(-1);
+    }
+  }
+  for(std::vector< std::vector<TString> >::const_iterator itr = summaryTableLatex_.begin();
+      itr != summaryTableLatex_.end(); ++itr) { // Loop over rows
+    if( itr->size() != nCols ) {
+      std::cerr << "ERROR in EventYieldPrinter when building Latex summary table" << std::endl;
       exit(-1);
     }
   }
@@ -149,6 +167,15 @@ void EventYieldPrinter::prepareSummaryTable() {
     for(std::vector<TString>::const_iterator itc = itr->begin();
 	itc != itr->end(); ++itc, ++colIdx) { // Loop over columns
       if( itc->Length() > summaryTableColw_.at(colIdx) ) summaryTableColw_.at(colIdx) = itc->Length();
+    }
+  }
+  summaryTableLatexColw_ = std::vector<unsigned int>(summaryTableLatex_.front().size(),0);
+  for(std::vector< std::vector<TString> >::const_iterator itr = summaryTableLatex_.begin();
+      itr != summaryTableLatex_.end(); ++itr) { // Loop over rows
+    unsigned int colIdx = 0;
+    for(std::vector<TString>::const_iterator itc = itr->begin();
+	itc != itr->end(); ++itc, ++colIdx) { // Loop over columns
+      if( itc->Length() > summaryTableLatexColw_.at(colIdx) ) summaryTableLatexColw_.at(colIdx) = itc->Length();
     }
   }
 }
@@ -190,17 +217,17 @@ void EventYieldPrinter::printToLaTeX(const TString &outFileName) const {
   file << "% Datasets vs Selections: yields and total uncertainties" << std::endl;
   file << "%===========================================================================" << std::endl;
   file << "\n\\begin{tabular}{l";
-  for(unsigned int i = 1; i < summaryTable_.front().size(); ++i) {
+  for(unsigned int i = 1; i < summaryTableLatex_.front().size(); ++i) {
     file << "r";
   }
   file << "}\n";
   file << "\\toprule\n";
-  for(unsigned int colIdx = 0; colIdx < summaryTable_.front().size(); ++colIdx) {
-    file << std::setw(summaryTableColw_.at(colIdx)+8) << Output::cleanLatexName(summaryTable_.front().at(colIdx));
-    file << (colIdx < summaryTable_.front().size()-1 ? " & " : " \\\\ \n\\midrule\n");
+  for(unsigned int colIdx = 0; colIdx < summaryTableLatex_.front().size(); ++colIdx) {
+    file << std::setw(summaryTableColw_.at(colIdx)+8) << Output::cleanLatexName(summaryTableLatex_.front().at(colIdx));
+    file << (colIdx < summaryTableLatex_.front().size()-1 ? " & " : " \\\\ \n\\midrule\n");
   }
-  for(std::vector< std::vector<TString> >::const_iterator itr = summaryTable_.begin()+1;
-      itr != summaryTable_.end(); ++itr) { // Loop over rows
+  for(std::vector< std::vector<TString> >::const_iterator itr = summaryTableLatex_.begin()+1;
+      itr != summaryTableLatex_.end(); ++itr) { // Loop over rows
     for(unsigned int colIdx = 0; colIdx < itr->size(); ++colIdx) { // Loop over columns
       TString cell = Output::cleanLatexName(itr->at(colIdx));
       if( colIdx > 0 ) {
@@ -213,7 +240,7 @@ void EventYieldPrinter::printToLaTeX(const TString &outFileName) const {
 	cell.ReplaceAll(" ","");
 	cell = "$" + cell + "$";	  
       }
-      file << std::setw(summaryTableColw_.at(colIdx)+8) << cell;
+      file << std::setw(summaryTableLatexColw_.at(colIdx)+8) << cell;
       file << (colIdx < itr->size()-1 ? "& " : " \\\\ \n");
     }
   }
