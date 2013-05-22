@@ -1,4 +1,4 @@
-// $Id: EventYieldPrinter.cc,v 1.16 2013/05/13 12:28:22 mschrode Exp $
+// $Id: EventYieldPrinter.cc,v 1.17 2013/05/21 16:35:25 mschrode Exp $
 
 #include <cmath>
 #include <cstdlib>
@@ -93,15 +93,15 @@ void EventYieldPrinter::prepareSummaryTable() {
 	    sprintf(yield,"%.1lf",(*itsd)->yield());
 	    totYield += (*itsd)->yield();
 	    sprintf(stat,"%.1lf",(*itsd)->stat());
-	    totStat += std::sqrt( (*itsd)->stat()*(*itsd)->stat() + totStat*totStat );
+	    totStat = std::sqrt( (*itsd)->stat()*(*itsd)->stat() + totStat*totStat );
 	    tableCell += yield;
 	    tableCell += " +/- ";
 	    tableCell += stat;
 	    if( (*itsd)->hasSyst() ) {
 	      sprintf(systDn,"%.1lf",(*itsd)->totSystDn());
-	      totSystDn += std::sqrt( (*itsd)->totSystDn()*(*itsd)->totSystDn() + totSystDn*totSystDn );
+	      totSystDn = std::sqrt( (*itsd)->totSystDn()*(*itsd)->totSystDn() + totSystDn*totSystDn );
 	      sprintf(systUp,"%.1lf",(*itsd)->totSystUp());
-	      totSystUp += std::sqrt( (*itsd)->totSystUp()*(*itsd)->totSystUp() + totSystUp*totSystUp );
+	      totSystUp = std::sqrt( (*itsd)->totSystUp()*(*itsd)->totSystUp() + totSystUp*totSystUp );
 	      tableCell += " +";
 	      tableCell += systUp;
 	      tableCell += " -";
