@@ -116,9 +116,10 @@ void DataSet::init(const Config &cfg, const TString key) {
 	TString type = it->value("type");
 	std::vector<TString> files;
 	Config::split(it->value("files"),",",files);
-	if( GlobalParameters::inputPath() != "" ) { // Prepend global path
-	  std::vector<TString>::iterator fileIt = files.begin();
-	  for(; fileIt != files.end(); ++fileIt) {
+	// Prepend global path
+	std::vector<TString>::iterator fileIt = files.begin();
+	for(; fileIt != files.end(); ++fileIt) {
+	  if( !( (*fileIt)(0) == '/' || (*fileIt)(0) == '~') ) {
 	    *fileIt = GlobalParameters::inputPath()+(*fileIt);
 	  }
 	}
