@@ -1,4 +1,4 @@
-# $Id: example.txt,v 1.4 2013/05/20 21:06:05 mschrode Exp $
+# $Id: example.txt,v 1.5 2013/05/24 11:25:00 mschrode Exp $
 #
 ### Example config file
 #
@@ -210,7 +210,7 @@ plot :: variable: NVtx; dataset: Data, QCD, TTbar, WJets, ZJets; histogram: 50, 
 # - data: label of the data-like dataset
 # - background: '+'-separated list of the background-like datasets
 # Optional names are
-# - signal: comma-separated list of signal-like datasets
+# - signals: comma-separated list of signal-like datasets
 plot :: variable: HT; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 17, 500, 2200, logy
 plot :: variable: MHT; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 16, 200, 1000, logy
 plot :: variable: NJets; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 10, 2.5, 12.5, logy
