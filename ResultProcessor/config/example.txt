@@ -1,4 +1,4 @@
-# $Id: example.txt,v 1.5 2013/05/24 11:25:00 mschrode Exp $
+# $Id: example.txt,v 1.6 2013/06/12 13:01:38 mschrode Exp $
 #
 ### Example config file
 #
@@ -106,9 +106,10 @@ variable :: name: Weight; type: Float_t
 #           and the i-th scale factor is applied to the events in the i-th file.  
 dataset :: label: Data; type: data; files: Example_Data.root; tree: RA2TreeMaker/RA2PreSelection;
 dataset :: label: TTbar; type: mc; files: Example_TTJets.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight
-dataset :: label: QCD; type: mc; files: Example_QCD1.root, Example_QCD2.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight; weight: Weight
-dataset :: label: ZJets; type: mc; files: Example_ZJets.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight; weight: Weight
-dataset :: label: WJets; type: mc; files: Example_WJets.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight; weight: Weight
+dataset :: label: QCD; type: mc; files: Example_QCD1.root, Example_QCD2.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight;
+dataset :: label: ZJets; type: mc; files: Example_ZJets.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight
+dataset :: label: WJets; type: mc; files: Example_WJets.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight
+dataset :: label: Signal; type: signal; files: Example_Signal.root; tree: RA2TreeMaker/RA2PreSelection; weight: Weight; scales: 0.001
 
 
 
@@ -211,12 +212,12 @@ plot :: variable: NVtx; dataset: Data, QCD, TTbar, WJets, ZJets; histogram: 50, 
 # - background: '+'-separated list of the background-like datasets
 # Optional names are
 # - signals: comma-separated list of signal-like datasets
-plot :: variable: HT; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 17, 500, 2200, logy
-plot :: variable: MHT; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 16, 200, 1000, logy
-plot :: variable: NJets; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 10, 2.5, 12.5, logy
-plot :: variable: Jet1Pt; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 24, 0, 1200, logy
-plot :: variable: Jet2Pt; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 24, 0, 1200, logy
-plot :: variable: Jet3Pt; data: Data; background: QCD + TTbar + ZJets + WJets; histogram: 24, 0, 1200, logy
+plot :: variable: HT; data: Data; background: QCD + TTbar + ZJets + WJets; signals: Signal; histogram: 17, 500, 2200, logy
+plot :: variable: MHT; data: Data; background: QCD + TTbar + ZJets + WJets; signals: Signal; histogram: 16, 200, 1000, logy
+plot :: variable: NJets; data: Data; background: QCD + TTbar + ZJets + WJets; signals: Signal; histogram: 10, 2.5, 12.5, logy
+plot :: variable: Jet1Pt; data: Data; background: QCD + TTbar + ZJets + WJets; signals: Signal; histogram: 24, 0, 1200, logy
+plot :: variable: Jet2Pt; data: Data; background: QCD + TTbar + ZJets + WJets; signals: Signal; histogram: 24, 0, 1200, logy
+plot :: variable: Jet3Pt; data: Data; background: QCD + TTbar + ZJets + WJets; signals: Signal; histogram: 24, 0, 1200, logy
 
 
 
@@ -243,5 +244,6 @@ style :: dataset: TTbar; plot label: t#bar{t}; color: kRed+1
 style :: dataset: QCD; plot label: QCD; color: kRed+3
 style :: dataset: ZJets; plot label: Z#rightarrow#nu#bar{#nu}+Jets; color: kYellow
 style :: dataset: WJets; plot label: W#rightarrowl#nu+Jets; color: kGreen+1
+style :: dataset: Signal; plot label: Signal; color: kBlue
 style :: selection: highHT; plot label: high-H_{T}
 style :: selection: njets; plot label: 5 #leq N_{jets} #leq 7
