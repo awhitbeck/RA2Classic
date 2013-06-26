@@ -21,78 +21,15 @@
 #include <vector>
 #include <string>
 
+#include "/afs/naf.desy.de/user/k/kriheine/macros/PlottingUtils.C"
+
 using namespace std;
 
 void GetRebalanceCorrectionFactor()
 {
-   gROOT->Reset();
-   gROOT->SetStyle("Plain");
-   //gStyle->SetPalette(51, 0);
+   gROOT->ProcessLine(".L PlottingUtils.C+");
 
-   //  gStyle->SetHatchesLineWidth(1.2);
-
-   // For the canvas:
-   gStyle->SetCanvasColor(0);
-   //gStyle->SetCanvasBorderMode(0);
-
-   // For the Pad:
-   gStyle->SetPadColor(0);  
-   gStyle->SetPadTickX(1);
-   gStyle->SetPadTickY(1);
-   gStyle->SetPadBorderSize(2);
-   //gStyle->SetPadBorderMode(0);
-  
-   // For the frame:
-   gStyle->SetFrameBorderMode(0);
-
-   // For the histo:
-   gStyle->SetMarkerSize(0.75);
-   gStyle->SetMarkerStyle(20);
-   gStyle->SetMarkerColor(1);
-  
-   // For the statistics box:
-   gStyle->SetOptStat(0);
-   //gStyle->SetOptFit(1011);
-  
-   // Margins:
-   gStyle->SetPadBottomMargin(0.25);
-   gStyle->SetPadTopMargin(0.15);
-   gStyle->SetPadLeftMargin(0.15);
-   gStyle->SetPadRightMargin(0.1);
-      
-   // For the Global title:
-   gStyle->SetOptTitle(0);
-   gStyle->SetTitleColor(1);
-   gStyle->SetTitleFillColor(10);
-   gStyle->SetTitleTextColor(1); 
-   gStyle->SetTitleFont(42);
-   gStyle->SetTitleFontSize(0.05);
-   gStyle->SetTitleBorderSize(0);
-
-   // For the axis
-   gStyle->SetNdivisions(510, "X");
-   gStyle->SetNdivisions(510, "Y");
-   gStyle->SetTickLength(0.03);
-
-   // For the axis titles:
-   gStyle->SetTitleOffset(1.4, "X");
-   gStyle->SetTitleOffset(1.25, "Y");
-   gStyle->SetTitleOffset(0.5, "Z");
-   gStyle->SetTitleSize(0.05, "XYZ");
-   gStyle->SetTitleFont(42, "XYZ");
-   //gStyle->SetTitleX(0.15);
-   //gStyle->SetTitleY(0.99);
-
-   // For the axis labels:
-   gStyle->SetLabelSize(0.04, "XYZ");
-   gStyle->SetLabelOffset(0.01, "XYZ");
-   gStyle->SetLabelFont(42, "XYZ");
-
-   // For the legend
-   gStyle->SetLegendBorderSize(0);
-  
-   gROOT->ForceStyle();
-
+   PlottingUtils::SetPlotStyle();
 
    // --- define output file for ps ---//
    TString pt = "pt10";
@@ -224,10 +161,10 @@ void GetRebalanceCorrectionFactor()
    }
 
    // pythia - nVtx 0-10
-   ifstream myfile ("filelists_53X/filelist_pythia_DR53X_chs_TuneZ2star_" + pt + "_withoutPUReweighting_RebControlPlots_NVtx0-10_v1_mc.txt");
-   if (myfile.is_open()) {
-      while( myfile.good() ) {
-         getline (myfile,root_file);
+   ifstream myfile6 ("filelists_53X/filelist_pythia_DR53X_chs_TuneZ2star_" + pt + "_withoutPUReweighting_RebControlPlots_NVtx0-10_v1_mc.txt");
+   if (myfile6.is_open()) {
+      while( myfile6.good() ) {
+         getline (myfile6,root_file);
          cout << root_file << endl;
                      
          TH2F* RebCorrection_vsReco_NVtx0_10_temp; 
@@ -243,14 +180,14 @@ void GetRebalanceCorrectionFactor()
          input_file->Close();
          
       }
-      myfile.close();
+      myfile6.close();
    }
 
    // pythia - nVtx 11-20
-   ifstream myfile ("filelists_53X/filelist_pythia_DR53X_chs_TuneZ2star_" + pt + "_withoutPUReweighting_RebControlPlots_NVtx11-20_v1_mc.txt");
-   if (myfile.is_open()) {
-      while( myfile.good() ) {
-         getline (myfile,root_file);
+   ifstream myfile7 ("filelists_53X/filelist_pythia_DR53X_chs_TuneZ2star_" + pt + "_withoutPUReweighting_RebControlPlots_NVtx11-20_v1_mc.txt");
+   if (myfile7.is_open()) {
+      while( myfile7.good() ) {
+         getline (myfile7,root_file);
          cout << root_file << endl;
                      
          TH2F* RebCorrection_vsReco_NVtx11_20_temp; 
@@ -266,14 +203,14 @@ void GetRebalanceCorrectionFactor()
          input_file->Close();
          
       }
-      myfile.close();
+      myfile7.close();
    }
 
    // pythia - nVtx 21-Inf
-   ifstream myfile ("filelists_53X/filelist_pythia_DR53X_chs_TuneZ2star_" + pt + "_withoutPUReweighting_RebControlPlots_NVtx21-Inf_v1_mc.txt");
-   if (myfile.is_open()) {
-      while( myfile.good() ) {
-         getline (myfile,root_file);
+   ifstream myfile8 ("filelists_53X/filelist_pythia_DR53X_chs_TuneZ2star_" + pt + "_withoutPUReweighting_RebControlPlots_NVtx21-Inf_v1_mc.txt");
+   if (myfile8.is_open()) {
+      while( myfile8.good() ) {
+         getline (myfile8,root_file);
          cout << root_file << endl;
                      
          TH2F* RebCorrection_vsReco_NVtx21_Inf_temp; 
@@ -289,7 +226,7 @@ void GetRebalanceCorrectionFactor()
          input_file->Close();
          
       }
-      myfile.close();
+      myfile8.close();
    }
 
 //    RebCorrection_vsReco_NVtx0_10->Rebin2D(2, 1);
@@ -379,18 +316,13 @@ void GetRebalanceCorrectionFactor()
 
    // ---------------------------------------------------- //
 
-   TCanvas *c = new TCanvas("c", "", 700, 700);
+   TCanvas *c = new TCanvas("c", "", PlottingUtils::CanvasPlot[2], PlottingUtils::CanvasPlot[3]);
    correction_vsReco->SetAxisRange(x_min, correction_vsReco->GetXaxis()->GetXmax());
    correction_vsReco->SetXTitle("reco jet p_{T} [GeV]");
    correction_vsReco->SetYTitle("reb jet p_{T} / gen jet p_{T} ");
    correction_vsReco->Draw();
 
-   TPaveText* pt1 = new TPaveText(0.11, 0.9, 0.95, 0.86, "NDC");
-   pt1->SetBorderSize(0);
-   pt1->SetFillStyle(0);
-   pt1->SetTextAlign(12);
-   pt1->SetTextSize(0.03);
-   pt1->AddText("CMS Simulation, #sqrt{s} = 8 TeV");
+   TPaveText* pt1 =  PlottingUtils::CMSLabelMC("19.47");
    pt1->Draw();
 
    c->Print(outfile + "_vsReco.ps");  
@@ -416,23 +348,18 @@ void GetRebalanceCorrectionFactor()
    correction_vsReco_NVtx0_10->SetXTitle("reco jet p_{T} [GeV]");
    correction_vsReco_NVtx0_10->SetYTitle("reb jet p_{T} / gen jet p_{T} ");
    correction_vsReco_NVtx0_10->Draw();
-   correction_vsReco_NVtx11_20->SetMarkerStyle(21);
-   correction_vsReco_NVtx11_20->SetLineColor(kAzure-3);
-   correction_vsReco_NVtx11_20->SetMarkerColor(kAzure-3);
+   correction_vsReco_NVtx11_20->SetMarkerStyle(PlottingUtils::c_MarkerStyle[1]);
+   correction_vsReco_NVtx11_20->SetLineColor(PlottingUtils::c_LineColor[1]);
+   correction_vsReco_NVtx11_20->SetMarkerColor(PlottingUtils::c_MarkerColor[1]);
    correction_vsReco_NVtx11_20->Draw("same");
-   correction_vsReco_NVtx21_Inf->SetMarkerStyle(22);
-   correction_vsReco_NVtx21_Inf->SetLineColor(kPink-3);
-   correction_vsReco_NVtx21_Inf->SetMarkerColor(kPink-3);
+   correction_vsReco_NVtx21_Inf->SetMarkerStyle(PlottingUtils::c_MarkerStyle[2]);
+   correction_vsReco_NVtx21_Inf->SetLineColor(PlottingUtils::c_LineColor[2]);
+   correction_vsReco_NVtx21_Inf->SetMarkerColor(PlottingUtils::c_MarkerColor[2]);
    correction_vsReco_NVtx21_Inf->Draw("same");
 
-   TLegend* leg = new TLegend(0.5, 0.65, 0.7, 0.82);
-   leg->SetFillStyle(0);
-   leg->SetLineStyle(1);
-   leg->SetTextFont(42);
-   leg->SetTextSize(0.04);
-   leg->AddEntry(correction_vsReco_NVtx0_10, " 0 - 10 Vertices", "lep");
-   leg->AddEntry(correction_vsReco_NVtx11_20, " 11 - 20 Vertices", "lep");
-   leg->AddEntry(correction_vsReco_NVtx21_Inf, " > 20 Vertices", "lep");
+   TLegend* leg = PlottingUtils::Legend3Entries(correction_vsReco_NVtx0_10, correction_vsReco_NVtx11_20,
+                                                correction_vsReco_NVtx21_Inf,
+                                                " 0 - 10 Vertices", " 11 - 20 Vertices", " > 20 Vertices");
    leg->Draw("same");
 
    pt1->Draw();
@@ -442,70 +369,10 @@ void GetRebalanceCorrectionFactor()
 
    // ---------------------------------------------------- //
 
-   TPad *pad1 = new TPad("pad1a", "pad1a", 0, 0.35, 1, 1);
-   //  pad1->SetLogy();
-   pad1->SetBottomMargin(0);
-   pad1->Draw();
-   pad1->cd();
-  
-   correction_vsReco->SetXTitle("reco jet p_{T} [GeV]");
-   correction_vsReco->SetTitleSize(0.07, "Y");
-   correction_vsReco->SetTitleOffset(0.85, "Y");
-   correction_vsReco->SetYTitle("f = reb jet p_{T} / gen jet p_{T} ");
-   correction_vsReco->DrawCopy();
-   correction_vsReco_madgraph->SetMarkerStyle(21);
-   correction_vsReco_madgraph->SetLineColor(kAzure-3);
-   correction_vsReco_madgraph->SetMarkerColor(kAzure-3);
-   correction_vsReco_madgraph->Draw("same");
-   
-   // TLegend* leg1 = new TLegend(0.38, 0.53, 0.85, 0.73);
-   TLegend* leg1 = new TLegend(0.38, 0.63, 0.85, 0.8);
-   leg1->SetFillStyle(0);
-   leg1->SetLineStyle(1);
-   leg1->SetTextFont(42);
-   leg1->SetTextSize(0.06);
-   leg1->AddEntry(correction_vsReco, "Pythia QCD sample", "lep");
-   leg1->AddEntry(correction_vsReco_madgraph, "Madgraph QCD sample", "lep");
-   leg1->Draw("same");
-
-   TPaveText* pt2 = new TPaveText(0.11, 0.98, 0.95, 0.86, "NDC");
-   pt2->SetBorderSize(0);
-   pt2->SetFillStyle(0);
-   pt2->SetTextAlign(12);
-   pt2->SetTextSize(0.045);
-   pt2->AddText("");
-   pt2->AddText("CMS Simulation, #sqrt{s} = 8 TeV");
-   pt2->Draw();
- 
-   c->cd();
-   TPad *pad2 = new TPad("pad2a", "pad2a", 0, 0, 1, 0.35);
-   pad2->SetTopMargin(0);
-   pad2->SetBottomMargin(0.3);
-   pad2->Draw();
-   pad2->cd();
-   TH1F* r = new TH1F(*correction_vsReco);
-   r->SetTitle("");
-   r->SetLabelSize(0.075, "XYZ");
-   r->SetLabelOffset(0.01, "XYZ");
-   r->SetTitleSize(0.125, "XYZ");
-   r->SetTitleOffset(0.95, "X");
-   r->SetTitleOffset(0.53, "Y");
-   r->SetTickLength(0.05);
-   r->SetYTitle("#Delta f");
-   r->SetStats(0);
-   r->SetMarkerStyle(20);
-   r->SetMarkerSize(0.7);
-   r->SetMarkerColor(kBlack);
-   r->Reset();
-   r->Add(correction_vsReco, 1);
-   r->Add(correction_vsReco_madgraph, -1);
-   r->Divide(correction_vsReco_madgraph);
-   r->SetMaximum(0.07);
-   r->SetMinimum(-0.07);
-   r->Draw("ep");
-   TLine l;
-   l.DrawLine(0., 0., 1000., 0.);
-   c->cd();
+   c = PlottingUtils::Draw2CurvesWithRatio(correction_vsReco, correction_vsReco_madgraph, 
+                                           "reco jet p_{T} [GeV]", "f = reb jet p_{T} / gen jet p_{T} ", 
+                                           "", "CMS Simulation,  L = 19.47 fb^{  -1}, #sqrt{s} = 8 TeV", "QCD pythia",
+                                           "QCD madgraph", "#Delta f");
 
    c->Print(outfile + "_vsRecoWithMadgraphComp.ps");  
    c->Print(outfile + "_vsRecoWithMadgraphComp.png"); 
