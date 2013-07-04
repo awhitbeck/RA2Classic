@@ -1032,9 +1032,9 @@ void PlotBuilder::setYRange(TH1* &h, double logMin) const {
 bool PlotBuilder::checkForUnderOverFlow(const TH1* h, const TString &var, const DataSet *dataSet) const {
   bool underOverFlow = true;
   if( h->GetBinContent(0) > 0 ) {
-    std::cerr << "    WARNING: Underflow in " << var << " distribution in dataset " << dataSet->label() << std::endl;
+    std::cerr << "      WARNING: Underflow in " << var << " distribution in dataset " << dataSet->label() << std::endl;
   } else if( h->GetBinContent(h->GetNbinsX()+1) > 0 ) {
-    std::cerr << "    WARNING: Overflow in " << var << " distribution in dataset " << dataSet->label() << std::endl;
+    std::cout << "      NOTE: Overflow in " << var << " distribution in dataset " << dataSet->label() << " (last plotted bin contains overflows)" << std::endl;
   } else {
     underOverFlow = false;
   }
