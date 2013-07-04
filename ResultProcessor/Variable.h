@@ -10,6 +10,8 @@
 #include "Config.h"
 
 class Variable {
+  friend class EventBuilder;
+  
 public:
   static void checkIfIsInit();
   static void init(const Config &cfg, const TString &key);
@@ -25,11 +27,19 @@ public:
   static TString unit(const TString &name);
 
 
+protected:
+  static bool isArrayField(const TString &name) { return arrayNames_.find(name) != arrayNames_.end(); }
+  static unsigned int arrayFieldIndex(const TString &name);
+  static TString baseName(const TString &name);
+
+
 private:
   static bool isInit_;
   static std::set<TString> validTypes_;
   static std::vector<TString> names_;
   static std::map<TString,TString> types_;
+  static std::map<TString,TString> arrayNames_;
+  static std::map<TString,unsigned int> arrayFieldIndices_;
   static std::map<TString,TString> labels_;
   static std::map<TString,TString> units_;
 };

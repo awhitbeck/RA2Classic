@@ -183,6 +183,8 @@ TString Output::cleanName(const TString &name) {
   cleanedName.ReplaceAll("#","");
   cleanedName.ReplaceAll("{","");
   cleanedName.ReplaceAll("}","");
+  cleanedName.ReplaceAll("[","");
+  cleanedName.ReplaceAll("]","");
 
   return cleanedName;
 }

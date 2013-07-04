@@ -7,6 +7,8 @@ bool Variable::isInit_ = false;
 std::set<TString> Variable::validTypes_;
 std::vector<TString> Variable::names_;
 std::map<TString,TString> Variable::types_;
+std::map<TString,TString> Variable::arrayNames_;
+std::map<TString,unsigned int> Variable::arrayFieldIndices_;
 std::map<TString,TString> Variable::labels_;
 std::map<TString,TString> Variable::units_;
 
@@ -34,20 +36,32 @@ void Variable::init(const Config &cfg, const TString &key) {
     for(std::vector<Config::Attributes>::const_iterator it = attrList.begin();
 	it != attrList.end(); ++it) {
       if( it->nValues() >= 2 ) {
-	TString name = it->value("name");
-	TString type = it->value("type");
+	TString name  = it->value("name");
+	TString type  = it->value("type");
 	TString label = it->value("label");
-	TString unit = it->value("unit");
+	TString unit  = it->value("unit");
 	if( !exists(name) ) {
 	  if( validType(type) ) {
 	    names_.push_back(name);
-	    types_[name] = type;
+	    types_[name]  = type;
 	    labels_[name] = label;
-	    units_[name] = unit;
+	    units_[name]  = unit;
+	    // Check whether this is an array field
+	    if( name.EndsWith("]") && name.Contains("[") ) {
+	      unsigned int posBrktOpen = name.First("[");
+	      arrayNames_[name] = name(0,posBrktOpen);
+	      TString aIdxStr = name(posBrktOpen+1,name.Length()-posBrktOpen-2);
+	      if( aIdxStr.IsDigit() ) {
+		arrayFieldIndices_[name] = aIdxStr.Atoi();
+	      } else {
+		std::cerr << "\n\nERROR in Variable::init(): wrong specification of array-field variable '" << name << "'" << std::endl;
+		std::cerr << "  in line " << it->lineNumber() << " of config file '" << cfg.fileName() << "'" << std::endl;
+		exit(-1);
+	      }
+	    }
 	  } else {
 	    std::cerr << "\n\nERROR in Variable::init(): undefined type '" << type << "' of variable '" << name << "'" << std::endl;
-	    std::cerr << "  in line with key '" << key << "'" << std::endl;
-	    std::cerr << "  in config file '" << cfg.fileName() << "'" << std::endl;
+	    std::cerr << "  in line " << it->lineNumber() << " of config file '" << cfg.fileName() << "'" << std::endl;
 	    std::cerr << "  Valid types are ' " << std::flush;
 	    for(std::set<TString>::const_iterator itVT = validTypes_.begin();
 		itVT != validTypes_.end(); ++itVT) {
@@ -97,6 +111,28 @@ TString Variable::type(const TString &name) {
 bool Variable::exists(const TString &name) {
   std::map<TString,TString>::const_iterator it = types_.find(name);
   return it != types_.end();
+}
+
+
+TString Variable::baseName(const TString &name) {
+  TString aName = name;
+  std::map<TString,TString>::const_iterator it = arrayNames_.find(name);
+  if( it != arrayNames_.end() ) {
+    aName = it->second;
+  }
+    
+  return aName;
+}
+
+
+unsigned int Variable::arrayFieldIndex(const TString &name) {
+  unsigned int idx = false;
+  std::map<TString,unsigned int>::const_iterator it = arrayFieldIndices_.find(name);
+  if( it != arrayFieldIndices_.end() ) {
+    idx = it->second;
+  }
+    
+  return idx;
 }
 
 
