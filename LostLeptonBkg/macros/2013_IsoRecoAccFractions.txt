@@ -1,0 +1,222 @@
+# Specify global parameters
+global :: id: Closure
+global :: lumi: 19.5
+global :: publication status: public
+global :: output formats: png, pdf
+style :: plot yields: false 
+
+
+# Specify the variables that are read from the ntuple and their type
+event content :: name: HT; type: Float_t; label: H_{T}; unit: GeV
+event content :: name: MHT; type: Float_t; label: #slash{H}_{T}; unit: GeV
+event content :: name: NJets; type: Int_t; label: N(Jets)
+event content :: name: NVtx; type: UShort_t; label: N(Vtx)
+event content :: name: MTW; type: Float_t; label: M_{T}(w)
+
+event content :: name: genPt; type: Float_t; label: gen p_{T}; unit: GeV
+
+# selection values
+event content :: name: IsExpectation; type: Int_t
+event content :: name: muPromtMatched; type: Int_t
+event content :: name: nGenMu; type: Int_t
+event content :: name: nMu; type: Int_t
+event content :: name: nElec; type: Int_t
+
+event content :: name: nAccMu; type: Int_t
+event content :: name: nRecoMu; type: Int_t
+event content :: name: nIsoMu; type: Int_t
+
+event content :: name: nAccElec; type: Int_t
+event content :: name: nRecoElec; type: Int_t
+event content :: name: nIsoElec; type: Int_t
+
+
+#weights
+event content :: name: Weight; type: Float_t
+
+#prediction
+event content :: name: resultBBBW; type: Float_t
+event content :: name: resultBBBWMTW; type: Float_t
+event content :: name: resultBBBWMTWDiLep; type: Float_t
+
+event content :: name: resultWeight; type: Float_t
+
+
+
+event content :: name: muonBinByBinIsoWeight; type: Float_t
+event content :: name: muonBinByBinRecoWeight; type: Float_t
+event content :: name: muonBinByBinAccWeight; type: Float_t
+
+event content :: name: elecBinByBinRecoWeight; type: Float_t
+event content :: name: elecBinByBinIsoWeight; type: Float_t
+event content :: name: elecBinByBinAccWeight; type: Float_t
+
+
+
+#############################################################################################################
+# Specify the data source and label the type of data
+
+#####WPJ
+dataset :: label: MuAccExWJets; type: mc; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcWJets.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight; scale:3.789
+dataset :: label: MuRecoExWJets; type: mc; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcWJets.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight; scale:3.789
+dataset :: label: MuIsoExWJets; type: mc; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcWJets.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight; scale:3.789
+
+dataset :: label: MuAccPrWJets; type: mcprediction; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcWJets.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonBinByBinAccWeight; scale:3.789
+dataset :: label: MuRecoPrWJets; type: mcprediction; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcWJets.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonBinByBinRecoWeight; scale:3.789
+dataset :: label: MuIsoPrWJets; type: mcprediction; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcWJets.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonBinByBinIsoWeight; scale:3.789
+
+dataset :: label: ElecAccExWJets; type: mc; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcWJets.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight; scale:3.789
+dataset :: label: ElecRecoExWJets; type: mc; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcWJets.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight; scale:3.789
+dataset :: label: ElecIsoExWJets; type: mc; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcWJets.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight; scale:3.789
+
+dataset :: label: ElecAccPrWJets; type: mcprediction; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcWJets.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: elecBinByBinAccWeight; scale:3.789
+dataset :: label: ElecRecoPrWJets; type: mcprediction; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcWJets.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: elecBinByBinRecoWeight; scale:3.789
+dataset :: label: ElecIsoPrWJets; type: mcprediction; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcWJets.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: elecBinByBinIsoWeight; scale:3.789
+
+########TTBAR
+dataset :: label: MuAccExTTbar; type: mc; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcTTbar.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight; scale:3.789
+dataset :: label: MuRecoExTTbar; type: mc; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcTTbar.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight; scale:3.789
+dataset :: label: MuIsoExTTbar; type: mc; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcTTbar.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight; scale:3.789
+
+dataset :: label: MuAccPrTTbar; type: mcprediction; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcTTbar.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonBinByBinAccWeight; scale:3.789
+dataset :: label: MuRecoPrTTbar; type: mcprediction; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcTTbar.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonBinByBinRecoWeight; scale:3.789
+dataset :: label: MuIsoPrTTbar; type: mcprediction; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcTTbar.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonBinByBinIsoWeight; scale:3.789
+
+dataset :: label: ElecAccExTTbar; type: mc; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcTTbar.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight; scale:3.789
+dataset :: label: ElecRecoExTTbar; type: mc; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcTTbar.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight; scale:3.789
+dataset :: label: ElecIsoExTTbar; type: mc; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcTTbar.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight; scale:3.789
+
+dataset :: label: ElecAccPrTTbar; type: mcprediction; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcTTbar.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: elecBinByBinAccWeight; scale:3.789
+dataset :: label: ElecRecoPrTTbar; type: mcprediction; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcTTbar.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: elecBinByBinRecoWeight; scale:3.789
+dataset :: label: ElecIsoPrTTbar; type: mcprediction; file:/afs/desy.de/user/a/adraeger/xxl/llResults/mcTTbar.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: elecBinByBinIsoWeight; scale:3.789
+
+
+
+
+
+
+#############################################################################################################
+#special selection
+selection :: label: Baseline; cuts: nAccMu < -0.3 (MuAccExWJets, MuAccExTTbar) + nRecoMu < -0.3 (MuRecoExWJets, MuRecoExTTbar) + nIsoMu < -0.3 (MuIsoExWJets, MuIsoExTTbar ) + nAccElec < -0.3 (ElecAccExWJets, ElecAccExTTbar) + nRecoElec < -0.3 (ElecRecoExWJets, ElecRecoExTTbar) + nIsoElec < -0.3 (ElecIsoExTTbar, ElecIsoExWJets) + NJets > 2.1 + MHT > 200 + HT > 500 + nMu > 0.5 (MuAccPrWJets, MuRecoPrWJets, MuIsoPrWJets, ElecAccPrWJets, ElecRecoPrWJets, ElecIsoPrWJets, MuAccPrTTbar, MuRecoPrTTbar, MuIsoPrTTbar, ElecAccPrTTbar, ElecRecoPrTTbar, ElecIsoPrTTbar) + nMu < 1.5 (MuAccPrWJets, MuRecoPrWJets, MuIsoPrWJets, ElecAccPrWJets, ElecRecoPrWJets, ElecIsoPrWJets, MuAccPrTTbar, MuRecoPrTTbar, MuIsoPrTTbar, ElecAccPrTTbar, ElecRecoPrTTbar, ElecIsoPrTTbar) + nElec < 0.5 (MuAccPrWJets, MuRecoPrWJets, MuIsoPrWJets, ElecAccPrWJets, ElecRecoPrWJets, ElecIsoPrWJets, MuAccPrTTbar, MuRecoPrTTbar, MuIsoPrTTbar, ElecAccPrTTbar, ElecRecoPrTTbar, ElecIsoPrTTbar)
+
+selection :: label: NJets_3_5; cuts: Baseline + NJets > 2.1 + NJets < 5.1 
+
+selection :: label: NJets_6_7; cuts: Baseline + NJets > 5.1 + NJets < 7.1 
+
+selection :: label: NJets_8_Inf; cuts: Baseline + NJets > 7.1 
+
+#############################################################################################################
+
+####wpj
+plot style :: dataset: MuAccExWJets; plot label: W#rightarrowl#nu+Jets; marker: 20; color: 2
+plot style :: dataset: MuAccPrWJets; plot label: Prediction; marker: 20; color: 4
+
+plot style :: dataset: MuIsoExWJets; plot label: W#rightarrowl#nu+Jets; marker: 20; color: 2
+plot style :: dataset: MuIsoPrWJets; plot label: Prediction; marker: 20; color: 4
+
+plot style :: dataset: MuRecoExWJets; plot label: W#rightarrowl#nu+Jets; marker: 20; color: 2
+plot style :: dataset: MuRecoPrWJets; plot label: Prediction; marker: 20; color: 4
+
+
+plot style :: dataset: ElecAccExWJets; plot label: W#rightarrowl#nu+Jets; marker: 20; color: 2
+plot style :: dataset: ElecAccPrWJets; plot label: Prediction; marker: 20; color: 4
+
+plot style :: dataset: ElecIsoExWJets; plot label: W#rightarrowl#nu+Jets; marker: 20; color: 2
+plot style :: dataset: ElecIsoPrWJets; plot label: Prediction; marker: 20; color: 4
+
+plot style :: dataset: ElecRecoExWJets; plot label: W#rightarrowl#nu+Jets; marker: 20; color: 2
+plot style :: dataset: ElecRecoPrWJets; plot label: Prediction; marker: 20; color: 4
+
+
+####ttbar
+plot style :: dataset: MuAccExTTbar; plot label: t#bar{t}; marker: 20; color: 2
+plot style :: dataset: MuAccPrTTbar; plot label: Prediction; marker: 20; color: 4
+
+plot style :: dataset: MuIsoExTTbar; plot label: t#bar{t}; marker: 20; color: 2
+plot style :: dataset: MuIsoPrTTbar; plot label: Prediction; marker: 20; color: 4
+
+plot style :: dataset: MuRecoExTTbar; plot label: t#bar{t}; marker: 20; color: 2
+plot style :: dataset: MuRecoPrTTbar; plot label: Prediction; marker: 20; color: 4
+
+
+plot style :: dataset: ElecAccExTTbar; plot label: t#bar{t}; marker: 20; color: 2
+plot style :: dataset: ElecAccPrTTbar; plot label: Prediction; marker: 20; color: 4
+
+plot style :: dataset: ElecIsoExTTbar; plot label: t#bar{t}; marker: 20; color: 2
+plot style :: dataset: ElecIsoPrTTbar; plot label: Prediction; marker: 20; color: 4
+
+plot style :: dataset: ElecRecoExTTbar; plot label: t#bar{t}; marker: 20; color: 2
+plot style :: dataset: ElecRecoPrTTbar; plot label: Prediction; marker: 20; color: 4
+
+#############################################################################################################
+
+plot :: variable: HT; data: MuAccPrWJets; background: MuAccExWJets; histogram: 25, 500, 3000, log
+plot :: variable: MHT; data: MuAccPrWJets; background: MuAccExWJets; histogram: 32, 200, 1800, log
+plot :: variable: NJets; data: MuAccPrWJets; background: MuAccExWJets; histogram: 14, 0, 14, log
+plot :: variable: NVtx; data: MuAccPrWJets; background: MuAccExWJets;  histogram: 25, -0.5, 49.5, log
+
+plot :: variable: HT; data: MuRecoPrWJets; background: MuRecoExWJets; histogram: 25, 500, 3000, log
+plot :: variable: MHT; data: MuRecoPrWJets; background: MuRecoExWJets; histogram: 32, 200, 1800, log
+plot :: variable: NJets; data: MuRecoPrWJets; background: MuRecoExWJets; histogram: 14, 0, 14, log
+plot :: variable: NVtx; data: MuRecoPrWJets; background: MuRecoExWJets;  histogram: 25, -0.5, 49.5, log
+
+plot :: variable: HT; data: MuIsoPrWJets; background: MuIsoExWJets; histogram: 25, 500, 3000, log
+plot :: variable: MHT; data: MuIsoPrWJets; background: MuIsoExWJets; histogram: 32, 200, 1800, log
+plot :: variable: NJets; data: MuIsoPrWJets; background: MuIsoExWJets; histogram: 14, 0, 14, log
+plot :: variable: NVtx; data: MuIsoPrWJets; background: MuIsoExWJets;  histogram: 25, -0.5, 49.5, log
+
+
+
+
+plot :: variable: HT; data: ElecAccPrWJets; background: ElecAccExWJets; histogram: 25, 500, 3000, log
+plot :: variable: MHT; data: ElecAccPrWJets; background: ElecAccExWJets; histogram: 32, 200, 1800, log
+plot :: variable: NJets; data: ElecAccPrWJets; background: ElecAccExWJets; histogram: 14, 0, 14, log
+plot :: variable: NVtx; data: ElecAccPrWJets; background: ElecAccExWJets;  histogram: 25, -0.5, 49.5, log
+
+plot :: variable: HT; data: ElecRecoPrWJets; background: ElecRecoExWJets; histogram: 25, 500, 3000, log
+plot :: variable: MHT; data: ElecRecoPrWJets; background: ElecRecoExWJets; histogram: 32, 200, 1800, log
+plot :: variable: NJets; data: ElecRecoPrWJets; background: ElecRecoExWJets; histogram: 14, 0, 14, log
+plot :: variable: NVtx; data: ElecRecoPrWJets; background: ElecRecoExWJets;  histogram: 25, -0.5, 49.5, log
+
+plot :: variable: HT; data: ElecIsoPrWJets; background: ElecIsoExWJets; histogram: 25, 500, 3000, log
+plot :: variable: MHT; data: ElecIsoPrWJets; background: ElecIsoExWJets; histogram: 32, 200, 1800, log
+plot :: variable: NJets; data: ElecIsoPrWJets; background: ElecIsoExWJets; histogram: 14, 0, 14, log
+plot :: variable: NVtx; data: ElecIsoPrWJets; background: ElecIsoExWJets;  histogram: 25, -0.5, 49.5, log
+
+
+
+
+
+plot :: variable: HT; data: MuAccPrTTbar; background: MuAccExTTbar; histogram: 25, 500, 3000, log
+plot :: variable: MHT; data: MuAccPrTTbar; background: MuAccExTTbar; histogram: 32, 200, 1800, log
+plot :: variable: NJets; data: MuAccPrTTbar; background: MuAccExTTbar; histogram: 14, 0, 14, log
+plot :: variable: NVtx; data: MuAccPrTTbar; background: MuAccExTTbar;  histogram: 25, -0.5, 49.5, log
+
+plot :: variable: HT; data: MuRecoPrTTbar; background: MuRecoExTTbar; histogram: 25, 500, 3000, log
+plot :: variable: MHT; data: MuRecoPrTTbar; background: MuRecoExTTbar; histogram: 32, 200, 1800, log
+plot :: variable: NJets; data: MuRecoPrTTbar; background: MuRecoExTTbar; histogram: 14, 0, 14, log
+plot :: variable: NVtx; data: MuRecoPrTTbar; background: MuRecoExTTbar;  histogram: 25, -0.5, 49.5, log
+
+plot :: variable: HT; data: MuIsoPrTTbar; background: MuIsoExTTbar; histogram: 25, 500, 3000, log
+plot :: variable: MHT; data: MuIsoPrTTbar; background: MuIsoExTTbar; histogram: 32, 200, 1800, log
+plot :: variable: NJets; data: MuIsoPrTTbar; background: MuIsoExTTbar; histogram: 14, 0, 14, log
+plot :: variable: NVtx; data: MuIsoPrTTbar; background: MuIsoExTTbar;  histogram: 25, -0.5, 49.5, log
+
+
+
+
+plot :: variable: HT; data: ElecAccPrTTbar; background: ElecAccExTTbar; histogram: 25, 500, 3000, log
+plot :: variable: MHT; data: ElecAccPrTTbar; background: ElecAccExTTbar; histogram: 32, 200, 1800, log
+plot :: variable: NJets; data: ElecAccPrTTbar; background: ElecAccExTTbar; histogram: 14, 0, 14, log
+plot :: variable: NVtx; data: ElecAccPrTTbar; background: ElecAccExTTbar;  histogram: 25, -0.5, 49.5, log
+
+plot :: variable: HT; data: ElecRecoPrTTbar; background: ElecRecoExTTbar; histogram: 25, 500, 3000, log
+plot :: variable: MHT; data: ElecRecoPrTTbar; background: ElecRecoExTTbar; histogram: 32, 200, 1800, log
+plot :: variable: NJets; data: ElecRecoPrTTbar; background: ElecRecoExTTbar; histogram: 14, 0, 14, log
+plot :: variable: NVtx; data: ElecRecoPrTTbar; background: ElecRecoExTTbar;  histogram: 25, -0.5, 49.5, log
+
+plot :: variable: HT; data: ElecIsoPrTTbar; background: ElecIsoExTTbar; histogram: 25, 500, 3000, log
+plot :: variable: MHT; data: ElecIsoPrTTbar; background: ElecIsoExTTbar; histogram: 32, 200, 1800, log
+plot :: variable: NJets; data: ElecIsoPrTTbar; background: ElecIsoExTTbar; histogram: 14, 0, 14, log
+plot :: variable: NVtx; data: ElecIsoPrTTbar; background: ElecIsoExTTbar;  histogram: 25, -0.5, 49.5, log
+

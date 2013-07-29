@@ -1,0 +1,178 @@
+# Specify global parameters
+global :: id: differentialClosure_mu
+global :: lumi: 19.47
+global :: publication status: preliminary
+global :: output formats: eps, png, pdf
+
+# Specify the variables that are read from the ntuple and their type
+event content :: name: HT; type: Float_t; label: H_{T}; unit: GeV
+event content :: name: MHT; type: Float_t; label: #slash{H}_{T}; unit: GeV
+event content :: name: NJets; type: Int_t; label: N(Jets)
+event content :: name: NVtx; type: UShort_t; label: N(Vtx)
+event content :: name: MTW; type: Float_t; label: M_{T}(w)
+
+# selection values
+event content :: name: nGenMu; type: Int_t
+event content :: name: nAccMu; type: Int_t
+event content :: name: nRecoMu; type: Int_t
+event content :: name: nIsoMu; type: Int_t
+
+
+
+event content :: name: muPromtMatched; type: Int_t
+
+#weights
+event content :: name: Weight; type: Float_t
+
+#prediction
+event content :: name: resultBBBW; type: Float_t
+
+event content :: name: muonBinByBinIsoWeight; type: Float_t
+event content :: name: muonBinByBinRecoWeight; type: Float_t
+event content :: name: muonBinByBinAccWeight; type: Float_t
+
+event content :: name: muonBinByBinTotalWeight; type: Float_t
+
+
+
+
+#############################################################################################################
+# Specify the data source and label the type of data
+
+dataset :: label: MuAccEx; type: mc; file:/scratch/adraeger/mc.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight; scale:3.789
+
+dataset :: label: MuRecoEx; type: mc; file:/scratch/adraeger/mc.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight; scale:3.789
+
+dataset :: label: MuIsoEx; type: mc; file:/scratch/adraeger/mc.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight; scale:3.789
+
+
+dataset :: label: MuTotalEx; type: mc; file:/scratch/adraeger/mc.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight; scale:3.789
+
+
+
+
+dataset :: label: MuAccPr; type: mcprediction; file:/scratch/adraeger/mc.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonBinByBinAccWeight; scale:3.789
+
+dataset :: label: MuRecoPr; type: mcprediction; file:/scratch/adraeger/mc.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonBinByBinRecoWeight; scale:3.789
+
+dataset :: label: MuIsoPr; type: mcprediction; file:/scratch/adraeger/mc.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonBinByBinIsoWeight; scale:3.789
+
+
+dataset :: label: MuTotalPr; type: mcprediction; file:/scratch/adraeger/mc.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: muonBinByBinTotalWeight; scale:3.789
+
+
+
+
+
+
+#############################################################################################################
+#special selection
+selection :: label: Baseline; cuts: nAccMu < -0.3 (MuAccEx) + nRecoMu < -0.3 (MuRecoEx) + nIsoMu < -0.3 (MuIsoEx)  + muPromtMatched > 0.5 (MuAccPr, MuRecoPr, MuIsoPr, MuTotalPr) + NJets > 2.1 + MHT > 200 + HT > 500 + resultBBBW < 3 (MuAccPr, MuRecoPr, MuIsoPr, MuTotalPr) + nGenMu < 1.5 (MuTotalEx) + nGenMu > 0.5 (MuTotalEx) + nAccMu < 0.3 (MuTotalEx) + nRecoMu < 0.3 (MuTotalEx) + nIsoMu < 0.3 (MuTotalEx) 
+
+
+
+
+
+selection :: label: NJet_3-5__HT_0500-0800__MHT_200-300;    cuts: Baseline + 2 < NJets < 6   + 500 < HT < 800   + 200 < MHT < 300
+selection :: label: NJet_3-5__HT_0500-0800__MHT_300-450;    cuts: Baseline + 2 < NJets < 6   + 500 < HT < 800   + 300 < MHT < 450
+selection :: label: NJet_3-5__HT_0500-0800__MHT_450-600;    cuts: Baseline + 2 < NJets < 6   + 500 < HT < 800   + 450 < MHT < 600
+selection :: label: NJet_3-5__HT_0500-0800__MHT_600-Inf;    cuts: Baseline + 2 < NJets < 6   + 500 < HT < 800   + 600 < MHT < 9999      
+
+selection :: label: NJet_3-5__HT_0800-1000__MHT_200-300;    cuts: Baseline + 2 < NJets < 6   + 800 < HT < 1000  + 200 < MHT < 300
+selection :: label: NJet_3-5__HT_0800-1000__MHT_300-450;    cuts: Baseline + 2 < NJets < 6   + 800 < HT < 1000  + 300 < MHT < 450
+selection :: label: NJet_3-5__HT_0800-1000__MHT_450-600;    cuts: Baseline + 2 < NJets < 6   + 800 < HT < 1000  + 450 < MHT < 600
+selection :: label: NJet_3-5__HT_0800-1000__MHT_600-Inf;    cuts: Baseline + 2 < NJets < 6   + 800 < HT < 1000  + 600 < MHT < 9999      
+
+selection :: label: NJet_3-5__HT_1000-1250__MHT_200-300;    cuts: Baseline + 2 < NJets < 6   + 1000 < HT < 1250 + 200 < MHT < 300 
+selection :: label: NJet_3-5__HT_1000-1250__MHT_300-450;    cuts: Baseline + 2 < NJets < 6   + 1000 < HT < 1250 + 300 < MHT < 450 
+selection :: label: NJet_3-5__HT_1000-1250__MHT_450-600;    cuts: Baseline + 2 < NJets < 6   + 1000 < HT < 1250 + 450 < MHT < 600 
+selection :: label: NJet_3-5__HT_1000-1250__MHT_600-Inf;    cuts: Baseline + 2 < NJets < 6   + 1000 < HT < 1250 + 600 < MHT < 9999 
+
+selection :: label: NJet_3-5__HT_1250-1500__MHT_200-300;    cuts: Baseline + 2 < NJets < 6   + 1250 < HT < 1500 + 200 < MHT < 300 
+selection :: label: NJet_3-5__HT_1250-1500__MHT_300-450;    cuts: Baseline + 2 < NJets < 6   + 1250 < HT < 1500 + 300 < MHT < 450  
+selection :: label: NJet_3-5__HT_1250-1500__MHT_450-Inf;    cuts: Baseline + 2 < NJets < 6   + 1250 < HT < 1500 + 450 < MHT < 9999
+
+selection :: label: NJet_3-5__HT_1500-Inf__MHT_200-300;     cuts: Baseline + 2 < NJets < 6  + 1500 < HT < 9999 + 200 < MHT < 300
+selection :: label: NJet_3-5__HT_1500-Inf__MHT_300-Inf;     cuts: Baseline + 2 < NJets < 6  + 1500 < HT < 9999 + 300 < MHT < 9999      
+
+
+selection :: label: NJet_6-7__HT_0500-0800__MHT_200-300;    cuts: Baseline + 5 < NJets < 8   + 500 < HT < 800   + 200 < MHT < 300
+selection :: label: NJet_6-7__HT_0500-0800__MHT_300-450;    cuts: Baseline + 5 < NJets < 8   + 500 < HT < 800   + 300 < MHT < 450
+selection :: label: NJet_6-7__HT_0500-0800__MHT_450-Inf;    cuts: Baseline + 5 < NJets < 8   + 500 < HT < 800   + 450 < MHT < 9999
+
+selection :: label: NJet_6-7__HT_0800-1000__MHT_200-300;    cuts: Baseline + 5 < NJets < 8   + 800 < HT < 1000  + 200 < MHT < 300
+selection :: label: NJet_6-7__HT_0800-1000__MHT_300-450;    cuts: Baseline + 5 < NJets < 8   + 800 < HT < 1000  + 300 < MHT < 450
+selection :: label: NJet_6-7__HT_0800-1000__MHT_450-Inf;    cuts: Baseline + 5 < NJets < 8   + 800 < HT < 1000  + 450 < MHT < 9999
+
+selection :: label: NJet_6-7__HT_1000-1250__MHT_200-300;    cuts: Baseline + 5 < NJets < 8   + 1000 < HT < 1250 + 200 < MHT < 300 
+selection :: label: NJet_6-7__HT_1000-1250__MHT_300-450;    cuts: Baseline + 5 < NJets < 8   + 1000 < HT < 1250 + 300 < MHT < 450 
+selection :: label: NJet_6-7__HT_1000-1250__MHT_450-Inf;    cuts: Baseline + 5 < NJets < 8   + 1000 < HT < 1250 + 450 < MHT < 9999 
+
+selection :: label: NJet_6-7__HT_1250-1500__MHT_200-300;    cuts: Baseline + 5 < NJets < 8   + 1250 < HT < 1500 + 200 < MHT < 300 
+selection :: label: NJet_6-7__HT_1250-1500__MHT_300-450;    cuts: Baseline + 5 < NJets < 8   + 1250 < HT < 1500 + 300 < MHT < 450  
+selection :: label: NJet_6-7__HT_1250-1500__MHT_450-Inf;    cuts: Baseline + 5 < NJets < 8   + 1250 < HT < 1500 + 450 < MHT < 9999      
+
+selection :: label: NJet_6-7__HT_1500-Inf__MHT_200-300;    cuts: Baseline + 5 < NJets < 8   + 1500 < HT < 9999 + 200 < MHT < 300
+selection :: label: NJet_6-7__HT_1500-Inf__MHT_300-Inf;    cuts: Baseline + 5 < NJets < 8   + 1500 < HT < 9999 + 300 < MHT < 9999
+
+
+selection :: label: NJet_8-Inf__HT_0500-0800__MHT_200-Inf;    cuts: Baseline + NJets > 7   + 500 < HT < 800   + 200 < MHT < 9999
+
+selection :: label: NJet_8-Inf__HT_0800-1000__MHT_200-Inf;    cuts: Baseline + NJets > 7   + 800 < HT < 1000  + 200 < MHT < 9999
+
+selection :: label: NJet_8-Inf__HT_1000-1250__MHT_200-Inf;    cuts: Baseline + NJets > 7   + 1000 < HT < 1250 + 200 < MHT < 9999
+
+selection :: label: NJet_8-Inf__HT_1250-1500__MHT_200-Inf;    cuts: Baseline + NJets > 7   + 1250 < HT < 1500 + 200 < MHT < 9999
+
+selection :: label: NJet_8-Inf__HT_1500-Inf__MHT_200-Inf;     cuts: Baseline + NJets > 7   + HT > 1500        + 200 < MHT < 9999
+
+
+
+
+
+
+#############################################################################################################
+
+plot style :: dataset: MuAccEx; plot label: Expectation; marker: 20; color: 2
+plot style :: dataset: MuAccPr; plot label: Prediction; marker: 20; color: 4
+
+plot style :: dataset: MuIsoEx; plot label: Expectation; marker: 20; color: 2
+plot style :: dataset: MuIsoPr; plot label: Prediction; marker: 20; color: 4
+
+plot style :: dataset: MuRecoEx; plot label: Expectation; marker: 20; color: 2
+plot style :: dataset: MuRecoPr; plot label: Prediction; marker: 20; color: 4
+
+plot style :: dataset: MuTotalEx; plot label: Expectation; marker: 20; color: 2
+plot style :: dataset: MuTotalPr; plot label: Prediction; marker: 20; color: 4
+
+
+#############################################################################################################
+
+plot :: variable: HT; data: MuAccPr; background: MuAccEx; histogram: 25, 500, 3000, log
+plot :: variable: MHT; data: MuAccPr; background: MuAccEx; histogram: 32, 200, 1800, log
+plot :: variable: NJets; data: MuAccPr; background: MuAccEx; histogram: 14, 0, 14, log
+plot :: variable: NVtx; data: MuAccPr; background: MuAccEx;  histogram: 25, -0.5, 49.5, log
+
+plot :: variable: HT; data: MuRecoPr; background: MuRecoEx; histogram: 25, 500, 3000, log
+plot :: variable: MHT; data: MuRecoPr; background: MuRecoEx; histogram: 32, 200, 1800, log
+plot :: variable: NJets; data: MuRecoPr; background: MuRecoEx; histogram: 14, 0, 14, log
+plot :: variable: NVtx; data: MuRecoPr; background: MuRecoEx;  histogram: 25, -0.5, 49.5, log
+
+plot :: variable: HT; data: MuIsoPr; background: MuIsoEx; histogram: 25, 500, 3000, log
+plot :: variable: MHT; data: MuIsoPr; background: MuIsoEx; histogram: 32, 200, 1800, log
+plot :: variable: NJets; data: MuIsoPr; background: MuIsoEx; histogram: 14, 0, 14, log
+plot :: variable: NVtx; data: MuIsoPr; background: MuIsoEx;  histogram: 25, -0.5, 49.5, log
+
+
+plot :: variable: HT; data: MuTotalPr; background: MuTotalEx; histogram: 25, 500, 3000, log
+plot :: variable: MHT; data: MuTotalPr; background: MuTotalEx; histogram: 32, 200, 1800, log
+plot :: variable: NJets; data: MuTotalPr; background: MuTotalEx; histogram: 14, 0, 14, log
+plot :: variable: NVtx; data: MuTotalPr; background: MuTotalEx;  histogram: 25, -0.5, 49.5, log
+
+
+
+
+
+
+
+

@@ -29,7 +29,7 @@ class TAPtreeProducer : public edm::EDProducer {
       ~TAPtreeProducer();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
+	static std::pair <double,double> DRToClosestJet(const edm::Event& iEvent, edm::InputTag caloJetTag_, double lepEta, double lepPhi);
    private:
       virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -99,12 +99,36 @@ class TAPtreeProducer : public edm::EDProducer {
 	Int_t MuIdPass_, MuIsoPass_, ElecIdPass_, ElecIsoPass_, ElecIdGsfPass_;
 	bool MuIdPairFound_, MuIsoPairFound_, ElecIdPairFound_, ElecIsoPairFound_, ElecIdGsfPairFound_ ;
 
-	Float_t MuIdProbePt_, MuIdProbeEta_, MuIdProbePhi_;
-	Float_t MuIsoProbePt_, MuIsoProbeEta_, MuIsoProbePhi_;
+	Float_t MuIdProbePt_, MuIdProbeEta_, MuIdProbePhi_, MuIdDeltaR30GeVJet_, MuIdRelPT30GeVJet_;
+	Float_t MuIsoProbePt_, MuIsoProbeEta_, MuIsoProbePhi_, MuIsoDeltaR30GeVJet_, MuIsoRelPT30GeVJet_;
 	Float_t ElecIdProbePt_, ElecIdProbeEta_, ElecIdProbePhi_;
-	Float_t ElecIdGsfProbePt_, ElecIdGsfProbeEta_, ElecIdGsfProbePhi_;
-	Float_t ElecIsoProbePt_, ElecIsoProbeEta_, ElecIsoProbePhi_;
+	Float_t ElecIdGsfProbePt_, ElecIdGsfProbeEta_, ElecIdGsfProbePhi_, ElecIdGsfDeltaR30GeVJet_, ElecIdGsfRelPT30GeVJet_;
+	Float_t ElecIsoProbePt_, ElecIsoProbeEta_, ElecIsoProbePhi_, ElecIsoDeltaR30GeVJet_, ElecIsoRelPT30GeVJet_;
 
-
+// checks for right matching
+	Float_t deltaPTMuIsoClosestLep_, deltaRMuIsoClosestLep_;
+	Float_t deltaPTMuRecoClosestLep_, deltaRMuRecoClosestLep_;
+	Float_t deltaPTElecIsoClosestLep_, deltaRElecIsoClosestLep_;
+	Float_t deltaPTElecRecoGsfClosestLep_, deltaRElecRecoGsfClosestLep_;
       // ----------member data ---------------------------
+	// muon values for isolation and reconstruction
+	int select_;
+    double minMuPt_, maxMuEta_, maxMuD0_, maxMuDz_, maxMuRelIso_, minMuNumHit_;
+    int tagCharge_, MuIdProbeCharge_, MuIsoProbeCharge_, ElecIdGsfCharge_, ElecIsoCharge_;
+    edm::InputTag muonSrc_;
+    TString muonTrigger_;
+    edm::InputTag vtxSrc_;
+	bool oldMethod_;
+	// electron values for isolation and reconstruction
+    double minElePt_, maxEleEta_;
+    edm::InputTag electronSrc_;
+    edm::InputTag conversionsSrc_;
+    edm::InputTag beamSpotSrc_;
+    edm::InputTag rhoIsoSrc_;
+    std::vector<edm::InputTag>  isoValsSrc_;
+    bool MC_, Muon_, noElecTriggered_;
+    edm::InputTag HLTTriggerTag_, HLTTriggerResultTag_, trgEvtObjTag_;
+
+
+
 };

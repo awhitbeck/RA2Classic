@@ -35,7 +35,7 @@
 //
 Limit_ll::Limit_ll(const edm::ParameterSet& iConfig)
 {
-
+   treeName_ = iConfig.getParameter<std::string>("TreeName");
    EfficiencyFileName_ = iConfig.getParameter <std::string> ("EfficiencyFileName");
    nTupleName_ = iConfig.getParameter <std::string> ("NTupleName");
    Path_ = iConfig.getParameter <std::string> ("Path");
@@ -84,6 +84,7 @@ Limit_ll::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 if (iteration_)return;
    using namespace edm;
+  mtw_=0;
 //	std::cout<<"Producer started"<<std::endl;
 //	std::cout<<"Path_"<<Path_<<std::endl;
 //	std::cout<<"nTupleName_"<<nTupleName_<<std::endl;
@@ -157,6 +158,8 @@ if ( ht_>500 && mht_>200 && nJets_>2 && nMu_==1 && nElec_==0)
     double deltaPhi =reco::deltaPhi(MuPhi, MetPhi);
 //std::cout<<"sqrt(2*MuPt_*MetPt*(1-cos(deltaPhi)) )"<<sqrt(2*MuPt*MetPt*(1-cos(deltaPhi)) )<<std::endl;
     mtwTH1_->Fill(sqrt(2*MuPt*MetPt*(1-cos(deltaPhi)) ),eventWeight_);
+mtw_ = sqrt(2*MuPt*MetPt*(1-cos(deltaPhi)) ) ;
+tree2_->Fill();
  if(    sqrt(2*MuPt*MetPt*(1-cos(deltaPhi)) )<100)
 {
 
@@ -563,7 +566,13 @@ MTWNJet_= (TH1F*)dMuon->Get("MTWCutNJet");
 std::cout<<"done"<<std::endl;
 std::cout<<"Creating output file with histogramms"<<std::endl;
     	edm::Service<TFileService> fs;
-	mtwTH1_ =fs->make<TH1F>("MTW","MTW",30, 0, 300);
+  	tree2_ = fs->make<TTree>(treeName_,treeName_);
+    tree2_->Branch("MTW",&mtw_,"MTW/F");
+    tree2_->Branch("resultBBBWMTWDiLep",&resultBBBWMTWDiLep_,"resultBBBWMTWDiLep/F");
+
+
+	mtwTH1_ =fs->make<TH1F>("MT",";M_T [GeV]",30, 0, 300);
+	mtwTH1_->Sumw2();
 	resultMTWWeight_ =fs->make<TH1F>("ResultLLWeight","ResultLLPrediction",22, 0, 110);
 iteration_=false;
 }

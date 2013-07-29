@@ -42,10 +42,16 @@ class Limit_ll : public edm::EDProducer {
 	std::string nTupleName_;
 	TString Path_;
 
+	TString treeName_;
+        TTree* tree2_;
+
+
+
 	std::string EfficiencyFileName_;
 	double MTWMax_;
 	Float_t eventWeight_;
 	bool MTWCut_;
+	Float_t mtw_;
 	double DiLepCorrection_, DiLepCorrectionUp_, DiLepCorrectionDown_, eventWeightInput_;
 	Float_t muonAccEff2_, elecAccEff2_;
 	Float_t muonBinByBinEff_, muonBinByBinWeight_, totalMuonsBinByBinWeight_, elecBinByBinEff_, elecWeightBinByBin_, resultWeightBinByBin_, resultWeightBinByBinMTW_, totalMuonsBinByBin_;

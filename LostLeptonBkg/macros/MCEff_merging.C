@@ -14,6 +14,7 @@
 void MCEff_merging()
 {
   gStyle->SetPaintTextFormat("5.2f"); 
+    gStyle->SetTitleYOffset(2.2);
   gROOT->SetBatch(true);
   TFile* out = new TFile("MCEff.root","RECREATE");
 
@@ -42,9 +43,36 @@ void MCEff_merging()
   TDirectory *dInput = (TDirectory*)fInput->Get("LostLeptonBkgMCEffCalculator");
 
  // second input file for uncertainty tag and probe efficiencies
-  TFile* fInputTagAndProbeMCmu = TFile::Open("fit_Muon_MC_Comb.root");
-  TDirectory *dInputTagAndProbeMCIsomu = (TDirectory*)fInputTagAndProbeMCmu->Get("muonEffs/ISO_emfdrjCalo_emfptRelCalo");
+//  TFile* fInputTagAndProbeMCmu = TFile::Open("fit_Muon_MC_Comb.root");
+//  TDirectory *dInputTagAndProbeMCIsomu = (TDirectory*)fInputTagAndProbeMCmu->Get("muonEffs/ISO_emfdrjCalo_emfptRelCalo");
+  TFile* fInputTagAndProbeMCmu = TFile::Open("MuMC.root");
+  TDirectory *dInputTagAndProbeMCIsomu = (TDirectory*)fInputTagAndProbeMCmu->Get("tapTreeMuIso/MuId/fit_eff_plots");
+  TDirectory *dInputTagAndProbeMCIsomuRelPT = (TDirectory*)fInputTagAndProbeMCmu->Get("tapTreeMuIso/MuIso_deltaR_RelPt/fit_eff_plots");
+  TDirectory *dInputTagAndProbeMCIdmu = (TDirectory*)fInputTagAndProbeMCmu->Get("tapTreeMuId/MuId/fit_eff_plots");
+  TDirectory *dInputTagAndProbeMCIdmuPT = (TDirectory*)fInputTagAndProbeMCmu->Get("tapTreeMuId/MuId_deltaR/fit_eff_plots");
 
+  TFile* fInputTagAndProbeDatamu = TFile::Open("MuData.root");
+  TDirectory *dInputTagAndProbeDataIsomu = (TDirectory*)fInputTagAndProbeDatamu->Get("tapTreeMuIso/MuId/fit_eff_plots");
+  TDirectory *dInputTagAndProbeDataIsomuRelPT = (TDirectory*)fInputTagAndProbeDatamu->Get("tapTreeMuIso/MuIso_deltaR_RelPt/fit_eff_plots");
+  TDirectory *dInputTagAndProbeDataIdmu = (TDirectory*)fInputTagAndProbeDatamu->Get("tapTreeMuId/MuId/fit_eff_plots");
+  TDirectory *dInputTagAndProbeDataIdmuPT = (TDirectory*)fInputTagAndProbeDatamu->Get("tapTreeMuId/MuId_deltaR/fit_eff_plots");
+
+
+  TFile* fInputTagAndProbeMCelec = TFile::Open("ElecMC.root");
+  TDirectory *dInputTagAndProbeMCIsoelec = (TDirectory*)fInputTagAndProbeMCelec->Get("tapTreeElecIso/ElecIso/fit_eff_plots");
+  TDirectory *dInputTagAndProbeMCIsoelecPT = (TDirectory*)fInputTagAndProbeMCelec->Get("tapTreeElecIso/ElecIso_deltaR/fit_eff_plots");
+  TDirectory *dInputTagAndProbeMCIdelec = (TDirectory*)fInputTagAndProbeMCelec->Get("tapTreeElecIdGsf/ElecIdGsf/fit_eff_plots");
+  TDirectory *dInputTagAndProbeMCIdelecPT = (TDirectory*)fInputTagAndProbeMCelec->Get("tapTreeElecIdGsf/ElecIdGsf_deltaR/fit_eff_plots");
+  TDirectory *dInputTagAndProbeMCIdelecPT2 = (TDirectory*)fInputTagAndProbeMCelec->Get("tapTreeElecIdGsf/ElecIdGsf_Pt/fit_eff_plots");
+
+  TFile* fInputTagAndProbeDataelec = TFile::Open("ElecData.root");
+  TDirectory *dInputTagAndProbeDataIsoelec = (TDirectory*)fInputTagAndProbeDataelec->Get("tapTreeElecIso/ElecIso/fit_eff_plots");
+  TDirectory *dInputTagAndProbeDataIsoelecPT = (TDirectory*)fInputTagAndProbeDataelec->Get("tapTreeElecIso/ElecIso_deltaR/fit_eff_plots");
+  TDirectory *dInputTagAndProbeDataIdelec = (TDirectory*)fInputTagAndProbeDataelec->Get("tapTreeElecIdGsf/ElecIdGsf/fit_eff_plots");
+  TDirectory *dInputTagAndProbeDataIdelecPT = (TDirectory*)fInputTagAndProbeDataelec->Get("tapTreeElecIdGsf/ElecIdGsf_deltaR/fit_eff_plots");
+  TDirectory *dInputTagAndProbeDataIdelecPT2 = (TDirectory*)fInputTagAndProbeDataelec->Get("tapTreeElecIdGsf/ElecIdGsf_Pt/fit_eff_plots");
+
+/*
   TFile* fInputTagAndProbeMCmuIso = TFile::Open("fit_Muon_MC_HT500_1000_1500.root");
   TDirectory *dInputTagAndProbeMCIsomuHTNJet = (TDirectory*)fInputTagAndProbeMCmuIso->Get("muonEffsID/ISO_HT_nJets/fit_eff_plots");
 
@@ -70,30 +98,30 @@ void MCEff_merging()
 
 
   TFile* fInputTagAndProbeMCEleciso = TFile::Open("GsfElectronToIdMC.root");
-  TFile* fInputTagAndProbeMCElecreco = TFile::Open("efficiency-data-SCToGsfElectronMC.root");
+  TFile* fInputTagAndProbeMCElecreco = TFile::Open("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, efficiency-data-SCToGsfElectronMC.root");
   TDirectory *dInputTagAndProbeMCRecoElec = (TDirectory*)fInputTagAndProbeMCElecreco->Get("SuperClusterToGsfElectron/efficiency/fit_eff_plots");
   TDirectory *dInputTagAndProbeMCIsoElec = (TDirectory*)fInputTagAndProbeMCEleciso->Get("GsfElectronToId/WP85/fit_eff_plots");
   TH2F *mc_tap_eff_elec_reco = new TH2F;
   TH2F *mc_tap_eff_elec_iso = new TH2F;
 
   TFile* fInputTagAndProbeDataEleciso = TFile::Open("GsfElectronToIdData.root");
-  TFile* fInputTagAndProbeDataElecreco = TFile::Open("efficiency-data-SCToGsfElectronData.root");
+  TFile* fInputTagAndProbeDataElecreco = TFile::Open("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, efficiency-data-SCToGsfElectronData.root");
   TDirectory *dInputTagAndProbeDataRecoElec = (TDirectory*)fInputTagAndProbeDataElecreco->Get("SuperClusterToGsfElectron/efficiency/fit_eff_plots");
   TDirectory *dInputTagAndProbeDataIsoElec = (TDirectory*)fInputTagAndProbeDataEleciso->Get("GsfElectronToId/WP85/fit_eff_plots");
   TH2F *data_tap_eff_elec_reco = new TH2F;
   TH2F *data_tap_eff_elec_iso = new TH2F;
 
-
+*/
 /*
   TFile* fInputTagAndProbeMCelec = TFile::Open("fit_Elec_MC_Comb.root");
-  TDirectory *dInputTagAndProbeMCIsoelec = (TDirectory*)fInputTagAndProbeMCelec->Get("eleconEffs/ISO_emfdrjCalo_emfptRelCalo");
-  TDirectory *dInputTagAndProbeMCRecoelec = (TDirectory*)fInputTagAndProbeMCelec->Get("eleconEffs/ID_emfdrjCalo_pt");
+  TDirectory *dInputTagAndProbeMCIsoelec = (TDirectory*)fInputTagAndProbeMCelec->"eleconEffs/ISO_emfdrjCalo_emfptRelCalo");
+  TDirectory *dInputTagAndProbeMCRecoelec = (TDirectory*)fInputTagAndProbeMCelec->"eleconEffs/ID_emfdrjCalo_pt");
   TH2F *mc_tap_eff_elec_iso = new TH2F;
   TH2F *mc_tap_eff_elec_reco = new TH2F;
 
   TFile* fInputTagAndProbeDataelec = TFile::Open("fit_Elec_Data_Comb.root");
-  TDirectory *dInputTagAndProbeDataIsoelec = (TDirectory*)fInputTagAndProbeDataelec->Get("eleconEffs/ISO_emfdrjCalo_emfptRelCalo");
-  TDirectory *dInputTagAndProbeDataRecoelec = (TDirectory*)fInputTagAndProbeDataelec->Get("eleconEffs/ID_emfdrjCalo_pt");
+  TDirectory *dInputTagAndProbeDataIsoelec = (TDirectory*)fInputTagAndProbeDataelec->"eleconEffs/ISO_emfdrjCalo_emfptRelCalo");
+  TDirectory *dInputTagAndProbeDataRecoelec = (TDirectory*)fInputTagAndProbeDataelec->"eleconEffs/ID_emfdrjCalo_pt");
   TH2F *mc_tap_eff_elec_iso = new TH2F;
   TH2F *data_tap_eff_elec_iso = new TH2F;
   TH2F *mc_tap_eff_elec_reco = new TH2F;
@@ -214,7 +242,7 @@ void MCEff_merging()
 
   muonAccEff2 = (TH1F*)dInput->Get("muonAccPassed2");
   muonAccEff2->SetName("MuonAccEff2");
-  muonAccEff2->SetTitle("#mu acc. eff.;#slash{H}_{T};eff.");
+  muonAccEff2->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu acc. eff.;#slash{H}_{T} [GeV];eff.");
   muonAccEff2->Sumw2();
   muonAccEff2->Divide(muonAccEff2,muonAccSum2,1,1,"B");
 
@@ -227,7 +255,7 @@ std::cout<<"jup"<<std::endl;
 
   muonAccEff3 = (TH2F*)dInput->Get("MuonAccPassed3");
   muonAccEff3->SetName("MuonAccEff3");
-  muonAccEff3->SetTitle("#mu acc. eff.;#slash{H}_{T};nJets");
+  muonAccEff3->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu acc. eff.;#slash{H}_{T} [GeV];nJets");
   muonAccEff3->Sumw2();
   muonAccEff3->Divide(muonAccEff3,muonAccSum3,1,1,"B");
 
@@ -254,7 +282,7 @@ std::cout<<"stts"<<std::endl;
 
   muonRecoEff2 = (TH2F*)dInput->Get("MuonRecoPassed2");
   muonRecoEff2->SetName("MuonRecoEff2");
-  muonRecoEff2->SetTitle("#mu reco. eff.; #Delta R;#mu p_{T};Eff.");
+  muonRecoEff2->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu reco. eff.; #Delta R;#mu p_{T};Eff.");
   muonRecoEff2->Sumw2();
   muonRecoEff2->Divide(muonRecoEff2,muonRecoSum2,1,1,"B");
 
@@ -313,7 +341,7 @@ low+="-";
 low+=high;
 low+=".eps";
 
-tc1->SaveAs(low,"eps");
+tc1->SaveAs(low,"CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, eps");
 high="";
 low="";
 
@@ -358,7 +386,7 @@ low2+="-";
 low2+=high2;
 low2+=".eps";
 
-tc12->SaveAs(low2,"eps");
+tc12->SaveAs(low2,"CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, eps");
 high2="";
 low2="";
 
@@ -375,14 +403,14 @@ low2="";
 
   muonIsoEff2 = (TH2F*)dInput->Get("muonIsoPassed2");
   muonIsoEff2->SetName("MuonIsoEff2");
-  muonIsoEff2->SetTitle("#mu iso. eff.; #Delta R;#mu p_{T};Eff.");
+  muonIsoEff2->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu iso. eff.; #Delta R;#mu p_{T};Eff.");
   muonIsoEff2->Sumw2();
   muonIsoEff2->Divide(muonIsoEff2,muonIsoSum2,1,1,"B");
 
   // MTW cut
   MTW = (TH2F*)dInput->Get("MTW");
   MTW->SetName("MTW");
-  MTW->SetTitle("MTW;MTW;MHT;Eff.");
+  MTW->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, MTW;MTW;MHT;Eff.");
   MTW->Sumw2();
 
 
@@ -394,7 +422,7 @@ low2="";
 
   muonBinByBinEff = (TH3F*)dInput->Get("BinByBinEffMuPassed");
   muonBinByBinEff->SetName("MuonBinByBinEff");
-  muonBinByBinEff->SetTitle("#mu total eff; H_{T};#slash{H}_{T};NJet");
+  muonBinByBinEff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu total eff; H_{T} [GeV];#slash{H}_{T} [GeV]; N_{Jets}");
   muonBinByBinEff->Sumw2();
   muonBinByBinEff->Divide(muonBinByBinSum);
 
@@ -406,7 +434,7 @@ low2="";
 
   muonAccBinByBinEff = (TH3F*)dInput->Get("AccBinByBinEffMuPassed");
   muonAccBinByBinEff->SetName("AccBinByBinMuEff");
-  muonAccBinByBinEff->SetTitle("#mu acc eff; H_{T};#slash{H}_{T};NJet");
+  muonAccBinByBinEff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu acc eff; H_{T} [GeV];#slash{H}_{T} [GeV]; N_{Jets}");
   muonAccBinByBinEff->Sumw2();
   muonAccBinByBinEff->Divide(muonAccBinByBinSum);
 
@@ -418,7 +446,7 @@ low2="";
 
   muonRecoBinByBinEff = (TH3F*)dInput->Get("RecoBinByBinEffMuPassed");
   muonRecoBinByBinEff->SetName("RecoBinByBinMuEff");
-  muonRecoBinByBinEff->SetTitle("#mu Reco eff; H_{T};#slash{H}_{T};NJet");
+  muonRecoBinByBinEff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Reco eff; H_{T} [GeV];#slash{H}_{T} [GeV]; N_{Jets}");
   muonRecoBinByBinEff->Sumw2();
   muonRecoBinByBinEff->Divide(muonRecoBinByBinSum);
 
@@ -430,7 +458,7 @@ low2="";
 
   muonIsoBinByBinEff = (TH3F*)dInput->Get("IsoBinByBinEffMuPassed");
   muonIsoBinByBinEff->SetName("IsoBinByBinMuEff");
-  muonIsoBinByBinEff->SetTitle("#mu Iso eff; H_{T};#slash{H}_{T};NJet");
+  muonIsoBinByBinEff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Iso eff; H_{T} [GeV];#slash{H}_{T} [GeV]; N_{Jets}");
   muonIsoBinByBinEff->Sumw2();
   muonIsoBinByBinEff->Divide(muonIsoBinByBinSum);
 
@@ -442,7 +470,7 @@ low2="";
   
   muonIsoBinByBinNJet35Eff = (TH2F*)dInput->Get("isoEffTH2PassedMuNJet35");
   muonIsoBinByBinNJet35Eff->SetName("IsoHTMHTMuEffNJet_35");
-  muonIsoBinByBinNJet35Eff->SetTitle("#mu Iso eff NJet[3,5]; H_{T};#slash{H}_{T}");
+  muonIsoBinByBinNJet35Eff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Iso eff 3 #leqN_{Jets} #leq5; H_{T} [GeV];#slash{H}_{T} [GeV]");
   muonIsoBinByBinNJet35Eff->Sumw2();
   muonIsoBinByBinNJet35Eff->Divide(muonIsoBinByBinNJet35Eff,muonIsoBinByBinNJet35Sum,1,1,"B");
 
@@ -453,7 +481,7 @@ low2="";
   
   muonIsoBinByBinNJet67Eff = (TH2F*)dInput->Get("isoEffTH2PassedMuNJet67");
   muonIsoBinByBinNJet67Eff->SetName("IsoHTMHTMuEffNJet_67");
-  muonIsoBinByBinNJet67Eff->SetTitle("#mu Iso eff NJet[6,7]; H_{T};#slash{H}_{T}");
+  muonIsoBinByBinNJet67Eff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Iso eff 6 #leqN_{Jets} #leq7; H_{T} [GeV];#slash{H}_{T} [GeV]");
   muonIsoBinByBinNJet67Eff->Sumw2();
   muonIsoBinByBinNJet67Eff->Divide(muonIsoBinByBinNJet67Eff,muonIsoBinByBinNJet67Sum,1,1,"B");
 
@@ -464,7 +492,7 @@ low2="";
   
   muonIsoBinByBinNJet8InfEff = (TH2F*)dInput->Get("isoEffTH2PassedMuNJet8Inf");
   muonIsoBinByBinNJet8InfEff->SetName("IsoHTMHTMuEffNJet_8Inf");
-  muonIsoBinByBinNJet8InfEff->SetTitle("#mu Iso eff NJet[8,Inf]; H_{T};#slash{H}_{T}");
+  muonIsoBinByBinNJet8InfEff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Iso eff 8 #leqN_{Jets}; H_{T} [GeV];#slash{H}_{T} [GeV]");
   muonIsoBinByBinNJet8InfEff->Sumw2();
   muonIsoBinByBinNJet8InfEff->Divide(muonIsoBinByBinNJet8InfEff,muonIsoBinByBinNJet8InfSum,1,1,"B");
 
@@ -476,7 +504,7 @@ low2="";
   
   muonRecoBinByBinNJet35Eff = (TH2F*)dInput->Get("recoEffTH2PassedMuNJet35");
   muonRecoBinByBinNJet35Eff->SetName("RecoHTMHTMuEffNJet_35");
-  muonRecoBinByBinNJet35Eff->SetTitle("#mu Reco eff NJet[3,5]; H_{T};#slash{H}_{T}");
+  muonRecoBinByBinNJet35Eff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Reco eff 3 #leqN_{Jets} #leq 5; H_{T} [GeV];#slash{H}_{T} [GeV]");
   muonRecoBinByBinNJet35Eff->Sumw2();
   muonRecoBinByBinNJet35Eff->Divide(muonRecoBinByBinNJet35Eff,muonRecoBinByBinNJet35Sum,1,1,"B");
 
@@ -487,7 +515,7 @@ low2="";
   
   muonRecoBinByBinNJet67Eff = (TH2F*)dInput->Get("recoEffTH2PassedMuNJet67");
   muonRecoBinByBinNJet67Eff->SetName("RecoHTMHTMuEffNJet_67");
-  muonRecoBinByBinNJet67Eff->SetTitle("#mu Reco eff NJet[6,7]; H_{T};#slash{H}_{T}");
+  muonRecoBinByBinNJet67Eff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Reco eff 6 #leq N_{Jets} #leq 7; H_{T} [GeV];#slash{H}_{T} [GeV]");
   muonRecoBinByBinNJet67Eff->Sumw2();
   muonRecoBinByBinNJet67Eff->Divide(muonRecoBinByBinNJet67Eff,muonRecoBinByBinNJet67Sum,1,1,"B");
 
@@ -498,61 +526,92 @@ low2="";
   
   muonRecoBinByBinNJet8InfEff = (TH2F*)dInput->Get("recoEffTH2PassedMuNJet8Inf");
   muonRecoBinByBinNJet8InfEff->SetName("RecoHTMHTMuEffNJet_8Inf");
-  muonRecoBinByBinNJet8InfEff->SetTitle("#mu Reco eff NJet[8,Inf]; H_{T};#slash{H}_{T}");
+  muonRecoBinByBinNJet8InfEff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Reco eff 8 #leq N_{Jets}; H_{T} [GeV];#slash{H}_{T} [GeV]");
   muonRecoBinByBinNJet8InfEff->Sumw2();
   muonRecoBinByBinNJet8InfEff->Divide(muonRecoBinByBinNJet8InfEff,muonRecoBinByBinNJet8InfSum,1,1,"B");
 
 
 
    // tag and probe uncertainty eff.
-
+/*
   mc_tap_eff_mu_iso =  (TH2F*) dInputTagAndProbeMCIsomu->Get("probe_emfdrjCalo_probe_emfptRelCalo_PLOT");
   mc_tap_eff_mu_iso->SetName("MC_TAP_mu_iso_eff");
-  mc_tap_eff_mu_iso->SetTitle("#mu Iso MC T&P eff; #Delta R;#mu p_{T}/jet p_{T};Eff");
+  mc_tap_eff_mu_iso->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Iso MC T&P eff; #Delta R;#mu p_{T}/jet p_{T};Eff");
 
   data_tap_eff_mu_iso =  (TH2F*) dInputTagAndProbeDataIsomu->Get("probe_emfdrjCalo_probe_emfptRelCalo_PLOT");
   data_tap_eff_mu_iso->SetName("Data_TAP_mu_iso_eff");
-  data_tap_eff_mu_iso->SetTitle("#mu Iso Data T&P eff; #Delta R;#mu p_{T}/jet p_{T};Eff");
-/*
+  data_tap_eff_mu_iso->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Iso Data T&P eff; #Delta R;#mu p_{T}/jet p_{T};Eff");
+
   mc_tap_eff_mu_reco =  (TH2F*) dInputTagAndProbeMCRecomu->Get("probe_emfdrjCalo_probe_pt_PLOT");
   mc_tap_eff_mu_reco->SetName("MC_TAP_mu_reco_eff");
-  mc_tap_eff_mu_reco->SetTitle("#mu Reco MC T&P eff; #Delta R;#mu p_{T};Eff");
+  mc_tap_eff_mu_reco->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Reco MC T&P eff; #Delta R;#mu p_{T};Eff");
 
   data_tap_eff_mu_reco =  (TH2F*) dInputTagAndProbeDataRecomu->Get("probe_emfdrjCalo_probe_pt_PLOT");
   data_tap_eff_mu_reco->SetName("Data_TAP_mu_reco_eff");
-  data_tap_eff_mu_reco->SetTitle("#mu Reco Data T&P eff; #Delta R;#mu p_{T};Eff");
+  data_tap_eff_mu_reco->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Reco Data T&P eff; #Delta R;#mu p_{T};Eff");
 */
+  TCanvas* TMC00 = (TCanvas*)dInputTagAndProbeMCIsomu->Get("HT_NJets_PLOT")->Clone();
+  mc_tap_eff_mu_iso = (TH2F*)TMC00->GetPrimitive("HT_NJets_PLOT")->Clone();
+  mc_tap_eff_mu_iso->SetName("MC_TAP_mu_iso_eff");
+  mc_tap_eff_mu_iso->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Iso MC T&P eff; H_{T} [GeV];NJet;Eff");
 
-  TCanvas* TMC00 = (TCanvas*)dInputTagAndProbeMCRecomu->Get("probe_pt_probe_emfdrjCalo_PLOT")->Clone();
-  mc_tap_eff_mu_reco = (TH2F*)TMC00->GetPrimitive("probe_pt_probe_emfdrjCalo_PLOT")->Clone();
+  TCanvas* TMCXX = (TCanvas*)dInputTagAndProbeMCIsomuRelPT->Get("MuIsoDeltaR30GeVJet_MuIsoRelPT30GeVJet_PLOT")->Clone();
+  mc_TAP_mu_iso_eff_deltaR_relPT = (TH2F*)TMCXX->GetPrimitive("MuIsoDeltaR30GeVJet_MuIsoRelPT30GeVJet_PLOT")->Clone();
+  mc_TAP_mu_iso_eff_deltaR_relPT->SetName("MC_TAP_mu_iso_eff_deltaR_relPT");
+  mc_TAP_mu_iso_eff_deltaR_relPT->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Iso MC T&P eff; #Delta R; #mu p_{T}/ Jet p_{T};Eff");
+
+
+  TCanvas* TMC11 = (TCanvas*)dInputTagAndProbeDataIsomu->Get("HT_NJets_PLOT")->Clone();
+  data_tap_eff_mu_iso = (TH2F*)TMC11->GetPrimitive("HT_NJets_PLOT")->Clone();
+  data_tap_eff_mu_iso->SetName("Data_TAP_mu_iso_eff");
+  data_tap_eff_mu_iso->SetTitle("CMS Preliminary, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Iso Data T&P eff; H_{T} [GeV];NJet;Eff");
+
+  TCanvas* TMCZZ = (TCanvas*)dInputTagAndProbeDataIsomuRelPT->Get("MuIsoDeltaR30GeVJet_MuIsoRelPT30GeVJet_PLOT")->Clone();
+  data_TAP_mu_iso_eff_deltaR_relPT = (TH2F*)TMCZZ->GetPrimitive("MuIsoDeltaR30GeVJet_MuIsoRelPT30GeVJet_PLOT")->Clone();
+  data_TAP_mu_iso_eff_deltaR_relPT->SetName("Data_TAP_mu_iso_eff_deltaR_relPT");
+  data_TAP_mu_iso_eff_deltaR_relPT->SetTitle("CMS Preliminary, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Iso Data T&P eff; #Delta R; #mu p_{T}/ Jet p_{T};Eff");
+
+
+  TCanvas* TMC00 = (TCanvas*)dInputTagAndProbeMCIdmu->Get("HT_NJets_PLOT")->Clone();
+  mc_tap_eff_mu_reco = (TH2F*)TMC00->GetPrimitive("HT_NJets_PLOT")->Clone();
   mc_tap_eff_mu_reco->SetName("MC_TAP_mu_reco_eff");
-  mc_tap_eff_mu_reco->SetTitle("#mu Reco MC T&P eff;#mu p_{T} ;#Delta R;Eff");
+  mc_tap_eff_mu_reco->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Reco MC T&P eff; H_{T} [GeV];NJet;Eff");
+
+  TCanvas* TMC00a = (TCanvas*)dInputTagAndProbeMCIdmuPT->Get("MuIdDeltaR30GeVJet_MuIdProbePt_PLOT")->Clone();
+  mc_tap_eff_mu_reco_deltaR_PT = (TH2F*)TMC00a->GetPrimitive("MuIdDeltaR30GeVJet_MuIdProbePt_PLOT")->Clone();
+  mc_tap_eff_mu_reco_deltaR_PT->SetName("MC_TAP_mu_reco_eff_deltaR_PT");
+  mc_tap_eff_mu_reco_deltaR_PT->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Reco MC T&P eff; #Delta R; #mu p_{T};Eff");
 
 
-  TCanvas* TMC11 = (TCanvas*)dInputTagAndProbeDataRecomu->Get("probe_pt_probe_emfdrjCalo_PLOT")->Clone();
-  data_tap_eff_mu_reco = (TH2F*)TMC11->GetPrimitive("probe_pt_probe_emfdrjCalo_PLOT")->Clone();
+  TCanvas* TMC11 = (TCanvas*)dInputTagAndProbeDataIdmu->Get("HT_NJets_PLOT")->Clone();
+  data_tap_eff_mu_reco = (TH2F*)TMC11->GetPrimitive("HT_NJets_PLOT")->Clone();
   data_tap_eff_mu_reco->SetName("Data_TAP_mu_reco_eff");
-  data_tap_eff_mu_reco->SetTitle("#mu Reco Data T&P eff;#mu p_{T} ;#Delta R;Eff");
+  data_tap_eff_mu_reco->SetTitle("CMS Preliminary, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Reco Data T&P eff; H_{T} [GeV];NJet;Eff");
+
+  TCanvas* TMC11a = (TCanvas*)dInputTagAndProbeDataIdmuPT->Get("MuIdDeltaR30GeVJet_MuIdProbePt_PLOT")->Clone();
+  data_tap_eff_mu_reco_deltaR_PT = (TH2F*)TMC11a->GetPrimitive("MuIdDeltaR30GeVJet_MuIdProbePt_PLOT")->Clone();
+  data_tap_eff_mu_reco_deltaR_PT->SetName("Data_TAP_mu_reco_eff_deltaR_PT");
+  data_tap_eff_mu_reco_deltaR_PT->SetTitle("CMS Preliminary, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Reco Data T&P eff; #Delta R; #mu p_{T};Eff");
 
 
-
+/*
 if (tapHTNjet)
   {
   TCanvas* TMC = (TCanvas*)dInputTagAndProbeMCIsomuHTNJet->Get("probe_HT_probe_nJets_PLOT")->Clone();
   mc_tap_eff_mu_iso_HTNJet = (TH2F*)TMC->GetPrimitive("probe_HT_probe_nJets_PLOT")->Clone();
-  mc_tap_eff_mu_iso_HTNJet->SetName("MC_TAP_mu_iso_eff_HTNJet");
-  mc_tap_eff_mu_iso_HTNJet->SetTitle("#mu Iso MC T&P eff; H_{T};NJet;Eff");
+  mc_tap_eff_mu_iso_HTNJet->SetName("MC_TAP_mu_iso_eff_HT N_{Jets}");
+  mc_tap_eff_mu_iso_HTNJet->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Iso MC T&P eff; H_{T} [GeV];NJet;Eff");
 
 
   TCanvas* TMC2 = (TCanvas*)dInputTagAndProbeDataIsomuHTNJet->Get("probe_HT_probe_nJets_PLOT")->Clone();
   data_tap_eff_mu_iso_HTNJet = (TH2F*)TMC2->GetPrimitive("probe_HT_probe_nJets_PLOT")->Clone();
-  data_tap_eff_mu_iso_HTNJet->SetName("Data_TAP_mu_iso_eff_HTNJet");
-  data_tap_eff_mu_iso_HTNJet->SetTitle("#mu Iso Data T&P eff; H_{T};NJet;Eff");
+  data_tap_eff_mu_iso_HTNJet->SetName("Data_TAP_mu_iso_eff_HT N_{Jets}");
+  data_tap_eff_mu_iso_HTNJet->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Iso Data T&P eff; H_{T} [GeV];NJet;Eff");
 
 
 
   }
-
+*/
 
    // create MTW TH2s
 	double hTBins []={500,800,1000,1500};
@@ -564,25 +623,25 @@ if (tapHTNjet)
 
 
   TH2F *mtwCutHTMHT= new TH2F ("MTWCutHTMHT","MTW cut eff.",HTBins,hTBins,MHTBins,mHTBins);
-  mtwCutHTMHT->SetTitle("MTW cut eff; H_{T};#slash{H}_{T};Eff");
+  mtwCutHTMHT->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV MTW cut eff; H_{T} [GeV];#slash{H}_{T} [GeV];Eff");
 // good error calculation
 //  TH2F mtwCutHTMHTPass= new TH2F ("MTWCutHTMHT","MTW cut eff.",HTBins,hTBins,MHTBins,mHTBins);
 //mtwCutHTMHTPass->Sumw2();
-  //mtwCutHTMHTPass->SetTitle("MTW cut eff; H_{T};#slash{H}_{T};Eff");
+  //mtwCutHTMHTPass->SetTitle("MTW cut eff; H_{T} [GeV];#slash{H}_{T} [GeV];Eff");
 //  TH2F mtwCutHTMHTAll= new TH2F ("MTWCutHTMHT","MTW cut eff.",HTBins,hTBins,MHTBins,mHTBins);
 //mtwCutHTMHTAll->Sumw2();
-  //mtwCutHTMHTAll->SetTitle("MTW cut eff; H_{T};#slash{H}_{T};Eff");
+  //mtwCutHTMHTAll->SetTitle("MTW cut eff; H_{T} [GeV];#slash{H}_{T} [GeV];Eff");
 
 
-  TH1F *mtwCutNJet= new TH1F("MTWCutNJet","MTW cut eff.",NJets,nJets);
-  mtwCutNJet->SetTitle("MTW cut eff;NJet;Eff");
+  TH1F *mtwCutNJet= new TH1F("MTWCutNJet","CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV MTW cut eff.",NJets,nJets);
+  mtwCutNJet->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, MTW cut eff;NJet;Eff");
 // good error calculation
-  TH1F *mtwCutNJetPass= new TH1F("MTWCutNJet","MTW cut eff.",NJets,nJets);
+  TH1F *mtwCutNJetPass= new TH1F("MTWCutNJet","CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV MTW cut eff.",NJets,nJets);
 mtwCutNJetPass->Sumw2();
-  mtwCutNJetPass->SetTitle("MTW cut eff;NJet;Eff");
-  TH1F *mtwCutNJetAll= new TH1F("MTWCutNJet","MTW cut eff.",NJets,nJets);
+  mtwCutNJetPass->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, MTW cut eff;NJet;Eff");
+  TH1F *mtwCutNJetAll= new TH1F("MTWCutNJet","CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV MTW cut eff.",NJets,nJets);
 mtwCutNJetAll->Sumw2();
-  mtwCutNJetAll->SetTitle("MTW cut eff;NJet;Eff");
+  mtwCutNJetAll->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, MTW cut eff;NJet;Eff");
   
 
 
@@ -821,14 +880,19 @@ muonRecoBinByBinNJet8InfEff->Write();
   data_tap_eff_mu_iso->Write();
   mc_tap_eff_mu_reco->Write();
   data_tap_eff_mu_reco->Write();
-  if(tapHTNjet)
+
+  mc_TAP_mu_iso_eff_deltaR_relPT->Write();
+  data_TAP_mu_iso_eff_deltaR_relPT->Write();
+  mc_tap_eff_mu_reco_deltaR_PT->Write();
+  data_tap_eff_mu_reco_deltaR_PT->Write();
+/*  if(tapHTNjet)->Write();
 {
 mc_tap_eff_mu_iso_HTNJet->Write();
 data_tap_eff_mu_iso_HTNJet->Write();
 }
+*/
 
-
-/////////////////////////// electron ////////////////////////
+/////////////////////////// electron ////////////////////////data_tap_eff_mu_reco
 
   // store the Acc ratio and the sum in the new files
 
@@ -851,7 +915,7 @@ data_tap_eff_mu_iso_HTNJet->Write();
   elecAccSum2->Add( (TH1F*)dInput->Get("elecAccPassed2") );
   elecAccEff2 = (TH1F*)dInput->Get("elecAccPassed2");
   elecAccEff2->SetName("ElecAccEff2");
-  elecAccEff2->SetTitle("e acc. eff.;#slash{H}_{T};eff.");
+  elecAccEff2->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, e acc. eff.;#slash{H}_{T} [GeV];eff.");
   elecAccEff2->Sumw2();
   elecAccEff2->Divide(elecAccEff2,elecAccSum2,1,1,"B");
 
@@ -863,7 +927,7 @@ data_tap_eff_mu_iso_HTNJet->Write();
 
   elecAccEff3 = (TH2F*)dInput->Get("ElecAccPassed3");
   elecAccEff3->SetName("ElecAccEff3");
-  elecAccEff3->SetTitle("e acc. eff.;#slash{H}_{T};nJets");
+  elecAccEff3->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, e acc. eff.;#slash{H}_{T} [GeV];N_{Jets}");
   elecAccEff3->Sumw2();
   elecAccEff3->Divide(elecAccEff3,elecAccSum3,1,1,"B");
 
@@ -876,7 +940,7 @@ data_tap_eff_mu_iso_HTNJet->Write();
 
   elecRecoEff = (TH2F*)dInput->Get("elecIdPassed");
   elecRecoEff->SetName("ElecRecoEff");
-  elecRecoEff->SetTitle("e reco. eff.; #Delta R;RelPT;Eff.");
+  elecRecoEff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, e reco. eff.; #Delta R;RelPT;Eff.");
   elecRecoEff->Sumw2();
   elecRecoEff->Divide(elecRecoEff,elecRecoSum,1,1,"B");
 
@@ -888,7 +952,7 @@ data_tap_eff_mu_iso_HTNJet->Write();
 
   elecRecoEff2 = (TH2F*)dInput->Get("elecIdPassed2");
   elecRecoEff2->SetName("ElecRecoEff2");
-  elecRecoEff2->SetTitle("e reco. eff.; #Delta R;e p_{T};Eff.");
+  elecRecoEff2->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, e reco. eff.; #Delta R;e p_{T};Eff.");
   elecRecoEff2->Sumw2();
   elecRecoEff2->Divide(elecRecoEff2,elecRecoSum2,1,1,"B");
 
@@ -902,7 +966,7 @@ data_tap_eff_mu_iso_HTNJet->Write();
 
   elecIsoEff = (TH2F*)dInput->Get("elecIsoPassed");
   elecIsoEff->SetName("ElecIsoEff");
-  elecIsoEff->SetTitle("e iso. eff.; #Delta R;RelPT;Eff.");
+  elecIsoEff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, e iso. eff.; #Delta R;RelPT;Eff.");
   elecIsoEff->Sumw2();
   elecIsoEff->Divide(elecIsoEff,elecIsoSum,1,1,"B");
 
@@ -913,7 +977,7 @@ data_tap_eff_mu_iso_HTNJet->Write();
 
   elecIsoEff2 = (TH2F*)dInput->Get("elecIsoPassed2");
   elecIsoEff2->SetName("ElecIsoEff2");
-  elecIsoEff2->SetTitle("e iso. eff.; #Delta R;e p_{T};Eff.");
+  elecIsoEff2->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, e iso. eff.; #Delta R;e p_{T};Eff.");
   elecIsoEff2->Sumw2();
   elecIsoEff2->Divide(elecIsoEff2,elecIsoSum2,1,1,"B");
 
@@ -925,7 +989,7 @@ data_tap_eff_mu_iso_HTNJet->Write();
 
   elecBinByBinEff = (TH3F*)dInput->Get("BinByBinEffElecPassed");
   elecBinByBinEff->SetName("ElecBinByBinEff");
-  elecBinByBinEff->SetTitle("elec total eff; H_{T};#slash{H}_{T};NJet");
+  elecBinByBinEff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, elec total eff; H_{T} [GeV];#slash{H}_{T} [GeV]; N_{Jets}");
   elecBinByBinEff->Sumw2();
   elecBinByBinEff->Divide(elecBinByBinEff,elecBinByBinSum,1,1,"B");
   // seperated
@@ -938,7 +1002,7 @@ data_tap_eff_mu_iso_HTNJet->Write();
 
   elecAccBinByBinEff = (TH3F*)dInput->Get("AccBinByBinEffElecPassed");
   elecAccBinByBinEff->SetName("AccBinByBinElecEff");
-  elecAccBinByBinEff->SetTitle("#mu acc eff; H_{T};#slash{H}_{T};NJet");
+  elecAccBinByBinEff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu acc eff; H_{T} [GeV];#slash{H}_{T} [GeV]; N_{Jets}");
   elecAccBinByBinEff->Sumw2();
   elecAccBinByBinEff->Divide(elecAccBinByBinSum);
 
@@ -950,7 +1014,7 @@ data_tap_eff_mu_iso_HTNJet->Write();
 
   elecRecoBinByBinEff = (TH3F*)dInput->Get("RecoBinByBinEffElecPassed");
   elecRecoBinByBinEff->SetName("RecoBinByBinElecEff");
-  elecRecoBinByBinEff->SetTitle("#mu Reco eff; H_{T};#slash{H}_{T};NJet");
+  elecRecoBinByBinEff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Reco eff; H_{T} [GeV];#slash{H}_{T} [GeV]; N_{Jets}");
   elecRecoBinByBinEff->Sumw2();
   elecRecoBinByBinEff->Divide(elecRecoBinByBinSum);
 
@@ -962,7 +1026,7 @@ data_tap_eff_mu_iso_HTNJet->Write();
 
   elecIsoBinByBinEff = (TH3F*)dInput->Get("IsoBinByBinEffElecPassed");
   elecIsoBinByBinEff->SetName("IsoBinByBinElecEff");
-  elecIsoBinByBinEff->SetTitle("#mu Iso eff; H_{T};#slash{H}_{T};NJet");
+  elecIsoBinByBinEff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, #mu Iso eff; H_{T} [GeV];#slash{H}_{T} [GeV]; N_{Jets}");
   elecIsoBinByBinEff->Sumw2();
   elecIsoBinByBinEff->Divide(elecIsoBinByBinSum);
 
@@ -976,7 +1040,7 @@ data_tap_eff_mu_iso_HTNJet->Write();
   
   EleconIsoBinByBinNJet35Eff = (TH2F*)dInput->Get("isoEffTH2PassedElecNJet35");
   EleconIsoBinByBinNJet35Eff->SetName("IsoHTMHTElecEffNJet_35");
-  EleconIsoBinByBinNJet35Eff->SetTitle("#Elec Iso eff NJet[3,5]; H_{T};#slash{H}_{T}");
+  EleconIsoBinByBinNJet35Eff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, elec Iso eff 3 #leq N_{Jets} #leq 5; H_{T} [GeV];#slash{H}_{T} [GeV]");
   EleconIsoBinByBinNJet35Eff->Sumw2();
   EleconIsoBinByBinNJet35Eff->Divide(EleconIsoBinByBinNJet35Eff,EleconIsoBinByBinNJet35Sum,1,1,"B");
 std::cout<<"EleconIsoBinByBinNJet35Eff"<<EleconIsoBinByBinNJet35Eff->GetBinContent(1,1)<<std::endl;
@@ -987,7 +1051,7 @@ std::cout<<"EleconIsoBinByBinNJet35Eff"<<EleconIsoBinByBinNJet35Eff->GetBinConte
   
   EleconIsoBinByBinNJet67Eff = (TH2F*)dInput->Get("isoEffTH2PassedElecNJet67");
   EleconIsoBinByBinNJet67Eff->SetName("IsoHTMHTElecEffNJet_67");
-  EleconIsoBinByBinNJet67Eff->SetTitle("#Elec Iso eff NJet[6,7]; H_{T};#slash{H}_{T}");
+  EleconIsoBinByBinNJet67Eff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, elec Iso eff 6 #leq N_{Jets} #leq 7; H_{T} [GeV];#slash{H}_{T} [GeV]");
   EleconIsoBinByBinNJet67Eff->Sumw2();
   EleconIsoBinByBinNJet67Eff->Divide(EleconIsoBinByBinNJet67Eff,EleconIsoBinByBinNJet67Sum,1,1,"B");
 
@@ -998,7 +1062,7 @@ std::cout<<"EleconIsoBinByBinNJet35Eff"<<EleconIsoBinByBinNJet35Eff->GetBinConte
   
   EleconIsoBinByBinNJet8InfEff = (TH2F*)dInput->Get("isoEffTH2PassedElecNJet8Inf");
   EleconIsoBinByBinNJet8InfEff->SetName("IsoHTMHTElecEffNJet_8Inf");
-  EleconIsoBinByBinNJet8InfEff->SetTitle("#Elec Iso eff NJet[8,Inf]; H_{T};#slash{H}_{T}");
+  EleconIsoBinByBinNJet8InfEff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, elec Iso eff 8 #leq N_{Jets}; H_{T} [GeV];#slash{H}_{T} [GeV]");
   EleconIsoBinByBinNJet8InfEff->Sumw2();
   EleconIsoBinByBinNJet8InfEff->Divide(EleconIsoBinByBinNJet8InfEff,EleconIsoBinByBinNJet8InfSum,1,1,"B");
 
@@ -1010,7 +1074,7 @@ std::cout<<"EleconIsoBinByBinNJet35Eff"<<EleconIsoBinByBinNJet35Eff->GetBinConte
   
   EleconRecoBinByBinNJet35Eff = (TH2F*)dInput->Get("recoEffTH2PassedElecNJet35");
   EleconRecoBinByBinNJet35Eff->SetName("RecoHTMHTElecEffNJet_35");
-  EleconRecoBinByBinNJet35Eff->SetTitle("#Elec Reco eff NJet[3,5]; H_{T};#slash{H}_{T}");
+  EleconRecoBinByBinNJet35Eff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, elec Reco eff 3 #leq N_{Jets} #leq 5; H_{T} [GeV];#slash{H}_{T} [GeV]");
   EleconRecoBinByBinNJet35Eff->Sumw2();
   EleconRecoBinByBinNJet35Eff->Divide(EleconRecoBinByBinNJet35Eff,EleconRecoBinByBinNJet35Sum,1,1,"B");
 std::cout<<"EleconRecoBinByBinNJet35Eff"<<EleconRecoBinByBinNJet35Eff->GetBinContent(1,1)<<std::endl;
@@ -1021,7 +1085,7 @@ std::cout<<"EleconRecoBinByBinNJet35Eff"<<EleconRecoBinByBinNJet35Eff->GetBinCon
   
   EleconRecoBinByBinNJet67Eff = (TH2F*)dInput->Get("recoEffTH2PassedElecNJet67");
   EleconRecoBinByBinNJet67Eff->SetName("RecoHTMHTElecEffNJet_67");
-  EleconRecoBinByBinNJet67Eff->SetTitle("#Elec Reco eff NJet[6,7]; H_{T};#slash{H}_{T}");
+  EleconRecoBinByBinNJet67Eff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, elec Reco eff 6 #leq N_{Jets} #leq 7; H_{T} [GeV];#slash{H}_{T} [GeV]");
   EleconRecoBinByBinNJet67Eff->Sumw2();
   EleconRecoBinByBinNJet67Eff->Divide(EleconRecoBinByBinNJet67Eff,EleconRecoBinByBinNJet67Sum,1,1,"B");
 
@@ -1032,37 +1096,130 @@ std::cout<<"EleconRecoBinByBinNJet35Eff"<<EleconRecoBinByBinNJet35Eff->GetBinCon
   
   EleconRecoBinByBinNJet8InfEff = (TH2F*)dInput->Get("recoEffTH2PassedElecNJet8Inf");
   EleconRecoBinByBinNJet8InfEff->SetName("RecoHTMHTElecEffNJet_8Inf");
-  EleconRecoBinByBinNJet8InfEff->SetTitle("#Elec Reco eff NJet[8,Inf]; H_{T};#slash{H}_{T}");
+  EleconRecoBinByBinNJet8InfEff->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, elec Reco eff 8 #leq N_{Jets}; H_{T} [GeV];#slash{H}_{T} [GeV]");
   EleconRecoBinByBinNJet8InfEff->Sumw2();
   EleconRecoBinByBinNJet8InfEff->Divide(EleconRecoBinByBinNJet8InfEff,EleconRecoBinByBinNJet8InfSum,1,1,"B");
 
 // tag and probe stuff
 
+  TCanvas* TMC001 = (TCanvas*)dInputTagAndProbeMCIsoelec->Get("HT_NJets_PLOT")->Clone();
+  mc_tap_eff_elec_iso = (TH2F*)TMC001->GetPrimitive("HT_NJets_PLOT")->Clone();
+  mc_tap_eff_elec_iso->SetName("MC_TAP_elec_iso_eff");
+  mc_tap_eff_elec_iso->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, elec iso MC T&P eff; H_{T} [GeV];NJet;Eff");
+
+
+  TCanvas* TMC001a = (TCanvas*)dInputTagAndProbeMCIsoelecPT->Get("ElecIsoDeltaR30GeVJet_ElecIsoProbePt_PLOT")->Clone();
+  mc_tap_eff_elec_iso_PT = (TH2F*)TMC001a->GetPrimitive("ElecIsoDeltaR30GeVJet_ElecIsoProbePt_PLOT")->Clone();
+  mc_tap_eff_elec_iso_PT->SetName("MC_TAP_elec_iso_eff_deltaR_PT");
+  mc_tap_eff_elec_iso_PT->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, elec iso MC T&P eff; #Delta R; elec p_{T};Eff");
+
+
+  TCanvas* TMC111 = (TCanvas*)dInputTagAndProbeDataIsoelec->Get("HT_NJets_PLOT")->Clone();
+  data_tap_eff_elec_iso = (TH2F*)TMC111->GetPrimitive("HT_NJets_PLOT")->Clone();
+  data_tap_eff_elec_iso->SetName("Data_TAP_elec_iso_eff");
+  data_tap_eff_elec_iso->SetTitle("CMS Preliminary, L=19.47 fb-1, sqrt(s)=8 TeV, elec Iso Data T&P eff; H_{T} [GeV];NJet;Eff");
+
+  TCanvas* TMC001b = (TCanvas*)dInputTagAndProbeDataIsoelecPT->Get("ElecIsoDeltaR30GeVJet_ElecIsoProbePt_PLOT")->Clone();
+  data_tap_eff_elec_iso_PT = (TH2F*)TMC001b->GetPrimitive("ElecIsoDeltaR30GeVJet_ElecIsoProbePt_PLOT")->Clone();
+  data_tap_eff_elec_iso_PT->SetName("Data_TAP_elec_iso_eff_deltaR_PT");
+  data_tap_eff_elec_iso_PT->SetTitle("CMS Preliminary, L=19.47 fb-1, sqrt(s)=8 TeV, elec iso Data T&P eff; #Delta R; elec p_{T};Eff");
+
+
+  TCanvas* TMC002 = (TCanvas*)dInputTagAndProbeMCIdelec->Get("HT_NJets_PLOT")->Clone();
+  mc_tap_eff_elec_reco = (TH2F*)TMC002->GetPrimitive("HT_NJets_PLOT")->Clone();
+  mc_tap_eff_elec_reco->SetName("MC_TAP_elec_reco_eff");
+  mc_tap_eff_elec_reco->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, elec Reco MC T&P eff; H_{T} [GeV];NJet;Eff");
+
+  TCanvas* TMC002a = (TCanvas*)dInputTagAndProbeMCIdelecPT->Get("ElecIdGsfDeltaR30GeVJet_ElecIdGsfProbePt_PLOT")->Clone();
+  mc_tap_eff_elec_reco_PT = (TH2F*)TMC002a->GetPrimitive("ElecIdGsfDeltaR30GeVJet_ElecIdGsfProbePt_PLOT")->Clone();
+  mc_tap_eff_elec_reco_PT->SetName("MC_TAP_elec_reco_eff_deltaR_PT");
+  mc_tap_eff_elec_reco_PT->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, elec Reco MC T&P eff; #Delta R; elec p_{T};Eff");
+
+  TCanvas* TMC002aaa = (TCanvas*)dInputTagAndProbeMCIdelecPT2->Get("ElecIdGsfProbePt_PLOT")->Clone();
+  mc_tap_eff_elec_reco_PT2 = (TGraphAsymmErrors*)TMC002aaa->GetPrimitive("hxy_fit_eff")->Clone();
+  mc_tap_eff_elec_reco_PT2->SetName("MC_TAP_elec_reco_eff_deltaR_PT2");
+  mc_tap_eff_elec_reco_PT2->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, elec Reco MC T&P eff; elec p_{T};Eff");
+
+
+  TCanvas* TMC112 = (TCanvas*)dInputTagAndProbeDataIdelec->Get("HT_NJets_PLOT")->Clone();
+  data_tap_eff_elec_reco = (TH2F*)TMC112->GetPrimitive("HT_NJets_PLOT")->Clone();
+  data_tap_eff_elec_reco->SetName("Data_TAP_elec_reco_eff");
+  data_tap_eff_elec_reco->SetTitle("CMS Preliminary, L=19.47 fb-1, sqrt(s)=8 TeV, elec Reco Data T&P eff; H_{T} [GeV];NJet;Eff");
+
+  TCanvas* TMC002b = (TCanvas*)dInputTagAndProbeDataIdelecPT->Get("ElecIdGsfDeltaR30GeVJet_ElecIdGsfProbePt_PLOT")->Clone();
+  data_tap_eff_elec_reco_PT = (TH2F*)TMC002b->GetPrimitive("ElecIdGsfDeltaR30GeVJet_ElecIdGsfProbePt_PLOT")->Clone();
+  data_tap_eff_elec_reco_PT->SetName("Data_TAP_elec_reco_eff_deltaR_PT");
+  data_tap_eff_elec_reco_PT->SetTitle("CMS Preliminary, L=19.47 fb-1, sqrt(s)=8 TeV, elec Reco Data T&P eff; #Delta R; elec p_{T};Eff");
+
+  TCanvas* TMC002b2 = (TCanvas*)dInputTagAndProbeDataIdelecPT2->Get("ElecIdGsfProbePt_PLOT")->Clone();
+  data_tap_eff_elec_reco_PT2 = (TGraphAsymmErrors*)TMC002b2->GetPrimitive("hxy_fit_eff")->Clone();
+  data_tap_eff_elec_reco_PT2->SetName("Data_TAP_elec_reco_eff_deltaR_PT2");
+  data_tap_eff_elec_reco_PT2->SetTitle("CMS Preliminary, L=19.47 fb-1, sqrt(s)=8 TeV, elec Reco Data T&P eff; elec p_{T};Eff");
+
+
+  TGraphAsymmErrors* ratio_tap_eff_elec_reco_PT2 = data_tap_eff_elec_reco_PT2->Clone();
+  ratio_tap_eff_elec_reco_PT2->SetName("ElecRecoTAPRatio");
+  ratio_tap_eff_elec_reco_PT2->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, elec Reco eff ; elec p_{T};data eff / mc eff");
+
+
+
+      TGraphAsymmErrors *gRatio = new TGraphAsymmErrors(data_tap_eff_elec_reco_PT2->GetN());
+      for(int i = 0; i < data_tap_eff_elec_reco_PT2->GetN() && i < mc_tap_eff_elec_reco_PT2->GetN(); ++i) {
+	double denom = mc_tap_eff_elec_reco_PT2->GetY()[i];
+	double x = 0.5*(data_tap_eff_elec_reco_PT2->GetX()[i]+mc_tap_eff_elec_reco_PT2->GetX()[i]); // Mean value of x1 and x2
+	double e1 = data_tap_eff_elec_reco_PT2->GetEXhigh()[i];
+	double e2 = mc_tap_eff_elec_reco_PT2->GetEXhigh()[i];
+	double xehigh = e1; // Quadratic mean of x1e and x2e
+	double xelow = mc_tap_eff_elec_reco_PT2->GetEXlow()[i];
+	if( denom != 0. ) {
+	  double y = data_tap_eff_elec_reco_PT2->GetY()[i]/denom;
+	  e1 = data_tap_eff_elec_reco_PT2->GetEYhigh()[i];
+	  e2 = mc_tap_eff_elec_reco_PT2->GetEYhigh()[i];
+	  double ye = sqrt(pow(e1/denom,2.)+pow(data_tap_eff_elec_reco_PT2->GetY()[i]*e2/denom/denom,2.));
+	  gRatio->SetPoint(i,x,y);
+	  gRatio->SetPointError(i,xelow,xehigh,ye,ye);
+	} else {
+	  gRatio->SetPoint(i,x,0.);
+	  gRatio->SetPointError(i,xelow,xehigh,0.,0.);
+	}
+      }
+      gRatio->SetMarkerStyle(data_tap_eff_elec_reco_PT2->GetMarkerStyle());
+      gRatio->SetMarkerColor(data_tap_eff_elec_reco_PT2->GetMarkerColor());
+      gRatio->SetLineColor(data_tap_eff_elec_reco_PT2->GetLineColor());
+	gRatio->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, elec Reco eff; elec p_{T};data eff / mc eff");
+
+
+
+
+
+
+
+/*
 
   TCanvas* TMC3 = (TCanvas*)dInputTagAndProbeMCRecoElec->Get("probe_eta_probe_et_PLOT")->Clone();
   mc_tap_eff_elec_reco = (TH2F*)TMC3->GetPrimitive("probe_eta_probe_et_PLOT")->Clone();
   mc_tap_eff_elec_reco->SetName("MC_TAP_elec_iso_eff");
-  mc_tap_eff_elec_reco->SetTitle("e Iso MC T&P eff; #eta;e_{T};Eff");
+  mc_tap_eff_elec_reco->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, e Iso MC T&P eff; #eta;e_{T};Eff");
 
 
   TCanvas* TMC4 = (TCanvas*)dInputTagAndProbeDataRecoElec->Get("probe_eta_probe_et_PLOT")->Clone();
   data_tap_eff_elec_reco = (TH2F*)TMC4->GetPrimitive("probe_eta_probe_et_PLOT")->Clone();
   data_tap_eff_elec_reco->SetName("Data_TAP_elec_iso_eff");
-  data_tap_eff_elec_reco->SetTitle("e Iso Datat T&P eff; #eta;e_{T};Eff");
+  data_tap_eff_elec_reco->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, e Iso Datat T&P eff; #eta;e_{T};Eff");
 
 
   TCanvas* TMC3 = (TCanvas*)dInputTagAndProbeMCIsoElec->Get("probe_sc_eta_probe_sc_et_PLOT")->Clone();
   mc_tap_eff_elec_iso = (TH2F*)TMC3->GetPrimitive("probe_sc_eta_probe_sc_et_PLOT")->Clone();
   mc_tap_eff_elec_iso->SetName("MC_TAP_elec_reco_eff");
-  mc_tap_eff_elec_iso->SetTitle("e Reco MC T&P eff; #eta;e_{T};Eff");
+  mc_tap_eff_elec_iso->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, e Reco MC T&P eff; #eta;e_{T};Eff");
 
 
   TCanvas* TMC4 = (TCanvas*)dInputTagAndProbeDataIsoElec->Get("probe_sc_eta_probe_sc_et_PLOT")->Clone();
   data_tap_eff_elec_iso = (TH2F*)TMC4->GetPrimitive("probe_sc_eta_probe_sc_et_PLOT")->Clone();
   data_tap_eff_elec_iso->SetName("Data_TAP_elec_reco_eff");
-  data_tap_eff_elec_iso->SetTitle("e Reco Datat T&P eff; #eta;e_{T};Eff");
+  data_tap_eff_elec_iso->SetTitle("CMS Simulation, L=19.47 fb-1, sqrt(s)=8 TeV, e Reco Datat T&P eff; #eta;e_{T};Eff");
 
-
+*/
 
 
    // tag and probe uncertainty eff.
@@ -1109,6 +1266,15 @@ data_tap_eff_elec_reco->Write();
 mc_tap_eff_elec_reco->Write();
 data_tap_eff_elec_iso->Write();
 mc_tap_eff_elec_iso->Write();
+
+  mc_tap_eff_elec_iso_PT->Write();
+  data_tap_eff_elec_iso_PT->Write();
+  mc_tap_eff_elec_reco_PT->Write();
+  data_tap_eff_elec_reco_PT->Write();
+  mc_tap_eff_elec_reco_PT2->Write();
+  data_tap_eff_elec_reco_PT2->Write();
+ratio_tap_eff_elec_reco_PT2->Write();
+gRatio->Write();
 /*
   mc_tap_eff_elec_iso->Write();
   data_tap_eff_elec_iso->Write();

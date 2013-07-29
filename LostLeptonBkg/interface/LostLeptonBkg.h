@@ -56,6 +56,7 @@ class LostLeptonBkg : public edm::EDProducer {
 	double MTWMax_;
 	bool MTWCut_;
 	bool statErrorEffmaps_;
+	bool debug_;
  	double MinMuPT_, MinElecPT_;
 	Float_t eventWeight_;
 
@@ -98,14 +99,17 @@ class LostLeptonBkg : public edm::EDProducer {
 	// uncertainty from tag and probe
 
 	TH2F *MuIsoMCTAP_, *MuRecoMCTAP_, *MuIsoDataTAP_, *MuRecoDataTAP_;
+	TH2F *MuIsoMCTAPRel_, *MuRecoMCTAPRel_, *MuIsoDataTAPRel_, *MuRecoDataTAPRel_;
 	TH2F *MuIsoMCTAPHTNJET_, *MuIsoDataTAPHTNJET_;
 	TH2F *ElecRecoMCTAP_, *ElecRecoDataTAP_;
+	TH2F *ElecRecoMCTAPRel_, *ElecRecoDataTAPRel_;
 	Float_t MuIsoMCTAPBinXMax_, MuIsoMCTAPBinYMax_, MuRecoMCTAPBinXMax_, MuRecoMCTAPBinYMax_;
 	Float_t MuIsoDataTAPBinXMax_, MuIsoDataTAPBinYMax_, MuRecoDataTAPBinXMax_, MuRecoDataTAPBinYMax_;
 	Float_t muonTAPIsoWeightData_, muonTAPIsoWeightMC_, muonTAPRecoWeightMC_, muonTAPRecoWeightData_;
 	Float_t elecTAPIsoWeightData_, elecTAPIsoWeightMC_, elecTAPRecoWeightMC_, elecTAPRecoWeightData_;
 
 	TH2F *ElecIsoMCTAP_, *ElecIsoDataTAP_;
+	TH2F *ElecIsoMCTAPRel_, *ElecIsoDataTAPRel_;
 	Float_t ElecIsoMCTAPBinXMax_, ElecIsoMCTAPBinYMax_, ElecRecoMCTAPBinXMax_, ElecRecoMCTAPBinYMax_;
 	Float_t ElecIsoDataTAPBinXMax_, ElecIsoDataTAPBinYMax_, ElecRecoDataTAPBinXMax_, ElecRecoDataTAPBinYMax_;
 
@@ -116,7 +120,8 @@ class LostLeptonBkg : public edm::EDProducer {
 	float met_;
 	float mht_, ht_;
 	float mtw_; 
-	int nMu_;
+	int nMu_, nElec_;
+	Float_t lepPt_, lepEta_, lepPhi_;
 	Float_t MuPt_;
 	Float_t MuEta_;
 	Float_t MuPhi_;

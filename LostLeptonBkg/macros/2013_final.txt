@@ -1,0 +1,98 @@
+# Specify global parameters
+global :: id: Final
+global :: lumi: 19.5
+global :: publication status: public
+global :: output formats: eps, png, pdf
+
+# Specify the variables that are read from the ntuple and their type
+event content :: name: HT; type: Float_t; label: H_{T}; unit: GeV
+event content :: name: MHT; type: Float_t; label: #slash{H}_{T}; unit: GeV
+event content :: name: NJets; type: Int_t; label: N(Jets)
+event content :: name: NVtx; type: UShort_t; label: N(Vtx)
+event content :: name: MTW; type: Float_t; label: M_{T}(w)
+
+
+# selection values
+event content :: name: IsExpectation; type: Int_t
+event content :: name: muPromtMatched; type: Int_t
+
+
+#weights
+event content :: name: Weight; type: Float_t
+
+
+
+#prediction
+event content :: name: resultBBBW; type: Float_t
+event content :: name: resultBBBWMTW; type: Float_t
+event content :: name: resultBBBWMTWDiLep; type: Float_t
+
+
+event content :: name: resultBBBWMTWUp; type: Float_t
+event content :: name: resultBBBWMTWDown; type: Float_t
+event content :: name: resultBBBWMTWDiLepUp; type: Float_t
+event content :: name: resultBBBWMTWDiLepDown; type: Float_t
+event content :: name: resultWeightBinByBinAccUp; type: Float_t
+event content :: name: resultWeightBinByBinAccDown; type: Float_t
+event content :: name: resultWeightBBBDiBoUp; type: Float_t
+event content :: name: resultWeightBBBDiBoDown; type: Float_t
+event content :: name: resultWeightBBBNoCloUp; type: Float_t
+event content :: name: resultWeightBBBNoCloDown; type: Float_t
+
+event content :: name: muonRecoTAPUp; type: Float_t
+event content :: name: muonRecoTAPDown; type: Float_t
+event content :: name: elecIsoTAPUp; type: Float_t
+event content :: name: elecIsoTAPDown; type: Float_t
+event content :: name: muonIsoTAPUp; type: Float_t
+event content :: name: muonIsoTAPDown; type: Float_t
+event content :: name: elecRecoTAPUp; type: Float_t
+event content :: name: elecRecoTAPDown; type: Float_t
+
+
+
+
+
+#############################################################################################################
+# Specify the data source and label the type of data
+
+dataset :: label: Data; type: data; file:/scratch/adraeger/data.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight:resultBBBWMTWDiLep; uncertainty MTW: +resultBBBWMTWUp, -resultBBBWMTWDown; uncertainty DiLep: +resultBBBWMTWDiLepUp, -resultBBBWMTWDiLepDown; uncertainty Accept: +resultWeightBinByBinAccUp, -resultWeightBinByBinAccDown; uncertainty muIso: +muonIsoTAPUp, -muonIsoTAPDown; uncertainty muId: +muonRecoTAPUp, -muonRecoTAPDown; uncertainty elecIso: +elecIsoTAPUp, -elecIsoTAPDown; uncertainty elecId: +elecRecoTAPUp, -elecRecoTAPDown; uncertainty otherSM: +resultWeightBBBDiBoUp, -resultWeightBBBDiBoDown; uncertainty NonClosure: +resultWeightBBBNoCloUp, -resultWeightBBBNoCloDown
+#weight: resultBBBWMTWDiLep
+
+#dataset :: label: TTbar; type: mc; file:/scratch/adraeger/mcTTbar.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: Weight; scale:3.789
+#dataset :: label: WJets; type: mc; file:/scratch/adraeger/mcWJets.root ; tree: LostLeptonBkgProducer/LostLeptonBkg; weight: Weight; scale:3.789
+#dataset :: label: MC; type: mc; file:/scratch/adraeger/mc.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight;  scale:3.789
+
+
+
+dataset :: label: TTbar; type: mc; file:/scratch/adraeger/mcTTbar.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight; scale:3.789
+dataset :: label: WJets; type: mc; file:/scratch/adraeger/mcWJets.root ; tree: LostLeptonBkgMCEffCalculator/LostLeptonMCEff; weight: Weight; scale:3.789
+
+
+
+#############################################################################################################
+#special selection
+selection :: label: Baseline; cuts: muPromtMatched > 0.5 (Data) + NJets > 2.1 + MHT > 200 + HT > 500  + IsExpectation > 0.5 (TTbar, WJets) + MTW < 100 (Data)
+#selection :: label: Baseline; cuts: muPromtMatched > 0.5 (Data, TTbar, WJets) + NJets > 2.1 + MHT > 200 + HT > 500 
+#+ resultBBBW < 5 (Data, TTbar, WJets) + MTW < 100 (Data) + IsExpectation > 0.3 (TTbar, WJets)
+
+
+#############################################################################################################
+#style
+
+plot style :: dataset: Data; plot label: Predic. on Data ; marker: 20; color: 1
+plot style :: dataset: TTbar; plot label: t#bar{t}; color: kRed+1
+plot style :: dataset: WJets; plot label: W#rightarrowl#nu+Jets; color: kGreen+1
+
+
+#############################################################################################################
+
+plot :: variable: HT; data: Data; background: TTbar + WJets; histogram: 25, 500, 3000, log
+plot :: variable: MHT; data: Data; background: TTbar + WJets; histogram: 22, 200, 1300, log
+plot :: variable: NJets; data: Data; background: TTbar + WJets; histogram: 10, 2, 12, log
+plot :: variable: MTW; data: Data; background: TTbar + WJets; histogram: 30, 0, 300, log
+plot :: variable: NVtx; data: Data; background: TTbar + WJets;  histogram: 25, -0.5, 49.5, log
+
+
+
+
+
