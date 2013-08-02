@@ -1,0 +1,18 @@
+130405_150515: /afs/naf.desy.de/group/cms/crab/CRAB_2_8_5/python/crab.py -create -cfg crabZdataBMu.cfg
+130405_150603: /afs/naf.desy.de/group/cms/crab/CRAB_2_8_5/python/crab.py -create -cfg crabZdataBMu.cfg
+130405_152441: /afs/naf.desy.de/group/cms/crab/CRAB_2_8_5/python/crab.py -create -cfg crabZdataCv2Mu.cfg
+130409_182935: /afs/naf.desy.de/group/cms/crab/CRAB_2_8_5/python/crab.py -create -cfg crabZdataAElec.cfg
+130409_183145: /afs/naf.desy.de/group/cms/crab/CRAB_2_8_5/python/crab.py -create -cfg crabZdataBElec.cfg
+130409_183435: /afs/naf.desy.de/group/cms/crab/CRAB_2_8_5/python/crab.py -create -cfg crabZdataCElec.cfg
+130415_154953: /afs/naf.desy.de/group/cms/crab/CRAB_2_8_5/python/crab.py -create -cfg crabZdataCElec.cfg
+130423_151038: /afs/naf.desy.de/group/cms/crab/CRAB_2_8_5/python/crab.py -create -cfg crabZdataDElec.cfg
+130423_151409: /afs/naf.desy.de/group/cms/crab/CRAB_2_8_5/python/crab.py -create -cfg crabZdataDMu.cfg
+130424_132419: /afs/naf.desy.de/group/cms/crab/CRAB_2_8_5/python/crab.py -create -cfg crabSusyLM6.cfg
+130424_132705: /afs/naf.desy.de/group/cms/crab/CRAB_2_8_5/python/crab.py -create -cfg crabSusyLM9.cfg
+130424_132828: /afs/naf.desy.de/group/cms/crab/CRAB_2_8_5/python/crab.py -create -cfg crabSusyLM9.cfg
+130424_132840: /afs/naf.desy.de/group/cms/crab/CRAB_2_8_5/python/crab.py -create -submit -cfg crabSusyLM9.cfg
+130424_141037: /afs/naf.desy.de/group/cms/crab/CRAB_2_8_5/python/crab.py -create -submit -cfg crabSusyLM6.cfg
+130619_170105: /afs/naf.desy.de/group/cms/crab/CRAB_2_8_5/python/crab.py -create -cfg crabZdataDElecReReco.cfg
+130619_170139: /afs/naf.desy.de/group/cms/crab/CRAB_2_8_5/python/crab.py -create -cfg crabZdataDElecReReco.cfg
+130619_170802: /afs/naf.desy.de/group/cms/crab/CRAB_2_8_5/python/crab.py -create -cfg crabZdataDElecReReco.cfg
+130619_172232: /afs/naf.desy.de/group/cms/crab/CRAB_2_8_5/python/crab.py -create -cfg crabZdataCElecReReco.cfg

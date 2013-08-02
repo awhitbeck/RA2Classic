@@ -12,6 +12,9 @@ def makeTreeFromPAT(process,
                     MHTMin=200.,
                     reportEveryEvt=10,
 		    Global_Tag="",
+		    MC=False,
+		    RecoLeptonStudyBool=False,
+		    DebugBool=False,
                     testFileName=["/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_99_3_TPC.root"],
                     numProcessedEvt=1000):
     
@@ -39,7 +42,21 @@ def makeTreeFromPAT(process,
         fileNames = cms.untracked.vstring(testFileName)
         )
         
-        
+    hltPath=['HLT_PFHT350_PFMET100_v*','HLT_PFNoPUHT350_PFMET100_v*']
+    process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
+    process.hltHighLevel.HLTPaths = cms.vstring(hltPath)
+    process.hltHighLevel.andOr = cms.bool(True)
+    process.hltHighLevel.throw = cms.bool(False)
+
+    process.HLTSelection = cms.Sequence(
+        process.hltHighLevel
+        )
+    if MC:
+        print "Running over MC: removing HLT selection"
+        process.HLTSelection.remove(process.hltHighLevel)
+    elif not hltPath:
+        print "Empty list of HLT paths: removing HLT selection"
+        process.HLTSelection.remove(process.hltHighLevel)
     ## --- Output file -----------------------------------------------------
     process.TFileService = cms.Service(
         "TFileService",
@@ -125,12 +142,15 @@ def makeTreeFromPAT(process,
     ## --- Additional Filters (not tagging mode) ------------------------------
     from RecoMET.METFilters.jetIDFailureFilter_cfi import jetIDFailure
     process.PBNRFilter = jetIDFailure.clone(
-        JetSource = cms.InputTag('MHTJets'),
+        JetSource = cms.InputTag('patJetsPF'),
         MinJetPt      = cms.double(30.0),
         taggingMode   = cms.bool(False)
         )
 	
-	
+    from SandBox.Skims.hoNoiseFilter_cfi import hoNoiseFilter
+    process.RA2HoNoiseFitler = hoNoiseFilter.clone(
+    patJetsInputTag  = cms.InputTag('patJetsPF')
+    )
     from RecoMET.METFilters.multiEventFilter_cfi import multiEventFilter
     process.HCALLaserEvtFilterList2012 = multiEventFilter.clone(
         file        =
@@ -213,7 +233,7 @@ def makeTreeFromPAT(process,
     process.RA2Selector = RA2Selection.clone(
     	nJets		= cms.uint32 (3),
 	HTMin		= cms.double(500),
-	MHTMin		= cms.double(100),
+	MHTMin		= cms.double(200),
 	
 	)
 
@@ -236,6 +256,8 @@ def makeTreeFromPAT(process,
  	MHTTag	   = cms.InputTag(mhtInputCol),
 	CaloJetTag	= cms.InputTag('ak5CaloJetsL2L3'),
 #	CaloJetTag	= cms.InputTag('cleanPatJetsAK5Calo'),
+ 	UseZResonanze  = cms.bool(False),
+	debug = DebugBool,
     )
 
 
@@ -264,8 +286,26 @@ def makeTreeFromPAT(process,
 	MetJetTagUp = cms.InputTag('jesUp:METs'),
 	MetJetTagDown = cms.InputTag('jesDown:METs'),
 	IsoPlots = cms.bool(True),
-	TAPUncertaintiesHTNJET = cms.bool(True),
+	TAPUncertaintiesHTNJET = cms.bool(False),
 	statErrorEffmaps = cms.bool(True),
+	debug = DebugBool,
+    )
+
+
+    from RA2Classic.LostLeptonBkg.RecoLeptonStudy_cfi import RecoLeptonStudy
+    process.RecoLeptonStudyProducer = RecoLeptonStudy.clone(
+        MuonIDTag = cms.InputTag("patMuonsPFID"),
+	MuonIDISOTag = cms.InputTag("patMuonsPFIDIso"),
+        ElecIDTag = cms.InputTag("ra2ElectronsID"), 
+	ElecIDISOTag = cms.InputTag("ra2ElectronsIDIso"),
+#        ElecIDTag = cms.InputTag("patElectronsIDIso"), 
+#	ElecIDISOTag = cms.InputTag("patElectronsIDIso"),
+	HTTag	   = cms.InputTag(htInputCol),
+ 	MHTTag	   = cms.InputTag(mhtInputCol),
+	CaloJetTag	= cms.InputTag('ak5CaloJetsL2L3'),
+#	CaloJetTag	= cms.InputTag('cleanPatJetsAK5Calo'),
+ 	UseZResonanze  = cms.bool(False),
+	debug = DebugBool,
     )
 
 
@@ -295,14 +335,19 @@ def makeTreeFromPAT(process,
     Filters           = FilterNames
     )
 
-
-
+    process.LostLepton = cms.Sequence ()
+    if MC  :
+	    process.LostLepton+=process.LostLeptonBkgMCEffCalculator
+    process.LostLepton+=process.LostLeptonBkgProducer
+    if RecoLeptonStudyBool   :
+	    process.LostLepton+=process.RecoLeptonStudyProducer
 
     ## --- Final paths ----------------------------------------------------
 
     process.dump = cms.EDAnalyzer("EventContentAnalyzer")
     
     process.WriteTree = cms.Path(
+    	process.HLTSelection *
         process.CleaningSelection *
 	process.HCALLaserEvtFilterList2012 *
 	process.ProduceRA2Jets *
@@ -318,10 +363,11 @@ def makeTreeFromPAT(process,
 #	process.promtLeptons *
 	process.RA2Selector *
 	process.RA2Filters *
+	process.RA2HoNoiseFitler *
 	process.ak5CaloJetsL2L3 *
  #       process.dump *
 #	process.LostLeptonBkgMCEffCalculator *
-	process.LostLeptonBkgProducer
+	process.LostLepton
 #	process.RA2TreeMaker 
 
         )

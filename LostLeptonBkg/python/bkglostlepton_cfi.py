@@ -41,6 +41,7 @@ bkglostlepton = cms.EDProducer(
 	nonClosureHighNJet = cms.double('40'),
 	IsoPlots = cms.bool(False),
 	statErrorEffmaps = cms.bool(True),
+	debug = cms.bool(False),
 
 
 )

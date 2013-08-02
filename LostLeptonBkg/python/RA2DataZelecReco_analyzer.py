@@ -11,13 +11,10 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 #### constants  data
 
-#InputFileName = "/scratch/hh/dust/naf/cms/user/draeger/2013/tap_noTriggerMatch_dataAv1_Cv2.root"
-#InputFileName = "/scratch/hh/dust/naf/cms/user/draeger/2013/tap_noTriggerMatching_mc.root"
-#InputFileName = "/afs/cern.ch/work/a/adraeger/results/Z-MC.root"
-InputFileName = "/scratch/hh/dust/naf/cms/user/draeger/results/Z-DataElec.root"
-#InputFileName ="/scratch/hh/current/cms/user/draeger/crab2013/grid/newRA2ISOIDIncluded/mc.root"
-#InputFileName = "test.root"
-#InputFileName = "/scratch/hh/dust/naf/cms/user/draeger/2013/tap_noTriggerMatching_mc.root"
+
+#InputFileName = "/scratch/hh/dust/naf/cms/user/draeger/results/Z-DataElec.root"
+InputFileName = "/scratch/adraeger/Z-DataElec.root"
+
 OutputFilePrefix = "efficiency-data-"
 
 HLTDef = "probe_passingHLT"
@@ -29,7 +26,10 @@ isMC = True
 #specifies the binning of parameters
 EfficiencyBins = cms.PSet(
     HT = cms.vdouble(500, 800, 1500 ),
-    NJets = cms.vdouble( 3,5,20 )
+    NJets = cms.vdouble( 3,5,20 ),
+    ElecIdGsfDeltaR30GeVJet = cms.vdouble(0.01, 0.5, 1.0, 3.),
+    ElecIdGsfProbePt = cms.vdouble(10, 40, 200),
+    ElecIdGsfRelPT30GeVJet = cms.vdouble(0.01, 0.5, 1, 1.5, 2, 2.5, 5),
 )
 ## for super clusters
 
@@ -62,7 +62,7 @@ process.ElecReco= cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     OutputFileName = cms.string("ElecRecoData.root"),
                                                  
     #numbrer of CPUs to use for fitting
-    NumCPU = cms.uint32(6),
+    NumCPU = cms.uint32(12),
     # specifies wether to save the RooWorkspace containing the data for each bin and
     # the pdf object with the initial and final state snapshots
     SaveWorkspace = cms.bool(False),
@@ -71,6 +71,9 @@ process.ElecReco= cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
         RecoGsfElecInvariantMass = cms.vstring("Tag-Probe Mass", "60.0", "120.0", "GeV/c^{2}"),
         HT = cms.vstring("H_{T}", "500","2000", "GeV/c"),
         NJets = cms.vstring("NJets", "3", "15", ""),
+	ElecIdGsfDeltaR30GeVJet = cms.vstring("#Delta R30GevJet","0.01","3",""),
+	ElecIdGsfProbePt = cms.vstring("e p_{T}","5","200",""),
+	ElecIdGsfRelPT30GeVJet = cms.vstring("e p_{T}/ jet p_{T}","0.1","5",""),
     ),    
 		    
 		      
@@ -98,12 +101,29 @@ process.ElecReco= cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
         ),
         gaussPlusQuadratic = cms.vstring(
              "Voigtian::signal(RecoGsfElecInvariantMass, mean[91.2, 89.0, 93.0], width[2.4, 0.5, 5.0], sigma[5., 1., 12.0])",
-             "RooExponential::backgroundPass(RecoGsfElecInvariantMass, cPass[0,-2,2])",
+             "Chebychev::backgroundPass(RecoGsfElecInvariantMass, {cPass1[0,-2,2], cPass2[0,-2,2], cPass3[0,-2,2], cPass4[0,-2,2]})",
 #             "Chebychev::backgroundPass(mass, {cPass1[0,-2,2], cPass2[0,-2,2]})",
-             "Chebychev::backgroundFail(RecoGsfElecInvariantMass, {cFail1[0,-2,2], cFail2[0,-2,2]})",
+             "Chebychev::backgroundFail(RecoGsfElecInvariantMass, {cFail1[0,-2,2], cFail2[0,-2,2], cFail3[0,-2,2], cFail4[0,-2,2]})",
              "efficiency[0.95,0,1]", 
              "signalFractionInPassing[0.95]"
         ),
+	gaussPlusCubic = cms.vstring(
+#	     "CBExGaussShape::signal(RecoGsfElecInvariantMass, meanP[0.], sigmaP[8.5695e-04, 0., 3.],alphaP[3.8296e-04], nP[6.7489e+00], sigmaP_2[2.5849e+00], fracP[6.5704e-01])",
+             "Voigtian::signal(RecoGsfElecInvariantMass, mean[91.2, 84.0, 98.0], width[2.4, 0.5, 5.0], sigma[5., 1., 12.0])",
+#             "Chebychev::backgroundPass(RecoGsfElecInvariantMass, {cPass1[0,-2,2], cPass2[0,-2,2],cPass3[0,-2,2]})",				 
+#             "Chebychev::backgroundFail(RecoGsfElecInvariantMass, {cFail1[0,-2,2], cFail2[0,-2,2],cFail3[0,-2,2]})",		     
+             "Chebychev::backgroundPass(RecoGsfElecInvariantMass, {cPass1[0,-2,2], cPass2[0,-2,2],cPass3[0,-2,2],cPass4[0,-2,2]})",				 
+             "Chebychev::backgroundFail(RecoGsfElecInvariantMass, {cFail1[0,-2,2], cFail2[0,-2,2],cFail3[0,-2,2],cFail4[0,-2,2]})",		     
+             "efficiency[0.95,0,1]", 
+             "signalFractionInPassing[0.95]"				 
+		),
+	gaussPlusPol = cms.vstring(
+             "Voigtian::signal(RecoGsfElecInvariantMass, mean[91.2, 84.0, 98.0], width[2.4, 0.5, 5.0], sigma[5., 1., 12.0])",
+             "Chebychev::backgroundPass(RecoGsfElecInvariantMass, {cPass1[0,-2,2], cPass2[0,-2,2],cPass3[0,-2,2],cPass4[0,-2,2],cPass5[0,-2,2],cPass6[0,-2,2]})",
+             "Chebychev::backgroundFail(RecoGsfElecInvariantMass, {cFail1[0,-2,2], cFail2[0,-2,2],cFail3[0,-2,2],cFail4[0,-2,2],cFail5[0,-2,2],cFail6[0,-2,2]})",		     
+             "efficiency[0.95,0,1]", 
+             "signalFractionInPassing[0.95,0,1]"				 
+		),
         gaussPlusArgus = cms.vstring(
             "Voigtian::signal(RecoGsfElecInvariantMass, mean[91.2, 89.0, 93.0], width[2.4, 0.5, 5.0], sigma[5., 1., 12.0])",
             "RooExponential::backgroundPass(RecoGsfElecInvariantMass, cPass[0,-5,5])",
@@ -111,6 +131,13 @@ process.ElecReco= cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
             "efficiency[0.95,0,1]",
             "signalFractionInPassing[0.95]"
         ),
+	gaussPlusgauss = cms.vstring(
+             "Voigtian::signal(RecoGsfElecInvariantMass, mean[91.2, 84.0, 98.0], width[2.4, 0.5, 5.0], sigma[5., 1., 12.0])",
+             "Gaussian::backgroundPass(RecoGsfElecInvariantMass, mean2[97.2, 10.0, 110.0], sigma2[15., 5., 60.0])",			 
+             "Gaussian::backgroundFail(RecoGsfElecInvariantMass, mean3[97.2, 10.0, 120.0], sigma3[15., 5., 60.0])",		     
+             "efficiency[0.95,0,1]", 
+             "signalFractionInPassing[0.95]"				 
+		),
         gaussPlusCMS = cms.vstring(
             "Voigtian::signal(RecoGsfElecInvariantMass, mean[91.2, 89.0, 93.0], width[2.4, 0.5, 5.0], sigma[5., 1., 12.0])",
 #            "RooExponential::backgroundPass(mass, cPass[0,-2,2])",
@@ -119,6 +146,20 @@ process.ElecReco= cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
             "efficiency[0.95,0,1]",
             "signalFractionInPassing[0.95]"
 	),
+        pdfSignalPlusBackground = cms.vstring(			 
+##     "CBExGaussShape::signalRes(mass, mean[2.0946e-01], sigma[8.5695e-04],alpha[3.8296e-04], n[6.7489e+00], sigma_2[2.5849e+00], frac[6.5704e-01])",  ### the signal function goes here
+    "CBExGaussShape::signal(RecoGsfElecInvariantMass, meanP[0.], sigmaP[8.5695e-04, 0., 3.],alphaP[3.8296e-04], nP[6.7489e+00], sigmaP_2[2.5849e+00], fracP[6.5704e-01])",  ### signal resolution for "pass" sample
+#    "CBExGaussShape::signalResFail(RecoGsfElecInvariantMass, meanF[2.0946e-01, -5., 5.], sigmaF[8.5695e-04, 0., 5.],alphaF[3.8296e-04], nF[6.7489e+00], sigmaF_2[2.5849e+00], fracF[6.5704e-01])",  ### signal resolution for "fail" sample     
+    "RooCMSShape::backgroundPass(RecoGsfElecInvariantMass, alphaPass[60.,10.,120.], betaPass[0.001, 0.,0.3], betaPass, peakPass[91.0])",
+    "RooCMSShape::backgroundFail(RecoGsfElecInvariantMass, alphaFail[60.,10.,120.], betaFail[0.001, 0.,0.3], betaFail, peakFail[91.0])",
+    "efficiency[0.9,0,1]",
+    "signalFractionInPassing[1.0]"     
+    #"Gaussian::signal(mass, mean[91.2, 89.0, 93.0], sigma[2.3, 0.5, 10.0])",
+    #"RooExponential::backgroundPass(mass, cPass[-0.02,-5,0])",
+    #"RooExponential::backgroundFail(mass, cFail[-0.02,-5,0])",
+    #"efficiency[0.9,0,1]",
+    #"signalFractionInPassing[0.9]"
+        ),
 #        pdfSignalPlusBackground = cms.vstring(
 ##     "CBExGaussShape::signalRes(mass, mean[2.0946e-01], sigma[8.5695e-04],alpha[3.8296e-04], n[6.7489e+00], sigma_2[2.5849e+00], frac[6.5704e-01])",  ### the signal function goes here
 #     "CBExGaussShape::signalResPass(mass, meanP[90.], sigmaP[1, 0., 3.],alphaP[3.8296e-04], nP[6.7489e+00], sigmaP_2[2.5849e+00], fracP[6.5704e-01,0,1])",  ### signal resolution for "pass" sample
@@ -139,22 +180,52 @@ process.ElecReco= cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     ),
 
     Efficiencies = cms.PSet(
-        #the name of the parameter set becomes the name of the directory
-    MuId = cms.PSet(
+
+    ElecIdGsf_Pt = cms.PSet(
          EfficiencyCategoryAndState = cms.vstring("ElecIdGsfPass","pass"),
          UnbinnedVariables = cms.vstring("RecoGsfElecInvariantMass"),
          BinnedVariables = cms.PSet(
+                   ElecIdGsfProbePt = cms.vdouble(10, 15, 20, 30., 50,200)
+         ),
+         BinToPDFmap = cms.vstring("gaussPlusCubic")
+        ),
+    ElecIdGsf = cms.PSet(
+         EfficiencyCategoryAndState = cms.vstring("ElecIdGsfPass","pass"),
+        UnbinnedVariables = cms.vstring("RecoGsfElecInvariantMass"),
+        BinnedVariables = cms.PSet(
                    HT = cms.vdouble(500, 800, 1500 ),
     		   NJets = cms.vdouble( 3,5,20 ),
          ),
-         BinToPDFmap = cms.vstring("gaussPlusLinear")
+         BinToPDFmap = cms.vstring("gaussPlusCubic")
+        ),
+    ElecIdGsf_deltaR = cms.PSet(
+         EfficiencyCategoryAndState = cms.vstring("ElecIdGsfPass","pass"),
+         UnbinnedVariables = cms.vstring("RecoGsfElecInvariantMass"),
+         BinnedVariables = cms.PSet(
+                   ElecIdGsfDeltaR30GeVJet = cms.vdouble(0.01, 0.5, 1.0, 3.),
+    		   ElecIdGsfProbePt = cms.vdouble(10, 40, 200),
+		   
+         ),
+         BinToPDFmap = cms.vstring("gaussPlusCubic")
+        ),
+
+    
+    ElecIdGsf_deltaR_RelPt = cms.PSet(
+         EfficiencyCategoryAndState = cms.vstring("ElecIdGsfPass","pass"),
+         UnbinnedVariables = cms.vstring("RecoGsfElecInvariantMass"),
+         BinnedVariables = cms.PSet(
+                   ElecIdGsfDeltaR30GeVJet = cms.vdouble(0.01, 0.5, 1.0, 3.),
+    		   ElecIdGsfRelPT30GeVJet = cms.vdouble(0.01, 0.5, 1, 1.5, 2, 2.5, 5),
+		   
+         ),
+         BinToPDFmap = cms.vstring("gaussPlusCubic")
         ),
     )
 
 
-
-
 )
+
+
 
 
 

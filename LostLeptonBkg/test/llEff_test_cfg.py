@@ -1,6 +1,7 @@
-# $Id: llEff_test_cfg.py,v 1.2 2012/11/06 10:45:25 adraeger Exp $
+# $Id: llEff_test_cfg.py,v 1.3 2013/02/15 08:51:52 adraeger Exp $
 
-# cmsRun ../test/llEff_test_cfg.py dataset=/store/user/adraeger/TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1_V2//9a64257873f37bce72f62fbdaab014a9/RA2Skim_100_1_DnI.root, global_tag=START53_V7F::All
+# cmsRun ../test/llEff_test_cfg.py dataset=/store/user/mschrode/WJetsToLNu_HT-400ToInf_8TeV-madgraph_v2/RA2PreSelection_Summer12_DR53X-PU_S10_START53_V7A-v1_V4/6c50609e978ba7d5388d5439fc628605/RA2Skim_104_1_HGc.root, global_tag=START53_V7F::All, MC=True
+
 
 
 # Read parameters
@@ -9,11 +10,16 @@ parameters = CommandLineParams()
 
 dataSetName = parameters.value("dataset","")
 global_tag = parameters.value("global_tag","")
-
+MC= parameters.value("MC", False)
+RecoLeptonStudy = parameters.value("RecoLeptonStudy",False)
+Debug = parameters.value("Debug",False)
 #global_tag="START53_V7F::All"
 print "***** SETUP ************************************"
 print "  dataSetName : "+dataSetName
 print "  global_tag : "+global_tag
+print "  runningOnMC : "+str(MC)
+print "  RecoLeptonStudy : "+str(RecoLeptonStudy)
+print "  Debug : "+str(Debug)
 print "************************************************"
 
 
@@ -30,6 +36,9 @@ makeTreeFromPAT(process,
                 HTMin=00.,
                 MHTMin=00.,
                 reportEveryEvt=5000,
-                testFileName=dataSetName,
 		Global_Tag=global_tag,
-                numProcessedEvt=-1)
+		MC=MC,
+		RecoLeptonStudyBool=RecoLeptonStudy,
+		DebugBool=Debug,
+                testFileName=dataSetName,
+)

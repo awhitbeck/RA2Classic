@@ -1,4 +1,4 @@
-# $Id: makeTreeFromPAT_cff.py,v 1.2 2012/11/01 12:17:43 adraeger Exp $
+# $Id: makeTreeFromPAT_cff.py,v 1.3 2012/11/06 10:45:24 adraeger Exp $
 #
 
 import FWCore.ParameterSet.Config as cms

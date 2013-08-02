@@ -22,6 +22,8 @@ MCEffCalculator = cms.EDAnalyzer(
 	      HTTag	   = cms.InputTag('htInputCol'),
  	      MHTTag	   = cms.InputTag('mhtInputCol'),
 	      VertexCollection  = cms.InputTag('goodVertices'),
+	      UseZResonanze = cms.bool(False),
+	      debug = cms.bool(False),
 
 
 	)

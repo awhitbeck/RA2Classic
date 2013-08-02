@@ -39,7 +39,7 @@ void MCEff_merging()
 
  // Open the input files
 
-  TFile* fInput = TFile::Open("LostLeptonEffFromMC.root");
+  TFile* fInput = TFile::Open("mc.root");
   TDirectory *dInput = (TDirectory*)fInput->Get("LostLeptonBkgMCEffCalculator");
 
  // second input file for uncertainty tag and probe efficiencies

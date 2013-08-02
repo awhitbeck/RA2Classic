@@ -12,6 +12,9 @@ def makeTreeFromPAT(process,
                     MHTMin=200.,
                     reportEveryEvt=10,
 		    Global_Tag="",
+		    MCTAP=True,
+		    Muon=False,
+		    muonTrigger="",
                     testFileName=["/store/user/kheine/HT/RA2PreSelectionOnData_Run2012A_HT_PromptReco-v1_v5/71cce229addb17644d40a607fa20b5d7/RA2SkimsOnData_99_3_TPC.root"],
                     numProcessedEvt=1000):
     
@@ -168,20 +171,30 @@ def makeTreeFromPAT(process,
 ##     FilterNames.append(cms.InputTag("hcalLaserEventFilter"))
 ##     FilterNames.append(cms.InputTag("eeBadScFilter"))
 
+    process.load('Configuration.EventContent.EventContent_cff')
+    process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+    process.load('Configuration.StandardSequences.Reconstruction_cff')
+    process.load('Configuration.StandardSequences.EndOfProcess_cff')
+    process.load('Configuration.StandardSequences.GeometryDB_cff')
+    process.load('Configuration.StandardSequences.Services_cff')
+
+    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 
-    from RA2Classic.TreeMaker.treemaker_cfi import TreeMaker
-    process.RA2TreeMaker = TreeMaker.clone(
-        TreeName          = cms.string("RA2PreSelection"),
-        VertexCollection  = cms.InputTag('goodVertices'),
-        HT                = cms.InputTag(htInputCol),
-        HTJets            = cms.InputTag('HTJets'),
-        MHT               = cms.InputTag(mhtInputCol),
-        MHTJets           = cms.InputTag('MHTJets'),
-        VarsDouble        = cms.VInputTag(cms.InputTag('WeightProducer:weight'),cms.InputTag('LostLeptonBkgProducer:LostLeptonWeight'),cms.InputTag('LostLeptonBkgProducer:Met'),cms.InputTag('LostLeptonBkgProducer:nMu'),cms.InputTag('LostLeptonBkgProducer:MuPt'),cms.InputTag('LostLeptonBkgProducer:MuEta'),cms.InputTag('LostLeptonBkgProducer:MuPhi' ),cms.InputTag('LostLeptonBkgProducer:deltaRMuJet'),cms.InputTag('LostLeptonBkgProducer:deltaRMuMHT' ),cms.InputTag('LostLeptonBkgProducer:deltaPtMuJet') ),
-        VarsDoubleNamesInTree = cms.vstring('Weight','LostLeptonWeight','Met','numberOfMuons','MuPT','MuEta','MuPhi','DeltaRMuJet','DeltaRMuMHT','DeltaPtMuJet'), 
-        Filters           = FilterNames
-        )
+
+
+
+    process.load("MuonAnalysis.MuonAssociators.patMuonsWithTrigger_cff")
+    from MuonAnalysis.MuonAssociators.patMuonsWithTrigger_cff import useExistingPATMuons
+    useExistingPATMuons(process, "patMuons")
+
+#    process.load("MuonAnalysis.MuonAssociators.patMuonsWithTrigger_cff")
+
+    triggerProcessName = "HLT"
+    triggerPathSelector = "HLT_Ele27_WP80_v*"
+    matchedCutsString=' path( "'+triggerPathSelector+'",1,0 )'
+
+
 	
 	
 	
@@ -210,18 +223,26 @@ def makeTreeFromPAT(process,
     process.tapTreeMuId = tapTreeProducer.clone(
 	HTTag	   = cms.InputTag(htInputCol),
  	MHTTag	   = cms.InputTag(mhtInputCol),
+	MC	   = cms.bool(MCTAP),
+	Muon	   = True,
+	MuonTrigger     =cms.string(muonTrigger),
+	
     )
     process.tapTreeMuIso = process.tapTreeMuId.clone(
-       MuElecIdIso    = cms.uint32(1)
+       MuElecIdIso    = cms.uint32(1),
+       Muon	      = True
     )
     process.tapTreeElecId = process.tapTreeMuId.clone(
-       MuElecIdIso    = cms.uint32(2)
+       MuElecIdIso    = cms.uint32(2),
+       Muon	      = False
     )
     process.tapTreeElecIso = process.tapTreeMuId.clone(
-       MuElecIdIso    = cms.uint32(3)
+       MuElecIdIso    = cms.uint32(3),
+       Muon	      = False
     )
     process.tapTreeElecIdGsf = process.tapTreeMuId.clone(
-       MuElecIdIso    = cms.uint32(4)
+       MuElecIdIso    = cms.uint32(4),
+       Muon	      = False
     )
     
 
@@ -248,6 +269,22 @@ def makeTreeFromPAT(process,
 
 
 
+    process.tapProducer = cms.Sequence ()
+    if Muon :
+	    process.tapProducer+=process.patMuonsWithTriggerSequence
+	    process.tapProducer+=process.tapTreeMuId
+	    process.tapProducer+=process.tapTreeMuIso
+    else :
+	    process.tapProducer+=process.patMuonsWithTriggerSequence
+	    process.tapProducer+=process.tapTreeElecIdGsf
+	    process.tapProducer+=process.tapTreeElecIso
+    if MCTAP  :
+	    process.tapProducer+=process.tapTreeMuId
+	    process.tapProducer+=process.tapTreeMuIso
+	    process.tapProducer+=process.tapTreeElecIdGsf
+	    process.tapProducer+=process.tapTreeElecIso
+
+
     ## --- Final paths ----------------------------------------------------
 
     process.dump = cms.EDAnalyzer("EventContentAnalyzer")
@@ -268,12 +305,9 @@ def makeTreeFromPAT(process,
 #	process.promtLeptons *
 	process.RA2Selector *
 #	process.ak5CaloJetsL2L3 *
+    	process.tapProducer 
 #	process.dump *
-	process.tapTreeMuId *
-	process.tapTreeMuIso *
-	process.tapTreeElecId *
-	process.tapTreeElecIdGsf *
-	process.tapTreeElecIso
+#	process.patMuonsWithTriggerSequence *
 #	process.LostLeptonBkgMCEffCalculator *
 #	process.LostLeptonBkgProducer
 #	process.RA2TreeMaker 

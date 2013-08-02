@@ -687,10 +687,10 @@ void
 MCEffCalculator::beginJob()
 {
 	if (Z_) if(debug_)	std::cout<<"Z resonanze is being anaylsed!!!!!!!!!!!"<<std::endl<<std::endl<<std::endl;
-	double deltaRbinsIdMu []={0, 0.5,1, 3};
-	double deltaRbinsIsoMu []={0, 0.5,1, 3};
-	int DeltaRbinsIdMu = 3;
-	int DeltaRbinsIsoMu = 3;
+	double deltaRbinsIdMu []={0, 0.35, 0.5,1, 3};
+	double deltaRbinsIsoMu []={0, 0.35, 0.5,1, 3};
+	int DeltaRbinsIdMu = 4;
+	int DeltaRbinsIsoMu = 4;
 	double deltaRbinsIdElec []={0, 0.5, 1, 3};
 	double deltaRbinsIsoElec []={0, 0.5, 1, 3};
 	int DeltaRbinsIdElec = 3;

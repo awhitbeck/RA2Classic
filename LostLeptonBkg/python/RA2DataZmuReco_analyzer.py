@@ -11,13 +11,10 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 #### constants  data
 
-#InputFileName = "/scratch/hh/dust/naf/cms/user/draeger/2013/tap_noTriggerMatch_dataAv1_Cv2.root"
-#InputFileName = "/scratch/hh/dust/naf/cms/user/draeger/2013/tap_noTriggerMatching_mc.root"
-#InputFileName = "/afs/cern.ch/work/a/adraeger/results/Z-MC.root"
-InputFileName = "/scratch/hh/dust/naf/cms/user/draeger/results/Z-DataMu.root"
-#InputFileName ="/scratch/hh/current/cms/user/draeger/crab2013/grid/newRA2ISOIDIncluded/mc.root"
-#InputFileName = "test.root"
-#InputFileName = "/scratch/hh/dust/naf/cms/user/draeger/2013/tap_noTriggerMatching_mc.root"
+
+#InputFileName = "/scratch/hh/dust/naf/cms/user/draeger/results/Z-DataMu.root"
+InputFileName = "/scratch/adraeger/Z-DataMu.root"
+
 OutputFilePrefix = "efficiency-data-"
 
 HLTDef = "probe_passingHLT"
@@ -28,8 +25,13 @@ isMC = True
 
 #specifies the binning of parameters
 EfficiencyBins = cms.PSet(
-    HT = cms.vdouble(400, 500,1500 ),
-    NJets = cms.vdouble( 3,5,20 )
+    HT = cms.vdouble(500,700,1500 ),
+    NJets = cms.vdouble( 3,5,20 ),
+    MuIdDeltaR30GeVJet = cms.vdouble(0.01, 0.5, 1.0, 3.),
+    MuIdProbePt = cms.vdouble(10, 40, 200),
+    MuIdRelPT30GeVJet = cms.vdouble(0.01, 0.5, 1, 1.5, 2, 2.5, 5),
+#    MuIdProbeEta = cms.vdouble(-2.4,-2.1,-1.6,-1.2,-0.9,-0.6,-0.3,-0.2,0.2,0.3,0.6,0.9,1.2,1.6,2.1,2.4),
+    MuIdProbeEta = cms.vdouble(-2.1 ,-1.8 ,-1.4 ,-1.0 ,-.8 ,-0.6 ,-0.4 ,-0.2 ,0.2 ,0.4 ,0.6 ,0.8 ,1.0 ,1.4 ,1.8 ,2.1),
 )
 ## for super clusters
 
@@ -71,6 +73,10 @@ process.MuReco= cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
         RecoMuInvariantMass = cms.vstring("Tag-Probe Mass", "60.0", "120.0", "GeV/c^{2}"),
         HT = cms.vstring("H_{T}", "500","2000", "GeV/c"),
         NJets = cms.vstring("NJets", "3", "15", ""),
+	MuIdDeltaR30GeVJet = cms.vstring("DeltaR30GevJet","0.01","3",""),
+	MuIdProbePt = cms.vstring("#mu p_{T}","5","200",""),
+	MuIdRelPT30GeVJet = cms.vstring("#mu p_{T}/ jet p_{T}","0.1","5",""),
+	MuIdProbeEta = cms.vstring("#mu #eta","-2.4","2.4",""),
     ),    
 		    
 		      
@@ -118,7 +124,16 @@ process.MuReco= cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
             "RooCMSShape::backgroundFail(RecoMuInvariantMass, alphaFail[60.,30.,90.], betaFail[0.001, 0.,0.1], betaFail, peakFail[90.0])",
             "efficiency[0.95,0,1]",
             "signalFractionInPassing[0.95]"
-	),
+        ),
+	gaussPlusCubic = cms.vstring(
+             "Voigtian::signal(RecoMuInvariantMass, mean[91.2, 84.0, 98.0], width[2.4, 0.5, 5.0], sigma[5., 1., 12.0])",
+             "Chebychev::backgroundPass(RecoMuInvariantMass, {cPass1[0,-2,2], cPass2[0,-2,2],cPass3[0,-2,2]})",				 
+             "Chebychev::backgroundFail(RecoMuInvariantMass, {cFail1[0,-2,2], cFail2[0,-2,2],cFail3[0,-2,2]})",	
+#             "Chebychev::backgroundPass(RecoMuInvariantMass, {cPass1[0,-2,2], cPass2[0,-2,2],cPass3[0,-2,2],cPass4[0,-2,2]})",				 
+#             "Chebychev::backgroundFail(RecoMuInvariantMass, {cFail1[0,-2,2], cFail2[0,-2,2],cFail3[0,-2,2],cFail4[0,2,2]})",	
+             "efficiency[0.95,0,1]", 
+             "signalFractionInPassing[0.95]"				 
+		),
 #        pdfSignalPlusBackground = cms.vstring(
 ##     "CBExGaussShape::signalRes(mass, mean[2.0946e-01], sigma[8.5695e-04],alpha[3.8296e-04], n[6.7489e+00], sigma_2[2.5849e+00], frac[6.5704e-01])",  ### the signal function goes here
 #     "CBExGaussShape::signalResPass(mass, meanP[90.], sigmaP[1, 0., 3.],alphaP[3.8296e-04], nP[6.7489e+00], sigmaP_2[2.5849e+00], fracP[6.5704e-01,0,1])",  ### signal resolution for "pass" sample
@@ -140,17 +155,61 @@ process.MuReco= cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
 
     Efficiencies = cms.PSet(
         #the name of the parameter set becomes the name of the directory
-    MuId = cms.PSet(
+    MuId_Eta = cms.PSet(
          EfficiencyCategoryAndState = cms.vstring("MuIdPass","pass"),
          UnbinnedVariables = cms.vstring("RecoMuInvariantMass"),
          BinnedVariables = cms.PSet(
-                   HT = cms.vdouble(400, 500,1500 ),
-    		   NJets = cms.vdouble( 3,5,20 ),
+		   MuIdProbePt = cms.vdouble(20,500),
+ #                  MuIdProbeEta = cms.vdouble(-2.4,-2.1,-1.6,-1.2,-0.9,-0.6,-0.3,-0.2,0.2,0.3,0.6,0.9,1.2,1.6,2.1,2.4)
+                   MuIdProbeEta = cms.vdouble(-2.1 ,-1.8 ,-1.4 ,-1.0 ,-.8 ,-0.6 ,-0.4 ,-0.2 ,0.2 ,0.4 ,0.6 ,0.8 ,1.0 ,1.4 ,1.8 ,2.1),
+		   
          ),
-         BinToPDFmap = cms.vstring("gaussPlusLinear")
+         BinToPDFmap = cms.vstring("gaussPlusCubic")
         ),
-    )
+#    MuId = cms.PSet(
+#         EfficiencyCategoryAndState = cms.vstring("MuIdPass","pass"),
+#         UnbinnedVariables = cms.vstring("RecoMuInvariantMass"),
+#         BinnedVariables = cms.PSet(
+#                   HT = cms.vdouble(500,700,1500 ),
+#    		   NJets = cms.vdouble( 3,5,20 ),
+#		   
+#         ),
+#         BinToPDFmap = cms.vstring("gaussPlusCubic")
+#        ),
+#    MuId_deltaR = cms.PSet(
+#         EfficiencyCategoryAndState = cms.vstring("MuIdPass","pass"),
+#         UnbinnedVariables = cms.vstring("RecoMuInvariantMass"),
+#         BinnedVariables = cms.PSet(
+#                   MuIdDeltaR30GeVJet = cms.vdouble(0.01, 0.5, 1.0, 3.),
+#    		   MuIdProbePt = cms.vdouble(10, 40, 200),
+#		   
+#         ),
+#         BinToPDFmap = cms.vstring("gaussPlusCubic")
+#        ),
+#
+#    
+#    MuId_deltaR_RelPt = cms.PSet(
+#         EfficiencyCategoryAndState = cms.vstring("MuIdPass","pass"),
+#         UnbinnedVariables = cms.vstring("RecoMuInvariantMass"),
+#         BinnedVariables = cms.PSet(
+#                   MuIdDeltaR30GeVJet = cms.vdouble(0.01, 0.5, 1.0, 3.),
+#    		   MuIdRelPT30GeVJet = cms.vdouble(0.01, 0.5, 1, 1.5, 2, 2.5, 5),
+#		   
+#         ),
+#         BinToPDFmap = cms.vstring("gaussPlusCubic")
+#        ),
+#    MuId_Pt = cms.PSet(
+#         EfficiencyCategoryAndState = cms.vstring("MuIdPass","pass"),
+#         UnbinnedVariables = cms.vstring("RecoMuInvariantMass"),
+#         BinnedVariables = cms.PSet(
+#                   MuIdProbePt = cms.vdouble(10, 15, 20, 30., 50,200)
+#		   
+#         ),
+#         BinToPDFmap = cms.vstring("gaussPlusCubic")
+#        ),
 
+
+    )
 
 
 
